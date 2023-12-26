@@ -279,7 +279,7 @@ jobs:
           cd ${{ github.workspace }}/libbridge/build/
           mv libwallet2_api_c.so android_arm64-v8a_libwallet2_api_c.so
       - name: Create release
-        uses: akkuman/github-release-action@v1
+        uses: https://gitea.com/akkuman/gitea-release-action@v1
         with:
           body: |
             This is a **preview** release to be used by testers.
