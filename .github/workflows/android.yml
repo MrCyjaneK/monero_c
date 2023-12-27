@@ -16,7 +16,7 @@ env:
   NPROC: 2
   CLEAN_PATH: /usr/cmake-3.14.6-Linux-x86_64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-  PATH: /usr/cmake-3.14.6-Linux-x86_64/bin:/opt/android/toolchain/aarch64-linux-android/bin:/opt/android/toolchain/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  PATH: /usr/cmake-3.14.6-Linux-x86_64/bin:/opt/android/toolchain/${{ matrix.host_triplet }}/bin:/opt/android/toolchain/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   # CMake
   CMAKE_VERSION: '3.14.6'
   CMAKE_HASH: '82e08e50ba921035efa82b859c74c5fbe27d3e49a4003020e3c77618a4e912cd'
@@ -34,7 +34,7 @@ env:
   OPENSSL_VERSION: '3.0.5'
   OPENSSL_HASH: 'aa7d8d9bef71ad6525c55ba11e5f4397889ce49c2c9349dcea6d3e4f0b024a7a'
   # ZMQ
-  # NOTE: aarch64-linux-android-clang instead of clang
+  # NOTE: ${{ matrix.host_triplet }}-clang instead of clang
   # has to be used - because ./configure fails to detect the compiler.
   ZMQ_VERSION: 'v4.3.2'
   ZMQ_HASH: 'a84ffa12b2eb3569ced199660bac5ad128bff1f0'
@@ -65,9 +65,19 @@ jobs:
             full_arch: arm64-v8a
             monero_arch: armv8-a
             monero_buildtag: android-armv8
+            monero_build64: 'ON'
+            monero_cmake_arm_mode: 'OFF'
+            host_triplet: aarch64-linux-android
+          - short_arch: arm
+            full_arch: armeabi-v7a
+            monero_arch: armv7-a
+            monero_buildtag: android-armv7
+            monero_build64: 'OFF'
+            monero_cmake_arm_mode: 'ON'
+            host_triplet: arm-linux-androideabi
     runs-on: androidndk-r17c
     steps:
-      - name: Checkout repository code
+      - name: Checkout repository code ${{ matrix.full_arch }}
         uses: actions/checkout@v3
       - name: Download monero
         run: |
@@ -165,7 +175,7 @@ jobs:
         run: |
           cd ${{ github.workspace }} \
           && cd libiconv-${ICONV_VERSION} \
-          && CC=clang CXX=clang++ ./configure --build=x86_64-linux-gnu --host=aarch64-linux-android --prefix=${PREFIX} --disable-rpath \
+          && CC=clang CXX=clang++ ./configure --build=x86_64-linux-gnu --host=${{ matrix.host_triplet }} --prefix=${PREFIX} --disable-rpath \
           && make -j${NPROC} \
           && make install
       - name: Build boost (2/2)
@@ -197,7 +207,7 @@ jobs:
           cd ${{ github.workspace }} \
           && cd libzmq \
           && ./autogen.sh \
-          && CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=aarch64-linux-android --enable-static --disable-shared \
+          && CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=${{ matrix.host_triplet }} --enable-static --disable-shared \
           && make -j${NPROC} \
           && make install
       - name: Build Sodium
@@ -205,7 +215,7 @@ jobs:
           cd ${{ github.workspace }} \
           && cd libsodium \
           && ./autogen.sh \
-          && CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=aarch64-linux-android --enable-static --disable-shared \
+          && CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=${{ matrix.host_triplet }} --enable-static --disable-shared \
           && make -j${NPROC} \
           && make install
       - name: Build libexpat
@@ -213,14 +223,14 @@ jobs:
           cd ${{ github.workspace }} \
           && cd libexpat/expat \
           && ./buildconf.sh \
-          && CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=aarch64-linux-android --enable-static --disable-shared \
+          && CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=${{ matrix.host_triplet }} --enable-static --disable-shared \
           && make -j${NPROC} \
           && make install
       - name: Build libunbound
         run: |
           cd ${{ github.workspace }} \
           && cd unbound \
-          && CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=aarch64-linux-android --enable-static --disable-shared --disable-flto --with-ssl=${PREFIX} --with-libexpat=${PREFIX} \
+          && CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=${{ matrix.host_triplet }} --enable-static --disable-shared --disable-flto --with-ssl=${PREFIX} --with-libexpat=${PREFIX} \
           && make -j${NPROC} \
           && make install
       - name: Build polyseed
@@ -251,7 +261,7 @@ jobs:
           PATH=${CLEAN_PATH} \
           && mkdir -p build/release \
           && cd build/release \
-          && CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64=ON -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARCH_ABI=${{ matrix.full_arch }}" ../..
+          && CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64=${{ matrix.monero_build64 }} -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARM_MODE=${{ matrix.monero_cmake_arm_mode }} -D CMAKE_ANDROID_ARCH_ABI=${{ matrix.full_arch }}" ../..
       - name: Build monero (2/2) build
         run: |
           cd ${{ github.workspace }} \
