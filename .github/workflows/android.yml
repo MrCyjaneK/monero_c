@@ -75,9 +75,23 @@ jobs:
             monero_build64: 'OFF'
             monero_cmake_arm_mode: 'ON'
             host_triplet: arm-linux-androideabi
+          - short_arch: x86_64
+            full_arch: x86_64
+            monero_arch: x86-64
+            monero_buildtag: android-x86_64
+            monero_build64: 'ON'
+            monero_cmake_arm_mode: 'OFF'
+            host_triplet: x86_64-linux-android
+          - short_arch: x86
+            full_arch: x86
+            monero_arch: i686
+            monero_buildtag: android-x86
+            monero_build64: 'OFF'
+            monero_cmake_arm_mode: 'OFF'
+            host_triplet: i686-linux-android
     runs-on: androidndk-r17c
     steps:
-      - name: Checkout repository code ${{ matrix.full_arch }}
+      - name: Checkout repository code
         uses: actions/checkout@v3
       - name: Download monero
         run: |
@@ -262,7 +276,11 @@ jobs:
           PATH=${CLEAN_PATH} \
           && mkdir -p build/release \
           && cd build/release \
-          && CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64="${{ matrix.monero_build64 }}" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARM_MODE="${{ matrix.monero_cmake_arm_mode }}" -D CMAKE_ANDROID_ARCH_ABI="${{ matrix.full_arch }}" ../..
+          && if [[ "x${{ matrix.monero_cmake_arm_mode }}" == "xON" ]]; then \
+            CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64="${{ matrix.monero_build64 }}" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARM_MODE="ON" -D CMAKE_ANDROID_ARCH_ABI="${{ matrix.full_arch }}" ../.. ; \
+          else
+            CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64="${{ matrix.monero_build64 }}" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}"                                -D CMAKE_ANDROID_ARCH_ABI="${{ matrix.full_arch }}" ../.. ; \
+          fi
       - name: Build monero (2/2) build
         run: |
           cd ${{ github.workspace }} \
