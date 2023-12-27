@@ -173,7 +173,7 @@ set_target_properties(rpc_base PROPERTIES IMPORTED_LOCATION
 # TODO(mrcyjanek): fix (x86_64 maybe?)
 add_library(wallet-crypto STATIC IMPORTED)
 set_target_properties(wallet-crypto PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/monero/libwallet-crypto.a)
+        ${EXTERNAL_LIBS_DIR}/monero/build/release/src/crypto/wallet/libwallet-crypto.a)
 
 add_library(cryptonote_format_utils_basic STATIC IMPORTED)
 set_target_properties(cryptonote_format_utils_basic PROPERTIES IMPORTED_LOCATION

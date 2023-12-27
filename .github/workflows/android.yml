@@ -15,8 +15,8 @@ env:
   TOOLCHAIN_DIR: /opt/android/toolchain
   NPROC: 4
   CLEAN_PATH: /usr/cmake-3.14.6-Linux-x86_64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
   PATH: /usr/cmake-3.14.6-Linux-x86_64/bin:/opt/android/toolchain/${{ matrix.host_triplet }}/bin:/opt/android/toolchain/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
   # CMake
   CMAKE_VERSION: '3.14.6'
   CMAKE_HASH: '82e08e50ba921035efa82b859c74c5fbe27d3e49a4003020e3c77618a4e912cd'
@@ -174,11 +174,8 @@ jobs:
           && git reset --hard ${UTF8PROC_HASH}
       - name: Make standalone toolchain
         run: |
-          ${ANDROID_NDK_ROOT}/build/tools/make_standalone_toolchain.py \
-            --arch ${{ matrix.short_arch }} \
-            --api 21 \
-            --install-dir ${TOOLCHAIN_DIR} \
-            --stl=libc++
+          cd ${{ github.workspace }} \
+          && ${ANDROID_NDK_ROOT}/build/tools/make_standalone_toolchain.py --arch ${{ matrix.short_arch }} --api 21 --install-dir ${TOOLCHAIN_DIR} --stl=libc++
       - name: Build boost (1/2)
         run: |
           cd ${{ github.workspace }} \
@@ -209,12 +206,7 @@ jobs:
           cd ${{ github.workspace }} \
           && cd openssl-${OPENSSL_VERSION} \
           && export PATH=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH \
-          && ./Configure android-${{ matrix.short_arch }} \
-                -D__ANDROID_API__=21 \
-                -static \
-                no-shared no-tests \
-                --with-zlib-include=${WORKDIR}/zlib/include --with-zlib-lib=${WORKDIR}/zlib/lib \
-                --prefix=${PREFIX} --openssldir=${PREFIX} \
+          && ./Configure android-${{ matrix.short_arch }} -D__ANDROID_API__=21 -static no-shared no-tests --with-zlib-include=${WORKDIR}/zlib/include --with-zlib-lib=${WORKDIR}/zlib/lib --prefix=${PREFIX} --openssldir=${PREFIX} \
           && make -j${NPROC} &>/tmp/openssl_log.txt || cat /tmp/openssl_log.txt \
           && make install_sw  &>/tmp/openssl_log_2.txt || cat /tmp/openssl_log_2.txt
       - name: Build ZMQ
@@ -276,26 +268,24 @@ jobs:
           PATH=${CLEAN_PATH} \
           && mkdir -p build/release \
           && cd build/release \
-          && if [[ "x${{ matrix.monero_cmake_arm_mode }}" == "xON" ]]; then \
-            CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64="${{ matrix.monero_build64 }}" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARM_MODE="ON" -D CMAKE_ANDROID_ARCH_ABI="${{ matrix.full_arch }}" ../.. ; \
-          else
-            CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64="${{ matrix.monero_build64 }}" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}"                                -D CMAKE_ANDROID_ARCH_ABI="${{ matrix.full_arch }}" ../.. ; \
-          fi
+          && if [[ "x${{ matrix.monero_cmake_arm_mode }}" == "xON" ]]; then echo xON \
+          && env CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64="${{ matrix.monero_build64 }}" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARM_MODE="ON" -D CMAKE_ANDROID_ARCH_ABI="${{ matrix.full_arch }}" ../.. ; else echo xONelse \
+          && env CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64="${{ matrix.monero_build64 }}" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}"                                -D CMAKE_ANDROID_ARCH_ABI="${{ matrix.full_arch }}" ../.. ; fi
       - name: Build monero (2/2) build
         run: |
           cd ${{ github.workspace }} \
           && cd monero \
           && cd build/release \
           && export CMAKE_INCLUDE_PATH="${PREFIX}/include" \
-          CMAKE_LIBRARY_PATH="${PREFIX}/lib" \
-          ANDROID_STANDALONE_TOOLCHAIN_PATH=${TOOLCHAIN_DIR} \
-          USE_SINGLE_BUILDDIR=1 \
-          PATH=${CLEAN_PATH} \
-          && make wallet_api -j${NPROC}
-        # && ln -s /src/build/release/lib/ /opt/android/monero \
+          && export CMAKE_LIBRARY_PATH="${PREFIX}/lib" \
+          && export ANDROID_STANDALONE_TOOLCHAIN_PATH=${TOOLCHAIN_DIR} \
+          && export USE_SINGLE_BUILDDIR=1 \
+          && export PATH=${CLEAN_PATH} \
+          && make wallet_api -j${NPROC} 
       - name: Copy prefix from $PREFIX to local
         run: |
-          cp -a /opt/android/prefix ${{ github.workspace }}/prefix
+          cd ${{ github.workspace }} \
+          && cp -a /opt/android/prefix ${{ github.workspace }}/prefix
       - name: Build libbridge (1/2) configure
         run: |
           cd ${{ github.workspace }} \
@@ -312,8 +302,12 @@ jobs:
           && make -j${NPROC}
       - name: Rename libwallet2_api_c.so
         run: |
-          cd ${{ github.workspace }}/libbridge/build/
-          mv libwallet2_api_c.so ${{ matrix.host_triplet }}_libwallet2_api_c.so
+          cd ${{ github.workspace }}/libbridge/build/ \
+          && mv libwallet2_api_c.so ${{ matrix.host_triplet }}_libwallet2_api_c.so \
+          && sha256sum ${{ matrix.host_triplet }}_libwallet2_api_c.so > ${{ matrix.host_triplet }}_libwallet2_api_c.so.sha256
+      - name: act - copy workspace to /opt/wspace
+        if: ${{ env.ACT }}
+        run: cp -a ${{ github.workspace }} /opt/wspace
       - name: Create release
         uses: https://gitea.com/akkuman/gitea-release-action@v1
         with:
@@ -323,3 +317,4 @@ jobs:
             Grab corresponding [wallet2_api_c.h](https://git.mrcyjanek.net/mrcyjanek/monero_c/src/commit/${{ github.sha }}/libbridge/src/main/cpp/wallet2_api_c.h) 
           files: |-
             ${{ github.workspace }}/libbridge/build/${{ matrix.host_triplet }}_libwallet2_api_c.so
+            ${{ github.workspace }}/libbridge/build/${{ matrix.host_triplet }}_libwallet2_api_c.so.sha256

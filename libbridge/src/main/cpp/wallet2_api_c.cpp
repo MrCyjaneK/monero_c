@@ -1,22 +1,7 @@
-/**
- * Copyright (c) 2017 m2049r
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #include <inttypes.h>
 #include "wallet2_api_c.h"
 #include "wallet2_api.h"
+#include <unistd.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -40,12 +25,10 @@ extern "C"
 {
 #endif
 
-// void* MONERO_createWalletJ(const char* path, const char* password, const char* language, int networkType);
-void* MONERO_createWalletJ(const char* path, const char* password, const char* language, int networkType) {
+// void* MONERO_WalletManager_createWallet(const char* path, const char* password, const char* language, int networkType)
+void* MONERO_WalletManager_createWallet(const char* path, const char* password, const char* language, int networkType) {
     Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
-
     std::cout << "WE GOT OUT\n";
-
     std::string _path(path);
     std::string _password(password);
     std::string _language(language);
@@ -60,13 +43,24 @@ void* MONERO_createWalletJ(const char* path, const char* password, const char* l
                     _language,
                     _networkType);
 
-    int status;
-    std::string errorString;
-    wallet->statusWithErrorString(status, errorString);
-
-    std::cout << status << " - " << errorString << "\n";
-
     return reinterpret_cast<void*>(wallet);
+}
+
+// virtual Wallet * recoveryWallet(const std::string &path, const std::string &mnemonic, NetworkType nettype, uint64_t restoreHeight = 0) = 0;
+
+const char* MONERO_Wallet_errorString(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->errorString().c_str();
+}
+
+int MONERO_Wallet_status(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->status();
+}
+
+int MONERO_DEBUG_sleep(int time) {
+    sleep(time);
+    return time-1;
 }
 
 #ifdef __cplusplus
