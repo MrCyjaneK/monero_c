@@ -200,8 +200,8 @@ jobs:
                 no-shared no-tests \
                 --with-zlib-include=${WORKDIR}/zlib/include --with-zlib-lib=${WORKDIR}/zlib/lib \
                 --prefix=${PREFIX} --openssldir=${PREFIX} \
-          && make -j${NPROC} \
-          && make install_sw
+          && make -j${NPROC} &>/tmp/openssl_log.txt || cat /tmp/openssl_log.txt \
+          && make install_sw  &>/tmp/openssl_log_2.txt || cat /tmp/openssl_log_2.txt
       - name: Build ZMQ
         run: |
           cd ${{ github.workspace }} \
