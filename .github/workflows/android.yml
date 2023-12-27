@@ -305,9 +305,9 @@ jobs:
           cd ${{ github.workspace }}/libbridge/build/ \
           && mv libwallet2_api_c.so ${{ matrix.host_triplet }}_libwallet2_api_c.so \
           && sha256sum ${{ matrix.host_triplet }}_libwallet2_api_c.so > ${{ matrix.host_triplet }}_libwallet2_api_c.so.sha256
-      - name: act - copy workspace to /opt/wspace
-        if: ${{ env.ACT }}
-        run: cp -a ${{ github.workspace }} /opt/wspace
+      # - name: act - copy workspace to /opt/wspace
+      #   if: ${{ env.ACT }}
+      #   run: cp -a ${{ github.workspace }} /opt/wspace
       - name: Create release
         uses: https://gitea.com/akkuman/gitea-release-action@v1
         with:
