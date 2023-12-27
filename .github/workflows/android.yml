@@ -1,5 +1,5 @@
-name: Android arm64-v8a Release
-run-name: Building Anonero for android arm64-v8a
+name: Android Release
+run-name: Building monero_c for android
 on: 
   push:
     tags:
@@ -57,7 +57,14 @@ env:
 
 
 jobs:
-  build-arm64v8a:
+  build-android:
+    strategy:
+      matrix:
+        include:
+          - short_arch: arm64
+            full_arch: arm64-v8a
+            monero_arch: armv8-a
+            monero_buildtag: android-armv8
     runs-on: androidndk-r17c
     steps:
       - name: Checkout repository code
@@ -144,7 +151,7 @@ jobs:
       - name: Make standalone toolchain
         run: |
           ${ANDROID_NDK_ROOT}/build/tools/make_standalone_toolchain.py \
-            --arch arm64 \
+            --arch ${{ matrix.short_arch }} \
             --api 21 \
             --install-dir ${TOOLCHAIN_DIR} \
             --stl=libc++
@@ -177,7 +184,7 @@ jobs:
           cd ${{ github.workspace }} \
           && cd openssl-${OPENSSL_VERSION} \
           && export PATH=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH \
-          && ./Configure android-arm64 \
+          && ./Configure android-${{ matrix.short_arch }} \
                 -D__ANDROID_API__=21 \
                 -static \
                 no-shared no-tests \
@@ -244,7 +251,7 @@ jobs:
           PATH=${CLEAN_PATH} \
           && mkdir -p build/release \
           && cd build/release \
-          && CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv8-a" -D STATIC=ON -D BUILD_64=ON -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="android-armv8" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARCH_ABI="arm64-v8a" ../..
+          && CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64=ON -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARCH_ABI=${{ matrix.full_arch }}" ../..
       - name: Build monero (2/2) build
         run: |
           cd ${{ github.workspace }} \
@@ -266,7 +273,7 @@ jobs:
           && cd libbridge \
           && mkdir build \
           && cd build \
-          && env CC=clang CXX=clang++ cmake -DANDROID_ABI=arm64-v8a .. \
+          && env CC=clang CXX=clang++ cmake -DANDROID_ABI=${{ matrix.full_arch }} .. \
           && make -j${NPROC}
       - name: Build libbridge (2/2) make
         run: |
@@ -277,7 +284,7 @@ jobs:
       - name: Rename libwallet2_api_c.so
         run: |
           cd ${{ github.workspace }}/libbridge/build/
-          mv libwallet2_api_c.so android_arm64-v8a_libwallet2_api_c.so
+          mv libwallet2_api_c.so android_${{ matrix.full_arch }}_libwallet2_api_c.so
       - name: Create release
         uses: https://gitea.com/akkuman/gitea-release-action@v1
         with:
@@ -286,4 +293,4 @@ jobs:
             It was build from **${{ github.ref }}** commit `${{ github.sha }}`
             Grab corresponding [wallet2_api_c.h](https://git.mrcyjanek.net/mrcyjanek/monero_c/src/commit/${{ github.sha }}/libbridge/src/main/cpp/wallet2_api_c.h) 
           files: |-
-            ${{ github.workspace }}/libbridge/build/android_arm64-v8a_libwallet2_api_c.so
+            ${{ github.workspace }}/libbridge/build/android_${{ matrix.full_arch }}_libwallet2_api_c.so
