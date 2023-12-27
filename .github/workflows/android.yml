@@ -171,6 +171,7 @@ jobs:
           && cd boost_${BOOST_VERSION} \
           && PATH=$CLEAN_PATH ./bootstrap.sh --prefix=${PREFIX}
       # iconv: libtool: warning: remember to run 'libtool --finish /opt/android/prefix/lib'
+      # TODO(mrcyjanek): x86_64-linux-gnu <- get this dynamically.
       - name: Build iconv (for boost)
         run: |
           cd ${{ github.workspace }} \
@@ -261,7 +262,7 @@ jobs:
           PATH=${CLEAN_PATH} \
           && mkdir -p build/release \
           && cd build/release \
-          && CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64=${{ matrix.monero_build64 }} -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARM_MODE=${{ matrix.monero_cmake_arm_mode }} -D CMAKE_ANDROID_ARCH_ABI=${{ matrix.full_arch }}" ../..
+          && CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64="${{ matrix.monero_build64 }}" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARM_MODE="${{ matrix.monero_cmake_arm_mode }}"" -D CMAKE_ANDROID_ARCH_ABI="${{ matrix.full_arch }}" ../..
       - name: Build monero (2/2) build
         run: |
           cd ${{ github.workspace }} \
@@ -294,7 +295,7 @@ jobs:
       - name: Rename libwallet2_api_c.so
         run: |
           cd ${{ github.workspace }}/libbridge/build/
-          mv libwallet2_api_c.so android_${{ matrix.full_arch }}_libwallet2_api_c.so
+          mv libwallet2_api_c.so ${{ matrix.host_triplet }}_libwallet2_api_c.so
       - name: Create release
         uses: https://gitea.com/akkuman/gitea-release-action@v1
         with:
@@ -303,4 +304,4 @@ jobs:
             It was build from **${{ github.ref }}** commit `${{ github.sha }}`
             Grab corresponding [wallet2_api_c.h](https://git.mrcyjanek.net/mrcyjanek/monero_c/src/commit/${{ github.sha }}/libbridge/src/main/cpp/wallet2_api_c.h) 
           files: |-
-            ${{ github.workspace }}/libbridge/build/android_${{ matrix.full_arch }}_libwallet2_api_c.so
+            ${{ github.workspace }}/libbridge/build/${{ matrix.host_triplet }}_libwallet2_api_c.so
