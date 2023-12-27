@@ -13,7 +13,7 @@ env:
   ANDROID_NDK_ROOT: /opt/android/android-ndk-r17c
   PREFIX: /opt/android/prefix
   TOOLCHAIN_DIR: /opt/android/toolchain
-  NPROC: 2
+  NPROC: 4
   CLEAN_PATH: /usr/cmake-3.14.6-Linux-x86_64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
   PATH: /usr/cmake-3.14.6-Linux-x86_64/bin:/opt/android/toolchain/${{ matrix.host_triplet }}/bin:/opt/android/toolchain/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
