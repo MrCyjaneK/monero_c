@@ -313,8 +313,8 @@ jobs:
         with:
           body: |
             This is a **preview** release to be used by testers.
-            It was build from **${{ github.ref }}** commit `${{ github.sha }}`
-            Grab corresponding [wallet2_api_c.h](https://git.mrcyjanek.net/mrcyjanek/monero_c/src/commit/${{ github.sha }}/libbridge/src/main/cpp/wallet2_api_c.h) 
+            It was built from **${{ github.ref }}** commit `${{ github.sha }}`
+            Grab corresponding [wallet2_api_c.h](https://git.mrcyjanek.net/mrcyjanek/monero_c/src/commit/${{ github.sha }}/libbridge/src/main/cpp/wallet2_api_c.h)
           files: |-
             ${{ github.workspace }}/libbridge/build/${{ matrix.host_triplet }}_libwallet2_api_c.so
             ${{ github.workspace }}/libbridge/build/${{ matrix.host_triplet }}_libwallet2_api_c.so.sha256

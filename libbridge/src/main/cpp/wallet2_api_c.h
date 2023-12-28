@@ -6,6 +6,8 @@
 #define  LOGW(...)  __android_log_print(ANDROID_LOG_WARN,LOG_TAG,__VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 */
+#include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -356,7 +358,7 @@ const char* MONERO_Wallet_publicSpendKey(void* wallet_ptr);
 //     virtual void stop() = 0;
 void MONERO_Wallet_stop(void* wallet_ptr);
 //     virtual bool store(const std::string &path) = 0;
-void MONERO_Wallet_store(void* wallet_ptr, const char* path);
+bool MONERO_Wallet_store(void* wallet_ptr, const char* path);
 //     virtual std::string filename() const = 0;
 //     virtual std::string keysFilename() const = 0;
 //     virtual bool init(const std::string &daemon_address, uint64_t upper_transaction_size_limit = 0, const std::string &daemon_username = "", const std::string &daemon_password = "", bool use_ssl = false, bool lightWallet = false, const std::string &proxy_address = "") = 0;
@@ -372,7 +374,7 @@ void MONERO_Wallet_store(void* wallet_ptr, const char* path);
 //     virtual bool trustedDaemon() const = 0;
 //     virtual bool setProxy(const std::string &address) = 0;
 //     virtual uint64_t balance(uint32_t accountIndex = 0) const = 0;
-uint64_t MONERO_Wallet_balance(void* wallet_ptr, uint32_t accountIndex = 0);
+uint64_t MONERO_Wallet_balance(void* wallet_ptr, uint32_t accountIndex);
 //     uint64_t balanceAll() const {
 //         uint64_t result = 0;
 //         for (uint32_t i = 0; i < numSubaddressAccounts(); ++i)
@@ -380,7 +382,7 @@ uint64_t MONERO_Wallet_balance(void* wallet_ptr, uint32_t accountIndex = 0);
 //         return result;
 //     }
 //     virtual uint64_t unlockedBalance(uint32_t accountIndex = 0) const = 0;
-uint64_t MONERO_Wallet_unlockedBalance(void* wallet_ptr, uint32_t accountIndex = 0);
+uint64_t MONERO_Wallet_unlockedBalance(void* wallet_ptr, uint32_t accountIndex);
 //     uint64_t unlockedBalanceAll() const {
 //         uint64_t result = 0;
 //         for (uint32_t i = 0; i < numSubaddressAccounts(); ++i)
@@ -632,12 +634,7 @@ bool MONERO_WalletManager_closeWallet(void* wallet_ptr, bool store);
 //     static void setLogLevel(int level);
 //     static void setLogCategories(const std::string &categories);
 // };
-
 // }
-
-
-
-
 
 int MONERO_DEBUG_theAnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything(int x);
 
