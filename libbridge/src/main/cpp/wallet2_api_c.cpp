@@ -70,9 +70,9 @@ void MONERO_Wallet_stop(void* wallet_ptr) {
     wallet->stop();
 }
 
-void MONERO_Wallet_store(void* wallet_ptr, const char* path) {
+bool MONERO_Wallet_store(void* wallet_ptr, const char* path) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    wallet->store(std::string(path));
+    return wallet->store(std::string(path));
 }
 
 uint64_t MONERO_Wallet_balance(void* wallet_ptr, uint32_t accountIndex) {
