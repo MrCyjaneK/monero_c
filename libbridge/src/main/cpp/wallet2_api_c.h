@@ -662,14 +662,14 @@ void* MONERO_WalletManager_recoveryWallet(const char* path, const char* password
 //     virtual bool closeWallet(Wallet *wallet, bool store = true) = 0;
 bool MONERO_WalletManager_closeWallet(void* wallet_ptr, bool store);
 //     virtual bool walletExists(const std::string &path) = 0;
-bool MONERO_WalletManager_walletExists(void* wallet_ptr, const char* path);
+bool MONERO_WalletManager_walletExists(const char* path);
 //     virtual bool verifyWalletPassword(const std::string &keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const = 0;
 //     virtual bool queryWalletDevice(Wallet::Device& device_type, const std::string &keys_file_name, const std::string &password, uint64_t kdf_rounds = 1) const = 0;
 //     virtual std::vector<std::string> findWallets(const std::string &path) = 0;
 //     virtual std::string errorString() const = 0;
-const char* MONERO_WalletManager_errorString(void* wallet_ptr);
+const char* MONERO_WalletManager_errorString();
 //     virtual void setDaemonAddress(const std::string &address) = 0;
-void MONERO_WalletManager_setDaemonAddress(void* wallet_ptr, const char* address);
+void MONERO_WalletManager_setDaemonAddress(const char* address);
 //     virtual bool connected(uint32_t *version = NULL) = 0;
 //     virtual uint64_t blockchainHeight() = 0;
 //     virtual uint64_t blockchainTargetHeight() = 0;

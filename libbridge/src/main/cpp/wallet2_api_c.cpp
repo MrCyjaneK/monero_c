@@ -391,14 +391,14 @@ bool MONERO_WalletManager_closeWallet(void* wallet_ptr, bool store) {
                     store);
 }
 
-bool MONERO_WalletManager_walletExists(void* wallet_ptr, const char* path) {
+bool MONERO_WalletManager_walletExists(const char* path) {
     return Monero::WalletManagerFactory::getWalletManager()->walletExists(std::string(path));
 }
-const char* MONERO_WalletManager_errorString(void* wallet_ptr) {
+const char* MONERO_WalletManager_errorString() {
     return Monero::WalletManagerFactory::getWalletManager()->errorString().c_str();
 }
 
-void MONERO_WalletManager_setDaemonAddress(void* wallet_ptr, const char* address) {
+void MONERO_WalletManager_setDaemonAddress(const char* address) {
     return Monero::WalletManagerFactory::getWalletManager()->setDaemonAddress(std::string(address));
 }
 
