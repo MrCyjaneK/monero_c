@@ -8,11 +8,14 @@
 */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+int NetworkTypeMAINNET = 0;
 
 // namespace Monero {
 // enum NetworkType : uint8_t {
@@ -53,13 +56,20 @@ extern "C"
 //     };
 //     virtual ~PendingTransaction() = 0;
 //     virtual int status() const = 0;
+int MONERO_PendingTransaction_status(void* pendingTx_ptr);
 //     virtual std::string errorString() const = 0;
+const char* MONERO_PendingTransaction_errorString(void* pendingTx_ptr);
 //     virtual bool commit(const std::string &filename = "", bool overwrite = false) = 0;
+bool MONERO_PendingTransaction_commit(void* pendingTx_ptr, const char* filename, bool overwrite);
 //     virtual uint64_t amount() const = 0;
+uint64_t MONERO_PendingTransaction_amount(void* pendingTx_ptr);
 //     virtual uint64_t dust() const = 0;
+uint64_t MONERO_PendingTransaction_dust(void* pendingTx_ptr);
 //     virtual uint64_t fee() const = 0;
+uint64_t MONERO_PendingTransaction_fee(void* pendingTx_ptr);
 //     virtual std::vector<std::string> txid() const = 0;
 //     virtual uint64_t txCount() const = 0;
+uint64_t MONERO_PendingTransaction_txCount(void* pendingTx_ptr);
 //     virtual std::vector<uint32_t> subaddrAccount() const = 0;
 //     virtual std::vector<std::set<uint32_t>> subaddrIndices() const = 0;
 //     virtual std::string multisigSignData() = 0;
@@ -100,32 +110,51 @@ extern "C"
 //     };
 //     virtual ~TransactionInfo() = 0;
 //     virtual int  direction() const = 0;
+int MONERO_TransactionInfo_direction(void* txInfo_ptr);
 //     virtual bool isPending() const = 0;
+bool MONERO_TransactionInfo_isPending(void* txInfo_ptr);
 //     virtual bool isFailed() const = 0;
+bool MONERO_TransactionInfo_isFailed(void* txInfo_ptr);
 //     virtual bool isCoinbase() const = 0;
+bool MONERO_TransactionInfo_isCoinbase(void* txInfo_ptr);
 //     virtual uint64_t amount() const = 0;
+uint64_t MONERO_TransactionInfo_amount(void* txInfo_ptr);
 //     virtual uint64_t fee() const = 0;
+uint64_t MONERO_TransactionInfo_fee(void* txInfo_ptr);
 //     virtual uint64_t blockHeight() const = 0;
+uint64_t MONERO_TransactionInfo_blockHeight(void* txInfo_ptr);
 //     virtual std::string description() const = 0;
+const char* MONERO_TransactionInfo_description(void* txInfo_ptr);
 //     virtual std::set<uint32_t> subaddrIndex() const = 0;
 //     virtual uint32_t subaddrAccount() const = 0;
+uint32_t MONERO_TransactionInfo_subaddrAccount(void* txInfo_ptr);
 //     virtual std::string label() const = 0;
+const char* MONERO_TransactionInfo_label(void* txInfo_ptr);
 //     virtual uint64_t confirmations() const = 0;
+uint64_t MONERO_TransactionInfo_confirmations(void* txInfo_ptr);
 //     virtual uint64_t unlockTime() const = 0;
+uint64_t MONERO_TransactionInfo_unlockTime(void* txInfo_ptr);
 //     virtual std::string hash() const = 0;
+const char* MONERO_TransactionInfo_hash(void* txInfo_ptr);
 //     virtual std::time_t timestamp() const = 0;
+uint64_t MONERO_TransactionInfo_timestamp(void* txInfo_ptr);
 //     virtual std::string paymentId() const = 0;
+const char* MONERO_TransactionInfo_paymentId(void* txInfo_ptr);
 //     virtual const std::vector<Transfer> & transfers() const = 0;
 // };
 // struct TransactionHistory
 // {
 //     virtual ~TransactionHistory() = 0;
 //     virtual int count() const = 0;
+int MONERO_TransactionHistory_count(void* txHistory_ptr);
 //     virtual TransactionInfo * transaction(int index)  const = 0;
+void* MONERO_TransactionHistory_transaction(void* txHistory_ptr, int index);
 //     virtual TransactionInfo * transaction(const std::string &id) const = 0;
 //     virtual std::vector<TransactionInfo*> getAll() const = 0;
 //     virtual void refresh() = 0;
+void MONERO_TransactionHistory_refresh(void* txHistory_ptr);
 //     virtual void setTxNote(const std::string &txid, const std::string &note) = 0;
+void MONERO_TransactionHistory_setTxNote(void* txHistory_ptr, const char* txid, const char* note);
 // };
 // struct AddressBookRow {
 // public:
@@ -362,6 +391,7 @@ bool MONERO_Wallet_store(void* wallet_ptr, const char* path);
 //     virtual std::string filename() const = 0;
 //     virtual std::string keysFilename() const = 0;
 //     virtual bool init(const std::string &daemon_address, uint64_t upper_transaction_size_limit = 0, const std::string &daemon_username = "", const std::string &daemon_password = "", bool use_ssl = false, bool lightWallet = false, const std::string &proxy_address = "") = 0;
+bool MONERO_Wallet_init(void* wallet_ptr, const char* daemon_address, uint64_t upper_transaction_size_limit, const char* daemon_username, const char* daemon_password, bool use_ssl, bool lightWallet, const char* proxy_address);
 //     virtual bool createWatchOnly(const std::string &path, const std::string &password, const std::string &language) const = 0;
 //     virtual void setRefreshFromBlockHeight(uint64_t refresh_from_block_height) = 0;
 //     virtual uint64_t getRefreshFromBlockHeight() const = 0;
@@ -390,19 +420,29 @@ uint64_t MONERO_Wallet_unlockedBalance(void* wallet_ptr, uint32_t accountIndex);
 //         return result;
 //     }
 //     virtual bool watchOnly() const = 0;
+bool MONERO_Wallet_watchOnly(void* wallet_ptr);
 //     virtual bool isDeterministic() const = 0;
+bool MONERO_Wallet_isDeterministic(void* wallet_ptr);
 //     virtual uint64_t blockChainHeight() const = 0;
+uint64_t MONERO_Wallet_blockChainHeight(void* wallet_ptr);
 //     virtual uint64_t approximateBlockChainHeight() const = 0;
+uint64_t MONERO_Wallet_approximateBlockChainHeight(void* wallet_ptr);
 //     virtual uint64_t estimateBlockChainHeight() const = 0;
+uint64_t MONERO_Wallet_estimateBlockChainHeight(void* wallet_ptr);
 //     virtual uint64_t daemonBlockChainHeight() const = 0;
+uint64_t MONERO_Wallet_daemonBlockChainHeight(void* wallet_ptr);
 //     virtual uint64_t daemonBlockChainTargetHeight() const = 0;
+uint64_t MONERO_Wallet_daemonBlockChainTargetHeight(void* wallet_ptr);
 //     virtual bool synchronized() const = 0;
+bool MONERO_Wallet_synchronized(void* wallet_ptr);
 //     static std::string displayAmount(uint64_t amount);
+const char* MONERO_Wallet_displayAmount(uint64_t amount);
 //     static uint64_t amountFromString(const std::string &amount);
 //     static uint64_t amountFromDouble(double amount);
 //     static std::string genPaymentId();
 //     static bool paymentIdValid(const std::string &paiment_id);
 //     static bool addressValid(const std::string &str, NetworkType nettype);
+bool MONERO_Wallet_addressValid(const char* str, int nettype);
 //     static bool addressValid(const std::string &str, bool testnet)          // deprecated
 //     {
 //         return addressValid(str, testnet ? TESTNET : MAINNET);
@@ -420,24 +460,39 @@ uint64_t MONERO_Wallet_unlockedBalance(void* wallet_ptr, uint32_t accountIndex);
 //     static uint64_t maximumAllowedAmount();
 //     static void init(const char *argv0, const char *default_log_base_name) { init(argv0, default_log_base_name, "", true); }
 //     static void init(const char *argv0, const char *default_log_base_name, const std::string &log_path, bool console);
+void MONERO_Wallet_init3(void* wallet_ptr, const char* argv0, const char* default_log_base_name, const char* log_path, bool console);
 //     static void debug(const std::string &category, const std::string &str);
 //     static void info(const std::string &category, const std::string &str);
 //     static void warning(const std::string &category, const std::string &str);
 //     static void error(const std::string &category, const std::string &str);
 //     virtual void startRefresh() = 0;
+void MONERO_Wallet_startRefresh(void* wallet_ptr);
 //     virtual void pauseRefresh() = 0;
+void MONERO_Wallet_pauseRefresh(void* wallet_ptr);
 //     virtual bool refresh() = 0;
+bool MONERO_Wallet_refresh(void* wallet_ptr);
 //     virtual void refreshAsync() = 0;
+void MONERO_Wallet_refreshAsync(void* wallet_ptr);
 //     virtual bool rescanBlockchain() = 0;
+bool MONERO_Wallet_rescanBlockchain(void* wallet_ptr);
 //     virtual void rescanBlockchainAsync() = 0;
+void MONERO_Wallet_rescanBlockchainAsync(void* wallet_ptr);
 //     virtual void setAutoRefreshInterval(int millis) = 0;
+void MONERO_Wallet_setAutoRefreshInterval(void* wallet_ptr, int millis);
 //     virtual int autoRefreshInterval() const = 0;
+int MONERO_Wallet_autoRefreshInterval(void* wallet_ptr);
 //     virtual void addSubaddressAccount(const std::string& label) = 0;
+void MONERO_Wallet_addSubaddressAccount(void* wallet_ptr, const char* label);
 //     virtual size_t numSubaddressAccounts() const = 0;
+size_t MONERO_Wallet_numSubaddressAccounts(void* wallet_ptr);
 //     virtual size_t numSubaddresses(uint32_t accountIndex) const = 0;
+size_t MONERO_Wallet_numSubaddresses(void* wallet_ptr, uint32_t accountIndex);
 //     virtual void addSubaddress(uint32_t accountIndex, const std::string& label) = 0;
+void MONERO_Wallet_addSubaddress(void* wallet_ptr, uint32_t accountIndex, const char* label);
 //     virtual std::string getSubaddressLabel(uint32_t accountIndex, uint32_t addressIndex) const = 0;
+const char* MONERO_Wallet_getSubaddressLabel(void* wallet_ptr, uint32_t accountIndex, uint32_t addressIndex);
 //     virtual void setSubaddressLabel(uint32_t accountIndex, uint32_t addressIndex, const std::string &label) = 0;
+void MONERO_Wallet_setSubaddressLabel(void* wallet_ptr, uint32_t accountIndex, uint32_t addressIndex, const char* label);
 //     virtual MultisigState multisig() const = 0;
 //     virtual std::string getMultisigInfo() const = 0;
 //     virtual std::string makeMultisig(const std::vector<std::string>& info, uint32_t threshold) = 0;
@@ -456,18 +511,28 @@ uint64_t MONERO_Wallet_unlockedBalance(void* wallet_ptr, uint32_t accountIndex);
 //                                                    PendingTransaction::Priority = PendingTransaction::Priority_Low,
 //                                                    uint32_t subaddr_account = 0,
 //                                                    std::set<uint32_t> subaddr_indices = {}) = 0;
+void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, const char* payment_id,
+                                                    uint64_t amount, uint32_t mixin_count,
+                                                    int pendingTransactionPriority,
+                                                    uint32_t subaddr_account); // std::nullopt
 //     virtual PendingTransaction * createSweepUnmixableTransaction() = 0;
 //     virtual UnsignedTransaction * loadUnsignedTx(const std::string &unsigned_filename) = 0;
 //     virtual bool submitTransaction(const std::string &fileName) = 0;
+bool MONERO_Wallet_submitTransaction(void* wallet_ptr, const char* fileName);
 //     virtual void disposeTransaction(PendingTransaction * t) = 0;
 //     virtual uint64_t estimateTransactionFee(const std::vector<std::pair<std::string, uint64_t>> &destinations,
 //                                             PendingTransaction::Priority priority) const = 0;
 //     virtual bool exportKeyImages(const std::string &filename, bool all = false) = 0;
+bool MONERO_Wallet_exportKeyImages(void* wallet_ptr, const char* filename, bool all);
 //     virtual bool importKeyImages(const std::string &filename) = 0;
+bool MONERO_Wallet_importKeyImages(void* wallet_ptr, const char* filename);
 //     virtual bool exportOutputs(const std::string &filename, bool all = false) = 0;
+bool MONERO_Wallet_exportOutputs(void* wallet_ptr, const char* filename, bool all);
 //     virtual bool importOutputs(const std::string &filename) = 0;
+bool MONERO_Wallet_importOutputs(void* wallet_ptr, const char* filename);
 //     virtual bool scanTransactions(const std::vector<std::string> &txids) = 0;
 //     virtual TransactionHistory * history() = 0;
+void* MONERO_Wallet_history(void* wallet_ptr);
 //     virtual AddressBook * addressBook() = 0;
 //     virtual Coins * coins() = 0;
 //     virtual Subaddress * subaddress() = 0;
@@ -516,7 +581,9 @@ uint64_t MONERO_Wallet_unlockedBalance(void* wallet_ptr, uint32_t accountIndex);
 //     virtual void deviceShowAddress(uint32_t accountIndex, uint32_t addressIndex, const std::string &paymentId) = 0;
 //     virtual bool reconnectDevice() = 0;
 //     virtual uint64_t getBytesReceived() = 0;
+uint64_t MONERO_Wallet_getBytesReceived(void* wallet_ptr);
 //     virtual uint64_t getBytesSent() = 0;
+uint64_t MONERO_Wallet_getBytesSent(void* wallet_ptr);
 // };
 
 // struct WalletManager
@@ -595,11 +662,14 @@ void* MONERO_WalletManager_recoveryWallet(const char* path, const char* password
 //     virtual bool closeWallet(Wallet *wallet, bool store = true) = 0;
 bool MONERO_WalletManager_closeWallet(void* wallet_ptr, bool store);
 //     virtual bool walletExists(const std::string &path) = 0;
+bool MONERO_WalletManager_walletExists(void* wallet_ptr, const char* path);
 //     virtual bool verifyWalletPassword(const std::string &keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const = 0;
 //     virtual bool queryWalletDevice(Wallet::Device& device_type, const std::string &keys_file_name, const std::string &password, uint64_t kdf_rounds = 1) const = 0;
 //     virtual std::vector<std::string> findWallets(const std::string &path) = 0;
 //     virtual std::string errorString() const = 0;
+const char* MONERO_WalletManager_errorString(void* wallet_ptr);
 //     virtual void setDaemonAddress(const std::string &address) = 0;
+void MONERO_WalletManager_setDaemonAddress(void* wallet_ptr, const char* address);
 //     virtual bool connected(uint32_t *version = NULL) = 0;
 //     virtual uint64_t blockchainHeight() = 0;
 //     virtual uint64_t blockchainTargetHeight() = 0;
