@@ -397,6 +397,7 @@ bool MONERO_Wallet_store(void* wallet_ptr, const char* path);
 bool MONERO_Wallet_init(void* wallet_ptr, const char* daemon_address, uint64_t upper_transaction_size_limit, const char* daemon_username, const char* daemon_password, bool use_ssl, bool lightWallet, const char* proxy_address);
 //     virtual bool createWatchOnly(const std::string &path, const std::string &password, const std::string &language) const = 0;
 //     virtual void setRefreshFromBlockHeight(uint64_t refresh_from_block_height) = 0;
+void MONERO_Wallet_setRefreshFromBlockHeight(void* wallet_ptr, uint64_t refresh_from_block_height);
 //     virtual uint64_t getRefreshFromBlockHeight() const = 0;
 uint64_t MONERO_Wallet_getRefreshFromBlockHeight(void* wallet_ptr);
 //     virtual void setRecoveringFromSeed(bool recoveringFromSeed) = 0;
