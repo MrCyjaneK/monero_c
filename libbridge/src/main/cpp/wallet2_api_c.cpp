@@ -195,6 +195,23 @@ bool MONERO_Wallet_init(void* wallet_ptr, const char* daemon_address, uint64_t u
     return wallet->init(std::string(daemon_address), upper_transaction_size_limit, std::string(daemon_username), std::string(daemon_password), use_ssl, lightWallet, std::string(proxy_address));
 }
 
+uint64_t MONERO_Wallet_getRefreshFromBlockHeight(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->getRefreshFromBlockHeight();
+}
+bool MONERO_Wallet_connectToDaemon(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->connectToDaemon();
+}
+int MONERO_Wallet_connected(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->connected();
+}
+bool MONERO_Wallet_setProxy(void* wallet_ptr, const char* address) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->setProxy(std::string(address));
+}
+
 uint64_t MONERO_Wallet_balance(void* wallet_ptr, uint32_t accountIndex) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->balance(accountIndex);

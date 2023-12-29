@@ -345,6 +345,9 @@ void MONERO_TransactionHistory_setTxNote(void* txHistory_ptr, const char* txid, 
 //         Status_Error,
 //         Status_Critical
 //     };
+int ConnectionStatus_Disconnected = 0;
+int ConnectionStatus_Connected = 1;
+int ConnectionStatus_WrongVersion = 2;
 //     enum ConnectionStatus {
 //         ConnectionStatus_Disconnected,
 //         ConnectionStatus_Connected,
@@ -395,14 +398,18 @@ bool MONERO_Wallet_init(void* wallet_ptr, const char* daemon_address, uint64_t u
 //     virtual bool createWatchOnly(const std::string &path, const std::string &password, const std::string &language) const = 0;
 //     virtual void setRefreshFromBlockHeight(uint64_t refresh_from_block_height) = 0;
 //     virtual uint64_t getRefreshFromBlockHeight() const = 0;
+uint64_t MONERO_Wallet_getRefreshFromBlockHeight(void* wallet_ptr);
 //     virtual void setRecoveringFromSeed(bool recoveringFromSeed) = 0;
 //     virtual void setRecoveringFromDevice(bool recoveringFromDevice) = 0;
 //     virtual void setSubaddressLookahead(uint32_t major, uint32_t minor) = 0;
 //     virtual bool connectToDaemon() = 0;
+bool MONERO_Wallet_connectToDaemon(void* wallet_ptr);
 //     virtual ConnectionStatus connected() const = 0;
+int MONERO_Wallet_connected(void* wallet_ptr);
 //     virtual void setTrustedDaemon(bool arg) = 0;
 //     virtual bool trustedDaemon() const = 0;
 //     virtual bool setProxy(const std::string &address) = 0;
+bool MONERO_Wallet_setProxy(void* wallet_ptr, const char* address);
 //     virtual uint64_t balance(uint32_t accountIndex = 0) const = 0;
 uint64_t MONERO_Wallet_balance(void* wallet_ptr, uint32_t accountIndex);
 //     uint64_t balanceAll() const {
