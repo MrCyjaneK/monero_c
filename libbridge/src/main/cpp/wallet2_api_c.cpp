@@ -341,6 +341,17 @@ void* MONERO_Wallet_history(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return reinterpret_cast<void*>(wallet->history());
 }
+//     virtual void setOffline(bool offline) = 0;
+void MONERO_Wallet_setOffline(void* wallet_ptr, bool offline) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->setOffline(offline);
+}
+//     virtual bool isOffline() const = 0;
+bool MONERO_Wallet_isOffline(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->isOffline();
+}
+
 uint64_t MONERO_Wallet_getBytesReceived(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->getBytesReceived();
@@ -402,7 +413,18 @@ void MONERO_WalletManager_setDaemonAddress(const char* address) {
     return Monero::WalletManagerFactory::getWalletManager()->setDaemonAddress(std::string(address));
 }
 
+bool MONERO_WalletManager_setProxy(const char* address) {
+    return Monero::WalletManagerFactory::getWalletManager()->setProxy(std::string(address));
+}
+
+// WalletManagerFactory
+
+void MONERO_WalletManagerFactory_setLogLevel(int level) {
+    Monero::WalletManagerFactory::setLogLevel(level);
+}
+
 // DEBUG functions
+
 
 // the Answer to the Ultimate Question of Life, the Universe, and Everything.
 int MONERO_DEBUG_theAnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything(int x) {

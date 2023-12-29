@@ -561,7 +561,9 @@ void* MONERO_Wallet_history(void* wallet_ptr);
 //     virtual std::string getDefaultDataDir() const = 0;
 //     virtual bool rescanSpent() = 0;
 //     virtual void setOffline(bool offline) = 0;
+void MONERO_Wallet_setOffline(void* wallet_ptr, bool offline);
 //     virtual bool isOffline() const = 0;
+bool MONERO_Wallet_isOffline(void* wallet_ptr);
 //     virtual bool blackballOutputs(const std::vector<std::string> &outputs, bool add) = 0;
 //     virtual bool blackballOutput(const std::string &amount, const std::string &offset) = 0;
 //     virtual bool unblackballOutput(const std::string &amount, const std::string &offset) = 0;
@@ -686,7 +688,17 @@ void MONERO_WalletManager_setDaemonAddress(const char* address);
 //         const char *buildtag = nullptr,
 //         const char *current_version = nullptr);
 //     virtual bool setProxy(const std::string &address) = 0;
+bool MONERO_WalletManager_setProxy(const char* address);
 // };
+
+int LogLevel_Silent = -1;
+int LogLevel_0 = 0;
+int LogLevel_1 = 1;
+int LogLevel_2 = 2;
+int LogLevel_3 = 3;
+int LogLevel_4 = 4;
+int LogLevel_Min = LogLevel_Silent;
+int LogLevel_Max = LogLevel_4;
 
 // struct WalletManagerFactory
 // {
@@ -702,6 +714,7 @@ void MONERO_WalletManager_setDaemonAddress(const char* address);
 //     };
 //     static WalletManager * getWalletManager();
 //     static void setLogLevel(int level);
+void MONERO_WalletManagerFactory_setLogLevel(int level);
 //     static void setLogCategories(const std::string &categories);
 // };
 // }
