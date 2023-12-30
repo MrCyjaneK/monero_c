@@ -170,12 +170,12 @@ jobs:
           && [ -f "${{ github.workspace }}/monero/build/release/src/hardforks/libhardforks.a" ]] \
           && [ -f "${{ github.workspace }}/monero/build/release/external/randomx/librandomx.a" ]] \
           && [ -f "${{ github.workspace }}/monero/build/release/src/rpc/librpc_base.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_format_utils_basic.a" ]]; \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_format_utils_basic.a" ]] \
           then \
             echo "Cache exist, creating /tmp/skip_deps"; \
             touch /tmp/skip_deps; \
           else \
-            echo "Cache missing, this will be a looooong build."; \
+            echo "Cache missing, this will be a looooong build." \
           fi
       - name: Download monero
         run: |
