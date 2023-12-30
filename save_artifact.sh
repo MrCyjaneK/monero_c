@@ -5,6 +5,13 @@ registry_user=mrcyjanek
 cache_name="$1"
 cache_key="$2"
 path_to_file_="$3"
+
+if [[ -f "/tmp/cache_hit_$(echo "$3" | md5sum)" ]];
+then
+    echo "was cached $1 $2 $(basename $path_to_file_)"
+    exit 0
+fi
+
 path_to_file="$3.xz"
 basename="$(basename $path_to_file)"
 
