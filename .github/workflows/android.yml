@@ -192,7 +192,7 @@ jobs:
           && echo "${CMAKE_HASH}  cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz" | sha256sum -c \
           && tar -xzf /usr/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
           && rm -f /usr/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz
-     - name: Download Boost
+      - name: Download Boost
         run: |
           [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
