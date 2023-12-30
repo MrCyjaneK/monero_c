@@ -705,8 +705,8 @@ int LogLevel_1 = 1;
 int LogLevel_2 = 2;
 int LogLevel_3 = 3;
 int LogLevel_4 = 4;
-int LogLevel_Min = LogLevel_Silent;
-int LogLevel_Max = LogLevel_4;
+int LogLevel_Min = -1;
+int LogLevel_Max = 4;
 
 // struct WalletManagerFactory
 // {
