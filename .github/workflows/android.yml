@@ -92,20 +92,6 @@ jobs:
     steps:
       - name: Checkout repository code
         uses: actions/checkout@v3
-      - name: Download monero
-        run: |
-          cd ${{ github.workspace }} \
-          && git clone ${MONERO_GIT_SOURCE} --depth=1 --branch ${MONERO_TAG} monero \
-          && cd monero \
-          && git submodule init && git submodule update
-      - name: Install CMake
-        run: |
-          cd ${{ github.workspace }} \
-          && cd /usr \
-          && curl -L -O https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
-          && echo "${CMAKE_HASH}  cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz" | sha256sum -c \
-          && tar -xzf /usr/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
-          && rm -f /usr/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz
       - name: Download cached build artifacts
         run: |
           ${{ github.workspace }}/download_artifact.sh libsodium "${SODIUM_VERSION}-${{ matrix.host_triplet }}-${SODIUM_HASH}" ${{ github.workspace }}/prefix/lib/libsodium.a
@@ -146,8 +132,69 @@ jobs:
           ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/rpc/librpc_base.a
           ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/crypto/wallet/libwallet-crypto.a
           ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_format_utils_basic.a
-      - name: Download Boost
+      - name: Create skip flag based on cache
         run: |
+          if [ -f "${{ github.workspace }}/prefix/lib/libsodium.a" ]] \
+          && [ -f "${{ github.workspace }}/prefix/lib/libcrypto.a" ]] \
+          && [ -f "${{ github.workspace }}/prefix/lib/libssl.a" ]] \
+          && [ -f "${{ github.workspace }}/prefix/lib/libboost_chrono.a" ]] \
+          && [ -f "${{ github.workspace }}/prefix/lib/libboost_date_time.a" ]] \
+          && [ -f "${{ github.workspace }}/prefix/lib/libboost_filesystem.a" ]] \
+          && [ -f "${{ github.workspace }}/prefix/lib/libboost_program_options.a" ]] \
+          && [ -f "${{ github.workspace }}/prefix/lib/libboost_regex.a" ]] \
+          && [ -f "${{ github.workspace }}/prefix/lib/libboost_serialization.a" ]] \
+          && [ -f "${{ github.workspace }}/prefix/lib/libboost_system.a" ]] \
+          && [ -f "${{ github.workspace }}/prefix/lib/libboost_thread.a" ]] \
+          && [ -f "${{ github.workspace }}/prefix/lib/libboost_chrono.a" ]] \
+          && [ -f "${{ github.workspace }}/prefix/lib/libunbound.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/lib/libwallet_api.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/lib/libwallet.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_core/libcryptonote_core.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_basic.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/mnemonics/libmnemonics.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/common/libcommon.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/crypto/libcncrypto.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/ringct/libringct.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/ringct/libringct_basic.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/blockchain_db/libblockchain_db.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/external/db_drivers/liblmdb/liblmdb.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/external/easylogging++/libeasylogging.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/contrib/epee/src/libepee.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/blocks/libblocks.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/checkpoints/libcheckpoints.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/device/libdevice.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/device_trezor/libdevice_trezor.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/multisig/libmultisig.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/libversion.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/net/libnet.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/hardforks/libhardforks.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/external/randomx/librandomx.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/rpc/librpc_base.a" ]] \
+          && [ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_format_utils_basic.a" ]]; \
+          then \
+            echo "Cache exist, creating /tmp/skip_deps"; \
+            touch /tmp/skip_deps; \
+          else \
+            echo "Cache missing, this will be a looooong build." \
+          fi
+      - name: Download monero
+        run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
+          cd ${{ github.workspace }} \
+          && git clone ${MONERO_GIT_SOURCE} --depth=1 --branch ${MONERO_TAG} monero \
+          && cd monero \
+          && git submodule init && git submodule update
+      - name: Install CMake
+        run: |
+          cd ${{ github.workspace }} \
+          && cd /usr \
+          && curl -L -O https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
+          && echo "${CMAKE_HASH}  cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz" | sha256sum -c \
+          && tar -xzf /usr/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
+          && rm -f /usr/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz
+     - name: Download Boost
+        run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && curl -L -o  boost_${BOOST_VERSION}.tar.bz2 https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION_DOT}/source/boost_${BOOST_VERSION}.tar.bz2 \
           && echo "${BOOST_HASH}  boost_${BOOST_VERSION}.tar.bz2" | sha256sum -c \
@@ -155,6 +202,7 @@ jobs:
           && rm -f boost_${BOOST_VERSION}.tar.bz2
       - name: Download iconv
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && curl -O http://ftp.gnu.org/pub/gnu/libiconv/libiconv-${ICONV_VERSION}.tar.gz \
           && echo "${ICONV_HASH}  libiconv-${ICONV_VERSION}.tar.gz" | sha256sum -c \
@@ -162,6 +210,7 @@ jobs:
           && rm -f libiconv-${ICONV_VERSION}.tar.gz
       - name: Download zlib
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && curl -O https://zlib.net/zlib-${ZLIB_VERSION}.tar.gz \
           && echo "${ZLIB_HASH}  zlib-${ZLIB_VERSION}.tar.gz" | sha256sum -c \
@@ -170,6 +219,7 @@ jobs:
           && mv zlib-${ZLIB_VERSION} zlib
       - name: Download OpenSSL
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && curl -O https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz \
           && echo "${OPENSSL_HASH}  openssl-${OPENSSL_VERSION}.tar.gz" | sha256sum -c \
@@ -177,36 +227,42 @@ jobs:
           && rm openssl-${OPENSSL_VERSION}.tar.gz
       - name: Download ZMQ
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && git clone https://github.com/zeromq/libzmq.git -b ${ZMQ_VERSION} --depth=1 \
           && cd libzmq \
           && test `git rev-parse HEAD` = ${ZMQ_HASH} || exit 1
       - name: Download libsodium
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && git clone https://github.com/jedisct1/libsodium.git -b ${SODIUM_VERSION} --depth=1 \
           && cd libsodium \
           && test `git rev-parse HEAD` = ${SODIUM_HASH} || exit 1
       - name: Download libexpat
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && git clone https://github.com/libexpat/libexpat.git -b ${LIBEXPAT_VERSION} --depth=1 \
           && cd libexpat/expat \
           && test `git rev-parse HEAD` = ${LIBEXPAT_HASH} || exit 1 \
       - name: Download libunbound
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && git clone https://github.com/NLnetLabs/unbound.git -b ${LIBUNBOUND_VERSION} --depth=1 \
           && cd unbound \
           && test `git rev-parse HEAD` = ${LIBUNBOUND_HASH} || exit 1
       - name: Download polyseed
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && git clone https://github.com/tevador/polyseed.git \
           && cd polyseed \
           && git reset --hard ${POLYSEED_HASH}
       - name: Download utf8proc
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && git clone https://github.com/JuliaStrings/utf8proc -b v2.8.0 --depth=1 \
           && cd utf8proc \
@@ -217,6 +273,7 @@ jobs:
           && ${ANDROID_NDK_ROOT}/build/tools/make_standalone_toolchain.py --arch ${{ matrix.short_arch }} --api 21 --install-dir ${TOOLCHAIN_DIR} --stl=libc++
       - name: Build boost (1/2)
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd boost_${BOOST_VERSION} \
           && PATH=$CLEAN_PATH ./bootstrap.sh --prefix=${PREFIX}
@@ -224,6 +281,7 @@ jobs:
       # TODO(mrcyjanek): x86_64-linux-gnu <- get this dynamically.
       - name: Build iconv (for boost)
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd libiconv-${ICONV_VERSION} \
           && CC=clang CXX=clang++ ./configure --build=x86_64-linux-gnu --host=${{ matrix.host_triplet }} --prefix=${PREFIX} --disable-rpath \
@@ -231,17 +289,20 @@ jobs:
           && make install
       - name: Build boost (2/2)
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd boost_${BOOST_VERSION} \
           && ./b2 --build-type=minimal link=static runtime-link=static --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale --build-dir=android --stagedir=android toolset=clang threading=multi threadapi=pthread target-os=android -sICONV_PATH=${PREFIX} install -j${NPROC} &>/tmp/boost_log.txt || cat /tmp/boost_log.txt
       - name: Build zlib
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd zlib \
           && CC=clang CXX=clang++ ./configure --static \
           && make -j${NPROC}
       - name: Build OpenSSL
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd openssl-${OPENSSL_VERSION} \
           && export PATH=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH \
@@ -250,6 +311,7 @@ jobs:
           && make install_sw  &>/tmp/openssl_log_2.txt || cat /tmp/openssl_log_2.txt
       - name: Build ZMQ
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd libzmq \
           && ./autogen.sh \
@@ -258,6 +320,7 @@ jobs:
           && make install
       - name: Build Sodium
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd libsodium \
           && ./autogen.sh \
@@ -266,6 +329,7 @@ jobs:
           && make install
       - name: Build libexpat
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd libexpat/expat \
           && ./buildconf.sh \
@@ -274,6 +338,7 @@ jobs:
           && make install
       - name: Build libunbound
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd unbound \
           && CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=${{ matrix.host_triplet }} --enable-static --disable-shared --disable-flto --with-ssl=${PREFIX} --with-libexpat=${PREFIX} \
@@ -281,6 +346,7 @@ jobs:
           && make install
       - name: Build polyseed
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd polyseed \
           && CC=clang CXX=clang++ cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} . \
@@ -288,6 +354,7 @@ jobs:
           && make install
       - name: Build utf8proc
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd utf8proc \
           && mkdir build \
@@ -298,6 +365,7 @@ jobs:
           && make install
       - name: Build monero (1/2) configure
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd monero \
           && export CMAKE_INCLUDE_PATH="${PREFIX}/include" \
@@ -312,6 +380,7 @@ jobs:
           && env CC=clang CXX=clang++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="${{ matrix.monero_arch }}" -D STATIC=ON -D BUILD_64="${{ matrix.monero_build64 }}" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="${{ matrix.monero_buildtag }}" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}"                                -D CMAKE_ANDROID_ARCH_ABI="${{ matrix.full_arch }}" ../.. ; fi
       - name: Build monero (2/2) build
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cd monero \
           && cd build/release \
@@ -323,6 +392,7 @@ jobs:
           && make wallet_api -j${NPROC} 
       - name: Copy prefix from $PREFIX to local
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
           && cp -a /opt/android/prefix ${{ github.workspace }}/prefix
       - name: Build libbridge (1/2) configure
