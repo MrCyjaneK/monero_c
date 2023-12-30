@@ -170,12 +170,12 @@ jobs:
           && [[ -f "${{ github.workspace }}/monero/build/release/src/hardforks/libhardforks.a" ]] \
           && [[ -f "${{ github.workspace }}/monero/build/release/external/randomx/librandomx.a" ]] \
           && [[ -f "${{ github.workspace }}/monero/build/release/src/rpc/librpc_base.a" ]] \
-          && [[ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_format_utils_basic.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_format_utils_basic.a" ]]; \
           then \
             echo "Cache exist, creating /tmp/skip_deps"; \
             touch /tmp/skip_deps; \
           else \
-            echo "Cache missing, this will be a looooong build." \
+            echo "Cache missing, this will be a looooong build."; \
           fi
       - name: Download monero
         run: |
@@ -417,18 +417,18 @@ jobs:
       # - name: act - copy workspace to /opt/wspace
       #   if: ${{ env.ACT }}
       #   run: cp -a ${{ github.workspace }} /opt/wspace
-      - name: Create release
-        uses: https://gitea.com/akkuman/gitea-release-action@v1
-        with:
-          body: |
-            This is a **preview** release to be used by testers.
-            It was built from **${{ github.ref }}** commit `${{ github.sha }}`
-            Grab corresponding [wallet2_api_c.h](https://git.mrcyjanek.net/mrcyjanek/monero_c/src/commit/${{ github.sha }}/libbridge/src/main/cpp/wallet2_api_c.h)
-            ### Release info
-            ${{ github.event.head_commit.message }}
-          files: |-
-            ${{ github.workspace }}/libbridge/build/${{ matrix.host_triplet }}_libwallet2_api_c.so
-            ${{ github.workspace }}/libbridge/build/${{ matrix.host_triplet }}_libwallet2_api_c.so.sha256
+      # - name: Create release
+      #   uses: https://gitea.com/akkuman/gitea-release-action@v1
+      #   with:
+      #     body: |
+      #       This is a **preview** release to be used by testers.
+      #       It was built from **${{ github.ref }}** commit `${{ github.sha }}`
+      #       Grab corresponding [wallet2_api_c.h](https://git.mrcyjanek.net/mrcyjanek/monero_c/src/commit/${{ github.sha }}/libbridge/src/main/cpp/wallet2_api_c.h)
+      #       ### Release info
+      #       ${{ github.event.head_commit.message }}
+      #     files: |-
+      #       ${{ github.workspace }}/libbridge/build/${{ matrix.host_triplet }}_libwallet2_api_c.so
+      #       ${{ github.workspace }}/libbridge/build/${{ matrix.host_triplet }}_libwallet2_api_c.so.sha256
       - name: Create cache entries
         run: |
           PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh libsodium "${SODIUM_VERSION}-${{ matrix.host_triplet }}-${SODIUM_HASH}" ${{ github.workspace }}/prefix/lib/libsodium.a
