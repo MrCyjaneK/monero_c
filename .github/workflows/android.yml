@@ -175,7 +175,7 @@ jobs:
             echo "Cache exist, creating /tmp/skip_deps"; \
             touch /tmp/skip_deps; \
           else \
-            echo "Cache missing, this will be a looooong build." \
+            echo "Cache missing, this will be a looooong build."; \
           fi
       - name: Download monero
         run: |
