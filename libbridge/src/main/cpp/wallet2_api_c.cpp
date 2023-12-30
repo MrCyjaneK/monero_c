@@ -447,10 +447,44 @@ void MONERO_WalletManagerFactory_setLogLevel(int level) {
 
 // DEBUG functions
 
+// As it turns out we need a bit more functions to make sure that the library is working.
+// 0) void
+// 1) bool
+// 2) int
+// 3) uint64_t
+// 4) void*
+// 5) const char* 
 
-// the Answer to the Ultimate Question of Life, the Universe, and Everything.
-int MONERO_DEBUG_theAnswerToTheUltimateQuestionOfLifeTheUniverseAndEverything(int x) {
-    return x*42;
+void MONERO_DEBUG_test0() {
+    return;
+}
+
+bool MONERO_DEBUG_test1(bool x) {
+    return x;
+}
+
+int MONERO_DEBUG_test2(int x) {
+    return x;
+}
+
+uint64_t MONERO_DEBUG_test3(uint64_t x) {
+    return x;
+}
+
+void* MONERO_DEBUG_test4(uint64_t x) {
+    int y = x;
+    return reinterpret_cast<void*>(&y);
+}
+
+const char* MONERO_DEBUG_test5() {
+    const char *text  = "This is a const char* text"; 
+    return text;
+}
+
+const char* MONERO_DEBUG_test5_std() {
+    std::string text ("This is a std::string text");
+    const char *text2 = "This is a text"; 
+    return text2;
 }
 
 #ifdef __cplusplus

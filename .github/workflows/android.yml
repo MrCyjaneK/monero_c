@@ -34,8 +34,6 @@ env:
   OPENSSL_VERSION: '3.0.5'
   OPENSSL_HASH: 'aa7d8d9bef71ad6525c55ba11e5f4397889ce49c2c9349dcea6d3e4f0b024a7a'
   # ZMQ
-  # NOTE: ${{ matrix.host_triplet }}-clang instead of clang
-  # has to be used - because ./configure fails to detect the compiler.
   ZMQ_VERSION: 'v4.3.2'
   ZMQ_HASH: 'a84ffa12b2eb3569ced199660bac5ad128bff1f0'
   # libsodium
@@ -52,6 +50,7 @@ env:
   # utf8proc
   UTF8PROC_HASH: '1cb28a66ca79a0845e99433fd1056257456cef8b'
   # (finally) monero
+  MONERO_GIT_SOURCE_SIMPLE: 'github.com_monero-project_monero'
   MONERO_GIT_SOURCE: https://github.com/monero-project/monero
   MONERO_TAG: 'v0.18.3.1'
 
@@ -107,6 +106,46 @@ jobs:
           && echo "${CMAKE_HASH}  cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz" | sha256sum -c \
           && tar -xzf /usr/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz \
           && rm -f /usr/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz
+      - name: Download cached build artifacts
+        run: |
+        ${{ github.workspace }}/download_artifact.sh libsodium "${SODIUM_VERSION}-${{ matrix.host_triplet }}-${SODIUM_HASH}" ${{ github.workspace }}/prefix/lib/libsodium.a
+        ${{ github.workspace }}/download_artifact.sh openssl "${OPENSSL_VERSION}-${{ matrix.host_triplet }}-${OPENSSL_HASH}" ${{ github.workspace }}/prefix/lib/libcrypto.a
+        ${{ github.workspace }}/download_artifact.sh openssl "${OPENSSL_VERSION}-${{ matrix.host_triplet }}-${OPENSSL_HASH}" ${{ github.workspace }}/prefix/lib/libssl.a
+        ${{ github.workspace }}/download_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_chrono.a
+        ${{ github.workspace }}/download_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_date_time.a
+        ${{ github.workspace }}/download_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_filesystem.a
+        ${{ github.workspace }}/download_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_program_options.a
+        ${{ github.workspace }}/download_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_regex.a
+        ${{ github.workspace }}/download_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_serialization.a
+        ${{ github.workspace }}/download_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_system.a
+        ${{ github.workspace }}/download_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_thread.a
+        ${{ github.workspace }}/download_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_chrono.a
+        ${{ github.workspace }}/download_artifact.sh libunbound "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/prefix/lib/libunbound.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/lib/libwallet_api.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/lib/libwallet.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/cryptonote_core/libcryptonote_core.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_basic.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/mnemonics/libmnemonics.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/common/libcommon.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/crypto/libcncrypto.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/ringct/libringct.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/ringct/libringct_basic.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/blockchain_db/libblockchain_db.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/external/db_drivers/liblmdb/liblmdb.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/external/easylogging++/libeasylogging.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/contrib/epee/src/libepee.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/blocks/libblocks.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/checkpoints/libcheckpoints.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/device/libdevice.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/device_trezor/libdevice_trezor.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/multisig/libmultisig.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/libversion.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/net/libnet.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/hardforks/libhardforks.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/external/randomx/librandomx.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/rpc/librpc_base.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/crypto/wallet/libwallet-crypto.a
+        ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_format_utils_basic.a
       - name: Download Boost
         run: |
           cd ${{ github.workspace }} \
@@ -320,3 +359,43 @@ jobs:
           files: |-
             ${{ github.workspace }}/libbridge/build/${{ matrix.host_triplet }}_libwallet2_api_c.so
             ${{ github.workspace }}/libbridge/build/${{ matrix.host_triplet }}_libwallet2_api_c.so.sha256
+      - name: Create cache entries
+        run: |
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh libsodium "${SODIUM_VERSION}-${{ matrix.host_triplet }}-${SODIUM_HASH}" ${{ github.workspace }}/prefix/lib/libsodium.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh openssl "${OPENSSL_VERSION}-${{ matrix.host_triplet }}-${OPENSSL_HASH}" ${{ github.workspace }}/prefix/lib/libcrypto.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh openssl "${OPENSSL_VERSION}-${{ matrix.host_triplet }}-${OPENSSL_HASH}" ${{ github.workspace }}/prefix/lib/libssl.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_chrono.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_date_time.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_filesystem.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_program_options.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_regex.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_serialization.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_system.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_thread.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh boost "${BOOST_VERSION_DOT}-${{ matrix.host_triplet }}-${BOOST_HASH}" ${{ github.workspace }}/prefix/lib/libboost_chrono.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh libunbound "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/prefix/lib/libunbound.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/lib/libwallet_api.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/lib/libwallet.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/cryptonote_core/libcryptonote_core.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_basic.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/mnemonics/libmnemonics.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/common/libcommon.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/crypto/libcncrypto.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/ringct/libringct.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/ringct/libringct_basic.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/blockchain_db/libblockchain_db.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/external/db_drivers/liblmdb/liblmdb.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/external/easylogging++/libeasylogging.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/contrib/epee/src/libepee.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/blocks/libblocks.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/checkpoints/libcheckpoints.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/device/libdevice.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/device_trezor/libdevice_trezor.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/multisig/libmultisig.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/libversion.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/net/libnet.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/hardforks/libhardforks.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/external/randomx/librandomx.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/rpc/librpc_base.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/crypto/wallet/libwallet-crypto.a
+          PAT_SECRET_PACKAGE=${{ secrets.PAT_SECRET_PACKAGE }} ${{ github.workspace }}/save_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_format_utils_basic.a
