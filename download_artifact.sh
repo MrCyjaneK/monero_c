@@ -7,7 +7,7 @@ cache_key="$2"
 path_to_file="$3.xz"
 basename="$(basename $path_to_file)"
 
-curl "https://git.mrcyjanek.net/api/packages/mrcyjanek/generic/monero_c/${cache_name}-${cache_key}/${basename}" > /tmp/cache || exit 0
+curl "https://git.mrcyjanek.net/api/packages/mrcyjanek/generic/monero_c/${cache_name}-${cache_key}/${basename}" > /tmp/cache
 if [[ "xpackage does not exist" == "x$(head -1 /tmp/cache)" ]];
 then
     echo "Cache miss '$1' '$2' '$basename'"
