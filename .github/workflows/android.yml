@@ -134,43 +134,43 @@ jobs:
           ${{ github.workspace }}/download_artifact.sh monero "${MONERO_TAG}-${{ matrix.host_triplet }}-${MONERO_GIT_SOURCE_SIMPLE}" ${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_format_utils_basic.a
       - name: Create skip flag based on cache
         run: |
-          if [ -f "${{ github.workspace }}/prefix/lib/libsodium.a" ]] \
-          && [ -f "${{ github.workspace }}/prefix/lib/libcrypto.a" ]] \
-          && [ -f "${{ github.workspace }}/prefix/lib/libssl.a" ]] \
-          && [ -f "${{ github.workspace }}/prefix/lib/libboost_chrono.a" ]] \
-          && [ -f "${{ github.workspace }}/prefix/lib/libboost_date_time.a" ]] \
-          && [ -f "${{ github.workspace }}/prefix/lib/libboost_filesystem.a" ]] \
-          && [ -f "${{ github.workspace }}/prefix/lib/libboost_program_options.a" ]] \
-          && [ -f "${{ github.workspace }}/prefix/lib/libboost_regex.a" ]] \
-          && [ -f "${{ github.workspace }}/prefix/lib/libboost_serialization.a" ]] \
-          && [ -f "${{ github.workspace }}/prefix/lib/libboost_system.a" ]] \
-          && [ -f "${{ github.workspace }}/prefix/lib/libboost_thread.a" ]] \
-          && [ -f "${{ github.workspace }}/prefix/lib/libboost_chrono.a" ]] \
-          && [ -f "${{ github.workspace }}/prefix/lib/libunbound.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/lib/libwallet_api.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/lib/libwallet.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_core/libcryptonote_core.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_basic.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/mnemonics/libmnemonics.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/common/libcommon.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/crypto/libcncrypto.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/ringct/libringct.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/ringct/libringct_basic.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/blockchain_db/libblockchain_db.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/external/db_drivers/liblmdb/liblmdb.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/external/easylogging++/libeasylogging.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/contrib/epee/src/libepee.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/blocks/libblocks.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/checkpoints/libcheckpoints.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/device/libdevice.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/device_trezor/libdevice_trezor.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/multisig/libmultisig.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/libversion.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/net/libnet.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/hardforks/libhardforks.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/external/randomx/librandomx.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/rpc/librpc_base.a" ]] \
-          && [ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_format_utils_basic.a" ]] \
+          if [[ -f "${{ github.workspace }}/prefix/lib/libsodium.a" ]] \
+          && [[ -f "${{ github.workspace }}/prefix/lib/libcrypto.a" ]] \
+          && [[ -f "${{ github.workspace }}/prefix/lib/libssl.a" ]] \
+          && [[ -f "${{ github.workspace }}/prefix/lib/libboost_chrono.a" ]] \
+          && [[ -f "${{ github.workspace }}/prefix/lib/libboost_date_time.a" ]] \
+          && [[ -f "${{ github.workspace }}/prefix/lib/libboost_filesystem.a" ]] \
+          && [[ -f "${{ github.workspace }}/prefix/lib/libboost_program_options.a" ]] \
+          && [[ -f "${{ github.workspace }}/prefix/lib/libboost_regex.a" ]] \
+          && [[ -f "${{ github.workspace }}/prefix/lib/libboost_serialization.a" ]] \
+          && [[ -f "${{ github.workspace }}/prefix/lib/libboost_system.a" ]] \
+          && [[ -f "${{ github.workspace }}/prefix/lib/libboost_thread.a" ]] \
+          && [[ -f "${{ github.workspace }}/prefix/lib/libboost_chrono.a" ]] \
+          && [[ -f "${{ github.workspace }}/prefix/lib/libunbound.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/lib/libwallet_api.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/lib/libwallet.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_core/libcryptonote_core.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_basic.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/mnemonics/libmnemonics.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/common/libcommon.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/crypto/libcncrypto.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/ringct/libringct.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/ringct/libringct_basic.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/blockchain_db/libblockchain_db.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/external/db_drivers/liblmdb/liblmdb.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/external/easylogging++/libeasylogging.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/contrib/epee/src/libepee.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/blocks/libblocks.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/checkpoints/libcheckpoints.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/device/libdevice.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/device_trezor/libdevice_trezor.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/multisig/libmultisig.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/libversion.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/net/libnet.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/hardforks/libhardforks.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/external/randomx/librandomx.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/rpc/librpc_base.a" ]] \
+          && [[ -f "${{ github.workspace }}/monero/build/release/src/cryptonote_basic/libcryptonote_format_utils_basic.a" ]] \
           then \
             echo "Cache exist, creating /tmp/skip_deps"; \
             touch /tmp/skip_deps; \
@@ -181,7 +181,7 @@ jobs:
         run: |
           [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cd ${{ github.workspace }} \
-          && git clone ${MONERO_GIT_SOURCE} --depth=1 --branch ${MONERO_TAG} monero \
+          && rm -rf monero && git clone ${MONERO_GIT_SOURCE} --depth=1 --branch ${MONERO_TAG} monero \
           && cd monero \
           && git submodule init && git submodule update
       - name: Install CMake
