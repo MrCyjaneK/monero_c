@@ -10,9 +10,11 @@ basename="$(basename $path_to_file)"
 curl "https://git.mrcyjanek.net/api/packages/mrcyjanek/generic/monero_c/${cache_name}-${cache_key}/${basename}" > /tmp/cache || exit 0
 if [[ "xpackage does not exist" == "x$(head -1 /tmp/cache)" ]];
 then
-    echo "Cache miss $@"
+    echo "Cache miss '$1' '$2' '$basename'"
     rm /tmp/cache
     exit 0
+else
+    echo "Cache hit '$1' '$2' '$basename'"
 fi
 
 mkdir -p $path_to_file

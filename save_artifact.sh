@@ -11,4 +11,5 @@ basename="$(basename $path_to_file)"
 curl --user $registry_user:$PAT_SECRET_PACKAGE \
      --upload-file "$path_to_file" \
      "https://git.mrcyjanek.net/api/packages/mrcyjanek/generic/monero_c/${cache_name}-${cache_key}/${basename}"
+
 rm $path_to_file
