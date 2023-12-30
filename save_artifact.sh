@@ -6,7 +6,7 @@ cache_name="$1"
 cache_key="$2"
 path_to_file_="$3"
 
-if [[ -f "/tmp/cache_hit_$(echo "$3" | md5sum)" ]];
+if [[ -f "/tmp/cache_hit_$(echo "$3" | md5sum | awk '{ print $1 }')" ]];
 then
     echo "was cached $1 $2 $(basename $path_to_file_)"
     exit 0

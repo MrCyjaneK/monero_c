@@ -24,5 +24,5 @@ unxz $path_to_file || rm $path_to_file
 
 if [[ -f "$3" ]];
 then
-    touch /tmp/cache_hit_$(echo "$3" | md5sum)
+    touch /tmp/cache_hit_$(echo "$3" | md5sum | awk '{ print $1 }')
 fi
