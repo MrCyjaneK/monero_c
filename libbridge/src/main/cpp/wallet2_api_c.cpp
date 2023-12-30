@@ -33,7 +33,11 @@ int MONERO_PendingTransaction_status(void* pendingTx_ptr) {
 }
 const char* MONERO_PendingTransaction_errorString(void* pendingTx_ptr) {
     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
-    return pendingTx->errorString().c_str();
+    std::string str = pendingTx->errorString();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 bool MONERO_PendingTransaction_commit(void* pendingTx_ptr, const char* filename, bool overwrite) {
     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
@@ -87,7 +91,11 @@ uint64_t MONERO_TransactionInfo_blockHeight(void* txInfo_ptr) {
 }
 const char* MONERO_TransactionInfo_description(void* txInfo_ptr) {
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
-    return txInfo->description().c_str();
+    std::string str = txInfo->description();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 uint32_t MONERO_TransactionInfo_subaddrAccount(void* txInfo_ptr) {
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
@@ -95,7 +103,11 @@ uint32_t MONERO_TransactionInfo_subaddrAccount(void* txInfo_ptr) {
 }
 const char* MONERO_TransactionInfo_label(void* txInfo_ptr) {
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
-    return txInfo->label().c_str();
+    std::string str = txInfo->label();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 uint64_t MONERO_TransactionInfo_confirmations(void* txInfo_ptr) {
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
@@ -107,7 +119,11 @@ uint64_t MONERO_TransactionInfo_unlockTime(void* txInfo_ptr) {
 }
 const char* MONERO_TransactionInfo_hash(void* txInfo_ptr) {
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
-    return txInfo->hash().c_str();
+    std::string str = txInfo->hash();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 uint64_t MONERO_TransactionInfo_timestamp(void* txInfo_ptr) {
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
@@ -115,7 +131,11 @@ uint64_t MONERO_TransactionInfo_timestamp(void* txInfo_ptr) {
 }
 const char* MONERO_TransactionInfo_paymentId(void* txInfo_ptr) {
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
-    return txInfo->paymentId().c_str();
+    std::string str = txInfo->paymentId();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 
 // TransactionHistory
@@ -141,7 +161,11 @@ void MONERO_TransactionHistory_setTxNote(void* txHistory_ptr, const char* txid, 
 
 const char* MONERO_Wallet_seed(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->seed().c_str();
+    std::string str = wallet->seed();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 
 int MONERO_Wallet_status(void* wallet_ptr) {
@@ -151,32 +175,56 @@ int MONERO_Wallet_status(void* wallet_ptr) {
 
 const char* MONERO_Wallet_errorString(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->errorString().c_str();
+    std::string str = wallet->errorString();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 
 const char* MONERO_Wallet_address(void* wallet_ptr, uint64_t accountIndex, uint64_t addressIndex) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->address(accountIndex, addressIndex).c_str();    
+    std::string str = wallet->address(accountIndex, addressIndex);
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 
 const char* MONERO_Wallet_secretViewKey(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->secretViewKey().c_str();
+    std::string str = wallet->secretViewKey();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 
 const char* MONERO_Wallet_publicViewKey(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->publicViewKey().c_str();
+    std::string str = wallet->publicViewKey();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 
 const char* MONERO_Wallet_secretSpendKey(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->secretSpendKey().c_str();
+    std::string str = wallet->secretSpendKey();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 
 const char* MONERO_Wallet_publicSpendKey(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->publicSpendKey().c_str();
+    std::string str = wallet->publicSpendKey();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 
 void MONERO_Wallet_stop(void* wallet_ptr) {
@@ -262,7 +310,11 @@ bool MONERO_Wallet_synchronized(void* wallet_ptr) {
 }
 const char* MONERO_Wallet_displayAmount(uint64_t amount) {
     // Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return Monero::Wallet::displayAmount(amount).c_str();
+    std::string str = Monero::Wallet::displayAmount(amount);
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 bool MONERO_Wallet_addressValid(const char* str, int nettype) {
     // Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
@@ -322,7 +374,11 @@ void MONERO_Wallet_addSubaddress(void* wallet_ptr, uint32_t accountIndex, const 
 }
 const char* MONERO_Wallet_getSubaddressLabel(void* wallet_ptr, uint32_t accountIndex, uint32_t addressIndex) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getSubaddressLabel(accountIndex, addressIndex).c_str();
+    std::string str = wallet->getSubaddressLabel(accountIndex, addressIndex);
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 
 void MONERO_Wallet_setSubaddressLabel(void* wallet_ptr, uint32_t accountIndex, uint32_t addressIndex, const char* label) {
@@ -428,7 +484,11 @@ bool MONERO_WalletManager_walletExists(const char* path) {
     return Monero::WalletManagerFactory::getWalletManager()->walletExists(std::string(path));
 }
 const char* MONERO_WalletManager_errorString() {
-    return Monero::WalletManagerFactory::getWalletManager()->errorString().c_str();
+    std::string str = Monero::WalletManagerFactory::getWalletManager()->errorString();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 
 void MONERO_WalletManager_setDaemonAddress(const char* address) {
