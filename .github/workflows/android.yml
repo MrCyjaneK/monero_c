@@ -401,8 +401,7 @@ jobs:
           && cd libbridge \
           && mkdir build \
           && cd build \
-          && env CC=clang CXX=clang++ cmake -DANDROID_ABI=${{ matrix.full_arch }} .. \
-          && make -j${NPROC}
+          && env CC=clang CXX=clang++ cmake -DANDROID_ABI=${{ matrix.full_arch }} ..
       - name: Build libbridge (2/2) make
         run: |
           cd ${{ github.workspace }} \

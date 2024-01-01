@@ -14,6 +14,7 @@ const char* vectorToString(const std::vector<std::string>& vec, const std::strin
     std::string result;
     for (const auto& str : vec) {
         result += str;
+        result += separator;
     }
     const char* cstr = result.c_str();
     return cstr;
@@ -27,7 +28,7 @@ const char* vectorToString(const std::vector<uint32_t>& vec, const std::string s
         size += snprintf(nullptr, 0, "%u", vec[i]);
         // Add comma and space for all elements except the last one
         if (i < vec.size() - 1) {
-            size += 2; // comma and space
+            size += separator.size(); // comma and space
         }
     }
 
@@ -46,8 +47,43 @@ const char* vectorToString(const std::vector<uint32_t>& vec, const std::string s
         current += written;
         // Add comma and space for all elements except the last one
         if (i < vec.size() - 1) {
-            strcpy(current, ", ");
-            current += 2;
+            strcpy(current, separator.c_str());
+            current += separator.size();
+        }
+    }
+
+    return result;
+}
+
+const char* vectorToString(const std::vector<uint64_t>& vec, const std::string separator) {
+    // Calculate the size needed for the result string
+    size_t size = 0;
+    for (size_t i = 0; i < vec.size(); ++i) {
+        // Calculate the number of digits in each element
+        size += snprintf(nullptr, 0, "%lu", vec[i]);
+        // Add comma and space for all elements except the last one
+        if (i < vec.size() - 1) {
+            size += separator.size(); // comma and space
+        }
+    }
+
+    // Allocate memory for the result string
+    char* result = static_cast<char*>(malloc(size + 1));
+    if (result == nullptr) {
+        // Handle memory allocation failure
+        return nullptr;
+    }
+
+    // Fill in the result string
+    char* current = result;
+    for (size_t i = 0; i < vec.size(); ++i) {
+        // Convert each element to string and copy to the result string
+        int written = snprintf(current, size + 1, "%lu", vec[i]);
+        current += written;
+        // Add comma and space for all elements except the last one
+        if (i < vec.size() - 1) {
+            strcpy(current, separator.c_str());
+            current += separator.size();
         }
     }
 
@@ -78,6 +114,28 @@ const char* vectorToString(const std::vector<std::set<uint32_t>>& vec, const std
         oss << "}";
     }
     oss << "}";
+    std::string str = oss.str();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
+
+// Function to convert std::set<uint32_t> to a string
+const char* vectorToString(const std::set<uint32_t>& intSet, const std::string separator) {
+    // Check if the set is empty
+    if (intSet.empty()) {
+        return "";
+    }
+
+    // Use a stringstream to concatenate elements with commas
+    std::ostringstream oss;
+    auto it = intSet.begin();
+    oss << *it;
+    for (++it; it != intSet.end(); ++it) {
+        oss << ", " << *it;
+    }
+
     std::string str = oss.str();
     const std::string::size_type size = str.size();
     char *buffer = new char[size + 1];   //we need extra char for NUL
