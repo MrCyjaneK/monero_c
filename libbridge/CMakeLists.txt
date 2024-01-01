@@ -6,6 +6,7 @@ set (CMAKE_CXX_STANDARD 11)
 
 add_library( wallet2_api_c
              SHARED
+             src/main/cpp/helpers.cpp
              src/main/cpp/wallet2_api_c.cpp )
 
 set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/..)

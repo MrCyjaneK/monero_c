@@ -2,6 +2,7 @@
 #include "wallet2_api_c.h"
 #include "wallet2_api.h"
 #include <unistd.h>
+#include "helpers.hpp"
 
 #ifdef __cplusplus
 extern "C"
@@ -55,11 +56,42 @@ uint64_t MONERO_PendingTransaction_fee(void* pendingTx_ptr) {
     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
     return pendingTx->fee();
 }
+const char* MONERO_PendingTransaction_txid(void* pendingTx_ptr, const char* separator) {
+    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+    std::vector<std::string> txid = pendingTx->txid();
+    return vectorToString(txid, std::string(separator));
+}
 uint64_t MONERO_PendingTransaction_txCount(void* pendingTx_ptr) {
     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
     return pendingTx->txCount();
 }
-
+const char* MONERO_PendingTransaction_subaddrAccount(void* pendingTx_ptr, const char* separator) {
+    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+    std::vector<uint32_t> subaddrAccount = pendingTx->subaddrAccount();
+    return vectorToString(subaddrAccount, std::string(separator));
+}
+const char* MONERO_PendingTransaction_subaddrIndices(void* pendingTx_ptr, const char* separator) {
+    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+    std::vector<std::set<uint32_t>> subaddrIndices = pendingTx->subaddrIndices();
+    return vectorToString(subaddrIndices, std::string(separator));
+}
+const char* MONERO_PendingTransaction_multisigSignData(void* pendingTx_ptr) {
+    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+    std::string str = pendingTx->multisigSignData();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
+void MONERO_PendingTransaction_signMultisigTx(void* pendingTx_ptr) {
+    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+    return pendingTx->signMultisigTx();
+}
+const char* MONERO_PendingTransaction_signersKeys(void* pendingTx_ptr, const char* separator) {
+    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+    std::vector<std::string> txid = pendingTx->signersKeys();
+    return vectorToString(txid, std::string(separator));
+}
 // TransactionInfo
 int MONERO_TransactionInfo_direction(void* txInfo_ptr) {
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);

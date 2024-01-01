@@ -1,0 +1,86 @@
+#include <inttypes.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <vector>
+#include <string>
+#include "helpers.hpp"
+#include <set>
+#include <sstream>
+
+const char* vectorToString(const std::vector<std::string>& vec, const std::string separator) {
+    // Concatenate all strings in the vector
+    std::string result;
+    for (const auto& str : vec) {
+        result += str;
+    }
+    const char* cstr = result.c_str();
+    return cstr;
+}
+
+const char* vectorToString(const std::vector<uint32_t>& vec, const std::string separator) {
+    // Calculate the size needed for the result string
+    size_t size = 0;
+    for (size_t i = 0; i < vec.size(); ++i) {
+        // Calculate the number of digits in each element
+        size += snprintf(nullptr, 0, "%u", vec[i]);
+        // Add comma and space for all elements except the last one
+        if (i < vec.size() - 1) {
+            size += 2; // comma and space
+        }
+    }
+
+    // Allocate memory for the result string
+    char* result = static_cast<char*>(malloc(size + 1));
+    if (result == nullptr) {
+        // Handle memory allocation failure
+        return nullptr;
+    }
+
+    // Fill in the result string
+    char* current = result;
+    for (size_t i = 0; i < vec.size(); ++i) {
+        // Convert each element to string and copy to the result string
+        int written = snprintf(current, size + 1, "%u", vec[i]);
+        current += written;
+        // Add comma and space for all elements except the last one
+        if (i < vec.size() - 1) {
+            strcpy(current, ", ");
+            current += 2;
+        }
+    }
+
+    return result;
+}
+
+const char* vectorToString(const std::vector<std::set<uint32_t>>& vec, const std::string separator) {
+    // Check if the vector is empty
+    if (vec.empty()) {
+        return "";
+    }
+
+    // Use a stringstream to concatenate sets with commas and individual elements with spaces
+    std::ostringstream oss;
+    oss << "{";
+    for (auto it = vec.begin(); it != vec.end(); ++it) {
+        if (it != vec.begin()) {
+            oss << separator;
+        }
+
+        oss << "{";
+        for (auto setIt = it->begin(); setIt != it->end(); ++setIt) {
+            if (setIt != it->begin()) {
+                oss << separator;
+            }
+            oss << *setIt;
+        }
+        oss << "}";
+    }
+    oss << "}";
+    std::string str = oss.str();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}

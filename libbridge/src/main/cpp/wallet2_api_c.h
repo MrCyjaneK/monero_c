@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <unistd.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -68,13 +69,19 @@ uint64_t MONERO_PendingTransaction_dust(void* pendingTx_ptr);
 //     virtual uint64_t fee() const = 0;
 uint64_t MONERO_PendingTransaction_fee(void* pendingTx_ptr);
 //     virtual std::vector<std::string> txid() const = 0;
+const char* MONERO_PendingTransaction_txid(void* pendingTx_ptr, const char* separator);
 //     virtual uint64_t txCount() const = 0;
 uint64_t MONERO_PendingTransaction_txCount(void* pendingTx_ptr);
 //     virtual std::vector<uint32_t> subaddrAccount() const = 0;
+const char* MONERO_PendingTransaction_subaddrAccount(void* pendingTx_ptr, const char* separator);
 //     virtual std::vector<std::set<uint32_t>> subaddrIndices() const = 0;
+const char* MONERO_PendingTransaction_subaddrIndices(void* pendingTx_ptr, const char* separator);
 //     virtual std::string multisigSignData() = 0;
+const char* MONERO_PendingTransaction_multisigSignData(void* pendingTx_ptr);
 //     virtual void signMultisigTx() = 0;
+void MONERO_PendingTransaction_signMultisigTx(void* pendingTx_ptr);
 //     virtual std::vector<std::string> signersKeys() const = 0;
+const char* MONERO_PendingTransaction_signersKeys(void* pendingTx_ptr, const char* separator);
 // };
 
 // struct UnsignedTransaction
@@ -86,7 +93,9 @@ uint64_t MONERO_PendingTransaction_txCount(void* pendingTx_ptr);
 //     };
 //     virtual ~UnsignedTransaction() = 0;
 //     virtual int status() const = 0;
+// int MONERO_UnsignedTransaction_status(void* unsignedTx_ptr);
 //     virtual std::string errorString() const = 0;
+// const char* MONERO_UnsignedTransaction_errorString(void* unsignedTx_ptr);
 //     virtual std::vector<uint64_t> amount() const = 0;
 //     virtual std::vector<uint64_t>  fee() const = 0;
 //     virtual std::vector<uint64_t> mixin() const = 0;
