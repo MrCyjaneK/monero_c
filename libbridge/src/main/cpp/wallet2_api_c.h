@@ -189,8 +189,6 @@ void* MONERO_TransactionHistory_transaction(void* txHistory_ptr, int index);
 //     virtual TransactionInfo * transaction(const std::string &id) const = 0;
 void* MONERO_TransactionHistory_transactionById(void* txHistory_ptr, const char* id);
 //     virtual std::vector<TransactionInfo*> getAll() const = 0;
-size_t MONERO_TransactionHistory_getAll_size(void* txHistory_ptr);
-void* MONERO_TransactionHistory_getAll_single(void* txHistory_ptr, int id);
 //     virtual void refresh() = 0;
 void MONERO_TransactionHistory_refresh(void* txHistory_ptr);
 //     virtual void setTxNote(const std::string &txid, const std::string &note) = 0;

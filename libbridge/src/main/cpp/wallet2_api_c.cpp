@@ -250,14 +250,6 @@ void* MONERO_TransactionHistory_transactionById(void* txHistory_ptr, const char*
     return reinterpret_cast<void*>(txHistory->transaction(std::string(id)));
 }
 
-size_t MONERO_TransactionHistory_getAll_size(void* txHistory_ptr) {
-    Monero::TransactionHistory *txHistory = reinterpret_cast<Monero::TransactionHistory*>(txHistory_ptr);
-    return txHistory->getAll().size();
-}
-void* MONERO_TransactionHistory_getAll_single(void* txHistory_ptr, int id) {
-    Monero::TransactionHistory *txHistory = reinterpret_cast<Monero::TransactionHistory*>(txHistory_ptr);
-    return txHistory->getAll()[0];
-}
 void MONERO_TransactionHistory_refresh(void* txHistory_ptr) {
     Monero::TransactionHistory *txHistory = reinterpret_cast<Monero::TransactionHistory*>(txHistory_ptr);
     return txHistory->refresh();
