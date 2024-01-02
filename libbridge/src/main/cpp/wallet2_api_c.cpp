@@ -3,6 +3,7 @@
 #include "wallet2_api.h"
 #include <unistd.h>
 #include "helpers.hpp"
+#include <cstring>
 
 #ifdef __cplusplus
 extern "C"

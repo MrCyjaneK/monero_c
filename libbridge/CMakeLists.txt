@@ -184,7 +184,7 @@ set_target_properties(cryptonote_format_utils_basic PROPERTIES IMPORTED_LOCATION
 # System
 #############
 
-find_library( log-lib log )
+#find_library( log-lib log )
 
 include_directories( ${EXTERNAL_LIBS_DIR}/include )
 
@@ -241,6 +241,4 @@ target_link_libraries(  wallet2_api_c
                         crypto
 
                         sodium
-
-                        log
                        )

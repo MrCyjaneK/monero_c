@@ -8,6 +8,7 @@
 #include "helpers.hpp"
 #include <set>
 #include <sstream>
+#include <cstring>
 
 const char* vectorToString(const std::vector<std::string>& vec, const std::string separator) {
     // Concatenate all strings in the vector
