@@ -840,7 +840,7 @@ bool MONERO_Wallet_store(void* wallet_ptr, const char* path) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->store(std::string(path));
 }
-bool MONERO_Wallet_filename(void* wallet_ptr) {
+const char* MONERO_Wallet_filename(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->filename();
     const std::string::size_type size = str.size();
@@ -848,7 +848,7 @@ bool MONERO_Wallet_filename(void* wallet_ptr) {
     memcpy(buffer, str.c_str(), size + 1);
     return buffer;
 }
-bool MONERO_Wallet_keysFilename(void* wallet_ptr) {
+const char* MONERO_Wallet_keysFilename(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->keysFilename();
     const std::string::size_type size = str.size();
