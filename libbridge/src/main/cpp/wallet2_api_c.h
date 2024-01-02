@@ -696,7 +696,7 @@ void* MONERO_Wallet_subaddressAccount(void* wallet_ptr);
 //     virtual uint32_t defaultMixin() const = 0;
 uint32_t MONERO_Wallet_defaultMixin(void* wallet_ptr);
 //     virtual void setDefaultMixin(uint32_t arg) = 0;
-void MONERO_Wallet_setTefaultMixin(void* wallet_ptr, uint32_t arg);
+void MONERO_Wallet_setDefaultMixin(void* wallet_ptr, uint32_t arg);
 //     virtual bool setCacheAttribute(const std::string &key, const std::string &val) = 0;
 bool MONERO_Wallet_setCacheAttribute(void* wallet_ptr, const char* key, const char* val);
 //     virtual std::string getCacheAttribute(const std::string &key) const = 0;

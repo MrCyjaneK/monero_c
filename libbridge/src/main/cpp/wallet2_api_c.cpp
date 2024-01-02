@@ -1147,7 +1147,7 @@ uint32_t MONERO_Wallet_defaultMixin(void* wallet_ptr) {
     return wallet->defaultMixin();
 }
 //     virtual void setDefaultMixin(uint32_t arg) = 0;
-void MONERO_Wallet_setTefaultMixin(void* wallet_ptr, uint32_t arg) {
+void MONERO_Wallet_setDefaultMixin(void* wallet_ptr, uint32_t arg) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->setDefaultMixin(arg);
 }
