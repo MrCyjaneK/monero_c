@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "helpers.hpp"
 #include <cstring>
+#include <thread>
 
 #ifdef __cplusplus
 extern "C"
@@ -946,6 +947,36 @@ uint64_t MONERO_Wallet_estimateBlockChainHeight(void* wallet_ptr) {
 uint64_t MONERO_Wallet_daemonBlockChainHeight(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->daemonBlockChainHeight();
+}
+
+uint64_t daemonBlockChainHeight_cached = 0;
+
+uint64_t MONERO_Wallet_daemonBlockChainHeight_cached(void* wallet_ptr) {
+    return daemonBlockChainHeight_cached;
+}
+
+uint64_t daemonBlockChainHeight_cahceSleepTime = 1;
+bool daemonBlockChainHeight_cahceIsEnabled = false;
+
+
+void MONERO_Wallet_daemonBlockChainHeight_runThread(void* wallet_ptr) {
+    while (true) {
+        Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+        daemonBlockChainHeight_cached = wallet->daemonBlockChainHeight();
+        std::cout << "MONERO: TICK: MONERO_Wallet_daemonBlockChainHeight_runThread: " << daemonBlockChainHeight_cached << std::endl;
+    }
+}
+bool MONERO_Wallet_daemonBlockChainHeight_enableRefresh(void* wallet_ptr, int seconds) {
+    if (seconds < 1) {
+        seconds = 1;
+    }
+    daemonBlockChainHeight_cahceSleepTime = seconds;
+    if (daemonBlockChainHeight_cahceIsEnabled == true) {
+        return true;
+    }
+    daemonBlockChainHeight_cahceIsEnabled = true;
+    std::thread t1(MONERO_Wallet_daemonBlockChainHeight_runThread, wallet_ptr);
+    return true;
 }
 uint64_t MONERO_Wallet_daemonBlockChainTargetHeight(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
