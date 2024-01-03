@@ -42,9 +42,9 @@ env:
   # utf8proc
   UTF8PROC_HASH: '1cb28a66ca79a0845e99433fd1056257456cef8b'
   # (finally) monero
-  MONERO_GIT_SOURCE_SIMPLE: 'github.com_monero-project_monero'
-  MONERO_GIT_SOURCE: https://github.com/monero-project/monero
-  MONERO_TAG: 'v0.18.3.1'
+  MONERO_GIT_SOURCE_SIMPLE: 'git.mrcyjanek.net_mrcyjanek_monero'
+  MONERO_GIT_SOURCE: https://git.mrcyjanek.net/mrcyjanek/monero.git
+  MONERO_TAG: 'release-v0.18.3.1-anonero'
 
 
 jobs:
