@@ -693,9 +693,9 @@ bool MONERO_DeviceProgress_indeterminate(void* deviceProgress_ptr) {
 
 // Wallet
 
-const char* MONERO_Wallet_seed(void* wallet_ptr) {
+const char* MONERO_Wallet_seed(void* wallet_ptr, const char* seed_offset) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    std::string str = wallet->seed();
+    std::string str = wallet->seed(std::string(seed_offset));
     const std::string::size_type size = str.size();
     char *buffer = new char[size + 1];   //we need extra char for NUL
     memcpy(buffer, str.c_str(), size + 1);
@@ -963,6 +963,7 @@ void MONERO_Wallet_daemonBlockChainHeight_runThread(void* wallet_ptr) {
     while (true) {
         Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
         daemonBlockChainHeight_cached = wallet->daemonBlockChainHeight();
+        sleep(daemonBlockChainHeight_cahceSleepTime);
         std::cout << "MONERO: TICK: MONERO_Wallet_daemonBlockChainHeight_runThread: " << daemonBlockChainHeight_cached << std::endl;
     }
 }

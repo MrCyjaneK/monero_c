@@ -469,7 +469,7 @@ const int WalletConnectionStatus_WrongVersion = 2;
 //     };
 //     virtual ~Wallet() = 0;
 //     virtual std::string seed(const std::string& seed_offset = "") const = 0;
-const char* MONERO_Wallet_seed(void* wallet_ptr);
+const char* MONERO_Wallet_seed(void* wallet_ptr, const char* seed_offset);
 //     virtual std::string getSeedLanguage() const = 0;
 const char* MONERO_Wallet_getSeedLanguage(void* wallet_ptr);
 //     virtual void setSeedLanguage(const std::string &arg) = 0;
