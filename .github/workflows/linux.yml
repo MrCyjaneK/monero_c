@@ -395,6 +395,7 @@ jobs:
       #   run: cp -a ${{ github.workspace }} /opt/wspace
       - name: Create release
         uses: https://gitea.com/akkuman/gitea-release-action@v1
+        continue-on-error: true
         with:
           body: |
             This is a **preview** release to be used by testers.
