@@ -311,6 +311,7 @@ jobs:
           && make install
       - name: Fix paths
         run: |
+          [[ -f "/tmp/skip_deps" ]] && exit 0; \
           cp /opt/linux/prefix/lib64/* /opt/linux/prefix/lib -r
       - name: Build libunbound
         run: |
