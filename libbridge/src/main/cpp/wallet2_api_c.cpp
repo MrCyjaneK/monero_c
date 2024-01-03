@@ -1109,8 +1109,12 @@ void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, co
                                                     int pendingTransactionPriority,
                                                     uint32_t subaddr_account) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    Monero::optional<uint64_t> optAmount;
+    if (amount != 0) {
+        optAmount = amount;
+    }
     return wallet->createTransaction(std::string(dst_addr), std::string(payment_id),
-                                        amount, mixin_count,
+                                        optAmount, mixin_count,
                                         Monero::PendingTransaction::Priority_Low,
                                         subaddr_account /*, subaddr_indices */);
 }

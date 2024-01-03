@@ -573,7 +573,7 @@ uint64_t MONERO_Wallet_estimateBlockChainHeight(void* wallet_ptr);
 //     virtual uint64_t daemonBlockChainHeight() const = 0;
 uint64_t MONERO_Wallet_daemonBlockChainHeight(void* wallet_ptr);
 uint64_t MONERO_Wallet_daemonBlockChainHeight_cached(void* wallet_ptr);
-bool MONERO_Wallet_daemonBlockChainHeight_enableRefresh(void* wallet_ptr, int seconds);
+void MONERO_Wallet_daemonBlockChainHeight_runThread(void* wallet_ptr, int seconds);
 //     virtual uint64_t daemonBlockChainTargetHeight() const = 0;
 uint64_t MONERO_Wallet_daemonBlockChainTargetHeight(void* wallet_ptr);
 //     virtual bool synchronized() const = 0;
