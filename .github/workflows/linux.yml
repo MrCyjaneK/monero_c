@@ -389,7 +389,7 @@ jobs:
         run: |
           cd ${{ github.workspace }} \
           && checkinstall --type=debian --pkgname="libwallet2-api-c" --pkgversion="$(git describe --tags | sed 's/v//')" --nodoc --strip=no --stripso=no --maintainer=cyjan@mrcyjanek.net --install=no -y \
-          ; ls -lah *.deb
+          ; ls -lah *.deb \
           ; curl --user mrcyjanek:$PAT_SECRET_PACKAGE --upload-file $(echo *.deb) https://git.mrcyjanek.net/api/packages/mrcyjanek/debian/pool/no-distro/main/upload
       # - name: act - copy workspace to /opt/wspace
       #   if: ${{ env.ACT }}
