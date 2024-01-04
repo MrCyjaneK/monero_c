@@ -475,6 +475,15 @@ bool MONERO_CoinsInfo_coinbase(void* coinsInfo_ptr) {
     Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
     return coinsInfo->internalOutputIndex();
 }
+//     virtual std::string description() const = 0;
+const char* MONERO_CoinsInfo_description(void* coinsInfo_ptr) {
+    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
+    std::string str = coinsInfo->description();
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
 
 
 // coins
@@ -496,6 +505,11 @@ void MONERO_Coins_refresh(void* coins_ptr) {
     Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
     return coins->refresh();
 }
+//     virtual void setFrozen(std::string public_key) = 0;
+void MONERO_Coins_setFrozenByPublicKey(void* coins_ptr, const char* public_key) {
+    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
+    return coins->setFrozen(std::string(public_key));
+}
 //     virtual void setFrozen(int index) = 0;
 void MONERO_Coins_setFrozen(void* coins_ptr, int index) {
     Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
@@ -506,10 +520,20 @@ void MONERO_Coins_thaw(void* coins_ptr, int index) {
     Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
     return coins->thaw(index);
 }
+//     virtual void thaw(std::string public_key) = 0;
+void MONERO_Coins_thawByPublicKey(void* coins_ptr, const char* public_key) {
+    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
+    return coins->thaw(std::string(public_key));
+}
 //     virtual bool isTransferUnlocked(uint64_t unlockTime, uint64_t blockHeight) = 0;
 bool MONERO_Coins_isTransferUnlocked(void* coins_ptr, uint64_t unlockTime, uint64_t blockHeight) {
     Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
     return coins->isTransferUnlocked(unlockTime, blockHeight);
+}
+//    virtual void setDescription(const std::string &public_key, const std::string &description) = 0;
+void MONERO_Coins_setDescription(void* coins_ptr, const char* public_key, const char* description) {
+    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
+    coins->setDescription(std::string(public_key), std::string(description));
 }
 
 // SubaddressRow
@@ -923,6 +947,11 @@ uint64_t MONERO_Wallet_unlockedBalance(void* wallet_ptr, uint32_t accountIndex) 
     return wallet->unlockedBalance(accountIndex);
 }
 
+uint64_t MONERO_Wallet_viewOnlyBalance(void* wallet_ptr, uint32_t accountIndex) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->viewOnlyBalance(accountIndex);
+}
+
 // TODO
 bool MONERO_Wallet_watchOnly(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
@@ -1035,6 +1064,29 @@ void MONERO_Wallet_init3(void* wallet_ptr, const char* argv0, const char* defaul
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->init(argv0, default_log_base_name, log_path, console);
 }
+const char* MONERO_Wallet_getPolyseed(void* wallet_ptr, const char* passphrase) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    std::string seed = "";
+    std::string _passphrase = std::string(passphrase);
+    wallet->getPolyseed(seed, _passphrase);
+    std::string str = seed;
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
+//     static bool createPolyseed(std::string &seed_words, std::string &err, const std::string &language = "English");
+const char* MONERO_Wallet_createPolyseed() {
+    std::string seed_words = "";
+    std::string err;
+    Monero::Wallet::createPolyseed(seed_words, err);
+    std::string str = seed_words;
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
+
 void MONERO_Wallet_startRefresh(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->startRefresh();
@@ -1107,16 +1159,19 @@ const char* MONERO_Wallet_getMultisigInfo(void* wallet_ptr) {
 void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, const char* payment_id,
                                                     uint64_t amount, uint32_t mixin_count,
                                                     int pendingTransactionPriority,
-                                                    uint32_t subaddr_account) {
+                                                    uint32_t subaddr_account,
+                                                    const char* preferredInputs, const char* separator) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     Monero::optional<uint64_t> optAmount;
     if (amount != 0) {
         optAmount = amount;
     }
+    std::set<uint32_t> subaddr_indices = {};
+    std::set<std::string> preferred_inputs = splitString(std::string(preferredInputs), std::string(separator));
     return wallet->createTransaction(std::string(dst_addr), std::string(payment_id),
                                         optAmount, mixin_count,
                                         Monero::PendingTransaction::Priority_Low,
-                                        subaddr_account /*, subaddr_indices */);
+                                        subaddr_account, subaddr_indices);
 }
 void* MONERO_Wallet_loadUnsignedTx(void* wallet_ptr, const char* fileName) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
@@ -1125,6 +1180,10 @@ void* MONERO_Wallet_loadUnsignedTx(void* wallet_ptr, const char* fileName) {
 bool MONERO_Wallet_submitTransaction(void* wallet_ptr, const char* fileName) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->submitTransaction(std::string(fileName));
+}
+bool MONERO_Wallet_hasUnknownKeyImages(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->hasUnknownKeyImages();
 }
 bool MONERO_Wallet_exportKeyImages(void* wallet_ptr, const char* filename, bool all) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
@@ -1141,6 +1200,36 @@ bool MONERO_Wallet_exportOutputs(void* wallet_ptr, const char* filename, bool al
 bool MONERO_Wallet_importOutputs(void* wallet_ptr, const char* filename) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->importOutputs(std::string(filename));
+}
+//     virtual bool setupBackgroundSync(const BackgroundSyncType background_sync_type, const std::string &wallet_password, const optional<std::string> &background_cache_password) = 0;
+bool MONERO_Wallet_setupBackgroundSync(void* wallet_ptr, int background_sync_type, const char* wallet_password, const char* background_cache_password) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->setupBackgroundSync(Monero::Wallet::BackgroundSyncType::BackgroundSync_CustomPassword, std::string(wallet_password), std::string(background_cache_password));
+}
+//     virtual BackgroundSyncType getBackgroundSyncType() const = 0;
+int MONERO_Wallet_getBackgroundSyncType(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->getBackgroundSyncType();
+}
+//     virtual bool startBackgroundSync() = 0;
+bool MONERO_Wallet_startBackgroundSync(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->startBackgroundSync();
+}
+//     virtual bool stopBackgroundSync(const std::string &wallet_password) = 0;
+bool MONERO_Wallet_stopBackgroundSync(void* wallet_ptr, const char* wallet_password) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->stopBackgroundSync(std::string(wallet_password));
+}
+//     virtual bool isBackgroundSyncing() const = 0;
+bool MONERO_Wallet_isBackgroundSyncing(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->hasUnknownKeyImages();
+}
+//     virtual bool isBackgroundWallet() const = 0;
+bool MONERO_Wallet_isBackgroundWallet(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->isBackgroundWallet();
 }
 void* MONERO_Wallet_history(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
@@ -1324,6 +1413,20 @@ void* MONERO_WalletManager_recoveryWallet(const char* path, const char* password
                     std::string(seedOffset));
     return reinterpret_cast<void*>(wallet);
 }
+
+void* MONERO_WalletManager_createWalletFromPolyseed(const char* path, const char* password,
+                                                int nettype, const char* mnemonic, const char* passphrase,
+                                                bool newWallet, uint64_t restore_height, uint64_t kdf_rounds) {
+    return Monero::WalletManagerFactory::getWalletManager()->createWalletFromPolyseed(std::string(path),
+                                              std::string(password),
+                                              static_cast<Monero::NetworkType>(nettype),
+                                              std::string(mnemonic),
+                                              std::string(passphrase),
+                                              newWallet,
+                                              restore_height,
+                                              kdf_rounds);
+}
+
 
 bool MONERO_WalletManager_closeWallet(void* wallet_ptr, bool store) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);

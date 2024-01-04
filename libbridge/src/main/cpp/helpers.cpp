@@ -143,3 +143,17 @@ const char* vectorToString(const std::set<uint32_t>& intSet, const std::string s
     memcpy(buffer, str.c_str(), size + 1);
     return buffer;
 }
+
+std::set<std::string> splitString(const std::string& str, const std::string& delim) {
+    std::set<std::string> tokens;
+    size_t pos = 0;
+    std::string token;
+    std::string content = str;  // Copy of str so we can safely erase content
+    while ((pos = content.find(delim)) != std::string::npos) {
+        token = content.substr(0, pos);
+        tokens.insert(token);
+        content.erase(0, pos + delim.length());
+    }
+    tokens.insert(content);  // Inserting the last token
+    return tokens;
+}

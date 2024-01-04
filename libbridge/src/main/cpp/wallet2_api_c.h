@@ -293,6 +293,8 @@ bool MONERO_CoinsInfo_unlocked(void* coinsInfo_ptr);
 const char* MONERO_CoinsInfo_pubKey(void* coinsInfo_ptr);
 //     virtual bool coinbase() const = 0;
 bool MONERO_CoinsInfo_coinbase(void* coinsInfo_ptr);
+//     virtual std::string description() const = 0;
+const char* MONERO_CoinsInfo_description(void* coinsInfo_ptr);
 // };
 // struct Coins
 // {
@@ -304,12 +306,18 @@ void* MONERO_Coins_coin(void* coins_ptr, int index);
 //     virtual std::vector<CoinsInfo*> getAll() const = 0;
 //     virtual void refresh() = 0;
 void MONERO_Coins_refresh(void* coins_ptr);
+//     virtual void setFrozen(std::string public_key) = 0;
+void MONERO_Coins_setFrozenByPublicKey(void* coins_ptr, const char* public_key);
 //     virtual void setFrozen(int index) = 0;
 void MONERO_Coins_setFrozen(void* coins_ptr, int index);
 //     virtual void thaw(int index) = 0;
 void MONERO_Coins_thaw(void* coins_ptr, int index);
+//     virtual void thaw(std::string public_key) = 0;
+void MONERO_Coins_thawByPublicKey(void* coins_ptr, const char* public_key);
 //     virtual bool isTransferUnlocked(uint64_t unlockTime, uint64_t blockHeight) = 0;
 bool MONERO_Coins_isTransferUnlocked(void* coins_ptr, uint64_t unlockTime, uint64_t blockHeight);
+//    virtual void setDescription(const std::string &public_key, const std::string &description) = 0;
+void MONERO_Coins_setDescription(void* coins_ptr, const char* public_key, const char* description);
 // };
 // struct SubaddressRow {
 // public:
@@ -467,6 +475,14 @@ const int WalletConnectionStatus_Connected = 1;
 //         ConnectionStatus_WrongVersion
 const int WalletConnectionStatus_WrongVersion = 2;
 //     };
+//    enum BackgroundSyncType {
+//        BackgroundSync_Off = 0,
+const int WalletBackgroundSync_Off = 0;
+//        BackgroundSync_ReusePassword = 1,
+const int WalletBackgroundSync_ReusePassword = 1;
+//        BackgroundSync_CustomPassword = 2
+const int BackgroundSync_CustomPassword = 2;
+//    };
 //     virtual ~Wallet() = 0;
 //     virtual std::string seed(const std::string& seed_offset = "") const = 0;
 const char* MONERO_Wallet_seed(void* wallet_ptr, const char* seed_offset);
@@ -561,6 +577,8 @@ uint64_t MONERO_Wallet_unlockedBalance(void* wallet_ptr, uint32_t accountIndex);
 //         return result;
 //     }
 //     virtual bool watchOnly() const = 0;
+//    virtual uint64_t viewOnlyBalance(uint32_t accountIndex, const std::vector<std::string> &key_images = {}) const = 0;
+uint64_t MONERO_Wallet_viewOnlyBalance(void* wallet_ptr, uint32_t accountIndex);
 bool MONERO_Wallet_watchOnly(void* wallet_ptr);
 //     virtual bool isDeterministic() const = 0;
 bool MONERO_Wallet_isDeterministic(void* wallet_ptr);
@@ -617,6 +635,10 @@ void MONERO_Wallet_init3(void* wallet_ptr, const char* argv0, const char* defaul
 //     static void warning(const std::string &category, const std::string &str);
 //     static void error(const std::string &category, const std::string &str);
 //     virtual void startRefresh() = 0;
+//     virtual bool getPolyseed(std::string &seed, std::string &passphrase) const = 0;
+const char* MONERO_Wallet_getPolyseed(void* wallet_ptr, const char* passphrase);
+//     static bool createPolyseed(std::string &seed_words, std::string &err, const std::string &language = "English");
+const char* MONERO_Wallet_createPolyseed();
 void MONERO_Wallet_startRefresh(void* wallet_ptr);
 //     virtual void pauseRefresh() = 0;
 void MONERO_Wallet_pauseRefresh(void* wallet_ptr);
@@ -662,11 +684,13 @@ const char* MONERO_Wallet_getMultisigInfo(void* wallet_ptr);
 //                                                    optional<uint64_t> amount, uint32_t mixin_count,
 //                                                    PendingTransaction::Priority = PendingTransaction::Priority_Low,
 //                                                    uint32_t subaddr_account = 0,
-//                                                    std::set<uint32_t> subaddr_indices = {}) = 0;
+//                                                    std::set<uint32_t> subaddr_indices = {},
+//                                                    const std::set<std::string> &preferred_inputs = {) = 0;
 void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, const char* payment_id,
                                                     uint64_t amount, uint32_t mixin_count,
                                                     int pendingTransactionPriority,
-                                                    uint32_t subaddr_account); // std::nullopt
+                                                    uint32_t subaddr_account,
+                                                    const char* preferredInputs, const char* separator);
 //     virtual PendingTransaction * createSweepUnmixableTransaction() = 0;
 //     virtual UnsignedTransaction * loadUnsignedTx(const std::string &unsigned_filename) = 0;
 void* MONERO_Wallet_loadUnsignedTx(void* wallet_ptr, const char* unsigned_filename);
@@ -675,6 +699,8 @@ bool MONERO_Wallet_submitTransaction(void* wallet_ptr, const char* fileName);
 //     virtual void disposeTransaction(PendingTransaction * t) = 0;
 //     virtual uint64_t estimateTransactionFee(const std::vector<std::pair<std::string, uint64_t>> &destinations,
 //                                             PendingTransaction::Priority priority) const = 0;
+//     virtual bool hasUnknownKeyImages() const = 0;
+bool MONERO_Wallet_hasUnknownKeyImages(void* wallet_ptr);
 //     virtual bool exportKeyImages(const std::string &filename, bool all = false) = 0;
 bool MONERO_Wallet_exportKeyImages(void* wallet_ptr, const char* filename, bool all);
 //     virtual bool importKeyImages(const std::string &filename) = 0;
@@ -684,6 +710,18 @@ bool MONERO_Wallet_exportOutputs(void* wallet_ptr, const char* filename, bool al
 //     virtual bool importOutputs(const std::string &filename) = 0;
 bool MONERO_Wallet_importOutputs(void* wallet_ptr, const char* filename);
 //     virtual bool scanTransactions(const std::vector<std::string> &txids) = 0;
+//     virtual bool setupBackgroundSync(const BackgroundSyncType background_sync_type, const std::string &wallet_password, const optional<std::string> &background_cache_password) = 0;
+bool MONERO_Wallet_setupBackgroundSync(void* wallet_ptr, int background_sync_type, const char* wallet_password, const char* background_cache_password);
+//     virtual BackgroundSyncType getBackgroundSyncType() const = 0;
+int MONERO_Wallet_getBackgroundSyncType(void* wallet_ptr);
+//     virtual bool startBackgroundSync() = 0;
+bool MONERO_Wallet_startBackgroundSync(void* wallet_ptr);
+//     virtual bool stopBackgroundSync(const std::string &wallet_password) = 0;
+bool MONERO_Wallet_stopBackgroundSync(void* wallet_ptr, const char* wallet_password);
+//     virtual bool isBackgroundSyncing() const = 0;
+bool MONERO_Wallet_isBackgroundSyncing(void* wallet_ptr);
+//     virtual bool isBackgroundWallet() const = 0;
+bool MONERO_Wallet_isBackgroundWallet(void* wallet_ptr);
 //     virtual TransactionHistory * history() = 0;
 void* MONERO_Wallet_history(void* wallet_ptr);
 //     virtual AddressBook * addressBook() = 0;
@@ -836,6 +874,17 @@ void* MONERO_WalletManager_recoveryWallet(const char* path, const char* password
 //                                             const std::string &subaddressLookahead = "",
 //                                             uint64_t kdf_rounds = 1,
 //                                             WalletListener * listener = nullptr) = 0;
+//     virtual Wallet * createWalletFromPolyseed(const std::string &path,
+//                                               const std::string &password,
+//                                               NetworkType nettype,
+//                                               const std::string &mnemonic,
+//                                               const std::string &passphrase = "",
+//                                               bool newWallet = true,
+//                                               uint64_t restore_height = 0,
+//                                               uint64_t kdf_rounds = 1) = 0;
+void* MONERO_WalletManager_createWalletFromPolyseed(const char* path, const char* password,
+                                                int nettype, const char* mnemonic, const char* passphrase,
+                                                bool newWallet, uint64_t restore_height, uint64_t kdf_rounds);
 //     virtual bool closeWallet(Wallet *wallet, bool store = true) = 0;
 bool MONERO_WalletManager_closeWallet(void* wallet_ptr, bool store);
 //     virtual bool walletExists(const std::string &path) = 0;
