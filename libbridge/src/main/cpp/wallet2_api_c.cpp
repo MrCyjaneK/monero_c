@@ -1178,10 +1178,15 @@ void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, co
     }
     std::set<uint32_t> subaddr_indices = {};
     std::set<std::string> preferred_inputs = splitString(std::string(preferredInputs), std::string(separator));
+    wallet->info("MONERO_C", "TEST");
+    wallet->info("MONERO_C", preferredInputs);
+    wallet->info("MONERO_C", std::to_string(preferred_inputs.size()));
+    auto oneInput = *(preferred_inputs.begin());
+    wallet->info("MONERO_C", oneInput);
     return wallet->createTransaction(std::string(dst_addr), std::string(payment_id),
                                         optAmount, mixin_count,
                                         Monero::PendingTransaction::Priority_Low,
-                                        subaddr_account, subaddr_indices);
+                                        subaddr_account, subaddr_indices, preferred_inputs);
 }
 void* MONERO_Wallet_loadUnsignedTx(void* wallet_ptr, const char* fileName) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);

@@ -146,6 +146,7 @@ const char* vectorToString(const std::set<uint32_t>& intSet, const std::string s
 
 std::set<std::string> splitString(const std::string& str, const std::string& delim) {
     std::set<std::string> tokens;
+    if (str.empty()) return tokens;
     size_t pos = 0;
     std::string token;
     std::string content = str;  // Copy of str so we can safely erase content
