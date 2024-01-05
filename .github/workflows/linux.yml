@@ -1,7 +1,9 @@
 name: Linux Release
 run-name: Building monero_c for linux
-on: push
-
+on: 
+  push:
+    tags:
+      - '*'
 # cat envs.txt | sed 's/  //g' | sed 's/: /=/g' | grep -v '#' > .env
 # export $(cat .env | xargs)
 env:

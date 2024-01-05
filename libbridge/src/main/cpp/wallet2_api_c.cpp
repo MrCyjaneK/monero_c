@@ -499,6 +499,16 @@ void* MONERO_Coins_coin(void* coins_ptr, int index) {
     Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
     return coins->coin(index);
 }
+
+int MONERO_Coins_getAll_size(void* coins_ptr)  {
+    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
+    return coins->getAll().size();
+}
+void* MONERO_Coins_getAll_byIndex(void* coins_ptr, int index) {
+    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
+    return coins->getAll()[index];
+}
+
 //     virtual std::vector<CoinsInfo*> getAll() const = 0;
 //     virtual void refresh() = 0;
 void MONERO_Coins_refresh(void* coins_ptr) {

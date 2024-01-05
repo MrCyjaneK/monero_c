@@ -304,6 +304,8 @@ int MONERO_Coins_count(void* coins_ptr);
 //     virtual CoinsInfo * coin(int index)  const = 0;
 void* MONERO_Coins_coin(void* coins_ptr, int index);
 //     virtual std::vector<CoinsInfo*> getAll() const = 0;
+int MONERO_Coins_getAll_size(void* coins_ptr);
+void* MONERO_Coins_getAll_byIndex(void* coins_ptr, int index);
 //     virtual void refresh() = 0;
 void MONERO_Coins_refresh(void* coins_ptr);
 //     virtual void setFrozen(std::string public_key) = 0;
