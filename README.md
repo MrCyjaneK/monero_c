@@ -10,24 +10,24 @@ To contribute you can visit git.mrcyjanek.net/mrcyjanek/monero_c and open a PR, 
 
 Builds are provided in the [release tab](https://git.mrcyjanek.net/mrcyjanek/monero_c/releases), built using Gitea Runners. Building locally is possible as well, althought it is rather a heavy task which takes ~2 hours to finish (excluding enviroment setup and some downloads).
 
-Base image for the runner is `registry.mrcyjanek.net/androidndk:r17c`, which contains preinstalled NDK. `Dockerfile` can be obtained from [mrcyjanek/CIimages](https://git.mrcyjanek.net/mrcyjanek/CIimages/src/branch/master/Dockerfile.androidndk-r17c) repository.
+Base image for the runner is `git.mrcyjanek.net/mrcyjanek/androidndk:r17c`, which contains preinstalled NDK. `Dockerfile` can be obtained from [mrcyjanek/CIimages](https://git.mrcyjanek.net/mrcyjanek/CIimages/src/branch/master/Dockerfile.androidndk-r17c) repository.
 
 Then to build `.github/workflows/*.yml` files are used.
 
 Local build?
 
 ```bash
-$ act --pull=false -Pandroidndk-r17c=registry.mrcyjanek.net/androidndk:r17c
+$ act --pull=false -Pandroidndk-r17c=git.mrcyjanek.net/mrcyjanek/androidndk:r17c
 ```
 
 For development?
 
 ```bash
-$ timeout 5 act --pull=false -Pandroidndk-r17c=registry.mrcyjanek.net/androidndk:r17c # needed to clear cache.
-$ act --pull=false -Pandroidndk-r17c=registry.mrcyjanek.net/androidndk:r17c --reuse
+$ timeout 5 act --pull=false -Pandroidndk-r17c=git.mrcyjanek.net/mrcyjanek/androidndk:r17c # needed to clear cache.
+$ act --pull=false -Pandroidndk-r17c=git.mrcyjanek.net/mrcyjanek/androidndk:r17c --reuse
 $ docker ps
 CONTAINER ID IMAGE .....................................
-d0626dcd8c5d registry.mrcyjanek.net/androidndk:r17c ....
+d0626dcd8c5d git.mrcyjanek.net/mrcyjanek/androidndk:r17c ....
 $ docker commit d0626dcd8c5d monero_c:dev
 $ docker run --rm -it \
     -v $PWD/libbridge:/opt/wspace/libbridge_up \
