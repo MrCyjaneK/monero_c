@@ -72,6 +72,14 @@ set_target_properties(boost_wserialization PROPERTIES IMPORTED_LOCATION
     ${EXTERNAL_LIBS_DIR}/prefix/lib/libboost_wserialization.a)
 
 #############
+# Polyseed
+#############
+
+add_library(polyseed STATIC IMPORTED)
+set_target_properties(polyseed PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/prefix/lib/libpolyseed.a)
+
+#############
 # Monero
 #############
 
@@ -236,6 +244,8 @@ target_link_libraries(  wallet2_api_c
                         boost_system
                         boost_thread
                         boost_wserialization
+
+                        polyseed
 
                         ssl
                         crypto
