@@ -840,6 +840,7 @@ void* MONERO_WalletManager_recoveryWallet(const char* path, const char* password
 //                                                     const std::string &viewKeyString,
 //                                                     const std::string &spendKeyString = "",
 //                                                     uint64_t kdf_rounds = 1) = 0;
+void* MONERO_WalletManager_createWalletFromKeys(const char* path, const char* password, const char* language, int nettype, uint64_t restoreHeight, const char* addressString, const char* viewKeyString, const char* spendKeyString, uint64_t kdf_rounds);
 //     Wallet * createWalletFromKeys(const std::string &path,
 //                                   const std::string &password,
 //                                   const std::string &language,

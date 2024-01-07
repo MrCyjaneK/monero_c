@@ -1428,6 +1428,28 @@ void* MONERO_WalletManager_recoveryWallet(const char* path, const char* password
                     std::string(seedOffset));
     return reinterpret_cast<void*>(wallet);
 }
+//     virtual Wallet * createWalletFromKeys(const std::string &path,
+//                                                     const std::string &password,
+//                                                     const std::string &language,
+//                                                     NetworkType nettype,
+//                                                     uint64_t restoreHeight,
+//                                                     const std::string &addressString,
+//                                                     const std::string &viewKeyString,
+//                                                     const std::string &spendKeyString = "",
+//                                                     uint64_t kdf_rounds = 1) = 0;
+void* MONERO_WalletManager_createWalletFromKeys(const char* path, const char* password, const char* language, int nettype, uint64_t restoreHeight, const char* addressString, const char* viewKeyString, const char* spendKeyString, uint64_t kdf_rounds) {
+    Monero::Wallet *wallet =
+            Monero::WalletManagerFactory::getWalletManager()->createWalletFromKeys(
+                    std::string(path),
+                    std::string(password),
+                    std::string(language),
+                    static_cast<Monero::NetworkType>(nettype),
+                    restoreHeight,
+                    std::string(addressString),
+                    std::string(viewKeyString),
+                    std::string(spendKeyString));
+    return reinterpret_cast<void*>(wallet);
+}
 
 void* MONERO_WalletManager_createWalletFromPolyseed(const char* path, const char* password,
                                                 int nettype, const char* mnemonic, const char* passphrase,

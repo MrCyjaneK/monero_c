@@ -33,10 +33,10 @@ $ docker run --rm -it \
     -v $PWD/libbridge:/opt/wspace/libbridge_up \
     --entrypoint /bin/bash \
     monero_c:dev
-[docker] $ export 'PATH=/usr/cmake-3.14.6-Linux-x86_64/bin:/opt/android/toolchain/aarch64-linux-android/bin:/opt/android/toolchain/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-[docker] $ cd /opt/wspace/libbridge_up
-[docker] $ rm -rf build && mkdir build && cd build
-[docker] $ env CC=clang CXX=clang++ cmake -DANDROID_ABI=-arm64-v8a ..
-[docker] $ make
+[docker] $ export 'PATH=/usr/cmake-3.14.6-Linux-x86_64/bin:/opt/android/toolchain/aarch64-linux-android/bin:/opt/android/toolchain/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' \
+    && cd /opt/wspace/libbridge_up \
+    && rm -rf build && mkdir build && cd build \
+    && env CC=clang CXX=clang++ cmake -DANDROID_ABI=-arm64-v8a .. \
+    && make
 # Resulting file will be available in the current directory.
 ```
