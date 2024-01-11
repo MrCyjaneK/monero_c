@@ -1597,6 +1597,11 @@ const char* MONERO_DEBUG_test5_std() {
     return text2;
 }
 
+bool MONERO_DEBUG_isPointerNull(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return (wallet != NULL);
+}
+
 #ifdef __cplusplus
 }
 #endif

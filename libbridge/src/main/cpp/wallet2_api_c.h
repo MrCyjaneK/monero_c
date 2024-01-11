@@ -966,6 +966,7 @@ uint64_t MONERO_DEBUG_test3(uint64_t x);
 void* MONERO_DEBUG_test4(uint64_t x);
 const char* MONERO_DEBUG_test5();
 const char* MONERO_DEBUG_test5_std();
+bool MONERO_DEBUG_isPointerNull(void* wallet_ptr);
 
 #ifdef __cplusplus
 }
