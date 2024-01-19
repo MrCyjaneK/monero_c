@@ -1395,9 +1395,14 @@ uint64_t MONERO_Wallet_getBytesSent(void* wallet_ptr) {
     return wallet->getBytesSent();
 }
 
-void* MONERO_WalletManager_createWallet(const char* path, const char* password, const char* language, int networkType) {
-    Monero::Wallet *wallet =
-            Monero::WalletManagerFactory::getWalletManager()->createWallet(
+void* MONERO_WalletManagerFactory_getWalletManager() {
+    Monero::WalletManager *wm = Monero::WalletManagerFactory::getWalletManager();
+    return reinterpret_cast<void*>(wm);
+}
+
+void* MONERO_WalletManager_createWallet(void* wm_ptr, const char* path, const char* password, const char* language, int networkType) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    Monero::Wallet *wallet = wm->createWallet(
                     std::string(path),
                     std::string(password),
                     std::string(language),
@@ -1405,20 +1410,20 @@ void* MONERO_WalletManager_createWallet(const char* path, const char* password, 
     return reinterpret_cast<void*>(wallet);
 }
 
-void* MONERO_WalletManager_openWallet(const char* path, const char* password, int networkType) {
-    Monero::Wallet *wallet =
-            Monero::WalletManagerFactory::getWalletManager()->openWallet(
+void* MONERO_WalletManager_openWallet(void* wm_ptr, const char* path, const char* password, int networkType) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    Monero::Wallet *wallet = wm->openWallet(
                     std::string(path),
                     std::string(password),
                     static_cast<Monero::NetworkType>(networkType));
     return reinterpret_cast<void*>(wallet);
 }
-void* MONERO_WalletManager_recoveryWallet(const char* path, const char* password, const char* mnemonic, int networkType, uint64_t restoreHeight, uint64_t kdfRounds, const char* seedOffset) {
+void* MONERO_WalletManager_recoveryWallet(void* wm_ptr, const char* path, const char* password, const char* mnemonic, int networkType, uint64_t restoreHeight, uint64_t kdfRounds, const char* seedOffset) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
     // (const std::string &path, const std::string &password, const std::string &mnemonic,
     //                                     NetworkType nettype = MAINNET, uint64_t restoreHeight = 0, uint64_t kdf_rounds = 1,
     //                                     const std::string &seed_offset = {})
-    Monero::Wallet *wallet =
-            Monero::WalletManagerFactory::getWalletManager()->recoveryWallet(
+    Monero::Wallet *wallet = wm->recoveryWallet(
                     std::string(path),
                     std::string(password),
                     std::string(mnemonic),
@@ -1437,9 +1442,9 @@ void* MONERO_WalletManager_recoveryWallet(const char* path, const char* password
 //                                                     const std::string &viewKeyString,
 //                                                     const std::string &spendKeyString = "",
 //                                                     uint64_t kdf_rounds = 1) = 0;
-void* MONERO_WalletManager_createWalletFromKeys(const char* path, const char* password, const char* language, int nettype, uint64_t restoreHeight, const char* addressString, const char* viewKeyString, const char* spendKeyString, uint64_t kdf_rounds) {
-    Monero::Wallet *wallet =
-            Monero::WalletManagerFactory::getWalletManager()->createWalletFromKeys(
+void* MONERO_WalletManager_createWalletFromKeys(void* wm_ptr, const char* path, const char* password, const char* language, int nettype, uint64_t restoreHeight, const char* addressString, const char* viewKeyString, const char* spendKeyString, uint64_t kdf_rounds) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    Monero::Wallet *wallet = wm->createWalletFromKeys(
                     std::string(path),
                     std::string(password),
                     std::string(language),
@@ -1451,10 +1456,11 @@ void* MONERO_WalletManager_createWalletFromKeys(const char* path, const char* pa
     return reinterpret_cast<void*>(wallet);
 }
 
-void* MONERO_WalletManager_createWalletFromPolyseed(const char* path, const char* password,
+void* MONERO_WalletManager_createWalletFromPolyseed(void* wm_ptr, const char* path, const char* password,
                                                 int nettype, const char* mnemonic, const char* passphrase,
                                                 bool newWallet, uint64_t restore_height, uint64_t kdf_rounds) {
-    return Monero::WalletManagerFactory::getWalletManager()->createWalletFromPolyseed(std::string(path),
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->createWalletFromPolyseed(std::string(path),
                                               std::string(password),
                                               static_cast<Monero::NetworkType>(nettype),
                                               std::string(mnemonic),
@@ -1465,84 +1471,98 @@ void* MONERO_WalletManager_createWalletFromPolyseed(const char* path, const char
 }
 
 
-bool MONERO_WalletManager_closeWallet(void* wallet_ptr, bool store) {
+bool MONERO_WalletManager_closeWallet(void* wm_ptr, void* wallet_ptr, bool store) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return Monero::WalletManagerFactory::getWalletManager()->closeWallet(
-                    wallet,
-                    store);
+    return wm->closeWallet(wallet, store);
 }
 
-bool MONERO_WalletManager_walletExists(const char* path) {
-    return Monero::WalletManagerFactory::getWalletManager()->walletExists(std::string(path));
+bool MONERO_WalletManager_walletExists(void* wm_ptr, const char* path) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->walletExists(std::string(path));
 }
 
 //     virtual bool verifyWalletPassword(const std::string &keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const = 0;
-bool MONERO_WalletManager_verifyWalletPassword(const char* keys_file_name, const char* password, bool no_spend_key, uint64_t kdf_rounds) {
-    return Monero::WalletManagerFactory::getWalletManager()->verifyWalletPassword(std::string(keys_file_name), std::string(password), no_spend_key, kdf_rounds);
+bool MONERO_WalletManager_verifyWalletPassword(void* wm_ptr, const char* keys_file_name, const char* password, bool no_spend_key, uint64_t kdf_rounds) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->verifyWalletPassword(std::string(keys_file_name), std::string(password), no_spend_key, kdf_rounds);
 }
 //     virtual bool queryWalletDevice(Wallet::Device& device_type, const std::string &keys_file_name, const std::string &password, uint64_t kdf_rounds = 1) const = 0;
 // bool MONERO_WalletManager_queryWalletDevice(int device_type, const char* keys_file_name, const char* password, uint64_t kdf_rounds) {
 //     return Monero::WalletManagerFactory::getWalletManager()->queryWalletDevice(device_type, std::string(keys_file_name), std::string(password), kdf_rounds);
 //}
 //     virtual std::vector<std::string> findWallets(const std::string &path) = 0;
-const char* MONERO_WalletManager_findWallets(const char* path, const char* separator) {
-    return vectorToString(Monero::WalletManagerFactory::getWalletManager()->findWallets(std::string(path)), std::string(separator));
+const char* MONERO_WalletManager_findWallets(void* wm_ptr, const char* path, const char* separator) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return vectorToString(wm->findWallets(std::string(path)), std::string(separator));
 }
 
 
-const char* MONERO_WalletManager_errorString() {
-    std::string str = Monero::WalletManagerFactory::getWalletManager()->errorString();
+const char* MONERO_WalletManager_errorString(void* wm_ptr) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    std::string str = wm->errorString();
     const std::string::size_type size = str.size();
     char *buffer = new char[size + 1];   //we need extra char for NUL
     memcpy(buffer, str.c_str(), size + 1);
     return buffer;
 }
 
-void MONERO_WalletManager_setDaemonAddress(const char* address) {
-    return Monero::WalletManagerFactory::getWalletManager()->setDaemonAddress(std::string(address));
+void MONERO_WalletManager_setDaemonAddress(void* wm_ptr, const char* address) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->setDaemonAddress(std::string(address));
 }
 
-bool MONERO_WalletManager_setProxy(const char* address) {
-    return Monero::WalletManagerFactory::getWalletManager()->setProxy(std::string(address));
+bool MONERO_WalletManager_setProxy(void* wm_ptr, const char* address) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->setProxy(std::string(address));
 }
 
 
 //     virtual bool connected(uint32_t *version = NULL) = 0;
 //     virtual uint64_t blockchainHeight() = 0;
-uint64_t MONERO_WalletManager_blockchainHeight() {
-    return Monero::WalletManagerFactory::getWalletManager()->blockchainHeight();
+uint64_t MONERO_WalletManager_blockchainHeight(void* wm_ptr) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->blockchainHeight();
 }
 //     virtual uint64_t blockchainTargetHeight() = 0;
-uint64_t MONERO_WalletManager_blockchainTargetHeight() {
-    return Monero::WalletManagerFactory::getWalletManager()->blockchainTargetHeight();
+uint64_t MONERO_WalletManager_blockchainTargetHeight(void* wm_ptr) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->blockchainTargetHeight();
 }
 //     virtual uint64_t networkDifficulty() = 0;
-uint64_t MONERO_WalletManager_networkDifficulty() {
-    return Monero::WalletManagerFactory::getWalletManager()->networkDifficulty();
+uint64_t MONERO_WalletManager_networkDifficulty(void* wm_ptr) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->networkDifficulty();
 }
 //     virtual double miningHashRate() = 0;
-double MONERO_WalletManager_miningHashRate() {
-    return Monero::WalletManagerFactory::getWalletManager()->miningHashRate();
+double MONERO_WalletManager_miningHashRate(void* wm_ptr) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->miningHashRate();
 }
 //     virtual uint64_t blockTarget() = 0;
-uint64_t MONERO_WalletManager_blockTarget() {
-    return Monero::WalletManagerFactory::getWalletManager()->blockTarget();
+uint64_t MONERO_WalletManager_blockTarget(void* wm_ptr) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->blockTarget();
 }
 //     virtual bool isMining() = 0;
-bool MONERO_WalletManager_isMining() {
-    return Monero::WalletManagerFactory::getWalletManager()->isMining();
+bool MONERO_WalletManager_isMining(void* wm_ptr) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->isMining();
 }
 //     virtual bool startMining(const std::string &address, uint32_t threads = 1, bool background_mining = false, bool ignore_battery = true) = 0;
-bool MONERO_WalletManager_startMining(const char* address, uint32_t threads, bool backgroundMining, bool ignoreBattery) {
-    return Monero::WalletManagerFactory::getWalletManager()->startMining(std::string(address), threads, backgroundMining, ignoreBattery);
+bool MONERO_WalletManager_startMining(void* wm_ptr, const char* address, uint32_t threads, bool backgroundMining, bool ignoreBattery) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->startMining(std::string(address), threads, backgroundMining, ignoreBattery);
 }
 //     virtual bool stopMining() = 0;
-bool MONERO_WalletManager_stopMining(const char* address) {
-    return Monero::WalletManagerFactory::getWalletManager()->stopMining();
+bool MONERO_WalletManager_stopMining(void* wm_ptr, const char* address) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    return wm->stopMining();
 }
 //     virtual std::string resolveOpenAlias(const std::string &address, bool &dnssec_valid) const = 0;
-const char* MONERO_WalletManager_resolveOpenAlias(const char* address, bool dnssec_valid) {
-    std::string str = Monero::WalletManagerFactory::getWalletManager()->resolveOpenAlias(std::string(address), dnssec_valid);
+const char* MONERO_WalletManager_resolveOpenAlias(void* wm_ptr, const char* address, bool dnssec_valid) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    std::string str = wm->resolveOpenAlias(std::string(address), dnssec_valid);
     const std::string::size_type size = str.size();
     char *buffer = new char[size + 1];   //we need extra char for NUL
     memcpy(buffer, str.c_str(), size + 1);
