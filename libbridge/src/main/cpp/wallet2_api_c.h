@@ -952,6 +952,7 @@ int LogLevel_Max = 4;
 //         LogLevel_Max = LogLevel_4
 //     };
 //     static WalletManager * getWalletManager();
+void* MONERO_WalletManagerFactory_getWalletManager();
 //     static void setLogLevel(int level);
 void MONERO_WalletManagerFactory_setLogLevel(int level);
 //     static void setLogCategories(const std::string &categories);

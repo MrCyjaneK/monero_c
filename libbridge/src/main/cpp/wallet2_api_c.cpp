@@ -1395,10 +1395,6 @@ uint64_t MONERO_Wallet_getBytesSent(void* wallet_ptr) {
     return wallet->getBytesSent();
 }
 
-void* MONERO_WalletManagerFactory_getWalletManager() {
-    Monero::WalletManager *wm = Monero::WalletManagerFactory::getWalletManager();
-    return reinterpret_cast<void*>(wm);
-}
 
 void* MONERO_WalletManager_createWallet(void* wm_ptr, const char* path, const char* password, const char* language, int networkType) {
     Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
@@ -1570,6 +1566,11 @@ const char* MONERO_WalletManager_resolveOpenAlias(void* wm_ptr, const char* addr
 }
 
 // WalletManagerFactory
+
+void* MONERO_WalletManagerFactory_getWalletManager() {
+    Monero::WalletManager *wm = Monero::WalletManagerFactory::getWalletManager();
+    return reinterpret_cast<void*>(wm);
+}
 
 void MONERO_WalletManagerFactory_setLogLevel(int level) {
     Monero::WalletManagerFactory::setLogLevel(level);
