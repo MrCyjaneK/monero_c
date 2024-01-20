@@ -72,6 +72,26 @@ set_target_properties(boost_wserialization PROPERTIES IMPORTED_LOCATION
     ${EXTERNAL_LIBS_DIR}/prefix/lib/libboost_wserialization.a)
 
 #############
+# Polyseed
+#############
+
+add_library(polyseed STATIC IMPORTED)
+set_target_properties(polyseed PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/prefix/lib/libpolyseed.a)
+
+add_library(polyseed-wrapper STATIC IMPORTED)
+set_target_properties(polyseed-wrapper PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/polyseed/libpolyseed_wrapper.a)
+
+#############
+# Utf8proc
+#############
+
+add_library(utf8proc STATIC IMPORTED)
+set_target_properties(utf8proc PROPERTIES IMPORTED_LOCATION
+        ${EXTERNAL_LIBS_DIR}/prefix/lib/libutf8proc.a)
+
+#############
 # Monero
 #############
 
@@ -236,6 +256,10 @@ target_link_libraries(  wallet2_api_c
                         boost_system
                         boost_thread
                         boost_wserialization
+
+                        polyseed
+                        polyseed-wrapper
+                        utf8proc
 
                         ssl
                         crypto
