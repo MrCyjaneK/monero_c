@@ -276,12 +276,12 @@ jobs:
           && sha256sum ${{ matrix.host_triplet }}_libwallet2_api_c.so > ${{ matrix.host_triplet }}_libwallet2_api_c.so.sha256 \
           && xz -e ${{ matrix.host_triplet }}_libwallet2_api_c.so \
           && sha256sum ${{ matrix.host_triplet }}_libwallet2_api_c.so.xz > ${{ matrix.host_triplet }}_libwallet2_api_c.so.xz.sha256
-      - name: Publish .deb
-        run: |
-          cd ${{ github.workspace }} \
-          && LD_PRELOAD=/usr/lib/checkinstall/installwatch.so checkinstall --type=debian --pkgname="libwallet2-api-c" --pkgversion="$(git describe --tags | sed 's/v//')" --nodoc --strip=no --stripso=no --maintainer=cyjan@mrcyjanek.net --install=no -y \
-          ; ls -lah *.deb \
-          ; curl --user mrcyjanek:$PAT_SECRET_PACKAGE --upload-file $(echo *.deb) https://git.mrcyjanek.net/api/packages/mrcyjanek/debian/pool/no-distro/main/upload
+      # - name: Publish .deb
+      #   run: |
+      #     cd ${{ github.workspace }} \
+      #     && LD_PRELOAD=/usr/lib/checkinstall/installwatch.so checkinstall --type=debian --pkgname="libwallet2-api-c" --pkgversion="$(git describe --tags | sed 's/v//')" --nodoc --strip=no --stripso=no --maintainer=cyjan@mrcyjanek.net --install=no -y \
+      #     ; ls -lah *.deb \
+      #     ; curl --user mrcyjanek:$PAT_SECRET_PACKAGE --upload-file $(echo *.deb) https://git.mrcyjanek.net/api/packages/mrcyjanek/debian/pool/no-distro/main/upload
       # - name: act - copy workspace to /opt/wspace
       #   if: ${{ env.ACT }}
       #   run: cp -a ${{ github.workspace }} /opt/wspace

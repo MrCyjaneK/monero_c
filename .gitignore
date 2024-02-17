@@ -1,1 +1,13 @@
 monero*
+boost_*
+libexpat
+libiconv-*
+libsodium*
+libzmq*
+openssl-*
+polyseed*
+unbound*
+utf8proc*
+zlib*
+
+prefix

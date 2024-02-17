@@ -1317,6 +1317,21 @@ const char* MONERO_Wallet_getTxKey(void* wallet_ptr, const char* txid) {
     return buffer;
 }
 
+const char* MONERO_Wallet_signMessage(void* wallet_ptr, const char* message, const char* address) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    std::string str = wallet->signMessage(std::string(message), std::string(address));
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
+
+bool MONERO_Wallet_verifySignedMessage(void* wallet_ptr, const char* message, const char* address, const char* signature) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    bool v = wallet->verifySignedMessage(std::string(message), std::string(address), std::string(signature));
+    return v;
+}
+
 bool MONERO_Wallet_rescanSpent(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->rescanSpent();
