@@ -50,8 +50,11 @@ download:
 
 
 .PHONY: host_depends
-host_depends: libiconv_host boost_host zlib_host openssl_host libzmq_host libsodium_host libsodium_host libexpat_host unbound_host polyseed_host utf8proc_host
-	cp -a ${PREFIX}/lib64/* ${PREFIX}/lib # fix linking issue
+host_depends: libiconv_host boost_host zlib_host openssl_host libzmq_host libsodium_host libexpat_host host_copy_libs unbound_host polyseed_host utf8proc_host
+
+.PHONY: host_copy_libs	
+host_copy_libs:
+	cp -a ${PREFIX}/lib64/* ${PREFIX}/lib # fix linking issue (openssl?)
 
 .PHONY: libiconv_host
 libiconv_host:
@@ -107,6 +110,7 @@ unbound_host:
 
 .PHONY: polyseed_host
 polyseed_host:
+	cd polyseed && rm -rf ./CMakeCache.txt ./CMakeFiles/
 	cd polyseed && cmake -DCMAKE_INSTALL_PREFIX=${PREFIX} .
 	cd polyseed && make -j${NPROC}
 	cd polyseed && make install
@@ -123,6 +127,7 @@ utf8proc_host:
 .PHONY: monero_linux_amd64
 monero_linux_amd64:
 	cd monero \
+	&& rm -rf build/release \
 	&& mkdir -p build/release \
 	&& cd build/release \
 	&& env CMAKE_INCLUDE_PATH="${PREFIX}/include" CMAKE_LIBRARY_PATH="${PREFIX}/lib" USE_SINGLE_BUILDDIR=1 cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=release -D ANDROID=false -D BUILD_TAG="linux-x86_64" -D CMAKE_SYSTEM_NAME="Linux" ../..
