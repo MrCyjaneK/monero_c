@@ -54,7 +54,7 @@ host_depends: libiconv_host boost_host zlib_host openssl_host libzmq_host libsod
 
 .PHONY: host_copy_libs	
 host_copy_libs:
-	cp -a ${PREFIX}/lib64/* ${PREFIX}/lib # fix linking issue (openssl?)
+	-cp -a ${PREFIX}/lib64/* ${PREFIX}/lib # fix linking issue (openssl?)
 
 .PHONY: libiconv_host
 libiconv_host:
@@ -75,7 +75,7 @@ zlib_host:
 
 .PHONY: openssl_host
 openssl_host:
-	cd openssl-${OPENSSL_VERSION} && ./Configure -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX} --openssldir=${PREFIX} -fpic
+	cd openssl-${OPENSSL_VERSION} && ./Configure -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX} --openssldir=${PREFIX} -fPIC
 	cd openssl-${OPENSSL_VERSION} && make -j${NPROC}
 	cd openssl-${OPENSSL_VERSION} && make install_sw
 
@@ -133,8 +133,18 @@ monero_linux_amd64:
 	&& env CMAKE_INCLUDE_PATH="${PREFIX}/include" CMAKE_LIBRARY_PATH="${PREFIX}/lib" USE_SINGLE_BUILDDIR=1 cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=release -D ANDROID=false -D BUILD_TAG="linux-x86_64" -D CMAKE_SYSTEM_NAME="Linux" ../..
 	cd monero/build/release && make wallet_api -j${NPROC}
 
-.PHONY: moneroc_linux_amd64
-moneroc_linux_amd64:
+
+.PHONY: monero_linux_arm64
+monero_linux_arm64:
+	cd monero \
+	&& rm -rf build/release \
+	&& mkdir -p build/release \
+	&& cd build/release \
+	&& env CMAKE_INCLUDE_PATH="${PREFIX}/include" CMAKE_LIBRARY_PATH="${PREFIX}/lib" USE_SINGLE_BUILDDIR=1 cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv8-a" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=release -D ANDROID=false -D BUILD_TAG="linux-armv8a" -D CMAKE_SYSTEM_NAME="Linux" ../..
+	cd monero/build/release && make wallet_api -j${NPROC}
+
+.PHONY: moneroc_linux_host64
+moneroc_linux_host64:
 	rm -rf libbridge/build || true
 	mkdir -p libbridge/build
 	cd libbridge/build && env CC=gcc CXX=g++ cmake -DANDROID_ABI=linux-x86_64 ..
