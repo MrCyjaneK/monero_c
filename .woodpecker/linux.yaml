@@ -1,6 +1,7 @@
 matrix:
   platform:
     - linux/amd64
+    - linux/arm64
 
 steps:
   - name: clone repositories
@@ -51,18 +52,26 @@ steps:
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
       - make utf8proc_host
-  - name: build monero
+  - name: build monero (amd64)
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
       - make monero_linux_amd64
-  - name: build monero_linux_amd64
+    when:
+      platform: linux/amd64
+  - name: build monero (arm64)
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
-      - make moneroc_linux_amd64
+      - make monero_linux_arm64
+    when:
+      platform: linux/arm64
+  - name: build monero_linux_host64
+    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    commands:
+      - make moneroc_linux_host64
   - name: info
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
-      - ls -lah libbridge/build/libwallet2_api_c.so 
+      - ls -lah libbridge/build/libwallet2_api_c.so
       - file libbridge/build/libwallet2_api_c.so
       - md5sum libbridge/build/libwallet2_api_c.so
       - sha256sum libbridge/build/libwallet2_api_c.so
