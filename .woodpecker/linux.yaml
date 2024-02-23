@@ -55,18 +55,17 @@ steps:
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
       - make utf8proc_host
-  - name: build monero (amd64)
+  - name: build monero
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
-      - make monero_linux_amd64
-    when:
-      platform: linux/amd64*
-  - name: build monero (arm64)
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
-    commands:
-      - make monero_linux_arm64
-    when:
-      platform: linux/arm64*
+      - architecture=""
+      - case $(uname -m) in
+      -     i386)   architecture="386" ;;
+      -     i686)   architecture="386" ;;
+      -     x86_64) architecture="amd64" ;;
+      -     arm)    dpkg --print-architecture | grep -q "arm64" && architecture="arm64" || architecture="arm" ;;
+      - esac
+      - make monero_linux_$architecture
   - name: build monero_linux_host64
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
