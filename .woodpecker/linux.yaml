@@ -3,6 +3,9 @@ matrix:
     - linux/amd64
     - linux/arm64
 
+labels:
+  platform: ${platform}
+
 steps:
   - name: clone repositories
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
