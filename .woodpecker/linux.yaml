@@ -60,13 +60,13 @@ steps:
     commands:
       - make monero_linux_amd64
     when:
-      platform: linux/amd64
+      platform: linux/amd64*
   - name: build monero (arm64)
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
       - make monero_linux_arm64
     when:
-      platform: linux/arm64
+      platform: linux/arm64*
   - name: build monero_linux_host64
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
