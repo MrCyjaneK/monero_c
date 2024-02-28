@@ -3,6 +3,21 @@ export $(shell sed 's/=.*//' .env)
 
 PREFIX := ${PWD}/prefix
 
+.PHONY: clean_download
+clean_download:
+	rm -rf boost_*
+	rm -rf libexpat
+	rm -rf libiconv*
+	rm -rf libsodium
+	rm -rf libzmq
+	rm -rf monero
+	rm -rf openssl-*
+	rm -rf perl
+	rm -rf polyseed
+	rm -rf unbound
+	rm -rf utf8proc
+	rm -rf zlib
+
 .PHONY: download
 download:
 	rm -rf monero
@@ -24,7 +39,7 @@ download:
 	tar -xzf zlib-${ZLIB_VERSION}.tar.gz
 	rm zlib-${ZLIB_VERSION}.tar.gz
 	mv zlib-${ZLIB_VERSION} zlib
-	openssl
+	# openssl
 	curl -O https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz
 	echo "${OPENSSL_HASH}  openssl-${OPENSSL_VERSION}.tar.gz" | sha256sum -c
 	tar -xzf openssl-${OPENSSL_VERSION}.tar.gz
@@ -50,11 +65,16 @@ download:
 
 
 .PHONY: host_depends
-host_depends: libiconv_host boost_host zlib_host openssl_host libzmq_host libsodium_host libexpat_host host_copy_libs unbound_host polyseed_host utf8proc_host
+host_depends: libiconv_host boost_host zlib_host openssl_host openssl_host_alt libzmq_host libsodium_host host_copy_libs libexpat_host unbound_host polyseed_host utf8proc_host
 
 .PHONY: host_copy_libs	
 host_copy_libs:
 	-cp -a ${PREFIX}/lib64/* ${PREFIX}/lib # fix linking issue (openssl?)
+
+.PHONY: host_move_libs
+host_move_libs:
+	-cp -a ${PREFIX}/lib64/* ${PREFIX}/lib # fix linking issue (openssl?)
+	-rm -rf ${PREFIX}/lib64/*
 
 .PHONY: libiconv_host
 libiconv_host:
@@ -64,9 +84,12 @@ libiconv_host:
 
 .PHONY: boost_host
 boost_host:
-	cd boost_${BOOST_VERSION} && ./bootstrap.sh --prefix=${PREFIX}
-	cd boost_${BOOST_VERSION} && echo '\n#undef PTHREAD_STACK_MIN\n#define PTHREAD_STACK_MIN 16384\n' | cat - ./boost/thread/pthread/thread_data.hpp > temp && mv temp ./boost/thread/pthread/thread_data.hpp
-	cd boost_${BOOST_VERSION} && ./b2 cxxflags=-fPIC cflags=-fPIC --build-type=minimal link=static runtime-link=static --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale --build-dir=linux --stagedir=linux toolset=gcc threading=multi threadapi=pthread -sICONV_PATH=${PREFIX} install -j${NPROC}
+	cd boost_${BOOST_VERSION} && echo '' | cat - ./boost/thread/pthread/thread_data.hpp > temp && mv temp ./boost/thread/pthread/thread_data.hpp
+	cd boost_${BOOST_VERSION} && echo '#define PTHREAD_STACK_MIN 16384' | cat - ./boost/thread/pthread/thread_data.hpp > temp && mv temp ./boost/thread/pthread/thread_data.hpp
+	cd boost_${BOOST_VERSION} && echo '#undef PTHREAD_STACK_MIN'| cat - ./boost/thread/pthread/thread_data.hpp > temp && mv temp ./boost/thread/pthread/thread_data.hpp
+	cd boost_${BOOST_VERSION} && echo '' | cat - ./boost/thread/pthread/thread_data.hpp > temp && mv temp ./boost/thread/pthread/thread_data.hpp
+	cd boost_${BOOST_VERSION} && ./bootstrap.sh --prefix=${PREFIX} --with-toolset=${CC}
+	cd boost_${BOOST_VERSION} && ./b2 cxxflags=-fPIC cflags=-fPIC --build-type=minimal link=static runtime-link=static --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale --build-dir=linux --stagedir=linux toolset=${CC} threading=multi threadapi=pthread -sICONV_PATH=${PREFIX} install -j${NPROC}
 
 .PHONY: zlib_host
 zlib_host:
@@ -75,7 +98,13 @@ zlib_host:
 
 .PHONY: openssl_host
 openssl_host:
-	cd openssl-${OPENSSL_VERSION} && ./Configure -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX} --openssldir=${PREFIX} -fPIC
+	cd openssl-${OPENSSL_VERSION} && env PATH="/usr/local/bin/:${PATH}" ./Configure -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX} --openssldir=${PREFIX} -fPIC
+	cd openssl-${OPENSSL_VERSION} && make -j${NPROC}
+	cd openssl-${OPENSSL_VERSION} && make install_sw
+
+.PHONY: openssl_host_alt
+openssl_host_alt:
+	cd openssl-${OPENSSL_VERSION} && env PATH="/usr/local/bin/:${PATH}" ./Configure -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX}/openssl --openssldir=${PREFIX}/openssl -fPIC
 	cd openssl-${OPENSSL_VERSION} && make -j${NPROC}
 	cd openssl-${OPENSSL_VERSION} && make install_sw
 
@@ -97,14 +126,14 @@ libsodium_host:
 
 .PHONY: libexpat_host
 libexpat_host:
-	cd libexpat/expat && ./buildconf.sh
-	cd libexpat/expat && ./configure --prefix=${PREFIX} --enable-static --disable-shared
+	cd libexpat/expat && CC=${CC} CXX=${CXX} LDFLAGS="-L${PREFIX}/lib64/" ./buildconf.sh
+	cd libexpat/expat && CC=${CC} CXX=${CXX} LDFLAGS="-L${PREFIX}/lib64/" ./configure --prefix=${PREFIX} --enable-static --disable-shared
 	cd libexpat/expat && make -j${NPROC}
 	cd libexpat/expat && make install
 
 .PHONY: unbound_host
 unbound_host:
-	cd unbound && ./configure -with-pic --prefix=${PREFIX} --enable-static --disable-shared --disable-flto --with-libexpat=${PREFIX} --with-ssl=${PREFIX}
+	cd unbound && CC=${CC} CXX=${CXX} LDFLAGS="-L${PREFIX}/lib64/" ./configure -with-pic --prefix=${PREFIX} --enable-static --disable-shared --disable-flto --with-libexpat=${PREFIX} --with-ssl=${PREFIX}/openssl
 	cd unbound && make -j${NPROC}
 	cd unbound && make install
 
@@ -147,5 +176,17 @@ monero_linux_arm64:
 moneroc_linux_host64:
 	rm -rf libbridge/build || true
 	mkdir -p libbridge/build
-	cd libbridge/build && env CC=gcc CXX=g++ cmake -DANDROID_ABI=linux-x86_64 ..
+	cd libbridge/build && env CC=${CC} CXX=${CXX} cmake -DANDROID_ABI=linux-x86_64 ..
 	cd libbridge/build && make -j${NPROC}
+
+
+# Fixed
+
+.PHONY: host_tool_perl
+host_tool_perl:
+	rm -rf perl-5.38.2* || true
+	curl -O https://www.cpan.org/src/${PERL_VERSION_MAJOR}/perl-${PERL_VERSION_FULL}.tar.gz
+	echo "${PERL_HASH}  perl-${PERL_VERSION_FULL}.tar.gz" | sha256sum -c
+	tar xzf perl-5.38.2.tar.gz
+	./configure.gnu
+	make -j${NPROC}

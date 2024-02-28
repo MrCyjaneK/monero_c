@@ -10,4 +10,6 @@ unbound*
 utf8proc*
 zlib*
 
+perl-*
+
 prefix
