@@ -64,12 +64,18 @@ download:
 	(cd utf8proc && git reset --hard ${UTF8PROC_HASH})
 
 
+# This is just a suggestion of the steps, you should figure on your own what is required
+# and what's not.
+# A general rule of thumb is that `make host_depends` works everywhere, but not everything
+# is required. But since we target so many different OS.. yeah.
 .PHONY: host_depends
 host_depends: libiconv_host boost_host zlib_host openssl_host openssl_host_alt libzmq_host libsodium_host host_copy_libs libexpat_host unbound_host polyseed_host utf8proc_host
 
 .PHONY: host_copy_libs	
 host_copy_libs:
 	-cp -a ${PREFIX}/lib64/* ${PREFIX}/lib # fix linking issue (openssl?)
+	-mkdir -p ${PREFIX}/openssl/lib
+	-cp -a ${PREFIX}/openssl/lib64/* ${PREFIX}/openssl/lib # fix linking issue (openssl?)
 
 .PHONY: host_move_libs
 host_move_libs:
@@ -98,13 +104,13 @@ zlib_host:
 
 .PHONY: openssl_host
 openssl_host:
-	cd openssl-${OPENSSL_VERSION} && env PATH="/usr/local/bin/:${PATH}" ./Configure -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX} --openssldir=${PREFIX} -fPIC
+	cd openssl-${OPENSSL_VERSION} && env PATH="${PREFIX}/perl/bin/:${PATH}" ./Configure -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX} --openssldir=${PREFIX} -fPIC
 	cd openssl-${OPENSSL_VERSION} && make -j${NPROC}
 	cd openssl-${OPENSSL_VERSION} && make install_sw
 
 .PHONY: openssl_host_alt
 openssl_host_alt:
-	cd openssl-${OPENSSL_VERSION} && env PATH="/usr/local/bin/:${PATH}" ./Configure -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX}/openssl --openssldir=${PREFIX}/openssl -fPIC
+	cd openssl-${OPENSSL_VERSION} && env PATH="${PREFIX}/perl/bin/:${PATH}" ./Configure -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX}/openssl --openssldir=${PREFIX}/openssl -fPIC
 	cd openssl-${OPENSSL_VERSION} && make -j${NPROC}
 	cd openssl-${OPENSSL_VERSION} && make install_sw
 
@@ -184,9 +190,11 @@ moneroc_linux_host64:
 
 .PHONY: host_tool_perl
 host_tool_perl:
-	rm -rf perl-5.38.2* || true
+	rm -rf perl-* || true
 	curl -O https://www.cpan.org/src/${PERL_VERSION_MAJOR}/perl-${PERL_VERSION_FULL}.tar.gz
 	echo "${PERL_HASH}  perl-${PERL_VERSION_FULL}.tar.gz" | sha256sum -c
-	tar xzf perl-5.38.2.tar.gz
-	./configure.gnu
-	make -j${NPROC}
+	tar xzf perl-${PERL_VERSION_FULL}.tar.gz
+	rm perl-${PERL_VERSION_FULL}.tar.gz
+	cd perl-${PERL_VERSION_FULL} && ./Configure -des -Dprefix=${PREFIX}/perl
+	cd perl-${PERL_VERSION_FULL} && make -j${NPROC}
+	cd perl-${PERL_VERSION_FULL} && make install
