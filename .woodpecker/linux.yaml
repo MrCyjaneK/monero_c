@@ -1,7 +1,17 @@
 matrix:
-  platform:
-    - linux/amd64
-    - linux/arm64
+  include:
+    - image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+      platform: linux/amd64
+      monero_make: monero_linux_amd64
+      moneroc_make: moneroc_linux_host64
+    - image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+      platform: linux/arm64
+      monero_make: monero_linux_arm64
+      moneroc_make: moneroc_linux_host64
+    - image: git.mrcyjanek.net/mrcyjanek/sailfishos:4.5.0.18_aarch64
+      platform: linux/arm64
+      monero_make: monero_linux_arm64
+      moneroc_make: moneroc_linux_host64
 
 labels:
   platform: ${platform}
@@ -12,66 +22,63 @@ steps:
     commands:
       - make download
   - name: build libiconv_host
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: ${image}
     commands:
       - make libiconv_host
   - name: build boost_host
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: ${image}
     commands:
       - make boost_host
   - name: build zlib_host
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: ${image}
     commands:
       - make zlib_host
   - name: build openssl_host
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: ${image}
     commands:
       - make openssl_host
+  - name: build openssl_host_alt
+    image: ${image}
+    commands:
+      - make openssl_host_alt
   - name: build libzmq_host
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: ${image}
     commands:
       - make libzmq_host
   - name: build libsodium_host
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: ${image}
     commands:
       - make libsodium_host
-  - name: build libexpat_host
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
-    commands:
-      - make libexpat_host
   - name: build host_copy_libs
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: ${image}
     commands:
       - make host_copy_libs
+  - name: build libexpat_host
+    image: ${image}
+    commands:
+      - make libexpat_host
   - name: build unbound_host
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: ${image}
     commands:
       - make unbound_host
   - name: build polyseed_host
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: ${image}
     commands:
       - make polyseed_host
   - name: build utf8proc_host
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: ${image}
     commands:
       - make utf8proc_host
-  - name: build monero
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+  - name: build monero (${monero_make})
+    image: ${image}
     commands:
-      - architecture=""
-      - case $(uname -m) in
-      -     i386)   architecture="386" ;;
-      -     i686)   architecture="386" ;;
-      -     x86_64) architecture="amd64" ;;
-      -     arm)    dpkg --print-architecture | grep -q "arm64" && architecture="arm64" || architecture="arm" ;;
-      - esac
-      - make monero_linux_$architecture
-  - name: build monero_linux_host64
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+      - make ${monero_make}
+  - name: build ${moneroc_make}
+    image: ${image}
     commands:
-      - make moneroc_linux_host64
+      - make ${moneroc_make}
   - name: info
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: ${image}
     commands:
       - ls -lah libbridge/build/libwallet2_api_c.so
       - file libbridge/build/libwallet2_api_c.so
