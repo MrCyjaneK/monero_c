@@ -8,14 +8,14 @@ matrix:
       prepare_cmd_depends: echo ok
       triplet: x86_64-linux-gnu
     - image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
-      platform: linux/arm64
+      platform: linux/aarch64
       monero_make: monero_linux_arm64
       moneroc_make: moneroc_linux_host64
       prepare_cmd: echo ok
       prepare_cmd_depends: echo ok
       triplet: aarch64-linux-gnu
     - image: git.mrcyjanek.net/mrcyjanek/sailfishos:4.5.0.18_aarch64
-      platform: linux/arm64
+      platform: linux/aarch64
       monero_make: monero_linux_arm64
       moneroc_make: moneroc_linux_host64
       prepare_cmd: zypper in -y git clang libxkbcommon-devel wayland-protocols-devel wayland-client wayland-egl-devel make glibc-static
