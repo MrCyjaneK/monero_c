@@ -1,3 +1,8 @@
+clone:
+  git:
+    image: woodpeckerci/plugin-git
+    settings:
+      partial: false
 matrix:
   include:
     - image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
@@ -57,7 +62,6 @@ steps:
   - name: info
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
-      - ${prepare_cmd}
       - ls -lah libbridge/build/libwallet2_api_c.so
       - file libbridge/build/libwallet2_api_c.so
       - md5sum libbridge/build/libwallet2_api_c.so
