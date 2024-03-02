@@ -316,6 +316,10 @@ jobs:
             This is a **preview** release to be used by testers.
             It was built from **${{ github.ref }}** commit `${{ github.sha }}`
             Grab corresponding [wallet2_api_c.h](https://git.mrcyjanek.net/mrcyjanek/monero_c/src/commit/${{ github.sha }}/libbridge/src/main/cpp/wallet2_api_c.h)
+            ### Important
+
+            CI is in process of migrating to [static.mrcyjanek.net](https://static.mrcyjanek.net/monero_c/) for repository store.
+
             ### Release info
             ${{ github.event.head_commit.message }}
           files: |-
