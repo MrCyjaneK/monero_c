@@ -7,25 +7,44 @@ matrix:
   include:
     - image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
       platform: linux/amd64
-      monero_make: monero_linux_amd64
-      moneroc_make: moneroc_linux_host64
+      make_steps: depends_host monero_linux_amd64 moneroc_linux_host64
       prepare_cmd: echo ok
       prepare_cmd_depends: echo ok
       triplet: x86_64-linux-gnu
+      cc: clang
+      cxx: clang++
     - image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
       platform: linux/aarch64
-      monero_make: monero_linux_arm64
-      moneroc_make: moneroc_linux_host64
+      make_steps: depends_host monero_linux_arm64 moneroc_linux_host64
       prepare_cmd: echo ok
       prepare_cmd_depends: echo ok
       triplet: aarch64-linux-gnu
+      cc: clang
+      cxx: clang++
+    - image: alpine:3.19.1
+      platform: linux/amd64
+      make_steps: alpine_fix_libexecinfo depends_host monero_linux_amd64 moneroc_linux_host64
+      prepare_cmd: echo ok
+      prepare_cmd_depends: apk add make git curl g++ linux-headers perl libtool autoconf automake pkgconfig cmake bash bison abuild
+      triplet: x86_64-alpine-linux-musl
+      cc: gcc
+      cxx: g++
+    # - image: alpine:3.19.1
+    #   platform: linux/aarch64
+    #   make_steps: alpine_fix_libexecinfo depends_host monero_linux_arm64 moneroc_linux_host64
+    #   prepare_cmd: echo ok
+    #   prepare_cmd_depends: apk add make git curl g++ linux-headers perl libtool autoconf automake pkgconfig cmake bash bison abuild
+    #   triplet: aarch64-alpine-linux-musl
+    #   cc: gcc
+    #   cxx: g++
     - image: git.mrcyjanek.net/mrcyjanek/sailfishos:4.5.0.18_aarch64
       platform: linux/aarch64
-      monero_make: monero_linux_arm64
-      moneroc_make: moneroc_linux_host64
+      make_steps: depends_host monero_linux_arm64 moneroc_linux_host64
       prepare_cmd: zypper in -y git clang libxkbcommon-devel wayland-protocols-devel wayland-client wayland-egl-devel make glibc-static byacc
       prepare_cmd_depends: make host_tool_perl
       triplet: aarch64-linux-sailfishos
+      cc: clang
+      cxx: clang++
 
 labels:
   platform: ${platform}
@@ -41,25 +60,7 @@ steps:
     commands:
       - ${prepare_cmd}
       - ${prepare_cmd_depends}
-      - make libiconv_host
-      - make boost_host
-      - make zlib_host
-      - make openssl_host
-      - make openssl_host_alt
-      - make libzmq_host
-      - make libsodium_host
-      - make host_copy_libs
-      - make libexpat_host
-      - make unbound_host
-      - make polyseed_host
-      - make utf8proc_host
-      - make host_copy_libs
-      - make ${monero_make}
-  - name: build ${moneroc_make}
-    image: ${image}
-    commands:
-      - ${prepare_cmd}
-      - make ${moneroc_make}
+      - CC=${cc} CXX=${cxx} make ${make_steps}
   - name: info
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:

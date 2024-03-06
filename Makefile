@@ -1,6 +1,11 @@
 include .env
 export $(shell sed 's/=.*//' .env)
 
+CC ?= clang
+CXX ?= clang++
+HOST ?= $(shell gcc -dumpmachin)
+
+
 PREFIX := ${PWD}/prefix
 
 .PHONY: clean_download
@@ -66,10 +71,10 @@ download:
 
 # This is just a suggestion of the steps, you should figure on your own what is required
 # and what's not.
-# A general rule of thumb is that `make host_depends` works everywhere, but not everything
+# A general rule of thumb is that `make depends_host` works everywhere, but not everything
 # is required. But since we target so many different OS.. yeah.
-.PHONY: host_depends
-host_depends: libiconv_host boost_host zlib_host openssl_host openssl_host_alt libzmq_host libsodium_host host_copy_libs libexpat_host unbound_host polyseed_host utf8proc_host
+.PHONY: depends_host
+depends_host: libiconv_host boost_host zlib_host openssl_host openssl_host_alt libzmq_host libsodium_host host_copy_libs libexpat_host unbound_host polyseed_host utf8proc_host
 
 .PHONY: host_copy_libs	
 host_copy_libs:
@@ -198,3 +203,11 @@ host_tool_perl:
 	cd perl-${PERL_VERSION_FULL} && ./Configure -des -Dprefix=${PREFIX}/perl
 	cd perl-${PERL_VERSION_FULL} && make -j${NPROC}
 	cd perl-${PERL_VERSION_FULL} && make install
+
+# 
+
+.PHONY: alpine_fix_libexecinfo
+alpine_fix_libexecinfo:
+	echo | abuild-keygen -a -q
+	cd external/alpine/libexecinfo && abuild -F -r
+	apk add --allow-untrusted $(shell find ${HOME}/packages -name '*libexecinfo*.apk')
