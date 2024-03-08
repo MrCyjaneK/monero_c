@@ -1166,6 +1166,17 @@ const char* MONERO_Wallet_getMultisigInfo(void* wallet_ptr) {
     memcpy(buffer, str.c_str(), size + 1);
     return buffer;
 }
+
+Monero::PendingTransaction::Priority PendingTransaction_Priority_fromInt(int value) {
+    switch(value) {
+        case 0: return Monero::PendingTransaction::Priority::Priority_Default;
+        case 1: return Monero::PendingTransaction::Priority::Priority_Low;
+        case 2: return Monero::PendingTransaction::Priority::Priority_Medium;
+        case 3: return Monero::PendingTransaction::Priority::Priority_High;
+        default: return Monero::PendingTransaction::Priority::Priority_Default;
+    }
+}
+
 void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, const char* payment_id,
                                                     uint64_t amount, uint32_t mixin_count,
                                                     int pendingTransactionPriority,
@@ -1178,16 +1189,14 @@ void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, co
     }
     std::set<uint32_t> subaddr_indices = {};
     std::set<std::string> preferred_inputs = splitString(std::string(preferredInputs), std::string(separator));
-    wallet->info("MONERO_C", "TEST");
-    wallet->info("MONERO_C", preferredInputs);
-    wallet->info("MONERO_C", std::to_string(preferred_inputs.size()));
     auto oneInput = *(preferred_inputs.begin());
-    wallet->info("MONERO_C", oneInput);
     return wallet->createTransaction(std::string(dst_addr), std::string(payment_id),
                                         optAmount, mixin_count,
-                                        Monero::PendingTransaction::Priority_Low,
+                                        PendingTransaction_Priority_fromInt(pendingTransactionPriority),
                                         subaddr_account, subaddr_indices, preferred_inputs);
 }
+
+
 void* MONERO_Wallet_loadUnsignedTx(void* wallet_ptr, const char* fileName) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->loadUnsignedTx(std::string(fileName));

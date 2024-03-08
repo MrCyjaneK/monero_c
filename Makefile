@@ -74,7 +74,7 @@ download:
 # A general rule of thumb is that `make depends_host` works everywhere, but not everything
 # is required. But since we target so many different OS.. yeah.
 .PHONY: depends_host
-depends_host: libiconv_host boost_host zlib_host openssl_host openssl_host_alt libzmq_host libsodium_host host_copy_libs libexpat_host unbound_host polyseed_host utf8proc_host
+depends_host: libiconv_host boost_host zlib_host openssl_host openssl_host_alt libzmq_host libsodium_host host_copy_libs libexpat_host unbound_host polyseed_host utf8proc_host host_copy_libs
 
 .PHONY: host_copy_libs	
 host_copy_libs:
