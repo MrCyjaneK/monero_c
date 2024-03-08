@@ -5,14 +5,16 @@ clone:
       partial: false
 matrix:
   include:
-    - image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
-      platform: linux/amd64
-      make_steps: depends_host monero_linux_amd64 moneroc_linux_host64
-      prepare_cmd: echo ok
-      prepare_cmd_depends: echo ok
-      triplet: x86_64-linux-gnu
-      cc: clang
-      cxx: clang++
+    # - image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    #   platform: linux/amd64
+    #   make_steps: depends_host monero_linux_amd64 moneroc_linux_host64
+    #   prepare_cmd: echo ok
+    #   prepare_cmd_depends: echo ok
+    #   triplet: x86_64-linux-gnu
+    #   cc: clang
+    #   cxx: clang++
+    #   host:
+    #   boost_toolset: clang
     - image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
       platform: linux/aarch64
       make_steps: depends_host monero_linux_arm64 moneroc_linux_host64
@@ -21,6 +23,8 @@ matrix:
       triplet: aarch64-linux-gnu
       cc: clang
       cxx: clang++
+      host:
+      boost_toolset: clang
     - image: alpine:3.19.1
       platform: linux/amd64
       make_steps: alpine_fix_libexecinfo depends_host monero_linux_amd64 moneroc_linux_host64
@@ -29,6 +33,8 @@ matrix:
       triplet: x86_64-alpine-linux-musl
       cc: gcc
       cxx: g++
+      host:
+      boost_toolset: gcc
     # - image: alpine:3.19.1
     #   platform: linux/aarch64
     #   make_steps: alpine_fix_libexecinfo depends_host monero_linux_arm64 moneroc_linux_host64
@@ -45,7 +51,19 @@ matrix:
       triplet: aarch64-linux-sailfishos
       cc: clang
       cxx: clang++
-
+      host:
+      boost_toolset: clang
+    - image: git.mrcyjanek.net/mrcyjanek/osxcross:14_bookworm
+      platform: linux/amd64
+      make_steps: depends_host monero_linux_arm64 moneroc_linux_host64
+      prepare_cmd: echo ok
+      prepare_cmd_depends: echo ok
+      triplet: x86_64-apple-darwin23
+      cc: x86_64-apple-darwin23-clang
+      cxx: x86_64-apple-darwin23-clang++
+      host: x86_64-apple-darwin23
+      boost_toolset: clang
+      openssl_target: darwin64-x86_64
 labels:
   platform: ${platform}
 
@@ -60,7 +78,7 @@ steps:
     commands:
       - ${prepare_cmd}
       - ${prepare_cmd_depends}
-      - CC=${cc} CXX=${cxx} make ${make_steps}
+      - CC=${cc} CXX=${cxx} HOST=${host} BOOST_TOOLSET=${boost_toolset} OPENSSL_TARGET=${openssl_target} make ${make_steps}
   - name: info
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:

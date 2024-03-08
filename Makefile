@@ -3,7 +3,7 @@ export $(shell sed 's/=.*//' .env)
 
 CC ?= clang
 CXX ?= clang++
-HOST ?= $(shell gcc -dumpmachin)
+HOST ?= $(shell gcc -dumpmachine)
 
 
 PREFIX := ${PWD}/prefix
@@ -89,7 +89,7 @@ host_move_libs:
 
 .PHONY: libiconv_host
 libiconv_host:
-	cd libiconv-${ICONV_VERSION} && ./configure --prefix=${PREFIX} --disable-rpath
+	cd libiconv-${ICONV_VERSION} && ./configure --prefix=${PREFIX} --host=${HOST} --disable-rpath
 	cd libiconv-${ICONV_VERSION} && make -j${NPROC}
 	cd libiconv-${ICONV_VERSION} && make install
 
@@ -99,23 +99,23 @@ boost_host:
 	cd boost_${BOOST_VERSION} && echo '#define PTHREAD_STACK_MIN 16384' | cat - ./boost/thread/pthread/thread_data.hpp > temp && mv temp ./boost/thread/pthread/thread_data.hpp
 	cd boost_${BOOST_VERSION} && echo '#undef PTHREAD_STACK_MIN'| cat - ./boost/thread/pthread/thread_data.hpp > temp && mv temp ./boost/thread/pthread/thread_data.hpp
 	cd boost_${BOOST_VERSION} && echo '' | cat - ./boost/thread/pthread/thread_data.hpp > temp && mv temp ./boost/thread/pthread/thread_data.hpp
-	cd boost_${BOOST_VERSION} && ./bootstrap.sh --prefix=${PREFIX} --with-toolset=${CC}
-	cd boost_${BOOST_VERSION} && ./b2 cxxflags=-fPIC cflags=-fPIC --build-type=minimal link=static runtime-link=static --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale --build-dir=linux --stagedir=linux toolset=${CC} threading=multi threadapi=pthread -sICONV_PATH=${PREFIX} install -j${NPROC}
+	cd boost_${BOOST_VERSION} && ./bootstrap.sh --prefix=${PREFIX} --with-toolset=${BOOST_TOOLSET}
+	cd boost_${BOOST_VERSION} && ./b2 cxxflags=-fPIC cflags=-fPIC --build-type=minimal link=static runtime-link=static --with-chrono --with-date_time --with-filesystem --with-program_options --with-regex --with-serialization --with-system --with-thread --with-locale --build-dir=linux --stagedir=linux toolset=${BOOST_TOOLSET} threading=multi threadapi=pthread -sICONV_PATH=${PREFIX} install -j${NPROC}
 
 .PHONY: zlib_host
 zlib_host:
-	cd zlib && ./configure --static
+	cd zlib && ./configure --static --prefix=${PREFIX}
 	cd zlib && make -j${NPROC}
 
 .PHONY: openssl_host
 openssl_host:
-	cd openssl-${OPENSSL_VERSION} && env PATH="${PREFIX}/perl/bin/:${PATH}" ./Configure -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX} --openssldir=${PREFIX} -fPIC
+	cd openssl-${OPENSSL_VERSION} && env PATH="${PREFIX}/perl/bin/:${PATH}" ./Configure ${OPENSSL_TARGET} -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX} --openssldir=${PREFIX} -fPIC
 	cd openssl-${OPENSSL_VERSION} && make -j${NPROC}
 	cd openssl-${OPENSSL_VERSION} && make install_sw
 
 .PHONY: openssl_host_alt
 openssl_host_alt:
-	cd openssl-${OPENSSL_VERSION} && env PATH="${PREFIX}/perl/bin/:${PATH}" ./Configure -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX}/openssl --openssldir=${PREFIX}/openssl -fPIC
+	cd openssl-${OPENSSL_VERSION} && env PATH="${PREFIX}/perl/bin/:${PATH}" ./Configure ${OPENSSL_TARGET} -static no-shared no-tests --with-zlib-include=${PREFIX}/zlib/include --with-zlib-lib=${PREFIX}/zlib/lib --prefix=${PREFIX}/openssl --openssldir=${PREFIX}/openssl -fPIC
 	cd openssl-${OPENSSL_VERSION} && make -j${NPROC}
 	cd openssl-${OPENSSL_VERSION} && make install_sw
 

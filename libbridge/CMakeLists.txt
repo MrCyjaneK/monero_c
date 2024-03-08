@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 project(wallet2_api_c)
-message(STATUS ABI_INFO  = ${ANDROID_ABI})
+message(STATUS ABI_INFO  = ${HOST_ABI})
 
 set (CMAKE_CXX_STANDARD 11)
 
@@ -9,7 +9,8 @@ add_library( wallet2_api_c
              src/main/cpp/helpers.cpp
              src/main/cpp/wallet2_api_c.cpp )
 
-set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/..)
+set(MONERO_DIR ${CMAKE_SOURCE_DIR}/../monero)
+set(EXTERNAL_LIBS_DIR ${MONERO_DIR}/contrib/depends/${HOST_ABI})
 
 ############
 # libsodium
@@ -17,7 +18,7 @@ set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/..)
 
 add_library(sodium STATIC IMPORTED)
 set_target_properties(sodium PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/prefix/lib/libsodium.a)
+        ${EXTERNAL_LIBS_DIR}/lib/libsodium.a)
 
 ############
 # OpenSSL
@@ -25,11 +26,11 @@ set_target_properties(sodium PROPERTIES IMPORTED_LOCATION
 
 add_library(crypto STATIC IMPORTED)
 set_target_properties(crypto PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/prefix/openssl/lib/libcrypto.a)
+        ${EXTERNAL_LIBS_DIR}/lib/libcrypto.a)
 
 add_library(ssl STATIC IMPORTED)
 set_target_properties(ssl PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/prefix/openssl/lib/libssl.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libssl.a)
 
 ############
 # Boost
@@ -37,39 +38,39 @@ set_target_properties(ssl PROPERTIES IMPORTED_LOCATION
 
 add_library(boost_chrono STATIC IMPORTED)
 set_target_properties(boost_chrono PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/prefix/lib/libboost_chrono.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_chrono-mt-d.a)
 
 add_library(boost_date_time STATIC IMPORTED)
 set_target_properties(boost_date_time PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/prefix/lib/libboost_date_time.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_date_time-mt.a)
 
 add_library(boost_filesystem STATIC IMPORTED)
 set_target_properties(boost_filesystem PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/prefix/lib/libboost_filesystem.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_filesystem-mt.a)
 
 add_library(boost_program_options STATIC IMPORTED)
 set_target_properties(boost_program_options PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/prefix/lib/libboost_program_options.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_program_options-mt.a)
 
 add_library(boost_regex STATIC IMPORTED)
 set_target_properties(boost_regex PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/prefix/lib/libboost_regex.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_regex-mt.a)
 
 add_library(boost_serialization STATIC IMPORTED)
 set_target_properties(boost_serialization PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/prefix/lib/libboost_serialization.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_serialization-mt.a)
 
 add_library(boost_system STATIC IMPORTED)
 set_target_properties(boost_system PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/prefix/lib/libboost_system.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_system-mt.a)
 
 add_library(boost_thread STATIC IMPORTED)
 set_target_properties(boost_thread PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/prefix/lib/libboost_thread.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_thread-mt.a)
 
 add_library(boost_wserialization STATIC IMPORTED)
 set_target_properties(boost_wserialization PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/prefix/lib/libboost_wserialization.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_wserialization-mt.a)
 
 #############
 # Polyseed
@@ -77,11 +78,11 @@ set_target_properties(boost_wserialization PROPERTIES IMPORTED_LOCATION
 
 add_library(polyseed STATIC IMPORTED)
 set_target_properties(polyseed PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/prefix/lib/libpolyseed.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libpolyseed.a)
 
 add_library(polyseed-wrapper STATIC IMPORTED)
 set_target_properties(polyseed-wrapper PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/polyseed/libpolyseed_wrapper.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/polyseed/libpolyseed_wrapper.a)
 
 #############
 # Utf8proc
@@ -89,7 +90,7 @@ set_target_properties(polyseed-wrapper PROPERTIES IMPORTED_LOCATION
 
 add_library(utf8proc STATIC IMPORTED)
 set_target_properties(utf8proc PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/prefix/lib/libutf8proc.a)
+        ${MONERO_DIR}/build/${HOST_ABI}/external/utf8proc/libutf8proc.a)
 
 #############
 # Monero
@@ -97,108 +98,108 @@ set_target_properties(utf8proc PROPERTIES IMPORTED_LOCATION
 
 add_library(wallet_api STATIC IMPORTED)
 set_target_properties(wallet_api PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/lib/libwallet_api.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/lib/libwallet_api.a)
 
 add_library(wallet STATIC IMPORTED)
 set_target_properties(wallet PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/lib/libwallet.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/lib/libwallet.a)
 
 add_library(cryptonote_core STATIC IMPORTED)
 set_target_properties(cryptonote_core PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/cryptonote_core/libcryptonote_core.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/cryptonote_core/libcryptonote_core.a)
 
 add_library(cryptonote_basic STATIC IMPORTED)
 set_target_properties(cryptonote_basic PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/cryptonote_basic/libcryptonote_basic.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/cryptonote_basic/libcryptonote_basic.a)
 
 add_library(mnemonics STATIC IMPORTED)
 set_target_properties(mnemonics PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/mnemonics/libmnemonics.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/mnemonics/libmnemonics.a)
 
 add_library(common STATIC IMPORTED)
 set_target_properties(common PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/common/libcommon.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/common/libcommon.a)
 
 add_library(cncrypto STATIC IMPORTED)
 set_target_properties(cncrypto PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/crypto/libcncrypto.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/crypto/libcncrypto.a)
 
 add_library(ringct STATIC IMPORTED)
 set_target_properties(ringct PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/ringct/libringct.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/ringct/libringct.a)
 
 add_library(ringct_basic STATIC IMPORTED)
 set_target_properties(ringct_basic PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/ringct/libringct_basic.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/ringct/libringct_basic.a)
 
 add_library(blockchain_db STATIC IMPORTED)
 set_target_properties(blockchain_db PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/blockchain_db/libblockchain_db.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/blockchain_db/libblockchain_db.a)
 
 add_library(lmdb STATIC IMPORTED)
 set_target_properties(lmdb PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/external/db_drivers/liblmdb/liblmdb.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/external/db_drivers/liblmdb/liblmdb.a)
 
 add_library(easylogging STATIC IMPORTED)
 set_target_properties(easylogging PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/external/easylogging++/libeasylogging.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/external/easylogging++/libeasylogging.a)
 
 add_library(unbound STATIC IMPORTED)
 set_target_properties(unbound PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/prefix/lib/libunbound.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libunbound.a)
 
 add_library(epee STATIC IMPORTED)
 set_target_properties(epee PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/contrib/epee/src/libepee.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/contrib/epee/src/libepee.a)
 
 add_library(blocks STATIC IMPORTED)
 set_target_properties(blocks PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/blocks/libblocks.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/blocks/libblocks.a)
 
 add_library(checkpoints STATIC IMPORTED)
 set_target_properties(checkpoints PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/checkpoints/libcheckpoints.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/checkpoints/libcheckpoints.a)
 
 add_library(device STATIC IMPORTED)
 set_target_properties(device PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/monero/build/release/src/device/libdevice.a)
+        ${MONERO_DIR}/build/${HOST_ABI}/src/device/libdevice.a)
 
 add_library(device_trezor STATIC IMPORTED)
 set_target_properties(device_trezor PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/monero/build/release/src/device_trezor/libdevice_trezor.a)
+        ${MONERO_DIR}/build/${HOST_ABI}/src/device_trezor/libdevice_trezor.a)
 
 add_library(multisig STATIC IMPORTED)
 set_target_properties(multisig PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/multisig/libmultisig.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/multisig/libmultisig.a)
 
 add_library(version STATIC IMPORTED)
 set_target_properties(version PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/monero/build/release/src/libversion.a)
+    ${MONERO_DIR}/build/${HOST_ABI}/src/libversion.a)
 
 add_library(net STATIC IMPORTED)
 set_target_properties(net PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/monero/build/release/src/net/libnet.a)
+        ${MONERO_DIR}/build/${HOST_ABI}/src/net/libnet.a)
 
 add_library(hardforks STATIC IMPORTED)
 set_target_properties(hardforks PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/monero/build/release/src/hardforks/libhardforks.a)
+        ${MONERO_DIR}/build/${HOST_ABI}/src/hardforks/libhardforks.a)
 
 add_library(randomx STATIC IMPORTED)
 set_target_properties(randomx PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/monero/build/release/external/randomx/librandomx.a)
+        ${MONERO_DIR}/build/${HOST_ABI}/external/randomx/librandomx.a)
 
 add_library(rpc_base STATIC IMPORTED)
 set_target_properties(rpc_base PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/monero/build/release/src/rpc/librpc_base.a)
+        ${MONERO_DIR}/build/${HOST_ABI}/src/rpc/librpc_base.a)
 
 # TODO(mrcyjanek): fix (x86_64 maybe?)
 add_library(wallet-crypto STATIC IMPORTED)
 set_target_properties(wallet-crypto PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/monero/build/release/src/crypto/wallet/libwallet-crypto.a)
+        ${MONERO_DIR}/build/${HOST_ABI}/src/crypto/wallet/libwallet-crypto.a)
 
 add_library(cryptonote_format_utils_basic STATIC IMPORTED)
 set_target_properties(cryptonote_format_utils_basic PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/monero/build/release/src/cryptonote_basic/libcryptonote_format_utils_basic.a)
+        ${MONERO_DIR}/build/${HOST_ABI}/src/cryptonote_basic/libcryptonote_format_utils_basic.a)
 
 #############
 # System
@@ -210,7 +211,7 @@ include_directories( ${EXTERNAL_LIBS_DIR}/include )
 
 message(STATUS EXTERNAL_LIBS_DIR :  ${EXTERNAL_LIBS_DIR})
 
-if(${ANDROID_ABI} STREQUAL "x86_64")
+if(${HOST_ABI} STREQUAL "x86_64")
     set(EXTRA_LIBS "wallet-crypto")
 else()
     set(EXTRA_LIBS "")
