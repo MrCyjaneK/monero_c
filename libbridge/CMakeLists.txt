@@ -36,41 +36,58 @@ set_target_properties(ssl PROPERTIES IMPORTED_LOCATION
 # Boost
 ############
 
+if(${HOST_ABI} STREQUAL "x86_64-linux-android" OR ${HOST_ABI} STREQUAL "aarch64-linux-android" OR ${HOST_ABI} STREQUAL "arm-linux-androideabi" OR ${HOST_ABI} STREQUAL "i686-linux-android")
+    set(BOOST_WTF "-mt-s")
+    set(BOOST_WTF_PART "")
+elseif(${HOST_ABI} STREQUAL "x86_64-w64-mingw32")
+    set(BOOST_WTF "-mt-s")
+    set(BOOST_WTF_PART "_win32")
+else()
+    set(BOOST_WTF "-mt")
+    set(BOOST_WTF_PART "")
+endif()
+
+if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32")
+    set(CMAKE_SYSTEM_NAME "Windows")
+    set(CMAKE_LINKER "x86_64-w64-mingw32-ld")
+    set(TARGET "x86_64-w64-mingw32") 
+endif()
+
 add_library(boost_chrono STATIC IMPORTED)
 set_target_properties(boost_chrono PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_chrono-mt-d.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_chrono${BOOST_WTF}.a)
 
 add_library(boost_date_time STATIC IMPORTED)
 set_target_properties(boost_date_time PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_date_time-mt.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_date_time${BOOST_WTF}.a)
 
 add_library(boost_filesystem STATIC IMPORTED)
 set_target_properties(boost_filesystem PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_filesystem-mt.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_filesystem${BOOST_WTF}.a)
 
 add_library(boost_program_options STATIC IMPORTED)
 set_target_properties(boost_program_options PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_program_options-mt.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_program_options${BOOST_WTF}.a)
 
 add_library(boost_regex STATIC IMPORTED)
 set_target_properties(boost_regex PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_regex-mt.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_regex${BOOST_WTF}.a)
 
 add_library(boost_serialization STATIC IMPORTED)
 set_target_properties(boost_serialization PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_serialization-mt.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_serialization${BOOST_WTF}.a)
 
 add_library(boost_system STATIC IMPORTED)
 set_target_properties(boost_system PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_system-mt.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_system${BOOST_WTF}.a)
 
 add_library(boost_thread STATIC IMPORTED)
 set_target_properties(boost_thread PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_thread-mt.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_thread${BOOST_WTF_PART}${BOOST_WTF}.a)
 
 add_library(boost_wserialization STATIC IMPORTED)
 set_target_properties(boost_wserialization PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_wserialization-mt.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_wserialization${BOOST_WTF}.a)
 
 #############
 # Polyseed

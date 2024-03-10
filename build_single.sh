@@ -15,13 +15,14 @@ then
     echo "Usage: $0 $(gcc -dumpmachine) -j$(nproc)"
     exit 1
 fi
-
+cd $(dirname $0)
+WDIR=$PWD
 CC=""
 CXX=""
 case "$HOST_ABI" in
     "x86_64-linux-gnu")
         export CC="x86_64-linux-gnu-gcc"
-        export CC="x86_64-linux-gnu-g++"
+        export CXX="x86_64-linux-gnu-g++"
     ;;
     "i686-linux-gnu")
         export CC="i686-linux-gnu-gcc"
@@ -30,6 +31,43 @@ case "$HOST_ABI" in
     "aarch64-linux-gnu")
         export CC="aarch64-linux-gnu-gcc"
         export CXX="aarch64-linux-gnu-g++"
+    ;;
+    "x86_64-linux-android")
+        export PATH="$WDIR/monero/contrib/depends/x86_64-linux-android/native/bin/:$PATH"
+        export CC=x86_64-linux-android-clang
+        export CXX=x86_64-linux-android-clang++
+    ;;
+    "i686-linux-android")
+        export PATH="$WDIR/monero/contrib/depends/i686-linux-android/native/bin/:$PATH"
+        export CC=i686-linux-android-clang
+        export CXX=i686-linux-android-clang++
+    ;;
+    "aarch64-linux-android")
+        export PATH="$WDIR/monero/contrib/depends/aarch64-linux-android/native/bin/:$PATH"
+        export CC=aarch64-linux-android-clang
+        export CXX=aarch64-linux-android-clang++
+    ;;
+    "arm-linux-androideabi")
+        export PATH="$WDIR/monero/contrib/depends/arm-linux-androideabi/native/bin/:$PATH"
+        export CC=arm-linux-androideabi-clang
+        export CXX=arm-linux-androideabi-clang++
+    ;;
+    "i686-w64-mingw32")
+        update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
+        update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+        export CC=i686-w64-mingw32-gcc-posix
+        export CXX=i686-w64-mingw32-g++-posix
+    ;;
+    "x86_64-w64-mingw32")
+        update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+        update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+        export CC=x86_64-w64-mingw32-gcc-posix
+        export CXX=x86_64-w64-mingw32-g++-posix
+    ;;
+    "x86_64-apple-darwin11")
+        export PATH="$WDIR/contrib/depends/x86_64-apple-darwin11/native/bin:$PATH"
+        export CC="clang -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.7 --sysroot /build/monero/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B/build/monero/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
+        export CXX="clang++ -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.7 --sysroot /build/monero/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B/build/monero/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
     ;;
 esac
 
@@ -45,7 +83,7 @@ then
     exit 1
 fi
 
-cd $(dirname $0)
+
 pushd monero/contrib/depends
     make HOST="$HOST_ABI" "$NPROC"
 popd
@@ -53,16 +91,51 @@ popd
 rm -rf monero/build/${HOST_ABI} 2>/dev/null || true
 mkdir -p monero/build/${HOST_ABI}
 pushd monero/build/${HOST_ABI}
-    env CC=${CC} CXX=${CXX} cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake ../..
-    env CC=${CC} CXX=${CXX} make wallet_api $NPROC
+    case "$HOST_ABI" in
+        "x86_64-linux-gnu")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=release -D ANDROID=false -D BUILD_TAG="linux-x64" -D CMAKE_SYSTEM_NAME="Linux" ../..
+        ;;
+        "i686-linux-gnu")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="i686" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=release -D ANDROID=false -D BUILD_TAG="linux-x86" -D CMAKE_SYSTEM_NAME="Linux" ../..
+        ;;
+        "aarch64-linux-gnu")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv8-a" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=release -D ANDROID=false -D BUILD_TAG="linux-armv8" -D CMAKE_SYSTEM_NAME="Linux" ../..
+        ;;
+        "x86_64-linux-android")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="android-x86_64" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="x86_64" ../..
+        ;;
+        "i686-linux-android")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="android-x86" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="x86" ../..
+        ;;
+        "aarch64-linux-android")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv8-a" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="android-armv8" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="arm64-v8a" ../..
+        ;;
+        "arm-linux-androideabi")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv7-a" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D BUILD_TAG="android-armv7" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="armeabi-v7a" ../..
+        ;;
+        "x86_64-w64-mingw32")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D ARCH="x86-64" -D BUILD_64=ON -D CMAKE_BUILD_TYPE=Release -D BUILD_TAG="win-x64" ../..
+        ;;
+        "i686-w64-mingw32")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D ARCH="i686" -D BUILD_64=OFF -D CMAKE_BUILD_TYPE=Release -D BUILD_TAG="win-x32" ../..
+        ;;
+        "x86_64-apple-darwin11")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D ARCH="x86-64" -D BUILD_64=ON -D CMAKE_BUILD_TYPE=Release -D BUILD_TAG="mac-x64" ../..
+        ;;
+        *)
+            echo "we don't know how to compile monero for '$HOST_ABI'"
+            exit 1
+        ;;
+    esac
+    CC=gcc CXX=g++ make wallet_api $NPROC
 popd
 pushd libbridge
     rm -rf build/${HOST_ABI} || true
     mkdir -p build/${HOST_ABI} -p
     cd build/${HOST_ABI}
     
-    env CC=${CC} CXX=${CXX} cmake -DHOST_ABI=${HOST_ABI} ../..
-    env CC=${CC} CXX=${CXX} make $NPROC
+    env CC="${CC}" CXX="${CXX}" cmake -DHOST_ABI=${HOST_ABI} ../..
+    env CC="${CC}" CXX="${CXX}" make $NPROC
 popd
 
 mkdir release 2>/dev/null || true

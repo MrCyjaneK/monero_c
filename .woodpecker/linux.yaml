@@ -3,90 +3,59 @@ clone:
     image: woodpeckerci/plugin-git
     settings:
       partial: false
-matrix:
-  include:
-    # - image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
-    #   platform: linux/amd64
-    #   make_steps: depends_host monero_linux_amd64 moneroc_linux_host64
-    #   prepare_cmd: echo ok
-    #   prepare_cmd_depends: echo ok
-    #   triplet: x86_64-linux-gnu
-    #   cc: clang
-    #   cxx: clang++
-    #   host:
-    #   boost_toolset: clang
-    - image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
-      platform: linux/aarch64
-      make_steps: depends_host monero_linux_arm64 moneroc_linux_host64
-      prepare_cmd: echo ok
-      prepare_cmd_depends: echo ok
-      triplet: aarch64-linux-gnu
-      cc: clang
-      cxx: clang++
-      host:
-      boost_toolset: clang
-    - image: alpine:3.19.1
-      platform: linux/amd64
-      make_steps: alpine_fix_libexecinfo depends_host monero_linux_amd64 moneroc_linux_host64
-      prepare_cmd: echo ok
-      prepare_cmd_depends: apk add make git curl g++ linux-headers perl libtool autoconf automake pkgconfig cmake bash bison abuild
-      triplet: x86_64-alpine-linux-musl
-      cc: gcc
-      cxx: g++
-      host:
-      boost_toolset: gcc
-    # - image: alpine:3.19.1
-    #   platform: linux/aarch64
-    #   make_steps: alpine_fix_libexecinfo depends_host monero_linux_arm64 moneroc_linux_host64
-    #   prepare_cmd: echo ok
-    #   prepare_cmd_depends: apk add make git curl g++ linux-headers perl libtool autoconf automake pkgconfig cmake bash bison abuild
-    #   triplet: aarch64-alpine-linux-musl
-    #   cc: gcc
-    #   cxx: g++
-    - image: git.mrcyjanek.net/mrcyjanek/sailfishos:4.5.0.18_aarch64
-      platform: linux/aarch64
-      make_steps: depends_host monero_linux_arm64 moneroc_linux_host64
-      prepare_cmd: zypper in -y git clang libxkbcommon-devel wayland-protocols-devel wayland-client wayland-egl-devel make glibc-static byacc
-      prepare_cmd_depends: make host_tool_perl
-      triplet: aarch64-linux-sailfishos
-      cc: clang
-      cxx: clang++
-      host:
-      boost_toolset: clang
-    - image: git.mrcyjanek.net/mrcyjanek/osxcross:14_bookworm
-      platform: linux/amd64
-      make_steps: depends_host monero_linux_arm64 moneroc_linux_host64
-      prepare_cmd: echo ok
-      prepare_cmd_depends: echo ok
-      triplet: x86_64-apple-darwin23
-      cc: x86_64-apple-darwin23-clang
-      cxx: x86_64-apple-darwin23-clang++
-      host: x86_64-apple-darwin23
-      boost_toolset: clang
-      openssl_target: darwin64-x86_64
+
 labels:
-  platform: ${platform}
+  platform: linux/amd64
 
 steps:
-  - name: clone repositories
+  - name: clone monero and cache depends
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
-      - git fetch
+      - git clone https://git.mrcyjanek.net/mrcyjanek/monero --recursive --depth=1 --branch=release-v0.18.3.2-legacy
+      - cd monero/contrib/depends
       - make download
-  - name: build depends
-    image: ${image}
-    commands:
-      - ${prepare_cmd}
-      - ${prepare_cmd_depends}
-      - CC=${cc} CXX=${cxx} HOST=${host} BOOST_TOOLSET=${boost_toolset} OPENSSL_TARGET=${openssl_target} make ${make_steps}
-  - name: info
+  - name: x86_64-linux-gnu
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
-      - ls -lah libbridge/build/libwallet2_api_c.so
-      - file libbridge/build/libwallet2_api_c.so
-      - md5sum libbridge/build/libwallet2_api_c.so
-      - sha256sum libbridge/build/libwallet2_api_c.so
-      - sha512sum libbridge/build/libwallet2_api_c.so
+      - apt update
+      - apt install -y gcc g++ gperf
+      - ./build_single.sh x86_64-linux-gnu -j$(nproc)
+  - name: i686-linux-gnu
+    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    commands:
+      - apt update
+      - apt install -y gcc-i686-linux-gnu g++-i686-linux-gnu gperf
+      - ./build_single.sh i686-linux-gnu -j$(nproc)
+  - name: aarch64-linux-gnu
+    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    commands:
+      - apt update
+      - apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gperf
+      - ./build_single.sh aarch64-linux-gnu -j$(nproc)
+  - name: x86_64-linux-android
+    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    commands:
+      - apt update
+      - apt install -y python-is-python3 libtinfo5 gperf
+      - ./build_single.sh x86_64-linux-android -j$(nproc)
+  - name: i686-linux-android
+    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    commands:
+      - apt update
+      - apt install -y python-is-python3 libtinfo5 gperf
+      - ./build_single.sh i686-linux-android -j$(nproc)
+  # - name: aarch64-linux-android
+  #   image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+  #   commands:
+  #     - apt update
+  #     - apt install -y python-is-python3 libtinfo5 gperf
+  #     - ./build_single.sh aarch64-linux-android -j$(nproc)
+  - name: arm-linux-androideabi
+    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    commands:
+      - apt update
+      - apt install -y python-is-python3 libtinfo5 gperf
+      - ./build_single.sh arm-linux-androideabi -j$(nproc)
   - name: upload artifact
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
@@ -96,5 +65,5 @@ steps:
       - chmod 700 ~/.ssh
       - chmod 600 ~/.ssh/id_rsa
       - xz -e libbridge/build/libwallet2_api_c.so
-      - rsync --mkpath -e "ssh -o StrictHostKeyChecking=no" -raz libbridge/build/libwallet2_api_c.so.xz $${SSH_HOST}:"$${SSH_BASE_PATH}/$(git describe --tags)/$${triplet}_libwallet2_api_c.so.xz"
+      - rsync --mkpath -e "ssh -o StrictHostKeyChecking=no" -raz release/* $${SSH_HOST}:"$${SSH_BASE_PATH}/$(git describe --tags)/"
     secrets: [ ssh_privkey, ssh_host, ssh_base_path ]
