@@ -11,6 +11,7 @@ steps:
   - name: clone monero and cache depends
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
+      - git fetch
       - git clone https://git.mrcyjanek.net/mrcyjanek/monero --recursive --depth=1 --branch=release-v0.18.3.2-legacy
       - cd monero/contrib/depends
       - make download
