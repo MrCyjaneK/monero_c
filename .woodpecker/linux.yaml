@@ -3,16 +3,17 @@ clone:
     image: woodpeckerci/plugin-git
     settings:
       partial: false
+    recursive: true
 
 labels:
   platform: linux/amd64
 
 steps:
-  - name: clone monero and cache depends
+  - name: patch monero and cache depends
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
-      - git fetch
-      - git clone https://git.mrcyjanek.net/mrcyjanek/monero --recursive --depth=1 --branch=release-v0.18.3.2-legacy
+      - cd monero && git submodule update --init --force && cd ..
+      - ./apply_patches.sh
       - cd monero/contrib/depends
       - make download
   - name: x86_64-linux-gnu
