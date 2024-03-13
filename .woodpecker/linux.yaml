@@ -8,52 +8,55 @@ clone:
 labels:
   platform: linux/amd64
 
+when:
+  - event: tag
+
 steps:
   - name: patch monero and cache depends
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - cd monero && git submodule update --init --force && cd ..
       - ./apply_patches.sh
       - cd monero/contrib/depends
       - make download
   - name: x86_64-linux-gnu
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
       - apt install -y gcc g++ gperf
       - ./build_single.sh x86_64-linux-gnu -j$(nproc)
   - name: i686-linux-gnu
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
       - apt install -y gcc-i686-linux-gnu g++-i686-linux-gnu gperf
       - ./build_single.sh i686-linux-gnu -j$(nproc)
   - name: aarch64-linux-gnu
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
       - apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gperf
       - ./build_single.sh aarch64-linux-gnu -j$(nproc)
   - name: x86_64-linux-android
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
-      - apt install -y python-is-python3 libtinfo5 gperf
+      - apt install -y libtinfo5 gperf
       - ./build_single.sh x86_64-linux-android -j$(nproc)
   - name: aarch64-linux-android
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
-      - apt install -y python-is-python3 libtinfo5 gperf
+      - apt install -y libtinfo5 gperf
       - ./build_single.sh aarch64-linux-android -j$(nproc)
   - name: arm-linux-androideabi
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
-      - apt install -y python-is-python3 libtinfo5 gperf
+      - apt install -y libtinfo5 gperf
       - ./build_single.sh arm-linux-androideabi -j$(nproc)
   - name: upload artifact
-    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - rm -rf ~/.ssh || true
       - mkdir -p ~/.ssh
