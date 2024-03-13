@@ -56,7 +56,7 @@ steps:
       - apt install -y libtinfo5 gperf
       - ./build_single.sh arm-linux-androideabi -j$(nproc)
   - name: upload artifact
-    image: git.mrcyjanek.net/mrcyjanek/debian:buster
+    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
       - rm -rf ~/.ssh || true
       - mkdir -p ~/.ssh
