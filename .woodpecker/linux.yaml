@@ -18,7 +18,22 @@ steps:
       - cd monero && git submodule update --init --force && cd ..
       - ./apply_patches.sh
       - cd monero/contrib/depends
+      - for i in sources built; do cp "/root/.cache/$i" . -r || true; done
       - make download
+    volumes:
+      - /opt/cache/monero_c/dotcache:/root/.cache
+  - name: x86_64-w64-mingw32
+    image: git.mrcyjanek.net/mrcyjanek/debian:buster
+    commands:
+      - apt update
+      - apt install -y gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gperf libtinfo5
+      - ./build_single.sh x86_64-w64-mingw32 -j$(nproc)
+  - name: i686-w64-mingw32
+    image: git.mrcyjanek.net/mrcyjanek/debian:buster
+    commands:
+      - apt update
+      - apt install -y gcc-mingw-w64-i686 g++-mingw-w64-i686 gperf libtinfo5
+      - ./build_single.sh i686-w64-mingw32 -j$(nproc)
   - name: x86_64-linux-gnu
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
@@ -55,6 +70,13 @@ steps:
       - apt update
       - apt install -y libtinfo5 gperf
       - ./build_single.sh arm-linux-androideabi -j$(nproc)
+  - name: cache depends
+    image: git.mrcyjanek.net/mrcyjanek/debian:buster
+    commands:
+      - cd monero/contrib/depends
+      - for i in sources built; do cp "$i" "/root/.cache/" -r || true; done
+    volumes:
+      - /opt/cache/monero_c/dotcache:/root/.cache
   - name: upload artifact
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:

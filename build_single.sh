@@ -21,36 +21,36 @@ CC=""
 CXX=""
 case "$HOST_ABI" in
     "x86_64-linux-gnu")
-        export CC="x86_64-linux-gnu-gcc"
-        export CXX="x86_64-linux-gnu-g++"
+        export CC="${HOST_ABI}-gcc"
+        export CXX="${HOST_ABI}-g++"
     ;;
     "i686-linux-gnu")
-        export CC="i686-linux-gnu-gcc"
-        export CXX="i686-linux-gnu-g++"
+        export CC="${HOST_ABI}-gcc"
+        export CXX="${HOST_ABI}-g++"
     ;;
     "aarch64-linux-gnu")
-        export CC="aarch64-linux-gnu-gcc"
-        export CXX="aarch64-linux-gnu-g++"
+        export CC="${HOST_ABI}-gcc"
+        export CXX="${HOST_ABI}-g++"
     ;;
     "x86_64-linux-android")
-        export PATH="$WDIR/monero/contrib/depends/x86_64-linux-android/native/bin/:$PATH"
-        export CC=x86_64-linux-android-clang
-        export CXX=x86_64-linux-android-clang++
+        export PATH="$WDIR/monero/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
+        export CC=${HOST_ABI}-clang
+        export CXX=${HOST_ABI}-clang++
     ;;
     "i686-linux-android")
-        export PATH="$WDIR/monero/contrib/depends/i686-linux-android/native/bin/:$PATH"
-        export CC=i686-linux-android-clang
-        export CXX=i686-linux-android-clang++
+        export PATH="$WDIR/monero/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
+        export CC=${HOST_ABI}-clang
+        export CXX=${HOST_ABI}-clang++
     ;;
     "aarch64-linux-android")
-        export PATH="$WDIR/monero/contrib/depends/aarch64-linux-android/native/bin/:$PATH"
-        export CC=aarch64-linux-android-clang
-        export CXX=aarch64-linux-android-clang++
+        export PATH="$WDIR/monero/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
+        export CC=${HOST_ABI}-clang
+        export CXX=${HOST_ABI}-clang++
     ;;
     "arm-linux-androideabi")
-        export PATH="$WDIR/monero/contrib/depends/arm-linux-androideabi/native/bin/:$PATH"
-        export CC=arm-linux-androideabi-clang
-        export CXX=arm-linux-androideabi-clang++
+        export PATH="$WDIR/monero/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
+        export CC=${HOST_ABI}-clang
+        export CXX=${HOST_ABI}-clang++
     ;;
     "i686-w64-mingw32")
         update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
@@ -85,7 +85,7 @@ fi
 
 
 pushd monero/contrib/depends
-    make HOST="$HOST_ABI" "$NPROC"
+    CC=gcc CXX=g++ make HOST="$HOST_ABI" "$NPROC"
 popd
 
 rm -rf monero/build/${HOST_ABI} 2>/dev/null || true
@@ -140,6 +140,11 @@ popd
 
 mkdir release 2>/dev/null || true
 pushd release
-    xz -e ../libbridge/build/${HOST_ABI}/libwallet2_api_c.so
-    mv ../libbridge/build/${HOST_ABI}/libwallet2_api_c.so.xz ${HOST_ABI}_libwallet2_api_c.so.xz
+    APPENDIX=so
+    if [[ "${HOST_ABI}" == "x86_64-w64-mingw32" || "${HOST_ABI}" == "i686-w64-mingw32" ]];
+    then
+        APPENDIX=dll
+    fi
+    xz -e ../libbridge/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}
+    mv ../libbridge/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}.xz ${HOST_ABI}_libwallet2_api_c.${APPENDIX}.xz
 popd

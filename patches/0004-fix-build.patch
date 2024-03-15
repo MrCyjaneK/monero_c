@@ -80,7 +80,7 @@ index 000000000..47a532907
 +endef
 +
 +define $(package)_config_cmds
-+    cmake -DCMAKE_INSTALL_PREFIX=$(host_prefix) -DCMAKE_C_COMPILER=${CC} .
++    cmake -DCMAKE_INSTALL_PREFIX=$(host_prefix) -DCMAKE_C_COMPILER=$($(package)_cc) .
 +endef
 +
 +define $(package)_build_cmds

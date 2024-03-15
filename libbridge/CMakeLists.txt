@@ -37,9 +37,10 @@ set_target_properties(ssl PROPERTIES IMPORTED_LOCATION
 ############
 
 if(${HOST_ABI} STREQUAL "x86_64-linux-android" OR ${HOST_ABI} STREQUAL "aarch64-linux-android" OR ${HOST_ABI} STREQUAL "arm-linux-androideabi" OR ${HOST_ABI} STREQUAL "i686-linux-android")
+    set(CMAKE_LINKER ${HOST_ABI}-ld)
     set(BOOST_WTF "-mt-s")
     set(BOOST_WTF_PART "")
-elseif(${HOST_ABI} STREQUAL "x86_64-w64-mingw32")
+elseif(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-mingw32")
     set(BOOST_WTF "-mt-s")
     set(BOOST_WTF_PART "_win32")
 else()
@@ -48,14 +49,29 @@ else()
 endif()
 
 if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32")
-    set(CMAKE_SYSTEM_NAME "Windows")
+    set(CMAKE_SYSTEM_NAME Windows)
     set(CMAKE_LINKER "x86_64-w64-mingw32-ld")
-    set(TARGET "x86_64-w64-mingw32") 
+    set(TARGET "x86_64-w64-mingw32")
+elseif(${HOST_ABI} STREQUAL "i686-w64-mingw32")
+    set(CMAKE_SYSTEM_NAME Windows)
+    set(CMAKE_LINKER "i686-w64-mingw32-ld")
+    set(TARGET "i686-w64-mingw32")
 endif()
+
 
 add_library(boost_chrono STATIC IMPORTED)
 set_target_properties(boost_chrono PROPERTIES IMPORTED_LOCATION
     ${EXTERNAL_LIBS_DIR}/lib/libboost_chrono${BOOST_WTF}.a)
+
+# win extra
+add_library(boost_locale STATIC IMPORTED)
+set_target_properties(boost_locale PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_locale${BOOST_WTF}.a)
+    
+# win extra
+add_library(iconv STATIC IMPORTED)
+set_target_properties(iconv PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/lib/libiconv.a)
 
 add_library(boost_date_time STATIC IMPORTED)
 set_target_properties(boost_date_time PROPERTIES IMPORTED_LOCATION
@@ -100,6 +116,13 @@ set_target_properties(polyseed PROPERTIES IMPORTED_LOCATION
 add_library(polyseed-wrapper STATIC IMPORTED)
 set_target_properties(polyseed-wrapper PROPERTIES IMPORTED_LOCATION
     ${MONERO_DIR}/build/${HOST_ABI}/src/polyseed/libpolyseed_wrapper.a)
+
+if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-mingw32")
+    set(EXTRA_LIBS_POLYSEED polyseed-win)
+    add_library(polyseed-win STATIC IMPORTED)
+    set_target_properties(polyseed-win PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/external/polyseed/libpolyseed.dll.a)
+endif()
 
 #############
 # Utf8proc
@@ -218,6 +241,10 @@ add_library(cryptonote_format_utils_basic STATIC IMPORTED)
 set_target_properties(cryptonote_format_utils_basic PROPERTIES IMPORTED_LOCATION
         ${MONERO_DIR}/build/${HOST_ABI}/src/cryptonote_basic/libcryptonote_format_utils_basic.a)
 
+add_library(hidapi STATIC IMPORTED)
+set_target_properties(hidapi PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/lib/libhidapi.a)
+
 #############
 # System
 #############
@@ -235,6 +262,13 @@ else()
 endif()
 
 # target_compile_options(wallet2_api_c PRIVATE -static-libstdc++)
+
+if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-mingw32")
+    set_target_properties(wallet2_api_c PROPERTIES SUFFIX ".dll")
+
+    set(EXTRA_LIBS_WINDOWS wsock32 ws2_32 iconv iphlpapi crypt32 hidapi)
+endif()
+
 
 target_link_libraries(  wallet2_api_c
 
@@ -266,6 +300,7 @@ target_link_libraries(  wallet2_api_c
                         ${EXTRA_LIBS}
 
                         boost_chrono
+                        boost_locale
                         boost_date_time
                         boost_filesystem
                         boost_program_options
@@ -277,10 +312,13 @@ target_link_libraries(  wallet2_api_c
 
                         polyseed
                         polyseed-wrapper
+                        ${EXTRA_LIBS_POLYSEED}
                         utf8proc
 
                         ssl
                         crypto
 
                         sodium
+
+                        ${EXTRA_LIBS_WINDOWS}
                        )

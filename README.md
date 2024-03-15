@@ -8,4 +8,4 @@
 
 To contribute you can visit git.mrcyjanek.net/mrcyjanek/monero_c and open a PR, alternatively use any other code mirror or send patches directly.
 
-**IMPORTANT** I don't have time to write better README, please check `build_single.sh` for build instructions, in general it comes down to
+**IMPORTANT** I don't have time to write better README, please check `build_single.sh` for build instructions, in general it comes down to running the script.
