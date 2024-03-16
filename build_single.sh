@@ -144,6 +144,9 @@ pushd release
     if [[ "${HOST_ABI}" == "x86_64-w64-mingw32" || "${HOST_ABI}" == "i686-w64-mingw32" ]];
     then
         APPENDIX=dll
+        cp ../monero/build/${HOST_ABI}/external/polyseed/libpolyseed.${APPENDIX} ${HOST_ABI}_libpolyseed.${APPENDIX}
+        xz -e ${HOST_ABI}_libpolyseed.${APPENDIX}
+
     fi
     xz -e ../libbridge/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}
     mv ../libbridge/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}.xz ${HOST_ABI}_libwallet2_api_c.${APPENDIX}.xz
