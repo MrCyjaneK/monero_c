@@ -134,7 +134,7 @@ pushd libbridge
     mkdir -p build/${HOST_ABI} -p
     cd build/${HOST_ABI}
     
-    env CC="${CC}" CXX="${CXX}" cmake -DHOST_ABI=${HOST_ABI} ../..
+    env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
     env CC="${CC}" CXX="${CXX}" make $NPROC
 popd
 

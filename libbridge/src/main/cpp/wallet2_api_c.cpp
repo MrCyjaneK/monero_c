@@ -1189,7 +1189,6 @@ void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, co
     }
     std::set<uint32_t> subaddr_indices = {};
     std::set<std::string> preferred_inputs = splitString(std::string(preferredInputs), std::string(separator));
-    auto oneInput = *(preferred_inputs.begin());
     return wallet->createTransaction(std::string(dst_addr), std::string(payment_id),
                                         optAmount, mixin_count,
                                         PendingTransaction_Priority_fromInt(pendingTransactionPriority),
