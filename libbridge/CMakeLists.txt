@@ -257,7 +257,7 @@ include_directories( ${EXTERNAL_LIBS_DIR}/include )
 
 message(STATUS EXTERNAL_LIBS_DIR :  ${EXTERNAL_LIBS_DIR})
 
-if(${HOST_ABI} STREQUAL "x86_64")
+if(${HOST_ABI} STREQUAL "x86_64-linux-gnu")
     set(EXTRA_LIBS "wallet-crypto")
 else()
     set(EXTRA_LIBS "")
