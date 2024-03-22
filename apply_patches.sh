@@ -14,7 +14,7 @@ then
 fi
 
 cd monero
-git apply ../patches/* --index
+git apply ../patches/monero/* --index
 git submodule init
 git submodule update --force
 touch .patch-applied

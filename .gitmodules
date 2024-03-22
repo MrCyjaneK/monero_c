@@ -1,3 +1,6 @@
 [submodule "monero"]
 	path = monero
 	url = https://github.com/monero-project/monero
+[submodule "wownero"]
+	path = wownero
+	url = https://git.wownero.com/wownero/wownero
