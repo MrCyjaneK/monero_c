@@ -16,18 +16,6 @@ elseif(${HOST_ABI} STREQUAL "i686-w64-mingw32")
     # set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
-# if (MINGW)
-#     # On Windows, this is as close to fully-static as we get:
-#     # this leaves only deps on /c/Windows/system32/*.dll
-#     set(STATIC_FLAGS "-static ")
-#     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector")
-#     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstack-protector")
-# elseif (NOT (APPLE OR FREEBSD OR OPENBSD OR DRAGONFLY))
-#     # On Linux, we don't support fully static build, but these can be static
-#     set(STATIC_FLAGS "-static-libgcc -static-libstdc++")
-# endif()
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${STATIC_FLAGS} -fstack-protector")
-
 add_library( wallet2_api_c
              SHARED
              src/main/cpp/helpers.cpp
