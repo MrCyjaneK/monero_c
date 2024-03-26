@@ -1,18 +1,37 @@
 #!/bin/bash
 set -e
-
-HOST_ABI="$1"
-if [[ "x$HOST_ABI" == "x" ]];
+repo=$1
+if [[ "x$repo" == "x" ]];
 then
-    echo "Usage: $0 $(gcc -dumpmachine) -j$(nproc)"
+    echo "Usage: $0 monero/wownero"
     exit 1
 fi
 
-NPROC="$2"
+if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" ]];
+then
+    echo "Usage: $0 monero/wownero"
+    echo "Invalid target given, only monero and wownero are supported targets"
+fi
+
+if [[ ! -d "$repo" ]]
+then
+    echo "no '$repo' directory found. clone with --recursive or run:"
+    echo "$ git submodule init && git submodule update --force";
+    exit 1
+fi
+
+HOST_ABI="$2"
+if [[ "x$HOST_ABI" == "x" ]];
+then
+    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$(nproc)"
+    exit 1
+fi
+
+NPROC="$3"
 
 if [[ "x$NPROC" == "x" ]];
 then
-    echo "Usage: $0 $(gcc -dumpmachine) -j$(nproc)"
+    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$(nproc)"
     exit 1
 fi
 cd $(dirname $0)
@@ -33,22 +52,22 @@ case "$HOST_ABI" in
         export CXX="${HOST_ABI}-g++"
     ;;
     "x86_64-linux-android")
-        export PATH="$WDIR/monero/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
+        export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
         export CC=${HOST_ABI}-clang
         export CXX=${HOST_ABI}-clang++
     ;;
     "i686-linux-android")
-        export PATH="$WDIR/monero/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
+        export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
         export CC=${HOST_ABI}-clang
         export CXX=${HOST_ABI}-clang++
     ;;
     "aarch64-linux-android")
-        export PATH="$WDIR/monero/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
+        export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
         export CC=${HOST_ABI}-clang
         export CXX=${HOST_ABI}-clang++
     ;;
     "arm-linux-androideabi")
-        export PATH="$WDIR/monero/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
+        export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
         export CC=${HOST_ABI}-clang
         export CXX=${HOST_ABI}-clang++
     ;;
@@ -65,9 +84,9 @@ case "$HOST_ABI" in
         export CXX=x86_64-w64-mingw32-g++-posix
     ;;
     "x86_64-apple-darwin11")
-        export PATH="$WDIR/contrib/depends/x86_64-apple-darwin11/native/bin:$PATH"
-        export CC="clang -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.7 --sysroot /build/monero/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B/build/monero/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
-        export CXX="clang++ -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.7 --sysroot /build/monero/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B/build/monero/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
+        export PATH="$WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/bin:$PATH"
+        export CC="clang -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.7 --sysroot /build/$repo/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B/build/$repo/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
+        export CXX="clang++ -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.7 --sysroot /build/$repo/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B/build/$repo/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
     ;;
 esac
 
@@ -84,15 +103,15 @@ then
 fi
 
 
-pushd monero/contrib/depends
+pushd $repo/contrib/depends
     CC=gcc CXX=g++ make HOST="$HOST_ABI" "$NPROC"
 popd
 
 buildType=Release
 
-rm -rf monero/build/${HOST_ABI} 2>/dev/null || true
-mkdir -p monero/build/${HOST_ABI}
-pushd monero/build/${HOST_ABI}
+rm -rf $repo/build/${HOST_ABI} 2>/dev/null || true
+mkdir -p $repo/build/${HOST_ABI}
+pushd $repo/build/${HOST_ABI}
     case "$HOST_ABI" in
         "x86_64-linux-gnu")
             env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-x64" -D CMAKE_SYSTEM_NAME="Linux" ../..
@@ -132,61 +151,54 @@ pushd monero/build/${HOST_ABI}
     CC=gcc CXX=g++ make wallet_api $NPROC
 popd
 
-for buildType in Release Debug
-do
-    pushd libbridge
-        rm -rf build/${HOST_ABI} || true
-        mkdir -p build/${HOST_ABI} -p
-        cd build/${HOST_ABI}
-        
-        env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_BUILD_TYPE=$buildType -DHOST_ABI=${HOST_ABI} ../..
-        CC="${CC}" CXX="${CXX}" make $NPROC
-    popd
+pushd libbridge
+    rm -rf build/${HOST_ABI} || true
+    mkdir -p build/${HOST_ABI} -p
+    cd build/${HOST_ABI}
+    
+    env CC="${CC}" CXX="${CXX}" cmake -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+    CC="${CC}" CXX="${CXX}" make $NPROC
+popd
 
-    mkdir release 2>/dev/null || true
-    pushd release
-        APPENDIX=""
-        if [[ "x$buildType" == "xDebug" ]];
-        then
-            DEBUG=".DEBUG"
-        fi
-        if [[ "${HOST_ABI}" == "x86_64-w64-mingw32" || "${HOST_ABI}" == "i686-w64-mingw32" ]];
-        then
-            APPENDIX="${APPENDIX}dll"
-            cp ../monero/build/${HOST_ABI}/external/polyseed/libpolyseed.${APPENDIX} ${HOST_ABI}_libpolyseed${DEBUG}.${APPENDIX}
-            rm ${HOST_ABI}_libpolyseed${DEBUG}.${APPENDIX}.xz || true
-            xz -e ${HOST_ABI}_libpolyseed${DEBUG}.${APPENDIX}
-        else
-            APPENDIX="${APPENDIX}so"
-        fi
-        xz -e ../libbridge/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}
-        mv ../libbridge/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}.xz ${HOST_ABI}_libwallet2_api_c${DEBUG}.${APPENDIX}.xz
-        # Extra libraries
-        if [[ "$HOST_ABI" == "x86_64-w64-mingw32" || "$HOST_ABI" == "i686-w64-mingw32" ]];
-        then
-            cp /usr/${HOST_ABI}/lib/libwinpthread-1.dll ${HOST_ABI}_libwinpthread-1.dll
-            rm ${HOST_ABI}_libwinpthread-1.dll.xz || true
-            xz -e ${HOST_ABI}_libwinpthread-1.dll
-            ####
-            cp /usr/lib/gcc/${HOST_ABI}/8.3-posix/libstdc++-6.dll ${HOST_ABI}_libstdc++-6.dll
-            rm ${HOST_ABI}_libstdc++-6.dll.xz || true
-            xz -e ${HOST_ABI}_libstdc++-6.dll
-            #### 
-            cp /usr/lib/gcc/${HOST_ABI}/8.3-posix/libssp-0.dll ${HOST_ABI}_libssp-0.dll
-            rm ${HOST_ABI}_libssp-0.dll.xz || true
-            xz -e ${HOST_ABI}_libssp-0.dll
-        fi
-        if [[ "$HOST_ABI" == "x86_64-w64-mingw32" ]];
-        then
-            cp /usr/lib/gcc/${HOST_ABI}/8.3-posix/libgcc_s_seh-1.dll ${HOST_ABI}_libgcc_s_seh-1.dll
-            rm ${HOST_ABI}_libgcc_s_seh-1.dll.xz || true
-            xz -e ${HOST_ABI}_libgcc_s_seh-1.dll
-        fi
-        if [[ "$HOST_ABI" == "i686-w64-mingw32" ]];
-        then
-            cp /usr/lib/gcc/${HOST_ABI}/8.3-posix/libgcc_s_sjlj-1.dll ${HOST_ABI}_libgcc_s_sjlj-1.dll
-            rm ${HOST_ABI}_libgcc_s_sjlj-1.dll.xz || true
-            xz -e ${HOST_ABI}_libgcc_s_sjlj-1.dll
-        fi
-    popd
-done
+mkdir -p release/$repo 2>/dev/null || true
+pushd release/$repo
+    APPENDIX=""
+    if [[ "${HOST_ABI}" == "x86_64-w64-mingw32" || "${HOST_ABI}" == "i686-w64-mingw32" ]];
+    then
+        APPENDIX="${APPENDIX}dll"
+        cp ../../$repo/build/${HOST_ABI}/external/polyseed/libpolyseed.${APPENDIX} ${HOST_ABI}_libpolyseed.${APPENDIX}
+        rm ${HOST_ABI}_libpolyseed.${APPENDIX}.xz || true
+        xz -e ${HOST_ABI}_libpolyseed.${APPENDIX}
+    else
+        APPENDIX="${APPENDIX}so"
+    fi
+    xz -e ../../libbridge/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}
+    mv ../../libbridge/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}.xz ${HOST_ABI}_libwallet2_api_c.${APPENDIX}.xz
+    # Extra libraries
+    if [[ "$HOST_ABI" == "x86_64-w64-mingw32" || "$HOST_ABI" == "i686-w64-mingw32" ]];
+    then
+        cp /usr/${HOST_ABI}/lib/libwinpthread-1.dll ${HOST_ABI}_libwinpthread-1.dll
+        rm ${HOST_ABI}_libwinpthread-1.dll.xz || true
+        xz -e ${HOST_ABI}_libwinpthread-1.dll
+        ####
+        cp /usr/lib/gcc/${HOST_ABI}/8.3-posix/libstdc++-6.dll ${HOST_ABI}_libstdc++-6.dll
+        rm ${HOST_ABI}_libstdc++-6.dll.xz || true
+        xz -e ${HOST_ABI}_libstdc++-6.dll
+        #### 
+        cp /usr/lib/gcc/${HOST_ABI}/8.3-posix/libssp-0.dll ${HOST_ABI}_libssp-0.dll
+        rm ${HOST_ABI}_libssp-0.dll.xz || true
+        xz -e ${HOST_ABI}_libssp-0.dll
+    fi
+    if [[ "$HOST_ABI" == "x86_64-w64-mingw32" ]];
+    then
+        cp /usr/lib/gcc/${HOST_ABI}/8.3-posix/libgcc_s_seh-1.dll ${HOST_ABI}_libgcc_s_seh-1.dll
+        rm ${HOST_ABI}_libgcc_s_seh-1.dll.xz || true
+        xz -e ${HOST_ABI}_libgcc_s_seh-1.dll
+    fi
+    if [[ "$HOST_ABI" == "i686-w64-mingw32" ]];
+    then
+        cp /usr/lib/gcc/${HOST_ABI}/8.3-posix/libgcc_s_sjlj-1.dll ${HOST_ABI}_libgcc_s_sjlj-1.dll
+        rm ${HOST_ABI}_libgcc_s_sjlj-1.dll.xz || true
+        xz -e ${HOST_ABI}_libgcc_s_sjlj-1.dll
+    fi
+popd

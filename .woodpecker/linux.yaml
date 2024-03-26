@@ -11,14 +11,19 @@ labels:
 when:
   - event: tag
 
+matrix:
+  repo:
+    - monero
+    - wownero
+
 steps:
-  - name: patch monero and cache depends
+  - name: patch ${repo} and cache depends
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
-      - cd monero && git submodule update --init --force && cd ..
-      - ./apply_patches.sh
-      - cd monero/contrib/depends
-      - for i in sources built; do cp "/root/.cache/$i" . -r || true; done
+      - cd ${repo} && git submodule update --init --force && cd ..
+      - ./apply_patches.sh ${repo}
+      - cd ${repo}/contrib/depends
+      - for i in sources built; do cp "/root/.cache/${repo}/$i" . -r || true; done
       - make download
     volumes:
       - /opt/cache/monero_c/dotcache:/root/.cache
@@ -26,55 +31,56 @@ steps:
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
-      - apt install -y gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gperf libtinfo5
-      - ./build_single.sh x86_64-w64-mingw32 -j$(nproc)
+      - apt install -y ccache gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gperf libtinfo5
+      - ./build_single.sh ${repo} x86_64-w64-mingw32 -j$(nproc)
   - name: i686-w64-mingw32
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
-      - apt install -y gcc-mingw-w64-i686 g++-mingw-w64-i686 gperf libtinfo5
-      - ./build_single.sh i686-w64-mingw32 -j$(nproc)
+      - apt install -y ccache gcc-mingw-w64-i686 g++-mingw-w64-i686 gperf libtinfo5
+      - ./build_single.sh ${repo} i686-w64-mingw32 -j$(nproc)
   - name: x86_64-linux-gnu
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
-      - apt install -y gcc g++ gperf
-      - ./build_single.sh x86_64-linux-gnu -j$(nproc)
+      - apt install -y ccache gcc g++ gperf
+      - ./build_single.sh ${repo} x86_64-linux-gnu -j$(nproc)
   - name: i686-linux-gnu
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
-      - apt install -y gcc-i686-linux-gnu g++-i686-linux-gnu gperf
-      - ./build_single.sh i686-linux-gnu -j$(nproc)
+      - apt install -y ccache gcc-i686-linux-gnu g++-i686-linux-gnu gperf
+      - ./build_single.sh ${repo} i686-linux-gnu -j$(nproc)
   - name: aarch64-linux-gnu
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
-      - apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gperf
-      - ./build_single.sh aarch64-linux-gnu -j$(nproc)
+      - apt install -y ccache gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gperf
+      - ./build_single.sh ${repo} aarch64-linux-gnu -j$(nproc)
   - name: x86_64-linux-android
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
-      - apt install -y libtinfo5 gperf
-      - ./build_single.sh x86_64-linux-android -j$(nproc)
+      - apt install -y ccache libtinfo5 gperf
+      - ./build_single.sh ${repo} x86_64-linux-android -j$(nproc)
   - name: aarch64-linux-android
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
-      - apt install -y libtinfo5 gperf
-      - ./build_single.sh aarch64-linux-android -j$(nproc)
+      - apt install -y ccache libtinfo5 gperf
+      - ./build_single.sh ${repo} aarch64-linux-android -j$(nproc)
   - name: arm-linux-androideabi
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
-      - apt install -y libtinfo5 gperf
-      - ./build_single.sh arm-linux-androideabi -j$(nproc)
+      - apt install -y ccache libtinfo5 gperf
+      - ./build_single.sh ${repo} arm-linux-androideabi -j$(nproc)
   - name: cache depends
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
-      - cd monero/contrib/depends
-      - for i in sources built; do cp "$i" "/root/.cache/" -r || true; done
+      - cd ${repo}/contrib/depends
+      - mkdir -p /root/.cache/${repo} || true
+      - for i in sources built; do cp "$i" "/root/.cache/${repo}" -r || true; done
     volumes:
       - /opt/cache/monero_c/dotcache:/root/.cache
   - name: upload artifact

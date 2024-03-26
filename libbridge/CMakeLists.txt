@@ -21,7 +21,7 @@ add_library( wallet2_api_c
              src/main/cpp/helpers.cpp
              src/main/cpp/wallet2_api_c.cpp )
 
-set(MONERO_DIR ${CMAKE_SOURCE_DIR}/../monero)
+set(MONERO_DIR ${CMAKE_SOURCE_DIR}/../${MONERO_FLAVOR})
 set(EXTERNAL_LIBS_DIR ${MONERO_DIR}/contrib/depends/${HOST_ABI})
 
 ############
@@ -226,9 +226,15 @@ add_library(hardforks STATIC IMPORTED)
 set_target_properties(hardforks PROPERTIES IMPORTED_LOCATION
         ${MONERO_DIR}/build/${HOST_ABI}/src/hardforks/libhardforks.a)
 
+if (${MONERO_FLAVOR} STREQUAL "monero")
+    set(RANDOMX_FLAVOR "randomx")
+elseif(${MONERO_FLAVOR} STREQUAL "wownero")
+    set(RANDOMX_FLAVOR "randomwow")
+endif()
+
 add_library(randomx STATIC IMPORTED)
 set_target_properties(randomx PROPERTIES IMPORTED_LOCATION
-        ${MONERO_DIR}/build/${HOST_ABI}/external/randomx/librandomx.a)
+        ${MONERO_DIR}/build/${HOST_ABI}/external/${RANDOMX_FLAVOR}/librandomx.a)
 
 add_library(rpc_base STATIC IMPORTED)
 set_target_properties(rpc_base PROPERTIES IMPORTED_LOCATION
