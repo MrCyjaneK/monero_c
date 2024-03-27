@@ -28,12 +28,8 @@ fi
 
 set -e
 cd $repo
-git apply ../patches/$repo/*.patch --index
+git am ../patches/$repo/*.patch
 git submodule init
 git submodule update --init --recursive --force
 touch .patch-applied
-git add .
-git config user.email "you@example.com"
-git config user.name "Your Name"
-git commit -m 'patch applied' # fatal: path 'external/polyseed' exists on disk, but not in 'HEAD'
 echo "you are good to go!"

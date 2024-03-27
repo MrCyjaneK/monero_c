@@ -1,10 +1,18 @@
 #include <inttypes.h>
 #include "wallet2_api_c.h"
-#include "wallet2_api.h"
 #include <unistd.h>
 #include "helpers.hpp"
 #include <cstring>
 #include <thread>
+
+#ifdef FLAVOR_MONERO
+#include "../../../../monero/src/wallet/api/wallet2_api.h"
+#endif
+
+#ifdef FLAVOR_WOWNERO
+#include "../../../../wownero/src/wallet/api/wallet2_api.h"
+#endif
+
 
 #ifdef __cplusplus
 extern "C"

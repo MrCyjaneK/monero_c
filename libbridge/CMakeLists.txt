@@ -277,6 +277,11 @@ if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-m
     set(EXTRA_LIBS_WINDOWS wsock32 ws2_32 iconv iphlpapi crypt32 hidapi)
 endif()
 
+if (${MONERO_FLAVOR} STREQUAL "monero")
+    target_compile_definitions(wallet2_api_c PRIVATE FLAVOR_MONERO)
+elseif(${MONERO_FLAVOR} STREQUAL "wownero")
+    target_compile_definitions(wallet2_api_c PRIVATE FLAVOR_WOWNERO)
+endif()
 
 target_link_libraries(  wallet2_api_c
 

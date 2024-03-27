@@ -1,1 +1,0 @@
-../../../../monero/src/wallet/api/wallet2_api.h
