@@ -21,12 +21,26 @@ steps:
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - cd ${repo} && git submodule update --init --force && cd ..
+      - git config --global user.email "ci@mrcyjanek.net"
+      - git config --global user.name "CI mrcyjanek.net"
       - ./apply_patches.sh ${repo}
       - cd ${repo}/contrib/depends
       - for i in sources built; do cp "/root/.cache/${repo}/$i" . -r || true; done
       - make download
     volumes:
       - /opt/cache/monero_c/dotcache:/root/.cache
+  - name: x86_64-apple-darwin11
+    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    commands:
+      - apt update
+      - apt install -y gperf libtinfo5
+      - ./build_single.sh ${repo} x86_64-apple-darwin11 -j$(nproc)
+  - name: aarch64-apple-darwin11
+    image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
+    commands:
+      - apt update
+      - apt install -y gperf libtinfo5
+      - ./build_single.sh ${repo} aarch64-apple-darwin11 -j$(nproc)
   - name: x86_64-w64-mingw32
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:

@@ -85,8 +85,13 @@ case "$HOST_ABI" in
     ;;
     "x86_64-apple-darwin11")
         export PATH="$WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/bin:$PATH"
-        export CC="clang -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.7 --sysroot /build/$repo/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B/build/$repo/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
-        export CXX="clang++ -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.7 --sysroot /build/$repo/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B/build/$repo/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
+        export CC="clang -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.8 --sysroot $WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
+        export CXX="clang++ -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.8 --sysroot $WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
+    ;;
+    "aarch64-apple-darwin11")
+        export PATH="$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin:$PATH"
+        export CC="clang -stdlib=libc++ -target arm64-apple-darwin11 -mmacosx-version-min=10.8 --sysroot $WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin/aarch64-apple-darwin11-"
+        export CXX="clang++ -stdlib=libc++ -target arm64-apple-darwin11 -mmacosx-version-min=10.8 --sysroot $WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin/aarch64-apple-darwin11-"
     ;;
 esac
 
@@ -143,6 +148,9 @@ pushd $repo/build/${HOST_ABI}
         "x86_64-apple-darwin11")
             env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D ARCH="x86-64" -D BUILD_64=ON -D CMAKE_BUILD_TYPE=$buildType -D BUILD_TAG="mac-x64" ../..
         ;;
+        "aarch64-apple-darwin11")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D ARCH="armv8-a" -D BUILD_64=ON -D CMAKE_BUILD_TYPE=$buildType -D BUILD_TAG="mac-armv8" ../..
+        ;;
         *)
             echo "we don't know how to compile monero for '$HOST_ABI'"
             exit 1
@@ -150,6 +158,12 @@ pushd $repo/build/${HOST_ABI}
     esac
     CC=gcc CXX=g++ make wallet_api $NPROC
 popd
+
+# Special treatment for apple
+if [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" ]];
+then
+    ${HOST_ABI}-ranlib $PWD/$repo/contrib/depends/${HOST_ABI}/lib/libpolyseed.a
+fi
 
 pushd libbridge
     rm -rf build/${HOST_ABI} || true
@@ -169,6 +183,9 @@ pushd release/$repo
         cp ../../$repo/build/${HOST_ABI}/external/polyseed/libpolyseed.${APPENDIX} ${HOST_ABI}_libpolyseed.${APPENDIX}
         rm ${HOST_ABI}_libpolyseed.${APPENDIX}.xz || true
         xz -e ${HOST_ABI}_libpolyseed.${APPENDIX}
+    elif [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" ]];
+    then
+        APPENDIX="${APPENDIX}dylib"
     else
         APPENDIX="${APPENDIX}so"
     fi

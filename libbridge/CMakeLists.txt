@@ -263,10 +263,16 @@ include_directories( ${EXTERNAL_LIBS_DIR}/include )
 
 message(STATUS EXTERNAL_LIBS_DIR :  ${EXTERNAL_LIBS_DIR})
 
-if(${HOST_ABI} STREQUAL "x86_64-linux-gnu")
+if(${HOST_ABI} STREQUAL "x86_64-linux-gnu" OR
+   ${HOST_ABI} STREQUAL "x86_64-apple-darwin11")
     set(EXTRA_LIBS "wallet-crypto")
 else()
     set(EXTRA_LIBS "")
+endif()
+
+if (${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11")
+  set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" hidapi)
+#   set_target_properties(wallet2_api_c PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
 endif()
 
 # target_compile_options(wallet2_api_c PRIVATE -static-libstdc++)
@@ -275,6 +281,12 @@ if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-m
     set_target_properties(wallet2_api_c PROPERTIES SUFFIX ".dll")
 
     set(EXTRA_LIBS_WINDOWS wsock32 ws2_32 iconv iphlpapi crypt32 hidapi)
+endif()
+
+if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11")
+    set_target_properties(wallet2_api_c PROPERTIES SUFFIX ".dylib")
+    
+    set_target_properties(wallet2_api_c PROPERTIES NO_SONAME 1)
 endif()
 
 if (${MONERO_FLAVOR} STREQUAL "monero")
@@ -334,4 +346,5 @@ target_link_libraries(  wallet2_api_c
                         sodium
 
                         ${EXTRA_LIBS_WINDOWS}
+                        ${EXTRA_LIBS_APPLE}
                        )
