@@ -1,14 +1,2 @@
-boost_*
-libexpat
-libiconv-*
-libsodium*
-libzmq*
-openssl-*
-polyseed*
-unbound*
-utf8proc*
-zlib*
-
-perl-*
-
-prefix
+release/
+build/

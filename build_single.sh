@@ -3,13 +3,13 @@ set -e
 repo=$1
 if [[ "x$repo" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero"
+    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$(nproc)"
     exit 1
 fi
 
 if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" ]];
 then
-    echo "Usage: $0 monero/wownero"
+    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$(nproc)"
     echo "Invalid target given, only monero and wownero are supported targets"
 fi
 
@@ -165,7 +165,7 @@ then
     ${HOST_ABI}-ranlib $PWD/$repo/contrib/depends/${HOST_ABI}/lib/libpolyseed.a
 fi
 
-pushd libbridge
+pushd ${repo}_libwallet2_api_c
     rm -rf build/${HOST_ABI} || true
     mkdir -p build/${HOST_ABI} -p
     cd build/${HOST_ABI}
@@ -189,8 +189,8 @@ pushd release/$repo
     else
         APPENDIX="${APPENDIX}so"
     fi
-    xz -e ../../libbridge/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}
-    mv ../../libbridge/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}.xz ${HOST_ABI}_libwallet2_api_c.${APPENDIX}.xz
+    xz -e ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}
+    mv ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}.xz ${HOST_ABI}_libwallet2_api_c.${APPENDIX}.xz
     # Extra libraries
     if [[ "$HOST_ABI" == "x86_64-w64-mingw32" || "$HOST_ABI" == "i686-w64-mingw32" ]];
     then
