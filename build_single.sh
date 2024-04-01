@@ -163,7 +163,7 @@ pushd $repo/contrib/depends
     esac
 popd
 
-buildType=Release
+buildType=Debug
 
 rm -rf $repo/build/${HOST_ABI} 2>/dev/null || true
 mkdir -p $repo/build/${HOST_ABI}
