@@ -4,3 +4,6 @@
 [submodule "wownero"]
 	path = wownero
 	url = https://git.wownero.com/wownero/wownero
+[submodule "external/polyseed"]
+	path = external/polyseed
+	url = https://github.com/tevador/polyseed

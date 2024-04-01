@@ -256,6 +256,10 @@ add_library(hidapi STATIC IMPORTED)
 set_target_properties(hidapi PROPERTIES IMPORTED_LOCATION
     ${EXTERNAL_LIBS_DIR}/lib/libhidapi.a)
 
+add_library(event STATIC IMPORTED)
+set_target_properties(event PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/lib/libevent.a)
+
 #############
 # System
 #############
@@ -276,6 +280,8 @@ endif()
 if (${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11")
   set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" hidapi)
 #   set_target_properties(wallet2_api_c PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
+elseif(${HOST_ABI} STREQUAL "host-apple-darwin")
+    set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" apple_nghttp2 event)
 endif()
 
 # target_compile_options(wallet2_api_c PRIVATE -static-libstdc++)
@@ -286,7 +292,7 @@ if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-m
     set(EXTRA_LIBS_WINDOWS wsock32 ws2_32 iconv iphlpapi crypt32 hidapi)
 endif()
 
-if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11")
+if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" OR ${HOST_ABI} STREQUAL "host-apple-darwin")
     set_target_properties(wallet2_api_c PROPERTIES SUFFIX ".dylib")
     
     set_target_properties(wallet2_api_c PROPERTIES NO_SONAME 1)
@@ -298,9 +304,10 @@ elseif(${MONERO_FLAVOR} STREQUAL "wownero")
     target_compile_definitions(wallet2_api_c PRIVATE FLAVOR_WOWNERO)
 endif()
 
-if(NOT ${HOST_ABI} STREQUAL "x86_64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-darwin11")
+if(NOT ${HOST_ABI} STREQUAL "x86_64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "host-apple-darwin")
     set_target_properties(wallet2_api_c PROPERTIES LINK_FLAGS "-Wl,--exclude-libs,ALL")
 endif()
+
 target_link_libraries(  wallet2_api_c
 
                         wallet_api
