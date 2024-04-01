@@ -19,7 +19,7 @@ extern "C"
 #ifdef __MINGW32__
     #define ADDAPI __declspec(dllexport)
 #else
-    #define ADDAPI 
+    #define ADDAPI __attribute__((__visibility__("default")))
 #endif
 
 // namespace Monero {

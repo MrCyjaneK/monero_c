@@ -35,60 +35,80 @@ steps:
       - apt update
       - apt install -y gperf libtinfo5
       - ./build_single.sh ${repo} x86_64-apple-darwin11 -j$(nproc)
+    volumes:
+      - /opt/cache/monero_c/dotccache:/root/.ccache
   - name: aarch64-apple-darwin11
     image: git.mrcyjanek.net/mrcyjanek/debian:bookworm
     commands:
       - apt update
       - apt install -y gperf libtinfo5
       - ./build_single.sh ${repo} aarch64-apple-darwin11 -j$(nproc)
+    volumes:
+      - /opt/cache/monero_c/dotccache:/root/.ccache
   - name: x86_64-w64-mingw32
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
       - apt install -y ccache gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gperf libtinfo5
       - ./build_single.sh ${repo} x86_64-w64-mingw32 -j$(nproc)
+    volumes:
+      - /opt/cache/monero_c/dotccache:/root/.ccache
   - name: i686-w64-mingw32
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
       - apt install -y ccache gcc-mingw-w64-i686 g++-mingw-w64-i686 gperf libtinfo5
       - ./build_single.sh ${repo} i686-w64-mingw32 -j$(nproc)
+    volumes:
+      - /opt/cache/monero_c/dotccache:/root/.ccache
   - name: x86_64-linux-gnu
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
       - apt install -y ccache gcc g++ gperf
       - ./build_single.sh ${repo} x86_64-linux-gnu -j$(nproc)
+    volumes:
+      - /opt/cache/monero_c/dotccache:/root/.ccache
   - name: i686-linux-gnu
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
       - apt install -y ccache gcc-i686-linux-gnu g++-i686-linux-gnu gperf
       - ./build_single.sh ${repo} i686-linux-gnu -j$(nproc)
+    volumes:
+      - /opt/cache/monero_c/dotccache:/root/.ccache
   - name: aarch64-linux-gnu
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
       - apt install -y ccache gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gperf
       - ./build_single.sh ${repo} aarch64-linux-gnu -j$(nproc)
+    volumes:
+      - /opt/cache/monero_c/dotccache:/root/.ccache
   - name: x86_64-linux-android
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
       - apt install -y ccache libtinfo5 gperf
       - ./build_single.sh ${repo} x86_64-linux-android -j$(nproc)
+    volumes:
+      - /opt/cache/monero_c/dotccache:/root/.ccache
   - name: aarch64-linux-android
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
       - apt install -y ccache libtinfo5 gperf
       - ./build_single.sh ${repo} aarch64-linux-android -j$(nproc)
+    volumes:
+      - /opt/cache/monero_c/dotccache:/root/.ccache
   - name: arm-linux-androideabi
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:
       - apt update
       - apt install -y ccache libtinfo5 gperf
       - ./build_single.sh ${repo} arm-linux-androideabi -j$(nproc)
+    volumes:
+      - /opt/cache/monero_c/dotccache:/root/.ccache
   - name: cache depends
     image: git.mrcyjanek.net/mrcyjanek/debian:buster
     commands:

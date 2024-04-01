@@ -21,6 +21,9 @@ add_library( wallet2_api_c
              src/main/cpp/helpers.cpp
              src/main/cpp/wallet2_api_c.cpp )
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+
 set(MONERO_DIR ${CMAKE_SOURCE_DIR}/../${MONERO_FLAVOR})
 set(EXTERNAL_LIBS_DIR ${MONERO_DIR}/contrib/depends/${HOST_ABI})
 
@@ -295,6 +298,9 @@ elseif(${MONERO_FLAVOR} STREQUAL "wownero")
     target_compile_definitions(wallet2_api_c PRIVATE FLAVOR_WOWNERO)
 endif()
 
+if(NOT ${HOST_ABI} STREQUAL "x86_64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-darwin11")
+    set_target_properties(wallet2_api_c PROPERTIES LINK_FLAGS "-Wl,--exclude-libs,ALL")
+endif()
 target_link_libraries(  wallet2_api_c
 
                         wallet_api
