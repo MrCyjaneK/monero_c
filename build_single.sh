@@ -103,19 +103,15 @@ case "$HOST_ABI" in
         export CC="clang"
         export CXX="clang++"
     ;;
+    "host-apple-ios")
+        export CC="clang -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+        export CXX="clang++ -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+    ;;
+    *)
+        echo "Unsupported target."
+        exit 1
+    ;;
 esac
-
-if [[ "x$CC" == "x" ]];
-then
-    echo "No C compiler found for abi: '$HOST_ABI'. Adjust the switch case in $0"
-    exit 1
-fi
-
-if [[ "x$CXX" == "x" ]];
-then
-    echo "No C++ compiler found for abi: '$HOST_ABI'. Adjust the switch case in $0"
-    exit 1
-fi
 pushd $repo/contrib/depends
     case "$HOST_ABI" in
         "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "arm-linux-androideabi" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11")
@@ -155,6 +151,43 @@ pushd $repo/contrib/depends
             verbose_copy "${HOMEBREW_PREFIX}/lib/libcrypto.a" ${MACOS_LIBS_DIR}/lib/libcrypto.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libsodium.a" ${MACOS_LIBS_DIR}/lib/libsodium.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libevent.a" ${MACOS_LIBS_DIR}/lib/libevent.a
+        ;;
+        "host-apple-ios")
+            echo "===================================="
+            echo "=                                  ="
+            echo "=  CHECK README.md IF BUILD FAILS  ="
+            echo "=                                  ="
+            echo "===================================="
+            # pushd external/ios
+            #     ./build_all.sh
+            # popd
+            POLYSEED_DIR=../../../external/polyseed/build/${HOST_ABI}
+            rm -rf ${POLYSEED_DIR}
+            mkdir -p ${POLYSEED_DIR}
+            pushd ${POLYSEED_DIR}
+                CC="${CC}" CXX="${CXX}" cmake  -DCMAKE_TOOLCHAIN_FILE=../../../ios-cmake/ios.toolchain.cmake -DPLATFORM=OS64 ../..
+                make $NPROC
+            popd
+            IOS_LIBS_DIR="${PWD}/host-apple-ios"
+            rm -rf ${IOS_LIBS_DIR}
+            mkdir -p ${IOS_LIBS_DIR}/lib
+            export IOS_PREFIX="$(realpath "${PWD}/../../../external/ios/build/ios")"
+            verbose_copy "${IOS_PREFIX}/lib/libunbound.a" ${IOS_LIBS_DIR}/lib/libunbound.a
+            verbose_copy "${IOS_PREFIX}/lib/libboost_chrono.a" ${IOS_LIBS_DIR}/lib/libboost_chrono.a
+            verbose_copy "${IOS_PREFIX}/lib/libboost_locale.a" ${IOS_LIBS_DIR}/lib/libboost_locale.a
+            verbose_copy "${IOS_PREFIX}/lib/libboost_date_time.a" ${IOS_LIBS_DIR}/lib/libboost_date_time.a
+            verbose_copy "${IOS_PREFIX}/lib/libboost_filesystem.a" ${IOS_LIBS_DIR}/lib/libboost_filesystem.a
+            verbose_copy "${IOS_PREFIX}/lib/libboost_program_options.a" ${IOS_LIBS_DIR}/lib/libboost_program_options.a
+            verbose_copy "${IOS_PREFIX}/lib/libboost_regex.a" ${IOS_LIBS_DIR}/lib/libboost_regex.a
+            verbose_copy "${IOS_PREFIX}/lib/libboost_serialization.a" ${IOS_LIBS_DIR}/lib/libboost_serialization.a
+            verbose_copy "${IOS_PREFIX}/lib/libboost_system.a" ${IOS_LIBS_DIR}/lib/libboost_system.a
+            verbose_copy "${IOS_PREFIX}/lib/libboost_thread.a" ${IOS_LIBS_DIR}/lib/libboost_thread.a
+            verbose_copy "${IOS_PREFIX}/lib/libboost_wserialization.a" ${IOS_LIBS_DIR}/lib/libboost_wserialization.a
+            verbose_copy "${POLYSEED_DIR}/libpolyseed.a" ${IOS_LIBS_DIR}/lib/libpolyseed.a
+            verbose_copy "${IOS_PREFIX}/lib/libssl.a" ${IOS_LIBS_DIR}/lib/libssl.a
+            verbose_copy "${IOS_PREFIX}/lib/libcrypto.a" ${IOS_LIBS_DIR}/lib/libcrypto.a
+            verbose_copy "${IOS_PREFIX}/lib/libsodium.a" ${IOS_LIBS_DIR}/lib/libsodium.a
+            # verbose_copy "${IOS_PREFIX}/lib/libevent.a" ${IOS_LIBS_DIR}/lib/libevent.a
         ;;
         *)
             echo "Unable to build dependencies for '$HOST_ABI'."
@@ -205,6 +238,15 @@ pushd $repo/build/${HOST_ABI}
         "host-apple-darwin")
             env CC="${CC}" CXX="${CXX}" cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D BUILD_64=ON -D CMAKE_BUILD_TYPE=$buildType ../..
         ;;
+        "host-apple-ios")
+            PREFIX="$(realpath "${PWD}/../../../external/ios/build/ios")"
+            # echo $PREFIX
+            # exit 1
+            env \
+                CMAKE_INCLUDE_PATH="${PREFIX}/include" \
+                CMAKE_LIBRARY_PATH="${PREFIX}/lib" \
+                CC="${CC}" CXX="${CXX}" cmake -D IOS=ON -D ARCH=arm64 -D CMAKE_BUILD_DYPE=$buildType -D STATIC=ON -D BUILD_GUI_DEPS=1 -D UNBOUND_INCLUDE_DIR="${PREFIX}/lib" ../..
+        ;;
         *)
             echo "we don't know how to compile monero for '$HOST_ABI'"
             exit 1
@@ -222,10 +264,23 @@ fi
 pushd ${repo}_libwallet2_api_c
     rm -rf build/${HOST_ABI} || true
     mkdir -p build/${HOST_ABI} -p
-    cd build/${HOST_ABI}
-    
-    env CC="${CC}" CXX="${CXX}" cmake -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
-    CC="${CC}" CXX="${CXX}" make $NPROC
+    pushd build/${HOST_ABI}
+        case $HOST_ABI in
+            "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "arm-linux-androideabi" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11")
+                env CC="${CC}" CXX="${CXX}" cmake -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+                CC="${CC}" CXX="${CXX}" make $NPROC
+            ;;
+            "host-apple-ios")
+                export -n CC CXX
+                cmake -DCMAKE_TOOLCHAIN_FILE=../../../external/ios-cmake/ios.toolchain.cmake -DPLATFORM=OS64 -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+                make $NPROC
+            ;;
+            *)
+                echo "Unable to build ${repo}_libwallet2_api_c for ${HOST_ABI}"
+                exit 1
+            ;;
+        esac
+    popd
 popd
 
 mkdir -p release/$repo 2>/dev/null || true
@@ -237,7 +292,7 @@ pushd release/$repo
         cp ../../$repo/build/${HOST_ABI}/external/polyseed/libpolyseed.${APPENDIX} ${HOST_ABI}_libpolyseed.${APPENDIX}
         rm ${HOST_ABI}_libpolyseed.${APPENDIX}.xz || true
         xz -e ${HOST_ABI}_libpolyseed.${APPENDIX}
-    elif [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" || "${HOST_ABI}" == "host-apple-darwin" ]];
+    elif [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" || "${HOST_ABI}" == "host-apple-darwin" || "${HOST_ABI}" == "host-apple-ios" ]];
     then
         APPENDIX="${APPENDIX}dylib"
     else
