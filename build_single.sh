@@ -266,14 +266,14 @@ pushd ${repo}_libwallet2_api_c
     mkdir -p build/${HOST_ABI} -p
     pushd build/${HOST_ABI}
         case $HOST_ABI in
-            "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "arm-linux-androideabi" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11")
+            "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "arm-linux-androideabi" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11" | "host-apple-darwin")
                 env CC="${CC}" CXX="${CXX}" cmake -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
                 CC="${CC}" CXX="${CXX}" make $NPROC
             ;;
             "host-apple-ios")
                 export -n CC CXX
-                cmake -DCMAKE_TOOLCHAIN_FILE=../../../external/ios-cmake/ios.toolchain.cmake -DPLATFORM=OS64 -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
-                make $NPROC
+                CC=clang CXX=clang++ cmake -DCMAKE_TOOLCHAIN_FILE=../../../external/ios-cmake/ios.toolchain.cmake -DPLATFORM=OS64 -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+                CC=clang CXX=clang++ make $NPROC
             ;;
             *)
                 echo "Unable to build ${repo}_libwallet2_api_c for ${HOST_ABI}"

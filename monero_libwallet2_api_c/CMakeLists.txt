@@ -288,7 +288,7 @@ if (${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch6
 elseif(${HOST_ABI} STREQUAL "host-apple-darwin")
     set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" apple_nghttp2 event)
 elseif(${HOST_ABI} STREQUAL "host-apple-ios")
-  set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" iconv)
+  set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" iconv )
 endif()
 
 # target_compile_options(wallet2_api_c PRIVATE -static-libstdc++)
