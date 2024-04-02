@@ -1,0 +1,46 @@
+From c1af99f391626d567fec83210a945f6f60bea700 Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Tue, 2 Apr 2024 01:13:12 +0200
+Subject: [PATCH] fix `make debug-test` target
+
+---
+ src/simplewallet/simplewallet.cpp | 4 ++--
+ src/wallet/wallet_rpc_server.cpp  | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/simplewallet/simplewallet.cpp b/src/simplewallet/simplewallet.cpp
+index 341b0e448..c2e16da4c 100644
+--- a/src/simplewallet/simplewallet.cpp
++++ b/src/simplewallet/simplewallet.cpp
+@@ -6976,13 +6976,13 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
+           return false;
+         }
+         unlock_block = bc_height + locked_blocks;
+-        ptx_vector = m_wallet->create_transactions_2(dsts, fake_outs_count, unlock_block /* unlock_time */, priority, extra, m_current_subaddress_account, subaddr_indices, subtract_fee_from_outputs);
++        ptx_vector = m_wallet->create_transactions_2(dsts, fake_outs_count, unlock_block /* unlock_time */, priority, extra, m_current_subaddress_account, subaddr_indices, {}, subtract_fee_from_outputs);
+       break;
+       default:
+         LOG_ERROR("Unknown transfer method, using default");
+         /* FALLTHRU */
+       case Transfer:
+-        ptx_vector = m_wallet->create_transactions_2(dsts, fake_outs_count, 0 /* unlock_time */, priority, extra, m_current_subaddress_account, subaddr_indices, subtract_fee_from_outputs);
++        ptx_vector = m_wallet->create_transactions_2(dsts, fake_outs_count, 0 /* unlock_time */, priority, extra, m_current_subaddress_account, subaddr_indices, {}, subtract_fee_from_outputs);
+       break;
+     }
+ 
+diff --git a/src/wallet/wallet_rpc_server.cpp b/src/wallet/wallet_rpc_server.cpp
+index 822fc828b..caa23e636 100644
+--- a/src/wallet/wallet_rpc_server.cpp
++++ b/src/wallet/wallet_rpc_server.cpp
+@@ -1157,7 +1157,7 @@ namespace tools
+     {
+       uint64_t mixin = m_wallet->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
+       uint32_t priority = m_wallet->adjust_priority(req.priority);
+-      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, mixin, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices, req.subtract_fee_from_outputs);
++      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, mixin, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices, {}, req.subtract_fee_from_outputs);
+ 
+       if (ptx_vector.empty())
+       {
+-- 
+2.44.0
+
