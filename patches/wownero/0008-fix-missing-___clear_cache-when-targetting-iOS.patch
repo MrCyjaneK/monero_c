@@ -1,4 +1,4 @@
-From 216fd03c063d115c8cebd75e7f4ae683977148a8 Mon Sep 17 00:00:00 2001
+From 107bf7a2b17ac175cb7f38c83a335cbeacab9e05 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 2 Apr 2024 17:07:19 +0200
 Subject: [PATCH] fix missing ___clear_cache when targetting iOS
@@ -22,12 +22,12 @@ index 86009b6b6..f723bd2d8 100644
 +        branch = cyjan-fix-ios
  
 diff --git a/external/randomwow b/external/randomwow
-index 27b099b6d..ce7e4754c 160000
+index 27b099b6d..2f68ba20a 160000
 --- a/external/randomwow
 +++ b/external/randomwow
 @@ -1 +1 @@
 -Subproject commit 27b099b6dd6fef6e17f58c6dfe00009e9c5df587
-+Subproject commit ce7e4754c6f28fc9e9b71d0377fb9395e9aa23f4
++Subproject commit 2f68ba20a74d3751a41923371916a7e115c2e511
 -- 
 2.44.0
 
