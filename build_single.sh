@@ -104,8 +104,8 @@ case "$HOST_ABI" in
         export CXX="clang++"
     ;;
     "host-apple-ios")
-        export CC="clang -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
-        export CXX="clang++ -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+        export IOS_CC="clang -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+        export IOS_CXX="clang++ -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
     ;;
     *)
         echo "Unsupported target."
@@ -158,14 +158,20 @@ pushd $repo/contrib/depends
             echo "=  CHECK README.md IF BUILD FAILS  ="
             echo "=                                  ="
             echo "===================================="
-            # pushd external/ios
-            #     ./build_all.sh
-            # popd
+            pwd
+            pushd ../../../external/ios
+                ./install_missing_headers.sh
+                ./build_openssl.sh
+                ./build_boost.sh
+                ./build_sodium.sh
+                ./build_zmq.sh
+                ./build_unbound.sh
+            popd
             POLYSEED_DIR=../../../external/polyseed/build/${HOST_ABI}
             rm -rf ${POLYSEED_DIR}
             mkdir -p ${POLYSEED_DIR}
             pushd ${POLYSEED_DIR}
-                CC="${CC}" CXX="${CXX}" cmake  -DCMAKE_TOOLCHAIN_FILE=../../../ios-cmake/ios.toolchain.cmake -DPLATFORM=OS64 ../..
+                CC="${IOS_CC}" CXX="${IOS_CXX}" cmake  -DCMAKE_TOOLCHAIN_FILE=../../../ios-cmake/ios.toolchain.cmake -DPLATFORM=OS64 ../..
                 make $NPROC
             popd
             IOS_LIBS_DIR="${PWD}/host-apple-ios"
@@ -245,7 +251,7 @@ pushd $repo/build/${HOST_ABI}
             env \
                 CMAKE_INCLUDE_PATH="${PREFIX}/include" \
                 CMAKE_LIBRARY_PATH="${PREFIX}/lib" \
-                CC="${CC}" CXX="${CXX}" cmake -D IOS=ON -D ARCH=arm64 -D CMAKE_BUILD_DYPE=$buildType -D STATIC=ON -D BUILD_GUI_DEPS=1 -D UNBOUND_INCLUDE_DIR="${PREFIX}/lib" ../..
+                CC="${IOS_CC}" CXX="${IOS_CXX}" cmake -D IOS=ON -D ARCH=arm64 -D CMAKE_BUILD_DYPE=$buildType -D STATIC=ON -D BUILD_GUI_DEPS=1 -D UNBOUND_INCLUDE_DIR="${PREFIX}/lib" ../..
         ;;
         *)
             echo "we don't know how to compile monero for '$HOST_ABI'"
