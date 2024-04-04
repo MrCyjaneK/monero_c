@@ -29,6 +29,12 @@ fi
 set -e
 cd $repo
 git am ../patches/$repo/*.patch
+if [[ "$repo" == "wownero" ]];
+then
+    pushd external/randomwow
+        git remote set-url origin https://github.com/mrcyjanek/randomwow.git
+    popd
+fi
 git submodule init
 git submodule update --init --recursive --force
 touch .patch-applied
