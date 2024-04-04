@@ -1,4 +1,4 @@
-From 56991097eea2c1c5b7978aa9fd6a12e83ef6f42e Mon Sep 17 00:00:00 2001
+From 8e6b919e32e701d99105d8db488694307090e54f Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 2 Apr 2024 16:51:56 +0200
 Subject: [PATCH] fix missing ___clear_cache when targetting iOS
@@ -22,12 +22,12 @@ index 73a23fb35..7ea87a009 100644
  	path = external/utf8proc
  	url = https://github.com/JuliaStrings/utf8proc.git
 diff --git a/external/randomx b/external/randomx
-index 102f8acf9..9803b04e5 160000
+index 102f8acf9..db90847de 160000
 --- a/external/randomx
 +++ b/external/randomx
 @@ -1 +1 @@
 -Subproject commit 102f8acf90a7649ada410de5499a7ec62e49e1da
-+Subproject commit 9803b04e5cf5e34dacee2e65338110a041bbf238
++Subproject commit db90847de6c1141d4f23a9aa6455ba466d569e9e
 -- 
 2.44.0
 
