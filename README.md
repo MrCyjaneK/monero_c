@@ -38,7 +38,8 @@ $ ./build_single.sh monero  x86_64-linux-gnu -j$(nproc)
                             arm-linux-androideabi
                             i686-w64-mingw32
                             x86_64-w64-mingw32
-                            host-clang
+                            host-apple-darwin
+                            host-apple-ios
 ```
 
 While building I aim to compile the code at oldest supported release of debian, using default toolchain to ensure that all linux distributions are able to run monero_c libraries, below I present a supported builders for given targets
@@ -56,7 +57,8 @@ While building I aim to compile the code at oldest supported release of debian, 
 | x86_64-w64-mingw32     | debian:buster        |  -"-  |
 | x86_64-apple-darwin11  | debian:bookworm      | extra build step: `${HOST_ABI}-ranlib $PWD/$repo/contrib/depends/${HOST_ABI}/lib/libpolyseed.a` |
 | aarch64-apple-darwin11 | debian:bookworm      |  -"-  |
-| host-clang             | arm64-apple-darwin23 | dependencies: `brew install unbound boost zmq` |
+| host-apple-darwin      | arm64-apple-darwin23 | dependencies: `brew install unbound boost zmq` |
+| host-apple-ios         | arm64-apple-darwin23 |       |
 
 Libraries on CI are build using the following docker images:
 - git.mrcyjanek.net/mrcyjanek/debian:buster
