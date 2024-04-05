@@ -11,6 +11,9 @@ extern "C"
 {
 #endif
 
+// For comments and docs check monero.
+
+
 // PendingTransaction
 
 int WOWNERO_PendingTransaction_status(void* pendingTx_ptr) {

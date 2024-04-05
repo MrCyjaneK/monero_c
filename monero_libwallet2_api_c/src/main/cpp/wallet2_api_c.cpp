@@ -12,6 +12,54 @@ extern "C"
 {
 #endif
 
+
+// The code in here consists of simple wrappers, that convert
+// more advanced c++ types (and function names) into simple C-compatible
+// functions, so these implementations can be easly used from all languages
+// that do support C interop (such as dart)
+//
+//
+// Here is the most complex definition that we can find in the current codebase, it even includes
+// a if statement - which in general I consider an anti-patter in just wrappers
+//
+//  _____________ void* because C++ wallet->createTransaction returns a pointer to Monero::PendingTransaction, which we don't want to have exposed in C land
+// /      _____________ MONERO prefix just means that this function is using monero codebase, to not cause any symbols collision when using more than one libwallet2_api_c.so in a single program.
+// |     /       _____________ Wallet is one of the classes in Monero namespace in the upstream codebase (see the include line above)
+// |     |      /       _____________ aaand it is calling createTransaction function.
+// |     |      |      /                  _________________________________________________________________________________
+// |     |      |      |                 /                                                                                 \ All of these parameters can be found in the upstream
+// |     |      |      |                |                                                                     _____________/ function definition, if something was more complex -
+// void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, const char* payment_id,     / like std::set I've used splitString functions and introduced a new
+//                                                     uint64_t amount, uint32_t mixin_count,               / parameter - separator, as it is the simplest way to get vector onto
+//                                                     int pendingTransactionPriority,                     / C side from more advanced world.
+//                                                     uint32_t subaddr_account,                          /
+//                                                     const char* preferredInputs, const char* separator) {
+//     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr); <------------ We are converting the void* into Monero::Wallet*
+//     Monero::optional<uint64_t> optAmount; <------------- optional by default
+//     if (amount != 0) {------------------\ We set this optional parameter only when it isn't zero
+//         optAmount = amount;             | 
+//     }___________________________________/
+//     std::set<uint32_t> subaddr_indices = {}; ------------- Default value
+//     std::set<std::string> preferred_inputs = splitString(std::string(preferredInputs), std::string(separator)); <------------- We are using helpers.cpp function to split a string into std::set
+//     return wallet->createTransaction(std::string(dst_addr), std::string(payment_id),-\ const char * is getting casted onto std::string
+//                                         optAmount, mixin_count,        \_____________/
+//                                         PendingTransaction_Priority_fromInt(pendingTransactionPriority), <------------- special case for this function to get native type instead of int value.
+//                                         subaddr_account, subaddr_indices, preferred_inputs);
+// }
+//
+//
+// One case which is not covered here is when we have to return a string
+// const char* MONERO_PendingTransaction_errorString(void* pendingTx_ptr) {
+//     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+//     std::string str = pendingTx->errorString(); <------------- get the actual string from the upstream codebase
+//     const std::string::size_type size = str.size(); ------------------------------\
+//     char *buffer = new char[size + 1];   //we need extra char for NUL             | Copy the string onto a new memory so it won't get freed after the function returns
+//     memcpy(buffer, str.c_str(), size + 1);                                        | NOTE: This requires us to call free() after we are done with the text processing
+//     return buffer; ______________________________________________________________/
+// }
+//
+//
+
 // PendingTransaction
 
 int MONERO_PendingTransaction_status(void* pendingTx_ptr) {
