@@ -1135,10 +1135,10 @@ const char* MONERO_Wallet_getPolyseed(void* wallet_ptr, const char* passphrase) 
     return buffer;
 }
 //     static bool createPolyseed(std::string &seed_words, std::string &err, const std::string &language = "English");
-const char* MONERO_Wallet_createPolyseed() {
+const char* MONERO_Wallet_createPolyseed(const char* language) {
     std::string seed_words = "";
     std::string err;
-    Monero::Wallet::createPolyseed(seed_words, err);
+    Monero::Wallet::createPolyseed(seed_words, err, std::string(language));
     std::string str = seed_words;
     const std::string::size_type size = str.size();
     char *buffer = new char[size + 1];   //we need extra char for NUL

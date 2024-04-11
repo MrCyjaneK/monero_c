@@ -645,7 +645,7 @@ extern ADDAPI void WOWNERO_Wallet_init3(void* wallet_ptr, const char* argv0, con
 //     virtual bool getPolyseed(std::string &seed, std::string &passphrase) const = 0;
 extern ADDAPI const char* WOWNERO_Wallet_getPolyseed(void* wallet_ptr, const char* passphrase);
 //     static bool createPolyseed(std::string &seed_words, std::string &err, const std::string &language = "English");
-extern ADDAPI const char* WOWNERO_Wallet_createPolyseed();
+extern ADDAPI const char* WOWNERO_Wallet_createPolyseed(const char* language);
 extern ADDAPI void WOWNERO_Wallet_startRefresh(void* wallet_ptr);
 //     virtual void pauseRefresh() = 0;
 extern ADDAPI void WOWNERO_Wallet_pauseRefresh(void* wallet_ptr);
