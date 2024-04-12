@@ -10,7 +10,6 @@ OPEN_SSL_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/OpenSSL"
 echo "============================ OpenSSL ============================"
 
 echo "Cloning Open SSL from - $OPEN_SSL_URL"
-git clone $OPEN_SSL_URL $OPEN_SSL_DIR_PATH
 
 # Check if the directory already exists.
 if [ -d "$OPEN_SSL_DIR_PATH" ]; then
