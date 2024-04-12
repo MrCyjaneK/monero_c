@@ -11,7 +11,24 @@ echo "============================ OpenSSL ============================"
 
 echo "Cloning Open SSL from - $OPEN_SSL_URL"
 git clone $OPEN_SSL_URL $OPEN_SSL_DIR_PATH
-cd $OPEN_SSL_DIR_PATH
+
+# Check if the directory already exists.
+if [ -d "$OPEN_SSL_DIR_PATH" ]; then
+    echo "OpenSSL directory already exists."
+else
+    echo "Cloning OpenSSL from $OPEN_SSL_URL"
+	git clone $OPEN_SSL_URL $OPEN_SSL_DIR_PATH
+fi
+
+# Verify if the repository was cloned successfully.
+if [ -d "$OPEN_SSL_DIR_PATH/.git" ]; then
+    echo "OpenSSL repository cloned successfully."
+	cd $OPEN_SSL_DIR_PATH
+else
+    echo "Failed to clone OpenSSL repository. Exiting."
+    exit 1
+fi
+
 ./build-libssl.sh --version=1.1.1q --targets="ios-cross-arm64" --deprecated
 
 mv ${OPEN_SSL_DIR_PATH}/include/* $EXTERNAL_IOS_INCLUDE_DIR

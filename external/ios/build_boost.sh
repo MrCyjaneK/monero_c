@@ -13,8 +13,25 @@ BOOST_LIBS="random regex graph random chrono thread filesystem system date_time 
 echo "============================ Boost ============================"
 
 echo "Cloning Apple-Boost-BuildScript from - $BOOST_URL"
-git clone -b build $BOOST_URL $BOOST_DIR_PATH
-cd $BOOST_DIR_PATH
+
+# Check if the directory already exists.
+if [ -d "$BOOST_DIR_PATH" ]; then
+    echo "Boost directory already exists."
+else
+    echo "Cloning Boost from $BOOST_URL"
+    git clone -b build $BOOST_URL $BOOST_DIR_PATH
+fi
+
+# Verify if the repository was cloned successfully.
+if [ -d "$BOOST_DIR_PATH/.git" ]; then
+    echo "Boost repository cloned successfully."
+	cd $BOOST_DIR_PATH
+    git checkout build
+else
+    echo "Failed to clone Boost repository. Exiting."
+    exit 1
+fi
+
 ./boost.sh -ios \
 	--min-ios-version ${MIN_IOS_VERSION} \
 	--boost-libs "${BOOST_LIBS}" \
