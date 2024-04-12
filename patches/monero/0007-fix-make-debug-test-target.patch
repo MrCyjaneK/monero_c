@@ -1,7 +1,7 @@
-From c1af99f391626d567fec83210a945f6f60bea700 Mon Sep 17 00:00:00 2001
+From d0d86d333ea4788cc27c4c87c5ec2ec3bc1668b7 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 2 Apr 2024 01:13:12 +0200
-Subject: [PATCH] fix `make debug-test` target
+Subject: [PATCH 7/8] fix `make debug-test` target
 
 ---
  src/simplewallet/simplewallet.cpp | 4 ++--

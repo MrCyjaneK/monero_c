@@ -1,7 +1,7 @@
-From 1d12f355eeeba80930f38d398c758154d2d4c340 Mon Sep 17 00:00:00 2001
+From 9f9937ef8f4822c498e10e5bbfc57dfdfb7137f7 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 27 Mar 2024 16:31:36 +0100
-Subject: [PATCH 4/4] coin control
+Subject: [PATCH 5/9] coin control
 
 ---
  src/wallet/api/coins.cpp     | 62 ++++++++++++++++++++++++++++++++++++
@@ -118,7 +118,7 @@ index 3293d8ae9..bcd8b517f 100644
          WalletImpl *m_wallet;
          std::vector<CoinsInfo*> m_rows;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 63ed26a11..3bbc60d74 100644
+index 1c9a709d4..b935723f7 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -2018,11 +2018,11 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<stri
@@ -136,7 +136,7 @@ index 63ed26a11..3bbc60d74 100644
              pendingTxPostProcess(transaction);
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index c2fa3d95b..99616b025 100644
+index 39b942ef4..678f9b6b9 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -352,9 +352,12 @@ struct Coins
@@ -153,10 +153,10 @@ index c2fa3d95b..99616b025 100644
  
  struct SubaddressRow {
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 00d9c133e..ae0305d28 100644
+index f996863ff..c53b1de67 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -2092,11 +2092,21 @@ bool wallet2::frozen(const multisig_tx_set& txs) const
+@@ -2094,11 +2094,21 @@ bool wallet2::frozen(const multisig_tx_set& txs) const
    return false;
  }
  //----------------------------------------------------------------------------------------------------
@@ -178,7 +178,7 @@ index 00d9c133e..ae0305d28 100644
  void wallet2::thaw(const crypto::key_image &ki)
  {
    thaw(get_transfer_details(ki));
-@@ -2107,6 +2117,18 @@ bool wallet2::frozen(const crypto::key_image &ki) const
+@@ -2109,6 +2119,18 @@ bool wallet2::frozen(const crypto::key_image &ki) const
    return frozen(get_transfer_details(ki));
  }
  //----------------------------------------------------------------------------------------------------
@@ -198,10 +198,10 @@ index 00d9c133e..ae0305d28 100644
  {
    for (size_t idx = 0; idx < m_transfers.size(); ++idx)
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 40997cdbb..6fa955681 100644
+index 51dbb5b89..5e27e46cf 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
-@@ -1562,6 +1562,8 @@ private:
+@@ -1563,6 +1563,8 @@ private:
      uint64_t get_num_rct_outputs();
      size_t get_num_transfer_details() const { return m_transfers.size(); }
      const transfer_details &get_transfer_details(size_t idx) const;
@@ -210,7 +210,7 @@ index 40997cdbb..6fa955681 100644
  
      uint8_t get_current_hard_fork();
      void get_hard_fork_info(uint8_t version, uint64_t &earliest_height);
-@@ -1792,7 +1794,9 @@ private:
+@@ -1793,7 +1795,9 @@ private:
      void freeze(size_t idx);
      void thaw(size_t idx);
      bool frozen(size_t idx) const;
@@ -221,5 +221,5 @@ index 40997cdbb..6fa955681 100644
      bool frozen(const crypto::key_image &ki) const;
      bool frozen(const transfer_details &td) const;
 -- 
-2.39.2
+2.44.0
 

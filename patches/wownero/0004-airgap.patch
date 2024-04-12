@@ -1,7 +1,7 @@
-From 5c43c69b1a4821ed8a0c3cb8e33e164c2ac46d9a Mon Sep 17 00:00:00 2001
+From 60c89b5c4e2e874e725915ed0a8b7709849ef140 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 26 Mar 2024 09:06:32 +0100
-Subject: [PATCH] airgap
+Subject: [PATCH 4/9] airgap
 
 ---
  src/wallet/api/wallet.cpp    | 23 +++++++++++++++++++++++
@@ -12,7 +12,7 @@ Subject: [PATCH] airgap
  5 files changed, 51 insertions(+), 6 deletions(-)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 1f3bf4ab7..63ed26a11 100644
+index 5ef3132d2..1c9a709d4 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -1172,6 +1172,24 @@ uint64_t WalletImpl::unlockedBalance(uint32_t accountIndex) const
@@ -53,7 +53,7 @@ index 1f3bf4ab7..63ed26a11 100644
  {
    if (m_wallet->watch_only())
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 35c05ef5b..bc059699f 100644
+index fc6341861..7b885e866 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -130,6 +130,7 @@ public:
@@ -73,7 +73,7 @@ index 35c05ef5b..bc059699f 100644
      bool exportKeyImages(const std::string &filename, bool all = false) override;
      bool importKeyImages(const std::string &filename) override;
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 648dc29b5..c2fa3d95b 100644
+index 626c63fc5..39b942ef4 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -726,6 +726,7 @@ struct Wallet
@@ -94,10 +94,10 @@ index 648dc29b5..c2fa3d95b 100644
      * \brief exportKeyImages - exports key images to file
      * \param filename
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 56b76c5f9..00d9c133e 100644
+index d7e2a9699..f996863ff 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -7440,6 +7440,25 @@ uint64_t wallet2::unlocked_balance(uint32_t index_major, bool strict, uint64_t *
+@@ -7432,6 +7432,25 @@ uint64_t wallet2::unlocked_balance(uint32_t index_major, bool strict, uint64_t *
    return amount;
  }
  //----------------------------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ index 56b76c5f9..00d9c133e 100644
  std::map<uint32_t, uint64_t> wallet2::balance_per_subaddress(uint32_t index_major, bool strict) const
  {
    std::map<uint32_t, uint64_t> amount_per_subaddr;
-@@ -8290,9 +8309,7 @@ bool wallet2::sign_tx(unsigned_tx_set &exported_txs, std::vector<wallet2::pendin
+@@ -8282,9 +8301,7 @@ bool wallet2::sign_tx(unsigned_tx_set &exported_txs, std::vector<wallet2::pendin
      crypto::key_derivation derivation;
      std::vector<crypto::key_derivation> additional_derivations;
  
@@ -134,7 +134,7 @@ index 56b76c5f9..00d9c133e 100644
      std::vector<crypto::public_key> additional_tx_pub_keys;
      for (const crypto::secret_key &skey: txs[n].additional_tx_keys)
      {
-@@ -11700,7 +11717,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
+@@ -11692,7 +11709,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
        MDEBUG("Ignoring output " << i << " of amount " << print_money(td.amount()) << " which is below fractional threshold " << print_money(fractional_threshold));
        continue;
      }
@@ -143,7 +143,7 @@ index 56b76c5f9..00d9c133e 100644
      {
        if (td.amount() > m_ignore_outputs_above || td.amount() < m_ignore_outputs_below)
        {
-@@ -11750,8 +11767,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
+@@ -11742,8 +11759,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
  
    LOG_PRINT_L2("Starting with " << num_nondust_outputs << " non-dust outputs and " << num_dust_outputs << " dust outputs");
  
@@ -154,7 +154,7 @@ index 56b76c5f9..00d9c133e 100644
    // if empty, put dummy entry so that the front can be referenced later in the loop
    if (unused_dust_indices_per_subaddr.empty())
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 74bb867c1..40997cdbb 100644
+index 2f2664f8e..51dbb5b89 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -1173,6 +1173,7 @@ private:
@@ -165,3 +165,6 @@ index 74bb867c1..40997cdbb 100644
      // locked & unlocked balance per subaddress of given or current subaddress account
      std::map<uint32_t, uint64_t> balance_per_subaddress(uint32_t subaddr_index_major, bool strict) const;
      std::map<uint32_t, std::pair<uint64_t, std::pair<uint64_t, uint64_t>>> unlocked_balance_per_subaddress(uint32_t subaddr_index_major, bool strict);
+-- 
+2.44.0
+
