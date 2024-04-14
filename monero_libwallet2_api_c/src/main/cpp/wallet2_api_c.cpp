@@ -1695,6 +1695,77 @@ bool MONERO_DEBUG_isPointerNull(void* wallet_ptr) {
     return (wallet != NULL);
 }
 
+// rather minimal implementation of the WalletListener
+// borrowed from cake, I'm going to explore callbacks in future, but for now this is just enough.
+struct MoneroWalletListener : Monero::WalletListener
+{
+    uint64_t m_height;
+    bool m_need_to_refresh;
+    bool m_new_transaction;
+
+    MoneroWalletListener()
+    {
+        m_height = 0;
+        m_need_to_refresh = false;
+        m_new_transaction = false;
+    }
+
+    void moneySpent(const std::string &txId, uint64_t amount)
+    {
+        m_new_transaction = true;
+    }
+
+    void moneyReceived(const std::string &txId, uint64_t amount)
+    {
+        m_new_transaction = true;
+    }
+
+    void unconfirmedMoneyReceived(const std::string &txId, uint64_t amount)
+    {
+        m_new_transaction = true;
+    }
+
+    void newBlock(uint64_t height)
+    {
+        m_height = height;
+    }
+
+    void updated()
+    {
+        m_new_transaction = true;
+    }
+
+    void refreshed()
+    {
+        m_need_to_refresh = true;
+    }
+
+    void resetNeedToRefresh()
+    {
+        m_need_to_refresh = false;
+    }
+
+    bool isNeedToRefresh()
+    {
+        return m_need_to_refresh;
+    }
+
+    bool isNewTransactionExist()
+    {
+        return m_new_transaction;
+    }
+
+    void resetIsNewTransactionExist()
+    {
+        m_new_transaction = false;
+    }
+
+    uint64_t height()
+    {
+        return m_height;
+    }
+};
+
 #ifdef __cplusplus
 }
 #endif
