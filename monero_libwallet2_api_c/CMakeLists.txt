@@ -77,7 +77,7 @@ set_target_properties(boost_chrono PROPERTIES IMPORTED_LOCATION
 add_library(boost_locale STATIC IMPORTED)
 set_target_properties(boost_locale PROPERTIES IMPORTED_LOCATION
     ${EXTERNAL_LIBS_DIR}/lib/libboost_locale${BOOST_WTF}.a)
-    
+
 # win extra
 add_library(iconv-win STATIC IMPORTED)
 set_target_properties(iconv-win PROPERTIES IMPORTED_LOCATION
@@ -133,14 +133,6 @@ if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-m
     set_target_properties(polyseed-win PROPERTIES IMPORTED_LOCATION
         ${MONERO_DIR}/build/${HOST_ABI}/external/polyseed/libpolyseed.dll.a)
 endif()
-
-#############
-# Utf8proc
-#############
-
-add_library(utf8proc STATIC IMPORTED)
-set_target_properties(utf8proc PROPERTIES IMPORTED_LOCATION
-        ${MONERO_DIR}/build/${HOST_ABI}/external/utf8proc/libutf8proc.a)
 
 #############
 # Monero
@@ -266,6 +258,34 @@ set_target_properties(event PROPERTIES IMPORTED_LOCATION
     ${EXTERNAL_LIBS_DIR}/lib/libevent.a)
 
 #############
+# icu4c
+#############
+
+add_library(icuuc STATIC IMPORTED)
+set_target_properties(icuuc PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/lib/libicuuc.a)
+
+add_library(icudata STATIC IMPORTED)
+set_target_properties(icudata PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/lib/libicudata.a)
+
+add_library(icuio STATIC IMPORTED)
+set_target_properties(icuio PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/lib/libicuio.a)
+
+add_library(icutu STATIC IMPORTED)
+set_target_properties(icutu PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/lib/libicutu.a)
+
+add_library(icutest STATIC IMPORTED)
+set_target_properties(icutest PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/lib/libicutest.a)
+
+add_library(icui18n STATIC IMPORTED)
+set_target_properties(icui18n PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/lib/libicui18n.a)
+
+#############
 # System
 #############
 
@@ -283,10 +303,10 @@ else()
 endif()
 
 if (${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11")
-  set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" hidapi)
+  set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" hidapi iconv-win)
 #   set_target_properties(wallet2_api_c PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
 elseif(${HOST_ABI} STREQUAL "host-apple-darwin")
-    set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" apple_nghttp2 event)
+    set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" apple_nghttp2 event iconv)
 elseif(${HOST_ABI} STREQUAL "host-apple-ios")
   set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" iconv )
 endif()
@@ -303,6 +323,11 @@ if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64
     set_target_properties(wallet2_api_c PROPERTIES SUFFIX ".dylib")
     
     set_target_properties(wallet2_api_c PROPERTIES NO_SONAME 1)
+
+endif()
+
+if(${HOST_ABI} STREQUAL "host-apple-darwin" OR ${HOST_ABI} STREQUAL "host-apple-ios")
+    set(EXTRA_LIBS_POLYSEED_MACOS icuuc icudata icutu icuio icutest icui18n)
 endif()
 
 if (${MONERO_FLAVOR} STREQUAL "monero")
@@ -369,7 +394,8 @@ target_link_libraries(  wallet2_api_c
                         polyseed
                         polyseed-wrapper
                         ${EXTRA_LIBS_POLYSEED}
-                        utf8proc
+                        ${EXTRA_LIBS_POLYSEED_MACOS}
+
 
                         ssl
                         crypto

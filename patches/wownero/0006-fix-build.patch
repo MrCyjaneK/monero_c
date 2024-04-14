@@ -1,4 +1,4 @@
-From 60bfb0146f7756fe339f9d3744df2bebdf628dfb Mon Sep 17 00:00:00 2001
+From 07ae3b5852e6be58a792e5fc1122efd2f30e2625 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 26 Mar 2024 09:44:54 +0100
 Subject: [PATCH 6/9] fix build
@@ -133,5 +133,5 @@ index 000000000..f05cb2b6a
 + #else
 +     #ifdef POLYSEED_SHARED
 -- 
-2.44.0
+2.39.2
 

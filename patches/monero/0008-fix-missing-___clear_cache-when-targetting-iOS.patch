@@ -1,4 +1,4 @@
-From b154719d3fe7ae407de91f5c5a245998efd05997 Mon Sep 17 00:00:00 2001
+From f130c717060a457efe9d869dae4d3c4991cb5355 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 2 Apr 2024 16:51:56 +0200
 Subject: [PATCH 8/8] fix missing ___clear_cache when targetting iOS
@@ -9,7 +9,7 @@ Subject: [PATCH 8/8] fix missing ___clear_cache when targetting iOS
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/.gitmodules b/.gitmodules
-index 73a23fb35..7ea87a009 100644
+index 2f4eb0b44..bb8b3fa56 100644
 --- a/.gitmodules
 +++ b/.gitmodules
 @@ -9,7 +9,7 @@
@@ -18,9 +18,9 @@ index 73a23fb35..7ea87a009 100644
  	path = external/randomx
 -	url = https://github.com/tevador/RandomX
 +	url = https://github.com/MrCyjaneK/RandomX
- [submodule "external/utf8proc"]
- 	path = external/utf8proc
- 	url = https://github.com/JuliaStrings/utf8proc.git
+ [submodule "external/polyseed"]
+ 	path = external/polyseed
+ 	url = https://github.com/tevador/polyseed
 diff --git a/external/randomx b/external/randomx
 index 102f8acf9..ce72c9bb9 160000
 --- a/external/randomx

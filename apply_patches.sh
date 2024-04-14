@@ -28,7 +28,7 @@ fi
 
 set -e
 cd $repo
-git am ../patches/$repo/*.patch
+git am -3 ../patches/$repo/*.patch
 if [[ "$repo" == "wownero" ]];
 then
     pushd external/randomwow

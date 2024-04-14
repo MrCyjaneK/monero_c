@@ -1,4 +1,4 @@
-From 9f9937ef8f4822c498e10e5bbfc57dfdfb7137f7 Mon Sep 17 00:00:00 2001
+From 878df2babdc8abd7d38edae49aa321d3b2185bbd Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Wed, 27 Mar 2024 16:31:36 +0100
 Subject: [PATCH 5/9] coin control
@@ -118,7 +118,7 @@ index 3293d8ae9..bcd8b517f 100644
          WalletImpl *m_wallet;
          std::vector<CoinsInfo*> m_rows;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 1c9a709d4..b935723f7 100644
+index 20be5c9f0..0430a7f9b 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -2018,11 +2018,11 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<stri
@@ -153,7 +153,7 @@ index 39b942ef4..678f9b6b9 100644
  
  struct SubaddressRow {
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index f996863ff..c53b1de67 100644
+index 31855a256..a307a59f9 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -2094,11 +2094,21 @@ bool wallet2::frozen(const multisig_tx_set& txs) const
@@ -221,5 +221,5 @@ index 51dbb5b89..5e27e46cf 100644
      bool frozen(const crypto::key_image &ki) const;
      bool frozen(const transfer_details &td) const;
 -- 
-2.44.0
+2.39.2
 

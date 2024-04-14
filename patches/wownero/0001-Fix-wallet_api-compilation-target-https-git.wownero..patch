@@ -1,4 +1,4 @@
-From f0f386f43d6fc998c93ecb12666688d85a4d6fca Mon Sep 17 00:00:00 2001
+From 576464e0e9fdf9e9c7973397107b315d4e95b000 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 26 Mar 2024 06:55:38 +0100
 Subject: [PATCH 1/9] Fix wallet_api compilation target
@@ -27,5 +27,5 @@ index 823f122c2..d81ddec93 100644
              pendingTxPostProcess(transaction);
  
 -- 
-2.44.0
+2.39.2
 

@@ -151,6 +151,12 @@ pushd $repo/contrib/depends
             verbose_copy "${HOMEBREW_PREFIX}/lib/libcrypto.a" ${MACOS_LIBS_DIR}/lib/libcrypto.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libsodium.a" ${MACOS_LIBS_DIR}/lib/libsodium.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libevent.a" ${MACOS_LIBS_DIR}/lib/libevent.a
+            verbose_copy "${HOMEBREW_PREFIX}/Cellar/icu4c/"*"/lib/libicudata.a" ${MACOS_LIBS_DIR}/lib/libicudata.a
+            verbose_copy "${HOMEBREW_PREFIX}/Cellar/icu4c/"*"/lib/libicui18n.a" ${MACOS_LIBS_DIR}/lib/libicui18n.a
+            verbose_copy "${HOMEBREW_PREFIX}/Cellar/icu4c/"*"/lib/libicuio.a" ${MACOS_LIBS_DIR}/lib/libicuio.a
+            verbose_copy "${HOMEBREW_PREFIX}/Cellar/icu4c/"*"/lib/libicutest.a" ${MACOS_LIBS_DIR}/lib/libicutest.a
+            verbose_copy "${HOMEBREW_PREFIX}/Cellar/icu4c/"*"/lib/libicutu.a" ${MACOS_LIBS_DIR}/lib/libicutu.a
+            verbose_copy "${HOMEBREW_PREFIX}/Cellar/icu4c/"*"/lib/libicuuc.a" ${MACOS_LIBS_DIR}/lib/libicuuc.a
         ;;
         "host-apple-ios")
             echo "===================================="

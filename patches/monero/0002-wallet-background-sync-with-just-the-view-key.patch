@@ -1,4 +1,4 @@
-From 0cc1775c6a41a1768ebbe6155496f01289f903d4 Mon Sep 17 00:00:00 2001
+From bafe1464686ae1da1a60e09d932dfa28a31c8618 Mon Sep 17 00:00:00 2001
 From: j-berman <justinberman@protonmail.com>
 Date: Thu, 13 Oct 2022 18:33:33 -0700
 Subject: [PATCH 2/8] wallet: background sync with just the view key
@@ -50,7 +50,7 @@ cache.
  20 files changed, 2337 insertions(+), 130 deletions(-)
 
 diff --git a/src/cryptonote_basic/account.cpp b/src/cryptonote_basic/account.cpp
-index 4931c3740..2d556f285 100644
+index 020e71e9d..fbe0a79ba 100644
 --- a/src/cryptonote_basic/account.cpp
 +++ b/src/cryptonote_basic/account.cpp
 @@ -158,6 +158,17 @@ DISABLE_VS_WARNINGS(4244 4345)

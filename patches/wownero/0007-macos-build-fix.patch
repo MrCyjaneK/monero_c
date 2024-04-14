@@ -1,4 +1,4 @@
-From 0f3c19706a35798a28eb040858052292a3709312 Mon Sep 17 00:00:00 2001
+From 7360e324de154023d185d3181e46fcc2ef397ccc Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
 Date: Thu, 28 Mar 2024 02:03:08 +0100
 Subject: [PATCH 7/9] macos build fix
@@ -111,5 +111,5 @@ index 000000000..a261636e8
 +2.39.2
 +
 -- 
-2.44.0
+2.39.2
 

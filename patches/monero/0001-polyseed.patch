@@ -1,37 +1,41 @@
-From bf347a3c80f0e0647176752867a54ae9ecedb580 Mon Sep 17 00:00:00 2001
-From: Czarek Nakamoto <cyjan@mrcyjanek.net>
-Date: Tue, 12 Mar 2024 09:42:37 +0100
+From 309e4165594749864bbf074f83893bbc1113f7f1 Mon Sep 17 00:00:00 2001
+From: tobtoht <tob@featherwallet.org>
+Date: Sun, 14 Apr 2024 15:03:22 +0200
 Subject: [PATCH 1/8] polyseed
 
+Unknown date/time of origin, implemented by tobtoht for anonero, various modifications performed along the way
+
+Czarek Nakamoto <cyjan@mrcyjanek.net>
+- 2024/04/14 - replaced the normalization code with reference implementation
+
+Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
 ---
  .github/workflows/build.yml            |   4 +-
- .gitmodules                            |   6 +
- CMakeLists.txt                         |   4 +-
+ .gitmodules                            |   3 +
+ CMakeLists.txt                         |   3 +-
  contrib/epee/include/wipeable_string.h |   7 +
  contrib/epee/src/wipeable_string.cpp   |  10 ++
- external/CMakeLists.txt                |   2 +
+ external/CMakeLists.txt                |   1 +
  external/polyseed                      |   1 +
- external/utf8proc                      |   1 +
  src/CMakeLists.txt                     |   1 +
  src/cryptonote_basic/CMakeLists.txt    |   1 +
  src/cryptonote_basic/account.cpp       |  23 +++-
  src/cryptonote_basic/account.h         |   6 +
  src/cryptonote_config.h                |   2 +
- src/polyseed/CMakeLists.txt            |  25 ++++
- src/polyseed/pbkdf2.c                  |  85 ++++++++++++
+ src/polyseed/CMakeLists.txt            |  24 ++++
+ src/polyseed/pbkdf2.c                  |  87 ++++++++++++
  src/polyseed/pbkdf2.h                  |  46 +++++++
- src/polyseed/polyseed.cpp              | 182 +++++++++++++++++++++++++
- src/polyseed/polyseed.hpp              | 167 +++++++++++++++++++++++
+ src/polyseed/polyseed.cpp              | 178 +++++++++++++++++++++++++
+ src/polyseed/polyseed.hpp              | 162 ++++++++++++++++++++++
  src/wallet/api/wallet.cpp              |  71 ++++++++++
  src/wallet/api/wallet.h                |  10 ++
  src/wallet/api/wallet2_api.h           |  25 ++++
  src/wallet/api/wallet_manager.cpp      |   9 ++
  src/wallet/api/wallet_manager.h        |  10 ++
- src/wallet/wallet2.cpp                 | 102 ++++++++++++--
- src/wallet/wallet2.h                   |  30 +++-
- 25 files changed, 809 insertions(+), 21 deletions(-)
+ src/wallet/wallet2.cpp                 | 102 +++++++++++---
+ src/wallet/wallet2.h                   |  30 ++++-
+ 24 files changed, 795 insertions(+), 21 deletions(-)
  create mode 160000 external/polyseed
- create mode 160000 external/utf8proc
  create mode 100644 src/polyseed/CMakeLists.txt
  create mode 100644 src/polyseed/pbkdf2.c
  create mode 100644 src/polyseed/pbkdf2.h
@@ -54,41 +58,37 @@ index 4c1e381c0..70bea03b3 100644
    test-ubuntu:
      needs: build-ubuntu
 diff --git a/.gitmodules b/.gitmodules
-index 721cce3b4..73a23fb35 100644
+index 721cce3b4..2f4eb0b44 100644
 --- a/.gitmodules
 +++ b/.gitmodules
-@@ -10,6 +10,12 @@
+@@ -10,6 +10,9 @@
  [submodule "external/randomx"]
  	path = external/randomx
  	url = https://github.com/tevador/RandomX
-+[submodule "external/utf8proc"]
-+	path = external/utf8proc
-+	url = https://github.com/JuliaStrings/utf8proc.git
 +[submodule "external/polyseed"]
 +	path = external/polyseed
-+	url = https://github.com/tevador/polyseed.git
++	url = https://github.com/tevador/polyseed
  [submodule "external/supercop"]
  	path = external/supercop
  	url = https://github.com/monero-project/supercop
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 8fb03ba1f..63b8c5079 100644
+index 8fb03ba1f..6b50733e1 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -369,6 +369,8 @@ if(NOT MANUAL_SUBMODULES)
+@@ -369,6 +369,7 @@ if(NOT MANUAL_SUBMODULES)
      check_submodule(external/trezor-common)
      check_submodule(external/randomx)
      check_submodule(external/supercop)
 +    check_submodule(external/polyseed)
-+    check_submodule(external/utf8proc)
    endif()
  endif()
  
-@@ -458,7 +460,7 @@ endif()
+@@ -458,7 +459,7 @@ endif()
  # elseif(CMAKE_SYSTEM_NAME MATCHES ".*BSDI.*")
  #   set(BSDI TRUE)
  
 -include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include)
-+include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/polyseed/include external/utf8proc)
++include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/polyseed/include)
  
  if(APPLE)
    cmake_policy(SET CMP0042 NEW)
@@ -137,15 +137,14 @@ index b016f2f48..f2f365b1b 100644
 +
  }
 diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
-index 5b7f69a56..1b9761d70 100644
+index 5b7f69a56..139c84073 100644
 --- a/external/CMakeLists.txt
 +++ b/external/CMakeLists.txt
-@@ -70,3 +70,5 @@ add_subdirectory(db_drivers)
+@@ -70,3 +70,4 @@ add_subdirectory(db_drivers)
  add_subdirectory(easylogging++)
  add_subdirectory(qrcodegen)
  add_subdirectory(randomx EXCLUDE_FROM_ALL)
 +add_subdirectory(polyseed EXCLUDE_FROM_ALL)
-+add_subdirectory(utf8proc EXCLUDE_FROM_ALL)
 \ No newline at end of file
 diff --git a/external/polyseed b/external/polyseed
 new file mode 160000
@@ -154,13 +153,6 @@ index 000000000..b7c35bb3c
 +++ b/external/polyseed
 @@ -0,0 +1 @@
 +Subproject commit b7c35bb3c6b91e481ecb04fc235eaff69c507fa1
-diff --git a/external/utf8proc b/external/utf8proc
-new file mode 160000
-index 000000000..1cb28a66c
---- /dev/null
-+++ b/external/utf8proc
-@@ -0,0 +1 @@
-+Subproject commit 1cb28a66ca79a0845e99433fd1056257456cef8b
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index 3335d3c21..06b708cf0 100644
 --- a/src/CMakeLists.txt
@@ -186,7 +178,7 @@ index 1414be1b2..414936a05 100644
      ${Boost_PROGRAM_OPTIONS_LIBRARY}
      ${Boost_SERIALIZATION_LIBRARY}
 diff --git a/src/cryptonote_basic/account.cpp b/src/cryptonote_basic/account.cpp
-index 2ac455fda..4931c3740 100644
+index 2ac455fda..020e71e9d 100644
 --- a/src/cryptonote_basic/account.cpp
 +++ b/src/cryptonote_basic/account.cpp
 @@ -87,12 +87,16 @@ DISABLE_VS_WARNINGS(4244 4345)
@@ -231,7 +223,7 @@ index 2ac455fda..4931c3740 100644
 +
 +    generate(secret_key, true, false);
 +
-+    seed.save(m_keys.m_polyseed.data);
++    seed.save((uint8_t *)m_keys.m_polyseed.data);
 +    m_keys.m_passphrase = passphrase;
 +  }
 +  //-----------------------------------------------------------------
@@ -291,10 +283,10 @@ index 61146a114..8e1a07110 100644
  // (1+32) + (1+1+16*32) + (1+16*32) = 1060
 diff --git a/src/polyseed/CMakeLists.txt b/src/polyseed/CMakeLists.txt
 new file mode 100644
-index 000000000..cca4eb746
+index 000000000..9f3339f3e
 --- /dev/null
 +++ b/src/polyseed/CMakeLists.txt
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,24 @@
 +set(polyseed_sources
 +        pbkdf2.c
 +        polyseed.cpp
@@ -315,43 +307,44 @@ index 000000000..cca4eb746
 +target_link_libraries(polyseed_wrapper
 +PUBLIC
 +        polyseed
-+        utf8proc
 +        ${SODIUM_LIBRARY}
 +        PRIVATE
 +        ${EXTRA_LIBRARIES}
 +)
 diff --git a/src/polyseed/pbkdf2.c b/src/polyseed/pbkdf2.c
 new file mode 100644
-index 000000000..1c45f4708
+index 000000000..1f8e13955
 --- /dev/null
 +++ b/src/polyseed/pbkdf2.c
-@@ -0,0 +1,85 @@
-+// Copyright (c) 2023, The Monero Project
-+// Copyright (c) 2021, tevador <tevador@gmail.com>
-+// Copyright (c) 2005,2007,2009 Colin Percival
-+//
-+// All rights reserved.
-+//
-+// Redistribution and use in source and binary forms, with or without
-+// modification, are permitted provided that the following conditions
-+// are met:
-+// 1. Redistributions of source code must retain the above copyright
-+//    notice, this list of conditions and the following disclaimer.
-+// 2. Redistributions in binary form must reproduce the above copyright
-+//    notice, this list of conditions and the following disclaimer in the
-+//    documentation and/or other materials provided with the distribution.
-+//
-+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
-+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+// ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
-+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-+// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-+// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-+// SUCH DAMAGE.
+@@ -0,0 +1,87 @@
++/*
++ * Copyright 2005,2007,2009 Colin Percival
++ * Copyright 2021 tevador <tevador@gmail.com>
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
++ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
++ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ *
++ * SOURCE: https://raw.githubusercontent.com/tevador/polyseed-examples/master/c/pbkdf2.c
++ */
 +
 +#include <string.h>
 +
@@ -369,8 +362,8 @@ index 000000000..1c45f4708
 +
 +void
 +crypto_pbkdf2_sha256(const uint8_t* passwd, size_t passwdlen,
-+                     const uint8_t* salt, size_t saltlen, uint64_t c,
-+                     uint8_t* buf, size_t dkLen)
++    const uint8_t* salt, size_t saltlen, uint64_t c,
++    uint8_t* buf, size_t dkLen)
 +{
 +    crypto_auth_hmacsha256_state Phctx, PShctx, hctx;
 +    size_t                       i;
@@ -411,38 +404,37 @@ index 000000000..1c45f4708
 +    sodium_memzero((void*)&Phctx, sizeof Phctx);
 +    sodium_memzero((void*)&PShctx, sizeof PShctx);
 +}
-\ No newline at end of file
 diff --git a/src/polyseed/pbkdf2.h b/src/polyseed/pbkdf2.h
 new file mode 100644
-index 000000000..f6253b9d7
+index 000000000..8e712e988
 --- /dev/null
 +++ b/src/polyseed/pbkdf2.h
 @@ -0,0 +1,46 @@
-+// Copyright (c) 2023, The Monero Project
-+// Copyright (c) 2021, tevador <tevador@gmail.com>
-+//
-+// All rights reserved.
-+//
-+// Redistribution and use in source and binary forms, with or without
-+// modification, are permitted provided that the following conditions
-+// are met:
-+// 1. Redistributions of source code must retain the above copyright
-+//    notice, this list of conditions and the following disclaimer.
-+// 2. Redistributions in binary form must reproduce the above copyright
-+//    notice, this list of conditions and the following disclaimer in the
-+//    documentation and/or other materials provided with the distribution.
-+//
-+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
-+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+// ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
-+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-+// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-+// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-+// SUCH DAMAGE.
++/*
++ * Copyright 2021 tevador <tevador@gmail.com>
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
++ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
++ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ */
 +
 +#ifndef PBKDF2_H
 +#define PBKDF2_H
@@ -456,46 +448,45 @@ index 000000000..f6253b9d7
 +
 +void
 +crypto_pbkdf2_sha256(const uint8_t* passwd, size_t passwdlen,
-+                     const uint8_t* salt, size_t saltlen, uint64_t c,
-+                     uint8_t* buf, size_t dkLen);
++    const uint8_t* salt, size_t saltlen, uint64_t c,
++    uint8_t* buf, size_t dkLen);
 +
 +#ifdef __cplusplus
 +}
 +#endif
 +
 +#endif
-\ No newline at end of file
 diff --git a/src/polyseed/polyseed.cpp b/src/polyseed/polyseed.cpp
 new file mode 100644
-index 000000000..b26f37574
+index 000000000..c1a4c59e1
 --- /dev/null
 +++ b/src/polyseed/polyseed.cpp
-@@ -0,0 +1,182 @@
-+// Copyright (c) 2023, The Monero Project
-+// Copyright (c) 2021, tevador <tevador@gmail.com>
-+//
-+// All rights reserved.
-+//
-+// Redistribution and use in source and binary forms, with or without
-+// modification, are permitted provided that the following conditions
-+// are met:
-+// 1. Redistributions of source code must retain the above copyright
-+//    notice, this list of conditions and the following disclaimer.
-+// 2. Redistributions in binary form must reproduce the above copyright
-+//    notice, this list of conditions and the following disclaimer in the
-+//    documentation and/or other materials provided with the distribution.
-+//
-+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
-+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+// ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
-+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-+// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-+// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-+// SUCH DAMAGE.
+@@ -0,0 +1,178 @@
++/*
++ * Copyright 2021 tevador <tevador@gmail.com>
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
++ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
++ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE.
++ */
 +
 +#include "polyseed.hpp"
 +#include "pbkdf2.h"
@@ -503,41 +494,33 @@ index 000000000..b26f37574
 +#include <sodium/core.h>
 +#include <sodium/utils.h>
 +#include <sodium/randombytes.h>
-+#include <utf8proc.h>
++#include <boost/locale.hpp>
 +
++#include <cstdint>
 +#include <cstring>
 +#include <algorithm>
 +#include <array>
 +
 +namespace polyseed {
 +
-+    inline size_t utf8_norm(const char* str, polyseed_str norm, utf8proc_option_t options) {
-+      utf8proc_int32_t buffer[POLYSEED_STR_SIZE];
-+      utf8proc_ssize_t result;
-+
-+      result = utf8proc_decompose(reinterpret_cast<const uint8_t*>(str), 0, buffer, POLYSEED_STR_SIZE, options);
-+      if (result < 0) {
-+        return POLYSEED_STR_SIZE;
-+      }
-+      if (result > POLYSEED_STR_SIZE - 1) {
-+        return result;
-+      }
-+
-+      result = utf8proc_reencode(buffer, result, options);
-+
-+      strcpy(norm, reinterpret_cast<const char*>(buffer));
-+      sodium_memzero(buffer, POLYSEED_STR_SIZE);
-+      return result;
-+    }
++    static std::locale locale;
 +
 +    static size_t utf8_nfc(const char* str, polyseed_str norm) {
-+        // Note: UTF8PROC_LUMP is used here to replace the ideographic space with a regular space for Japanese phrases
-+        // to allow wallets to split on ' '.
-+        return utf8_norm(str, norm, (utf8proc_option_t)(UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_STRIPNA | UTF8PROC_LUMP));
++        auto s = boost::locale::normalize(str, boost::locale::norm_type::norm_nfc, locale);
++        size_t size = std::min(s.size(), (size_t)POLYSEED_STR_SIZE - 1);
++        s.copy(norm, size);
++        norm[size] = '\0';
++        sodium_memzero(&s[0], s.size());
++        return size;
 +    }
 +
 +    static size_t utf8_nfkd(const char* str, polyseed_str norm) {
-+        return utf8_norm(str, norm, (utf8proc_option_t)(UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT | UTF8PROC_STRIPNA));
++        auto s = boost::locale::normalize(str, boost::locale::norm_type::norm_nfkd, locale);
++        size_t size = std::min(s.size(), (size_t)POLYSEED_STR_SIZE - 1);
++        s.copy(norm, size);
++        norm[size] = '\0';
++        sodium_memzero(&s[0], s.size());
++        return size;
 +    }
 +
 +    struct dependency {
@@ -551,6 +534,10 @@ index 000000000..b26f37574
 +        if (sodium_init() == -1) {
 +            throw std::runtime_error("sodium_init failed");
 +        }
++
++        boost::locale::generator gen;
++        gen.locale_cache_enabled(true);
++        locale = gen("");
 +
 +        polyseed_dependency pd;
 +        pd.randbytes = &randombytes_buf;
@@ -655,10 +642,10 @@ index 000000000..b26f37574
 +}
 diff --git a/src/polyseed/polyseed.hpp b/src/polyseed/polyseed.hpp
 new file mode 100644
-index 000000000..2c8c777a7
+index 000000000..a23101cff
 --- /dev/null
 +++ b/src/polyseed/polyseed.hpp
-@@ -0,0 +1,167 @@
+@@ -0,0 +1,162 @@
 +// Copyright (c) 2023, The Monero Project
 +// Copyright (c) 2021, tevador <tevador@gmail.com>
 +//
@@ -710,15 +697,11 @@ index 000000000..2c8c777a7
 +            const char* name_en() const {
 +                return polyseed_get_lang_name_en(m_lang);
 +            }
-+            const char* separator() const {
-+                return m_lang->separator;
-+            }
 +            bool valid() const {
 +                return m_lang != nullptr;
 +            }
-+
-+        const polyseed_lang* m_lang;
-+    private:
++        private:
++            const polyseed_lang* m_lang;
 +
 +        friend class data;
 +    };
@@ -771,7 +754,7 @@ index 000000000..2c8c777a7
 +                auto size = polyseed_encode(m_data, lang.m_lang, m_coin, &str[0]);
 +                str.resize(size);
 +            }
-+
++            
 +            void split(const language& lang, polyseed_phrase& words);
 +
 +            void save(polyseed_storage storage) const {
@@ -824,7 +807,6 @@ index 000000000..2c8c777a7
 +            polyseed_coin m_coin;
 +    };
 +}
-+
 +#endif //POLYSEED_HPP
 \ No newline at end of file
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
