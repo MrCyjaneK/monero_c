@@ -1,8 +1,9 @@
 From bf347a3c80f0e0647176752867a54ae9ecedb580 Mon Sep 17 00:00:00 2001
-From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 09:42:37 +0100
 Subject: [PATCH 1/8] polyseed
 
+Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
 ---
  .github/workflows/build.yml            |   4 +-
  .gitmodules                            |   6 +
@@ -533,7 +534,7 @@ index 000000000..b26f37574
 +    static size_t utf8_nfc(const char* str, polyseed_str norm) {
 +        // Note: UTF8PROC_LUMP is used here to replace the ideographic space with a regular space for Japanese phrases
 +        // to allow wallets to split on ' '.
-+        return utf8_norm(str, norm, (utf8proc_option_t)(UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_STRIPNA | UTF8PROC_LUMP));
++        return utf8_norm(str, norm, (utf8proc_option_t)(UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_STRIPNA));
 +    }
 +
 +    static size_t utf8_nfkd(const char* str, polyseed_str norm) {
