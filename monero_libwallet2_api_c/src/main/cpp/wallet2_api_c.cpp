@@ -1697,6 +1697,114 @@ bool MONERO_DEBUG_isPointerNull(void* wallet_ptr) {
     return (wallet != NULL);
 }
 
+// cake wallet world
+// TODO(mrcyjanek): https://api.dart.dev/stable/3.3.3/dart-ffi/Pointer/fromFunction.html
+//                  callback to dart should be possible..? I mean why not? But I need to
+//                  wait for other implementation (Go preferably) to see if this approach
+//                  will work as expected.
+struct MONERO_cw_WalletListener;
+struct MONERO_cw_WalletListener : Monero::WalletListener
+{
+    uint64_t m_height;
+    bool m_need_to_refresh;
+    bool m_new_transaction;
+
+    MONERO_cw_WalletListener()
+    {
+        m_height = 0;
+        m_need_to_refresh = false;
+        m_new_transaction = false;
+    }
+
+    void moneySpent(const std::string &txId, uint64_t amount)
+    {
+        m_new_transaction = true;
+    }
+
+    void moneyReceived(const std::string &txId, uint64_t amount)
+    {
+        m_new_transaction = true;
+    }
+
+    void unconfirmedMoneyReceived(const std::string &txId, uint64_t amount)
+    {
+        m_new_transaction = true;
+    }
+
+    void newBlock(uint64_t height)
+    {
+        m_height = height;
+    }
+
+    void updated()
+    {
+        m_new_transaction = true;
+    }
+
+    void refreshed()
+    {
+        m_need_to_refresh = true;
+    }
+
+
+    void cw_resetNeedToRefresh()
+    {
+        m_need_to_refresh = false;
+    }
+
+    bool cw_isNeedToRefresh()
+    {
+        return m_need_to_refresh;
+    }
+
+    bool cw_isNewTransactionExist()
+    {
+        return m_new_transaction;
+    }
+
+    void cw_resetIsNewTransactionExist()
+    {
+        m_new_transaction = false;
+    }
+
+    uint64_t cw_height()
+    {
+        return m_height;
+    }
+};
+
+void* MONERO_cw_getWalletListener(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    MONERO_cw_WalletListener *listener = new MONERO_cw_WalletListener();
+    wallet->setListener(listener);
+    return reinterpret_cast<void*>(listener);
+}
+
+void MONERO_cw_WalletListener_resetNeedToRefresh(void* cw_walletListener_ptr) {
+    MONERO_cw_WalletListener *listener = reinterpret_cast<MONERO_cw_WalletListener*>(cw_walletListener_ptr);
+    listener->cw_resetNeedToRefresh();
+}
+
+bool MONERO_cw_WalletListener_isNeedToRefresh(void* cw_walletListener_ptr) {
+    MONERO_cw_WalletListener *listener = reinterpret_cast<MONERO_cw_WalletListener*>(cw_walletListener_ptr);
+    return listener->cw_isNeedToRefresh();
+};
+
+bool MONERO_cw_WalletListener_isNewTransactionExist(void* cw_walletListener_ptr) {
+    MONERO_cw_WalletListener *listener = reinterpret_cast<MONERO_cw_WalletListener*>(cw_walletListener_ptr);
+    return listener->cw_isNeedToRefresh();
+};
+
+void MONERO_cw_WalletListener_resetIsNewTransactionExist(void* cw_walletListener_ptr) {
+    MONERO_cw_WalletListener *listener = reinterpret_cast<MONERO_cw_WalletListener*>(cw_walletListener_ptr);
+    listener->cw_isNeedToRefresh();
+};
+
+uint64_t MONERO_cw_WalletListener_height(void* cw_walletListener_ptr) {
+    MONERO_cw_WalletListener *listener = reinterpret_cast<MONERO_cw_WalletListener*>(cw_walletListener_ptr);
+    return listener->cw_isNeedToRefresh();
+};
+
 #ifdef __cplusplus
 }
 #endif

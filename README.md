@@ -66,8 +66,36 @@ Libraries on CI are build using the following docker images:
 
 It is entirely possible to use upstream debian:buster / debian:bookworm
 
+## Design
+
+Functions are as simple as reasonably possible as few steps should be performed to get from the exposed C api to actual wallet2 (or wallet3 in future) api calls.
+
+The only things passed in and out are:
+
+- void
+- bool
+- int
+- uint64_t
+- void*
+- const char* 
+
+All more complex structures are serialized into `const char*`, take look at MONERO_Wallet_createTransaction which uses `splitString(std::string(preferredInputs), std::string(separator));` to convert string into a std::set, so no implementation will need to worry about that.
+
+Is there more effective way to do that? Probably. Is there more universal way to pass that (JSON, or others?)? Most likely. That being said, I'm against doing that. You can easily join a string in any language, and I like to keep dependency count as low as possible.
+
+As for function naming `${COIN}_namespaceOrClass_functionName` is being used, currently these cryptocurrencies are supported
+
+- monero
+- wownero
+
+both using wallet2 api, and both being patched with our secret ingredient(tm) (check patches directory).
+
+Since monero_c aims to be one-fits-all solution for monero wallets, there are some special things inside, like functions prefixed with `DEBUG_*`, these are not quarenteed to stay in the code, and can be changed, the only reason they are in is because I needed some testing early in the development when bringing support for variety of platforms.
+
+If you are a wallet developer and you **really** need this one function that doesn't exist, feel free to let me know I'll be happy to implement that.
+
+Currently there are enterprise resitents in our library: `${COIN}_cw_*` these functions are not guaranteed to stay stable, and are made for cake wallet to implement features that are not used in xmruw nor in stack_wallet (which I need to double-check later?).
+
 ## Contributing
 
 To contribute you can visit git.mrcyjanek.net/mrcyjanek/monero_c and open a PR, alternatively use any other code mirror or send patches directly.
-
-**IMPORTANT** I don't have time to write better README, please check `build_single.sh` for build instructions, in general it comes down to running the script.
