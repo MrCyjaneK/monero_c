@@ -1228,6 +1228,32 @@ Monero::PendingTransaction::Priority PendingTransaction_Priority_fromInt(int val
     }
 }
 
+void* MONERO_Wallet_createTransactionMultDest(void* wallet_ptr, const char* &dst_addr_list, const char* dst_addr_list_separator, const char* payment_id,
+                                                bool amount_sweep_all, const char* amount_list, const char* amount_list_separator, uint32_t mixin_count,
+                                                int pendingTransactionPriority,
+                                                uint32_t subaddr_account,
+                                                const char* preferredInputs, const char* preferredInputs_separator) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    std::set<std::string> dst_addr_ = splitString(std::string(dst_addr_list), std::string(dst_addr_list_separator));
+    std::vector<std::string> dst_addr(dst_addr_.begin(), dst_addr_.end());
+
+    Monero::optional<std::vector<uint64_t>> optAmount;
+    if (!amount_sweep_all) {
+        optAmount = splitStringUint(std::string(amount_list), std::string(amount_list_separator));;
+    }
+    std::set<uint32_t> subaddr_indices = {};
+    std::set<std::string> preferred_inputs = splitString(std::string(preferredInputs), std::string(preferredInputs_separator));
+
+    return wallet->createTransactionMultDest(
+        dst_addr, std::string(payment_id),
+        optAmount, mixin_count,
+        PendingTransaction_Priority_fromInt(pendingTransactionPriority),
+        subaddr_account,
+        subaddr_indices,
+        preferred_inputs
+    );
+}
+
 void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, const char* payment_id,
                                                     uint64_t amount, uint32_t mixin_count,
                                                     int pendingTransactionPriority,
@@ -1245,7 +1271,6 @@ void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, co
                                         PendingTransaction_Priority_fromInt(pendingTransactionPriority),
                                         subaddr_account, subaddr_indices, preferred_inputs);
 }
-
 
 void* MONERO_Wallet_loadUnsignedTx(void* wallet_ptr, const char* fileName) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
