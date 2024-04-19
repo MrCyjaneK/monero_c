@@ -68,7 +68,7 @@ const char* vectorToString(const std::vector<uint64_t>& vec, const std::string s
     size_t size = 0;
     for (size_t i = 0; i < vec.size(); ++i) {
         // Calculate the number of digits in each element
-        size += snprintf(nullptr, 0, "%lu", vec[i]);
+        size += snprintf(nullptr, 0, "%llu", vec[i]);
         // Add comma and space for all elements except the last one
         if (i < vec.size() - 1) {
             size += separator.size(); // comma and space
@@ -86,7 +86,7 @@ const char* vectorToString(const std::vector<uint64_t>& vec, const std::string s
     char* current = result;
     for (size_t i = 0; i < vec.size(); ++i) {
         // Convert each element to string and copy to the result string
-        int written = snprintf(current, size + 1, "%lu", vec[i]);
+        int written = snprintf(current, size + 1, "%llu", vec[i]);
         current += written;
         // Add comma and space for all elements except the last one
         if (i < vec.size() - 1) {
