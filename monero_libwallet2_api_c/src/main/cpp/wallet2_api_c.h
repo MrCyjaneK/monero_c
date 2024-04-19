@@ -808,7 +808,7 @@ extern ADDAPI uint64_t MONERO_Wallet_coldKeyImageSync(void* wallet_ptr, uint64_t
 //     virtual void deviceShowAddress(uint32_t accountIndex, uint32_t addressIndex, const std::string &paymentId) = 0;
 extern ADDAPI const char* MONERO_Wallet_deviceShowAddress(void* wallet_ptr, uint32_t accountIndex, uint32_t addressIndex);
 //     virtual bool reconnectDevice() = 0;
-extern ADDAPI const char* MONERO_Wallet_reconnectDevice(void* wallet_ptr);
+extern ADDAPI bool MONERO_Wallet_reconnectDevice(void* wallet_ptr);
 //     virtual uint64_t getBytesReceived() = 0;
 extern ADDAPI uint64_t MONERO_Wallet_getBytesReceived(void* wallet_ptr);
 //     virtual uint64_t getBytesSent() = 0;

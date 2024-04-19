@@ -1482,7 +1482,10 @@ const char* MONERO_Wallet_deviceShowAddress(void* wallet_ptr, uint32_t accountIn
     return buffer;
 }
 //     virtual bool reconnectDevice() = 0;
-const char* MONERO_Wallet_reconnectDevice(void* wallet_ptr);
+bool MONERO_Wallet_reconnectDevice(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->reconnectDevice();
+};
 
 uint64_t MONERO_Wallet_getBytesReceived(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
