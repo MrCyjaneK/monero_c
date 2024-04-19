@@ -11,12 +11,19 @@
 #include <cstring>
 
 const char* vectorToString(const std::vector<std::string>& vec, const std::string separator) {
+    // Check if the vector is empty
+    if (vec.empty()) {
+        return "";
+    }
+
     // Concatenate all strings in the vector
     std::string result;
-    for (const auto& str : vec) {
-        result += str;
+    for (size_t i = 0; i < vec.size() - 1; ++i) {
+        result += vec[i];
         result += separator;
     }
+    result += vec.back();  // Append the last string without the separator
+
     const char* cstr = result.c_str();
     return cstr;
 }
