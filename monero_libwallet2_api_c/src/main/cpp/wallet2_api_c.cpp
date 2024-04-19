@@ -508,7 +508,7 @@ uint64_t MONERO_CoinsInfo_unlockTime(void* coinsInfo_ptr) {
 //     virtual bool unlocked() const = 0;
 bool MONERO_CoinsInfo_unlocked(void* coinsInfo_ptr) {
     Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->internalOutputIndex();
+    return coinsInfo->unlocked();
 }
 //     virtual std::string pubKey() const = 0;
 const char* MONERO_CoinsInfo_pubKey(void* coinsInfo_ptr) {
@@ -522,7 +522,7 @@ const char* MONERO_CoinsInfo_pubKey(void* coinsInfo_ptr) {
 //     virtual bool coinbase() const = 0;
 bool MONERO_CoinsInfo_coinbase(void* coinsInfo_ptr) {
     Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->internalOutputIndex();
+    return coinsInfo->coinbase();
 }
 //     virtual std::string description() const = 0;
 const char* MONERO_CoinsInfo_description(void* coinsInfo_ptr) {
@@ -1043,10 +1043,8 @@ uint64_t MONERO_Wallet_daemonBlockChainHeight_cached(void* wallet_ptr) {
     return daemonBlockChainHeight_cached;
 }
 
-bool daemonBlockChainHeight_cacheIsEnabled = false;
-
-
 void MONERO_Wallet_daemonBlockChainHeight_runThread(void* wallet_ptr, int seconds) {
+    std::cout << "DEPRECATED: this was used as an experiment, and will be removed in newer release. use ${COIN}_cw_* listener functions instead." << std::endl;
     while (true) {
         Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
         daemonBlockChainHeight_cached = wallet->daemonBlockChainHeight();
@@ -1054,6 +1052,7 @@ void MONERO_Wallet_daemonBlockChainHeight_runThread(void* wallet_ptr, int second
         std::cout << "MONERO: TICK: MONERO_Wallet_daemonBlockChainHeight_runThread(" << seconds << "): " << daemonBlockChainHeight_cached << std::endl;
     }
 }
+
 uint64_t MONERO_Wallet_daemonBlockChainTargetHeight(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->daemonBlockChainTargetHeight();
