@@ -687,7 +687,7 @@ extern ADDAPI const char* MONERO_Wallet_getMultisigInfo(void* wallet_ptr);
 //                                                    PendingTransaction::Priority = PendingTransaction::Priority_Low,
 //                                                    uint32_t subaddr_account = 0,
 //                                                    std::set<uint32_t> subaddr_indices = {}) = 0;
-extern ADDAPI void* MONERO_Wallet_createTransactionMultDest(void* wallet_ptr, const char* &dst_addr_list, const char* dst_addr_list_separator, const char* payment_id,
+extern ADDAPI void* MONERO_Wallet_createTransactionMultDest(void* wallet_ptr, const char* dst_addr_list, const char* dst_addr_list_separator, const char* payment_id,
                                                 bool amount_sweep_all, const char* amount_list, const char* amount_list_separator, uint32_t mixin_count,
                                                 int pendingTransactionPriority,
                                                 uint32_t subaddr_account,
