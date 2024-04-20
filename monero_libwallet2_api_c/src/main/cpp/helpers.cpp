@@ -24,8 +24,11 @@ const char* vectorToString(const std::vector<std::string>& vec, const std::strin
     }
     result += vec.back();  // Append the last string without the separator
 
-    const char* cstr = result.c_str();
-    return cstr;
+    std::string str = result;
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
 }
 
 const char* vectorToString(const std::vector<uint32_t>& vec, const std::string separator) {
