@@ -4,7 +4,7 @@
 #include "helpers.hpp"
 #include <cstring>
 #include <thread>
-#include "../../../../monero/src/wallet/api/wallet2_api.h"
+#include "../../../../wownero/src/wallet/api/wallet2_api.h"
 
 
 #ifdef __cplusplus
@@ -1826,6 +1826,8 @@ struct WOWNERO_cw_WalletListener : Monero::WalletListener
     {
         return m_height;
     }
+
+    void refreshed(bool success) {};
 };
 
 void* WOWNERO_cw_getWalletListener(void* wallet_ptr) {
