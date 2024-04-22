@@ -1,7 +1,7 @@
-From 33d611538efef134106f427c7ee5535d28d588f6 Mon Sep 17 00:00:00 2001
+From b5f23b131c6eaaf6b2a772e63b9e236eb0c90d72 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
-Date: Tue, 26 Mar 2024 08:19:23 +0100
-Subject: [PATCH 2/9] polyseed support
+Date: Tue, 12 Mar 2024 09:42:37 +0100
+Subject: [PATCH 2/9] polyseed
 
 Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
 ---
@@ -55,22 +55,22 @@ index 4c1e381c0..70bea03b3 100644
    test-ubuntu:
      needs: build-ubuntu
 diff --git a/.gitmodules b/.gitmodules
-index 74571d5ee..86009b6b6 100644
+index 74571d5ee..1c469941e 100644
 --- a/.gitmodules
 +++ b/.gitmodules
-@@ -12,6 +12,12 @@
- 	path = external/supercop
- 	url = https://github.com/monero-project/supercop
- 	branch = monero
+@@ -8,6 +8,12 @@
+ 	active = false
+ 	path = external/trezor-common
+ 	url = https://github.com/trezor/trezor-common.git
 +[submodule "external/utf8proc"]
 +	path = external/utf8proc
 +	url = https://github.com/JuliaStrings/utf8proc.git
 +[submodule "external/polyseed"]
 +	path = external/polyseed
 +	url = https://github.com/tevador/polyseed.git
- [submodule "external/randomwow"]
- 	path = external/randomwow
- 	url = https://git.wownero.com/wownero/RandomWOW
+ [submodule "external/supercop"]
+ 	path = external/supercop
+ 	url = https://github.com/monero-project/supercop
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 20829bc30..2dd427d3d 100644
 --- a/CMakeLists.txt
@@ -138,7 +138,7 @@ index b016f2f48..f2f365b1b 100644
 +
  }
 diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
-index 29aed0cc6..c023abffa 100644
+index 29aed0cc6..04910a4fc 100644
 --- a/external/CMakeLists.txt
 +++ b/external/CMakeLists.txt
 @@ -70,3 +70,5 @@ add_subdirectory(db_drivers)
@@ -147,21 +147,20 @@ index 29aed0cc6..c023abffa 100644
  add_subdirectory(randomwow EXCLUDE_FROM_ALL)
 +add_subdirectory(polyseed EXCLUDE_FROM_ALL)
 +add_subdirectory(utf8proc EXCLUDE_FROM_ALL)
-\ No newline at end of file
 diff --git a/external/polyseed b/external/polyseed
 new file mode 160000
-index 000000000..b7c35bb3c
+index 000000000..9d4f1a032
 --- /dev/null
 +++ b/external/polyseed
 @@ -0,0 +1 @@
-+Subproject commit b7c35bb3c6b91e481ecb04fc235eaff69c507fa1
++Subproject commit 9d4f1a032585656e1a642ee70cdf929001badba6
 diff --git a/external/utf8proc b/external/utf8proc
 new file mode 160000
-index 000000000..1fe43f5a6
+index 000000000..1cb28a66c
 --- /dev/null
 +++ b/external/utf8proc
 @@ -0,0 +1 @@
-+Subproject commit 1fe43f5a6d9c628f717c5ec8aeaeae4a9adfd167
++Subproject commit 1cb28a66ca79a0845e99433fd1056257456cef8b
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index 9216bcaa5..c043ba150 100644
 --- a/src/CMakeLists.txt
@@ -278,14 +277,14 @@ index 2ee9545d4..0099ebfe7 100644
      const account_keys& get_keys() const;
      std::string get_public_address_str(network_type nettype) const;
 diff --git a/src/cryptonote_config.h b/src/cryptonote_config.h
-index 8c0d3ce20..1c1830ad4 100644
+index 8c0d3ce20..5b36c70de 100644
 --- a/src/cryptonote_config.h
 +++ b/src/cryptonote_config.h
 @@ -219,6 +219,8 @@
  
  #define DNS_BLOCKLIST_LIFETIME (86400 * 8)
  
-+#define POLYSEED_COIN POLYSEED_MONERO
++#define POLYSEED_COIN POLYSEED_WOWNERO
 +
  //The limit is enough for the mandatory transaction content with 16 outputs (547 bytes),
  //a custom tag (1 byte) and up to 32 bytes of custom data for each recipient.
@@ -468,7 +467,7 @@ index 000000000..f6253b9d7
 \ No newline at end of file
 diff --git a/src/polyseed/polyseed.cpp b/src/polyseed/polyseed.cpp
 new file mode 100644
-index 000000000..b26f37574
+index 000000000..0a8852777
 --- /dev/null
 +++ b/src/polyseed/polyseed.cpp
 @@ -0,0 +1,182 @@
@@ -517,14 +516,14 @@ index 000000000..b26f37574
 +      utf8proc_ssize_t result;
 +
 +      result = utf8proc_decompose(reinterpret_cast<const uint8_t*>(str), 0, buffer, POLYSEED_STR_SIZE, options);
-+      if (result < 0) {
-+        return POLYSEED_STR_SIZE;
++      if (result < 0 || result > (POLYSEED_STR_SIZE - 1)) {
++        throw std::runtime_error("Unicode normalization failed");
 +      }
-+      if (result > POLYSEED_STR_SIZE - 1) {
-+        return result;
-+      }
-+
++            
 +      result = utf8proc_reencode(buffer, result, options);
++      if (result < 0 || result > POLYSEED_STR_SIZE) {
++        throw std::runtime_error("Unicode normalization failed");
++      }
 +
 +      strcpy(norm, reinterpret_cast<const char*>(buffer));
 +      sodium_memzero(buffer, POLYSEED_STR_SIZE);
@@ -829,7 +828,7 @@ index 000000000..2c8c777a7
 +#endif //POLYSEED_HPP
 \ No newline at end of file
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index d81ddec93..db9c2b5d9 100644
+index d81ddec93..ceb0bcb8b 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -683,6 +683,28 @@ bool WalletImpl::recoverFromDevice(const std::string &path, const std::string &p
@@ -876,7 +875,7 @@ index d81ddec93..db9c2b5d9 100644
 +    }
 +
 +    bool result = m_wallet->get_polyseed(seed_words_epee, passphrase_epee);
-+
++    
 +    seed_words.assign(seed_words_epee.data(), seed_words_epee.size());
 +    passphrase.assign(passphrase_epee.data(), passphrase_epee.size());
 +
@@ -898,7 +897,7 @@ index d81ddec93..db9c2b5d9 100644
 +bool Wallet::createPolyseed(std::string &seed_words, std::string &err, const std::string &language)
 +{
 +    epee::wipeable_string seed_words_epee(seed_words.c_str(), seed_words.size());
-+
++    
 +    try {
 +        polyseed::data polyseed(POLYSEED_COIN);
 +        polyseed.create(0);
@@ -1026,7 +1025,7 @@ index 206aedc14..e3149300c 100644
      bool walletExists(const std::string &path) override;
      bool verifyWalletPassword(const std::string &keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const override;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index e586d67f7..83aba6253 100644
+index e586d67f7..dfcc206a0 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -92,6 +92,7 @@ using namespace epee;
@@ -1084,10 +1083,12 @@ index e586d67f7..83aba6253 100644
    // Serialize the JSON object
    rapidjson::StringBuffer buffer;
    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-@@ -4860,6 +4880,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
+@@ -4859,7 +4879,8 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
+     m_auto_mine_for_rpc_payment_threshold = -1.0f;
      m_credits_target = 0;
      m_enable_multisig = false;
-     m_allow_mismatched_daemon_version = true;
+-    m_allow_mismatched_daemon_version = true;
++    m_allow_mismatched_daemon_version = false;
 +    m_polyseed = false;
    }
    else if(json.IsObject())
@@ -1168,18 +1169,15 @@ index e586d67f7..83aba6253 100644
     uint64_t target_height = get_daemon_blockchain_target_height(err);
     if (err.empty()) {
       if (target_height < height)
-@@ -13546,9 +13611,9 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
+@@ -13546,7 +13611,7 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
    return target_height;
  }
  
 -uint64_t wallet2::get_approximate_blockchain_height() const
 +uint64_t wallet2::get_approximate_blockchain_height(uint64_t t) const
  {
--  uint64_t approx_blockchain_height = m_nettype == TESTNET ? 0 : (time(NULL) - 1522624244)/307;
-+  uint64_t approx_blockchain_height = m_nettype == TESTNET ? 0 : ((t > 0 ? t : time(NULL)) - 1522624244)/307;
+   uint64_t approx_blockchain_height = m_nettype == TESTNET ? 0 : (time(NULL) - 1522624244)/307;
    LOG_PRINT_L2("Calculated blockchain height: " << approx_blockchain_height);
-   return approx_blockchain_height;
- }
 @@ -15262,15 +15327,6 @@ bool wallet2::parse_uri(const std::string &uri, std::string &address, std::strin
  //----------------------------------------------------------------------------------------------------
  uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, uint8_t day)

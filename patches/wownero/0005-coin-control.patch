@@ -1,4 +1,4 @@
-From 9f9937ef8f4822c498e10e5bbfc57dfdfb7137f7 Mon Sep 17 00:00:00 2001
+From f2484ecd2a8255fab9613cce346ee3c24f4a6ba6 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Wed, 27 Mar 2024 16:31:36 +0100
 Subject: [PATCH 5/9] coin control
@@ -118,7 +118,7 @@ index 3293d8ae9..bcd8b517f 100644
          WalletImpl *m_wallet;
          std::vector<CoinsInfo*> m_rows;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 1c9a709d4..b935723f7 100644
+index b5c346754..2dad8bc61 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -2018,11 +2018,11 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<stri
@@ -136,7 +136,7 @@ index 1c9a709d4..b935723f7 100644
              pendingTxPostProcess(transaction);
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 39b942ef4..678f9b6b9 100644
+index 5dcaeaaab..347e6d002 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -352,9 +352,12 @@ struct Coins
@@ -153,7 +153,7 @@ index 39b942ef4..678f9b6b9 100644
  
  struct SubaddressRow {
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index f996863ff..c53b1de67 100644
+index 2a5f17a9f..2b3eaad2e 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -2094,11 +2094,21 @@ bool wallet2::frozen(const multisig_tx_set& txs) const
@@ -198,7 +198,7 @@ index f996863ff..c53b1de67 100644
  {
    for (size_t idx = 0; idx < m_transfers.size(); ++idx)
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 51dbb5b89..5e27e46cf 100644
+index 294a2d1f6..d1e68baac 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -1563,6 +1563,8 @@ private:

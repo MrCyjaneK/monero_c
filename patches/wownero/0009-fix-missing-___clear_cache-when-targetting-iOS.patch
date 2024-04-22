@@ -1,4 +1,4 @@
-From 8cfcf5b132c41aedbc9c9a0932ffb832cf410761 Mon Sep 17 00:00:00 2001
+From d715a59a5760fa5b98ffb16678973ef5907462c3 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 2 Apr 2024 17:07:19 +0200
 Subject: [PATCH 9/9] fix missing ___clear_cache when targetting iOS
@@ -9,11 +9,11 @@ Subject: [PATCH 9/9] fix missing ___clear_cache when targetting iOS
  2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/.gitmodules b/.gitmodules
-index 86009b6b6..f723bd2d8 100644
+index 1c469941e..fa54f48b1 100644
 --- a/.gitmodules
 +++ b/.gitmodules
 @@ -20,6 +20,6 @@
- 	url = https://github.com/tevador/polyseed.git
+ 	branch = monero
  [submodule "external/randomwow"]
  	path = external/randomwow
 -	url = https://git.wownero.com/wownero/RandomWOW

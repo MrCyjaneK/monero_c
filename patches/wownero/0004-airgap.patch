@@ -1,4 +1,4 @@
-From 60c89b5c4e2e874e725915ed0a8b7709849ef140 Mon Sep 17 00:00:00 2001
+From 4e71f9001a3857f499001e072d41fcc5cc64ad84 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 26 Mar 2024 09:06:32 +0100
 Subject: [PATCH 4/9] airgap
@@ -12,7 +12,7 @@ Subject: [PATCH 4/9] airgap
  5 files changed, 51 insertions(+), 6 deletions(-)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 5ef3132d2..1c9a709d4 100644
+index bf8a95ffe..b5c346754 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -1172,6 +1172,24 @@ uint64_t WalletImpl::unlockedBalance(uint32_t accountIndex) const
@@ -73,7 +73,7 @@ index fc6341861..7b885e866 100644
      bool exportKeyImages(const std::string &filename, bool all = false) override;
      bool importKeyImages(const std::string &filename) override;
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 626c63fc5..39b942ef4 100644
+index db5509227..5dcaeaaab 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -726,6 +726,7 @@ struct Wallet
@@ -94,7 +94,7 @@ index 626c63fc5..39b942ef4 100644
      * \brief exportKeyImages - exports key images to file
      * \param filename
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index d7e2a9699..f996863ff 100644
+index e013313b9..2a5f17a9f 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -7432,6 +7432,25 @@ uint64_t wallet2::unlocked_balance(uint32_t index_major, bool strict, uint64_t *
@@ -154,7 +154,7 @@ index d7e2a9699..f996863ff 100644
    // if empty, put dummy entry so that the front can be referenced later in the loop
    if (unused_dust_indices_per_subaddr.empty())
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 2f2664f8e..51dbb5b89 100644
+index 009dce766..294a2d1f6 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -1173,6 +1173,7 @@ private:

@@ -154,7 +154,7 @@ index 000000000..b7c35bb3c
 --- /dev/null
 +++ b/external/polyseed
 @@ -0,0 +1 @@
-+Subproject commit b7c35bb3c6b91e481ecb04fc235eaff69c507fa1
++Subproject commit 9d4f1a032585656e1a642ee70cdf929001badba6
 diff --git a/external/utf8proc b/external/utf8proc
 new file mode 160000
 index 000000000..1cb28a66c

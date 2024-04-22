@@ -1,4 +1,4 @@
-From a2beff7fc49b80972f78dddedf0ea8c4db145f72 Mon Sep 17 00:00:00 2001
+From 370176c45e1037aa7c0413c07a59de3f220e0d93 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 2 Apr 2024 11:56:09 +0200
 Subject: [PATCH 8/9] FIX: wallet listener crashing
@@ -8,7 +8,7 @@ Subject: [PATCH 8/9] FIX: wallet listener crashing
  1 file changed, 15 insertions(+), 6 deletions(-)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index b935723f7..432ca4fbf 100644
+index 2dad8bc61..bb66e2bfd 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -201,8 +201,11 @@ struct Wallet2CallbackImpl : public tools::i_wallet2_callback
