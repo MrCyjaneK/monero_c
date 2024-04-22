@@ -1,7 +1,7 @@
-From c8dfb421082c895c45c6e4fd1437fee4b554b612 Mon Sep 17 00:00:00 2001
+From bc3d91b07d77893983bbed0b165ce41e034579a7 Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
 Date: Thu, 28 Mar 2024 02:03:08 +0100
-Subject: [PATCH 6/8] macos build fix
+Subject: [PATCH 06/10] macos build fix
 
 ---
  contrib/depends/hosts/darwin.mk               |  2 +

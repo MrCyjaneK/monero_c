@@ -97,6 +97,10 @@ extern ADDAPI const char* MONERO_PendingTransaction_multisigSignData(void* pendi
 extern ADDAPI void MONERO_PendingTransaction_signMultisigTx(void* pendingTx_ptr);
 //     virtual std::vector<std::string> signersKeys() const = 0;
 extern ADDAPI const char* MONERO_PendingTransaction_signersKeys(void* pendingTx_ptr, const char* separator);
+//     virtual std::vector<std::string> hex() const = 0;
+extern ADDAPI const char* MONERO_PendingTransaction_hex(void* pendingTx_ptr, const char* separator);
+//     virtual std::vector<std::string> txKey() const = 0;
+extern ADDAPI const char* MONERO_PendingTransaction_txHex(void* pendingTx_ptr, const char* separator);
 // };
 
 // struct UnsignedTransaction
@@ -881,6 +885,16 @@ extern ADDAPI void* MONERO_WalletManager_createWalletFromKeys(void* wm_ptr, cons
 //     {
 //         return createWalletFromKeys(path, language, testnet ? TESTNET : MAINNET, restoreHeight, addressString, viewKeyString, spendKeyString);
 //     }
+//     virtual Wallet * createDeterministicWalletFromSpendKey(const std::string &path,
+//                                                        const std::string &password,
+//                                                        const std::string &language,
+//                                                        NetworkType nettype,
+//                                                        uint64_t restoreHeight,
+//                                                        const std::string &spendKeyString,
+//                                                        uint64_t kdf_rounds = 1) = 0;
+extern ADDAPI void* MONERO_WalletManager_createDeterministicWalletFromSpendKey(void* wm_ptr, const char* path, const char* password,
+                                                const char* language, int nettype, uint64_t restoreHeight,
+                                                const char* spendKeyString, uint64_t kdf_rounds);
 //     virtual Wallet * createWalletFromDevice(const std::string &path,
 //                                             const std::string &password,
 //                                             NetworkType nettype,

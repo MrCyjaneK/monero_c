@@ -1,0 +1,68 @@
+From db90a0218d581276fcede6f188cc951499095a2f Mon Sep 17 00:00:00 2001
+From: M <m@cakewallet.com>
+Date: Fri, 21 Apr 2023 15:43:47 -0400
+Subject: [PATCH 10/10] Add hex encoding and tx key getter for
+ PendingTransction in wallet api.
+
+---
+ src/wallet/api/pending_transaction.cpp | 16 ++++++++++++++++
+ src/wallet/api/pending_transaction.h   |  2 ++
+ src/wallet/api/wallet2_api.h           |  2 ++
+ 3 files changed, 20 insertions(+)
+
+diff --git a/src/wallet/api/pending_transaction.cpp b/src/wallet/api/pending_transaction.cpp
+index 70a702796..be20b478c 100644
+--- a/src/wallet/api/pending_transaction.cpp
++++ b/src/wallet/api/pending_transaction.cpp
+@@ -78,6 +78,22 @@ std::vector<std::string> PendingTransactionImpl::txid() const
+     return txid;
+ }
+ 
++std::vector<std::string> PendingTransactionImpl::hex() const
++{
++    std::vector<std::string> hexs;
++    for (const auto &pt: m_pending_tx)
++        hexs.push_back(epee::string_tools::buff_to_hex_nodelimer(cryptonote::tx_to_blob(pt.tx)));
++    return hexs;
++}
++
++std::vector<std::string> PendingTransactionImpl::txKey() const
++{
++    std::vector<std::string> keys;
++    for (const auto& pt: m_pending_tx)
++        keys.push_back(epee::string_tools::pod_to_hex(pt.tx_key));
++    return keys;
++}
++
+ bool PendingTransactionImpl::commit(const std::string &filename, bool overwrite)
+ {
+ 
+diff --git a/src/wallet/api/pending_transaction.h b/src/wallet/api/pending_transaction.h
+index 0a9779c07..2fbaa83d9 100644
+--- a/src/wallet/api/pending_transaction.h
++++ b/src/wallet/api/pending_transaction.h
+@@ -58,6 +58,8 @@ public:
+     std::string multisigSignData() override;
+     void signMultisigTx() override;
+     std::vector<std::string> signersKeys() const override;
++    std::vector<std::string> hex() const override;
++    std::vector<std::string> txKey() const override;
+ 
+ private:
+     friend class WalletImpl;
+diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
+index a585c8212..1c3a11c39 100644
+--- a/src/wallet/api/wallet2_api.h
++++ b/src/wallet/api/wallet2_api.h
+@@ -126,6 +126,8 @@ struct PendingTransaction
+      * @return vector of base58-encoded signers' public keys
+      */
+     virtual std::vector<std::string> signersKeys() const = 0;
++    virtual std::vector<std::string> hex() const = 0;
++    virtual std::vector<std::string> txKey() const = 0;
+ };
+ 
+ /**
+-- 
+2.44.0
+

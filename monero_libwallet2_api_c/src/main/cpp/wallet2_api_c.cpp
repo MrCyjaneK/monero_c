@@ -127,6 +127,18 @@ const char* MONERO_PendingTransaction_signersKeys(void* pendingTx_ptr, const cha
     return vectorToString(txid, std::string(separator));
 }
 
+const char* MONERO_PendingTransaction_hex(void* pendingTx_ptr, const char* separator) {
+    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+    std::vector<std::string> txid = pendingTx->hex();
+    return vectorToString(txid, std::string(separator));
+}
+
+const char* MONERO_PendingTransaction_txKey(void* pendingTx_ptr, const char* separator) {
+    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+    std::vector<std::string> txid = pendingTx->txKey();
+    return vectorToString(txid, std::string(separator));
+}
+
 // UnsignedTransaction
 
 int MONERO_UnsignedTransaction_status(void* unsignedTx_ptr) {
@@ -1550,6 +1562,22 @@ void* MONERO_WalletManager_createWalletFromKeys(void* wm_ptr, const char* path, 
                     std::string(addressString),
                     std::string(viewKeyString),
                     std::string(spendKeyString));
+    return reinterpret_cast<void*>(wallet);
+}
+
+void* MONERO_WalletManager_createDeterministicWalletFromSpendKey(void* wm_ptr, const char* path, const char* password,
+                                                const char* language, int nettype, uint64_t restoreHeight,
+                                                const char* spendKeyString, uint64_t kdf_rounds) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    Monero::Wallet *wallet = wm->createDeterministicWalletFromSpendKey(
+        std::string(path),
+        std::string(password),
+        std::string(language),
+        static_cast<Monero::NetworkType>(nettype),
+        restoreHeight,
+        std::string(spendKeyString),
+        kdf_rounds
+    );
     return reinterpret_cast<void*>(wallet);
 }
 

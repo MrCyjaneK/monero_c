@@ -1,7 +1,7 @@
-From c325add45cf950a42fc4cc16f99bb7385c53a634 Mon Sep 17 00:00:00 2001
+From c4499815188a0b8103092da07260074359a1874e Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 10:09:50 +0100
-Subject: [PATCH 3/8] airgap
+Subject: [PATCH 03/10] airgap
 
 ---
  src/wallet/api/wallet.cpp    | 23 ++++++++++++++++++++++

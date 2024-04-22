@@ -1,7 +1,7 @@
-From fb9cd4ff500a56a1f29f323fe05de4633dd560de Mon Sep 17 00:00:00 2001
+From 8e069a8b7c15794b843471487c12c2c753d3afe2 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 11:07:57 +0100
-Subject: [PATCH 4/8] coin control
+Subject: [PATCH 04/10] coin control
 
 ---
  src/wallet/api/CMakeLists.txt |   8 +-

@@ -1,7 +1,7 @@
-From 6bd41f6e334fe979e2a5e874e404657ff0ef6c4f Mon Sep 17 00:00:00 2001
+From a24797410dcda06617ff2a81de3129d38b69f2a2 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 12 Mar 2024 17:59:13 +0100
-Subject: [PATCH 5/8] fix build issues
+Subject: [PATCH 05/10] fix build issues
 
 ---
  contrib/depends/hosts/linux.mk                |  8 +++----

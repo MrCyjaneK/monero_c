@@ -1,7 +1,7 @@
-From bf347a3c80f0e0647176752867a54ae9ecedb580 Mon Sep 17 00:00:00 2001
+From b9fac308d903e9dd79b95d6db73c37807e1219b7 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 09:42:37 +0100
-Subject: [PATCH 1/8] polyseed
+Subject: [PATCH 01/10] polyseed
 
 Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
 ---
@@ -150,7 +150,7 @@ index 5b7f69a56..1b9761d70 100644
 \ No newline at end of file
 diff --git a/external/polyseed b/external/polyseed
 new file mode 160000
-index 000000000..b7c35bb3c
+index 000000000..9d4f1a032
 --- /dev/null
 +++ b/external/polyseed
 @@ -0,0 +1 @@
@@ -468,7 +468,7 @@ index 000000000..f6253b9d7
 \ No newline at end of file
 diff --git a/src/polyseed/polyseed.cpp b/src/polyseed/polyseed.cpp
 new file mode 100644
-index 000000000..b26f37574
+index 000000000..0a8852777
 --- /dev/null
 +++ b/src/polyseed/polyseed.cpp
 @@ -0,0 +1,182 @@
