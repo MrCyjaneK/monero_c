@@ -4,15 +4,61 @@
 #include "helpers.hpp"
 #include <cstring>
 #include <thread>
-#include "../../../../wownero/src/wallet/api/wallet2_api.h"
+#include "../../../../monero/src/wallet/api/wallet2_api.h"
+
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-// For comments and docs check monero.
 
+// The code in here consists of simple wrappers, that convert
+// more advanced c++ types (and function names) into simple C-compatible
+// functions, so these implementations can be easly used from all languages
+// that do support C interop (such as dart)
+//
+//
+// Here is the most complex definition that we can find in the current codebase, it even includes
+// a if statement - which in general I consider an anti-patter in just wrappers
+//
+//  _____________ void* because C++ wallet->createTransaction returns a pointer to Monero::PendingTransaction, which we don't want to have exposed in C land
+// /      _____________ MONERO prefix just means that this function is using monero codebase, to not cause any symbols collision when using more than one libwallet2_api_c.so in a single program.
+// |     /       _____________ Wallet is one of the classes in Monero namespace in the upstream codebase (see the include line above)
+// |     |      /       _____________ aaand it is calling createTransaction function.
+// |     |      |      /                  _________________________________________________________________________________
+// |     |      |      |                 /                                                                                 \ All of these parameters can be found in the upstream
+// |     |      |      |                |                                                                     _____________/ function definition, if something was more complex -
+// void* WOWNERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, const char* payment_id,     / like std::set I've used splitString functions and introduced a new
+//                                                     uint64_t amount, uint32_t mixin_count,               / parameter - separator, as it is the simplest way to get vector onto
+//                                                     int pendingTransactionPriority,                     / C side from more advanced world.
+//                                                     uint32_t subaddr_account,                          /
+//                                                     const char* preferredInputs, const char* separator) {
+//     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr); <------------ We are converting the void* into Monero::Wallet*
+//     Monero::optional<uint64_t> optAmount; <------------- optional by default
+//     if (amount != 0) {------------------\ We set this optional parameter only when it isn't zero
+//         optAmount = amount;             | 
+//     }___________________________________/
+//     std::set<uint32_t> subaddr_indices = {}; ------------- Default value
+//     std::set<std::string> preferred_inputs = splitString(std::string(preferredInputs), std::string(separator)); <------------- We are using helpers.cpp function to split a string into std::set
+//     return wallet->createTransaction(std::string(dst_addr), std::string(payment_id),-\ const char * is getting casted onto std::string
+//                                         optAmount, mixin_count,        \_____________/
+//                                         PendingTransaction_Priority_fromInt(pendingTransactionPriority), <------------- special case for this function to get native type instead of int value.
+//                                         subaddr_account, subaddr_indices, preferred_inputs);
+// }
+//
+//
+// One case which is not covered here is when we have to return a string
+// const char* WOWNERO_PendingTransaction_errorString(void* pendingTx_ptr) {
+//     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+//     std::string str = pendingTx->errorString(); <------------- get the actual string from the upstream codebase
+//     const std::string::size_type size = str.size(); ------------------------------\
+//     char *buffer = new char[size + 1];   //we need extra char for NUL             | Copy the string onto a new memory so it won't get freed after the function returns
+//     memcpy(buffer, str.c_str(), size + 1);                                        | NOTE: This requires us to call free() after we are done with the text processing
+//     return buffer; ______________________________________________________________/
+// }
+//
+//
 
 // PendingTransaction
 
@@ -474,7 +520,7 @@ uint64_t WOWNERO_CoinsInfo_unlockTime(void* coinsInfo_ptr) {
 //     virtual bool unlocked() const = 0;
 bool WOWNERO_CoinsInfo_unlocked(void* coinsInfo_ptr) {
     Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->internalOutputIndex();
+    return coinsInfo->unlocked();
 }
 //     virtual std::string pubKey() const = 0;
 const char* WOWNERO_CoinsInfo_pubKey(void* coinsInfo_ptr) {
@@ -488,7 +534,7 @@ const char* WOWNERO_CoinsInfo_pubKey(void* coinsInfo_ptr) {
 //     virtual bool coinbase() const = 0;
 bool WOWNERO_CoinsInfo_coinbase(void* coinsInfo_ptr) {
     Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->internalOutputIndex();
+    return coinsInfo->coinbase();
 }
 //     virtual std::string description() const = 0;
 const char* WOWNERO_CoinsInfo_description(void* coinsInfo_ptr) {
@@ -1009,10 +1055,8 @@ uint64_t WOWNERO_Wallet_daemonBlockChainHeight_cached(void* wallet_ptr) {
     return daemonBlockChainHeight_cached;
 }
 
-bool daemonBlockChainHeight_cacheIsEnabled = false;
-
-
 void WOWNERO_Wallet_daemonBlockChainHeight_runThread(void* wallet_ptr, int seconds) {
+    std::cout << "DEPRECATED: this was used as an experiment, and will be removed in newer release. use ${COIN}_cw_* listener functions instead." << std::endl;
     while (true) {
         Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
         daemonBlockChainHeight_cached = wallet->daemonBlockChainHeight();
@@ -1020,6 +1064,7 @@ void WOWNERO_Wallet_daemonBlockChainHeight_runThread(void* wallet_ptr, int secon
         std::cout << "MONERO: TICK: WOWNERO_Wallet_daemonBlockChainHeight_runThread(" << seconds << "): " << daemonBlockChainHeight_cached << std::endl;
     }
 }
+
 uint64_t WOWNERO_Wallet_daemonBlockChainTargetHeight(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->daemonBlockChainTargetHeight();
@@ -1101,10 +1146,12 @@ const char* WOWNERO_Wallet_getPolyseed(void* wallet_ptr, const char* passphrase)
     return buffer;
 }
 //     static bool createPolyseed(std::string &seed_words, std::string &err, const std::string &language = "English");
-const char* WOWNERO_Wallet_createPolyseed() {
+const char* WOWNERO_Wallet_createPolyseed(const char* language) {
     std::string seed_words = "";
     std::string err;
-    Monero::Wallet::createPolyseed(seed_words, err);
+    Monero::Wallet::createPolyseed(seed_words, err, std::string(language));
+    std::cout << "WOWNERO_Wallet_createPolyseed(language: " << language << "):" << std::endl;
+    std::cout << "           err: "  << err << std::endl;
     std::string str = seed_words;
     const std::string::size_type size = str.size();
     char *buffer = new char[size + 1];   //we need extra char for NUL
@@ -1192,6 +1239,32 @@ Monero::PendingTransaction::Priority PendingTransaction_Priority_fromInt(int val
     }
 }
 
+void* WOWNERO_Wallet_createTransactionMultDest(void* wallet_ptr, const char* dst_addr_list, const char* dst_addr_list_separator, const char* payment_id,
+                                                bool amount_sweep_all, const char* amount_list, const char* amount_list_separator, uint32_t mixin_count,
+                                                int pendingTransactionPriority,
+                                                uint32_t subaddr_account,
+                                                const char* preferredInputs, const char* preferredInputs_separator) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    std::set<std::string> dst_addr_ = splitString(std::string(dst_addr_list), std::string(dst_addr_list_separator));
+    std::vector<std::string> dst_addr(dst_addr_.begin(), dst_addr_.end());
+
+    Monero::optional<std::vector<uint64_t>> optAmount;
+    if (!amount_sweep_all) {
+        optAmount = splitStringUint(std::string(amount_list), std::string(amount_list_separator));;
+    }
+    std::set<uint32_t> subaddr_indices = {};
+    std::set<std::string> preferred_inputs = splitString(std::string(preferredInputs), std::string(preferredInputs_separator));
+
+    return wallet->createTransactionMultDest(
+        dst_addr, std::string(payment_id),
+        optAmount, mixin_count,
+        PendingTransaction_Priority_fromInt(pendingTransactionPriority),
+        subaddr_account,
+        subaddr_indices,
+        preferred_inputs
+    );
+}
+
 void* WOWNERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, const char* payment_id,
                                                     uint64_t amount, uint32_t mixin_count,
                                                     int pendingTransactionPriority,
@@ -1209,7 +1282,6 @@ void* WOWNERO_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, c
                                         PendingTransaction_Priority_fromInt(pendingTransactionPriority),
                                         subaddr_account, subaddr_indices, preferred_inputs);
 }
-
 
 void* WOWNERO_Wallet_loadUnsignedTx(void* wallet_ptr, const char* fileName) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
@@ -1422,7 +1494,10 @@ const char* WOWNERO_Wallet_deviceShowAddress(void* wallet_ptr, uint32_t accountI
     return buffer;
 }
 //     virtual bool reconnectDevice() = 0;
-const char* WOWNERO_Wallet_reconnectDevice(void* wallet_ptr);
+bool WOWNERO_Wallet_reconnectDevice(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->reconnectDevice();
+};
 
 uint64_t WOWNERO_Wallet_getBytesReceived(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
@@ -1676,6 +1751,114 @@ bool WOWNERO_DEBUG_isPointerNull(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return (wallet != NULL);
 }
+
+// cake wallet world
+// TODO(mrcyjanek): https://api.dart.dev/stable/3.3.3/dart-ffi/Pointer/fromFunction.html
+//                  callback to dart should be possible..? I mean why not? But I need to
+//                  wait for other implementation (Go preferably) to see if this approach
+//                  will work as expected.
+struct WOWNERO_cw_WalletListener;
+struct WOWNERO_cw_WalletListener : Monero::WalletListener
+{
+    uint64_t m_height;
+    bool m_need_to_refresh;
+    bool m_new_transaction;
+
+    WOWNERO_cw_WalletListener()
+    {
+        m_height = 0;
+        m_need_to_refresh = false;
+        m_new_transaction = false;
+    }
+
+    void moneySpent(const std::string &txId, uint64_t amount)
+    {
+        m_new_transaction = true;
+    }
+
+    void moneyReceived(const std::string &txId, uint64_t amount)
+    {
+        m_new_transaction = true;
+    }
+
+    void unconfirmedMoneyReceived(const std::string &txId, uint64_t amount)
+    {
+        m_new_transaction = true;
+    }
+
+    void newBlock(uint64_t height)
+    {
+        m_height = height;
+    }
+
+    void updated()
+    {
+        m_new_transaction = true;
+    }
+
+    void refreshed()
+    {
+        m_need_to_refresh = true;
+    }
+
+
+    void cw_resetNeedToRefresh()
+    {
+        m_need_to_refresh = false;
+    }
+
+    bool cw_isNeedToRefresh()
+    {
+        return m_need_to_refresh;
+    }
+
+    bool cw_isNewTransactionExist()
+    {
+        return m_new_transaction;
+    }
+
+    void cw_resetIsNewTransactionExist()
+    {
+        m_new_transaction = false;
+    }
+
+    uint64_t cw_height()
+    {
+        return m_height;
+    }
+};
+
+void* WOWNERO_cw_getWalletListener(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    WOWNERO_cw_WalletListener *listener = new WOWNERO_cw_WalletListener();
+    wallet->setListener(listener);
+    return reinterpret_cast<void*>(listener);
+}
+
+void WOWNERO_cw_WalletListener_resetNeedToRefresh(void* cw_walletListener_ptr) {
+    WOWNERO_cw_WalletListener *listener = reinterpret_cast<WOWNERO_cw_WalletListener*>(cw_walletListener_ptr);
+    listener->cw_resetNeedToRefresh();
+}
+
+bool WOWNERO_cw_WalletListener_isNeedToRefresh(void* cw_walletListener_ptr) {
+    WOWNERO_cw_WalletListener *listener = reinterpret_cast<WOWNERO_cw_WalletListener*>(cw_walletListener_ptr);
+    return listener->cw_isNeedToRefresh();
+};
+
+bool WOWNERO_cw_WalletListener_isNewTransactionExist(void* cw_walletListener_ptr) {
+    WOWNERO_cw_WalletListener *listener = reinterpret_cast<WOWNERO_cw_WalletListener*>(cw_walletListener_ptr);
+    return listener->cw_isNeedToRefresh();
+};
+
+void WOWNERO_cw_WalletListener_resetIsNewTransactionExist(void* cw_walletListener_ptr) {
+    WOWNERO_cw_WalletListener *listener = reinterpret_cast<WOWNERO_cw_WalletListener*>(cw_walletListener_ptr);
+    listener->cw_isNeedToRefresh();
+};
+
+uint64_t WOWNERO_cw_WalletListener_height(void* cw_walletListener_ptr) {
+    WOWNERO_cw_WalletListener *listener = reinterpret_cast<WOWNERO_cw_WalletListener*>(cw_walletListener_ptr);
+    return listener->cw_isNeedToRefresh();
+};
 
 #ifdef __cplusplus
 }

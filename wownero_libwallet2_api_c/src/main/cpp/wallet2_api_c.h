@@ -649,7 +649,7 @@ extern ADDAPI void WOWNERO_Wallet_init3(void* wallet_ptr, const char* argv0, con
 //     virtual bool getPolyseed(std::string &seed, std::string &passphrase) const = 0;
 extern ADDAPI const char* WOWNERO_Wallet_getPolyseed(void* wallet_ptr, const char* passphrase);
 //     static bool createPolyseed(std::string &seed_words, std::string &err, const std::string &language = "English");
-extern ADDAPI const char* WOWNERO_Wallet_createPolyseed();
+extern ADDAPI const char* WOWNERO_Wallet_createPolyseed(const char* language);
 extern ADDAPI void WOWNERO_Wallet_startRefresh(void* wallet_ptr);
 //     virtual void pauseRefresh() = 0;
 extern ADDAPI void WOWNERO_Wallet_pauseRefresh(void* wallet_ptr);
@@ -691,6 +691,11 @@ extern ADDAPI const char* WOWNERO_Wallet_getMultisigInfo(void* wallet_ptr);
 //                                                    PendingTransaction::Priority = PendingTransaction::Priority_Low,
 //                                                    uint32_t subaddr_account = 0,
 //                                                    std::set<uint32_t> subaddr_indices = {}) = 0;
+extern ADDAPI void* WOWNERO_Wallet_createTransactionMultDest(void* wallet_ptr, const char* dst_addr_list, const char* dst_addr_list_separator, const char* payment_id,
+                                                bool amount_sweep_all, const char* amount_list, const char* amount_list_separator, uint32_t mixin_count,
+                                                int pendingTransactionPriority,
+                                                uint32_t subaddr_account,
+                                                const char* preferredInputs, const char* preferredInputs_separator);
 //     virtual PendingTransaction * createTransaction(const std::string &dst_addr, const std::string &payment_id,
 //                                                    optional<uint64_t> amount, uint32_t mixin_count,
 //                                                    PendingTransaction::Priority = PendingTransaction::Priority_Low,
@@ -807,7 +812,7 @@ extern ADDAPI uint64_t WOWNERO_Wallet_coldKeyImageSync(void* wallet_ptr, uint64_
 //     virtual void deviceShowAddress(uint32_t accountIndex, uint32_t addressIndex, const std::string &paymentId) = 0;
 extern ADDAPI const char* WOWNERO_Wallet_deviceShowAddress(void* wallet_ptr, uint32_t accountIndex, uint32_t addressIndex);
 //     virtual bool reconnectDevice() = 0;
-extern ADDAPI const char* WOWNERO_Wallet_reconnectDevice(void* wallet_ptr);
+extern ADDAPI bool WOWNERO_Wallet_reconnectDevice(void* wallet_ptr);
 //     virtual uint64_t getBytesReceived() = 0;
 extern ADDAPI uint64_t WOWNERO_Wallet_getBytesReceived(void* wallet_ptr);
 //     virtual uint64_t getBytesSent() = 0;
@@ -880,6 +885,13 @@ extern ADDAPI void* WOWNERO_WalletManager_createWalletFromKeys(void* wm_ptr, con
 //     {
 //         return createWalletFromKeys(path, language, testnet ? TESTNET : MAINNET, restoreHeight, addressString, viewKeyString, spendKeyString);
 //     }
+//     virtual Wallet * createDeterministicWalletFromSpendKey(const std::string &path,
+//                                                        const std::string &password,
+//                                                        const std::string &language,
+//                                                        NetworkType nettype,
+//                                                        uint64_t restoreHeight,
+//                                                        const std::string &spendKeyString,
+//                                                        uint64_t kdf_rounds = 1) = 0;
 extern ADDAPI void* WOWNERO_WalletManager_createDeterministicWalletFromSpendKey(void* wm_ptr, const char* path, const char* password,
                                                 const char* language, int nettype, uint64_t restoreHeight,
                                                 const char* spendKeyString, uint64_t kdf_rounds);
@@ -982,6 +994,15 @@ extern ADDAPI void* WOWNERO_DEBUG_test4(uint64_t x);
 extern ADDAPI const char* WOWNERO_DEBUG_test5();
 extern ADDAPI const char* WOWNERO_DEBUG_test5_std();
 extern ADDAPI bool WOWNERO_DEBUG_isPointerNull(void* wallet_ptr);
+
+// cake world
+
+extern ADDAPI void* WOWNERO_cw_getWalletListener(void* wallet_ptr);
+extern ADDAPI void WOWNERO_cw_WalletListener_resetNeedToRefresh(void* cw_walletListener_ptr);
+extern ADDAPI bool WOWNERO_cw_WalletListener_isNeedToRefresh(void* cw_walletListener_ptr);
+extern ADDAPI bool WOWNERO_cw_WalletListener_isNewTransactionExist(void* cw_walletListener_ptr);
+extern ADDAPI void WOWNERO_cw_WalletListener_resetIsNewTransactionExist(void* cw_walletListener_ptr);
+extern ADDAPI uint64_t WOWNERO_cw_WalletListener_height(void* cw_walletListener_ptr);
 
 #ifdef __cplusplus
 }
