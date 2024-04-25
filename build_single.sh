@@ -277,6 +277,10 @@ popd
 if [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" ]];
 then
     ${HOST_ABI}-ranlib $PWD/$repo/contrib/depends/${HOST_ABI}/lib/libpolyseed.a
+    if [[ "$repo" == "wownero" ]];
+    then
+        ${HOST_ABI}-ranlib $PWD/$repo/contrib/depends/${HOST_ABI}/lib/libwownero-seed.a
+    fi
 fi
 
 pushd ${repo}_libwallet2_api_c

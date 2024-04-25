@@ -1869,7 +1869,40 @@ uint64_t WOWNERO_cw_WalletListener_height(void* cw_walletListener_ptr) {
 // Code is borrowed from
 // https://github.com/cypherstack/flutter_libmonero/blob/2c684cedba6c3d9353c7ea748cadb5a246008027/cw_wownero/ios/Classes/wownero_api.cpp#L240
 // this code slightly goes against the way of being simple
-void* WOWNERO_deprecated_restore14WordSeed(char *path, char *password, char *language, int32_t networkType, char *error) {
+void* WOWNERO_deprecated_restore14WordSeed(char *path, char *password, char *seed, int32_t networkType) {
+    Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
+    Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
+
+    // 14 word seeds /*
+    wownero_seed wow_seed(seed, "wownero");
+
+    std::stringstream seed_stream;
+    seed_stream << wow_seed;
+    std::string seed_str = seed_stream.str();
+
+    std::stringstream key_stream;
+    key_stream << wow_seed.key();
+    std::string spendKey = key_stream.str();
+
+    uint64_t restoreHeight = wow_seed.blockheight();
+
+    Monero::Wallet *wallet = walletManager->createDeterministicWalletFromSpendKey(
+        std::string(path),
+        std::string(password),
+        "English",
+        static_cast<Monero::NetworkType>(_networkType),
+        (uint64_t)restoreHeight,
+        spendKey,
+        1);
+    wallet->setCacheAttribute("cake.seed", seed_str);
+}
+
+uint64_t WOWNERO_deprecated_14WordSeedHeight(char *seed) {
+    wownero_seed wow_seed(seed, "wownero");
+    return wow_seed.blockheight();
+}
+
+void* WOWNERO_deprecated_create14WordSeed(char *path, char *password, char *language, int32_t networkType) {
     Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
     Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
 
@@ -1898,7 +1931,6 @@ void* WOWNERO_deprecated_restore14WordSeed(char *path, char *password, char *lan
     wallet->setCacheAttribute("cake.seed", seed);
     return reinterpret_cast<void*>(wallet);
 }
-
 
 #ifdef __cplusplus
 }

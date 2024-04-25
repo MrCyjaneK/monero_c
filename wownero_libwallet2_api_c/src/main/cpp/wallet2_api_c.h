@@ -1006,8 +1006,9 @@ extern ADDAPI uint64_t WOWNERO_cw_WalletListener_height(void* cw_walletListener_
 
 // legacy
 
-extern ADDAPI void* WOWNERO_deprecated_restore14WordSeed(char *path, char *password, char *language, int32_t networkType, char *error);
-
+extern ADDAPI void* WOWNERO_deprecated_restore14WordSeed(char *path, char *password, char *language, int32_t networkType);
+extern ADDAPI void* WOWNERO_deprecated_create14WordSeed(char *path, char *password, char *language, int32_t networkType);
+extern ADDAPI uint64_t WOWNERO_deprecated_14WordSeedHeight(char *seed);
 #ifdef __cplusplus
 }
 #endif
