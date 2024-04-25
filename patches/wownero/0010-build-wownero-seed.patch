@@ -1,4 +1,4 @@
-From 7dc711da033d48303fb4ef8e5c49b40614726db0 Mon Sep 17 00:00:00 2001
+From d1a4fae14cf24b9b6644b840d9bfdf3360ef0ff3 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 25 Apr 2024 10:06:04 +0200
 Subject: [PATCH] build wownero-seed
@@ -66,7 +66,7 @@ index 8783d4955..3d513c5a2 100644
  ifneq ($(GITIAN),1)
 diff --git a/contrib/depends/packages/wownero_seed.mk b/contrib/depends/packages/wownero_seed.mk
 new file mode 100644
-index 000000000..cc6f09e68
+index 000000000..703e34a46
 --- /dev/null
 +++ b/contrib/depends/packages/wownero_seed.mk
 @@ -0,0 +1,31 @@
@@ -87,7 +87,7 @@ index 000000000..cc6f09e68
 +endef
 +
 +define $(package)_config_cmds
-+    CC="$($(package)_cc)" CXX="$($(package)_cxx)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" .
++    CC="$($(package)_cc)" CXX="$($(package)_cxx)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DCMAKE_POSITION_INDEPENDENT_CODE=ON .
 +endef
 +
 +define $(package)_set_vars
