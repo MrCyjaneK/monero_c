@@ -1004,6 +1004,10 @@ extern ADDAPI bool WOWNERO_cw_WalletListener_isNewTransactionExist(void* cw_wall
 extern ADDAPI void WOWNERO_cw_WalletListener_resetIsNewTransactionExist(void* cw_walletListener_ptr);
 extern ADDAPI uint64_t WOWNERO_cw_WalletListener_height(void* cw_walletListener_ptr);
 
+// legacy
+
+extern ADDAPI void* WOWNERO_deprecated_restore14WordSeed(char *path, char *password, char *language, int32_t networkType, char *error);
+
 #ifdef __cplusplus
 }
 #endif

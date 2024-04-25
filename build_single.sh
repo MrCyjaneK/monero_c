@@ -131,6 +131,15 @@ pushd $repo/contrib/depends
                 CC="${CC}" CXX="${CXX}" cmake ../..
                 make $NPROC
             popd
+            WOWNEROSEED_DIR=../../../external/polyseed/build/${HOST_ABI}
+            rm -rf ${WOWNEROSEED_DIR}
+            mkdir -p ${WOWNEROSEED_DIR}
+            pushd ${WOWNEROSEED_DIR}
+                git reset --hard
+                patch -p1 < ../wownero-seed-0001-fix-duplicate-symbol-error.patch
+                CC="${CC}" CXX="${CXX}" cmake ../..
+                make $NPROC
+            popd
             MACOS_LIBS_DIR="${PWD}/host-apple-darwin"
             rm -rf ${MACOS_LIBS_DIR}
             mkdir -p ${MACOS_LIBS_DIR}/lib
@@ -150,6 +159,7 @@ pushd $repo/contrib/depends
             verbose_copy "${HOMEBREW_PREFIX}/lib/libssl.a" ${MACOS_LIBS_DIR}/lib/libssl.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libcrypto.a" ${MACOS_LIBS_DIR}/lib/libcrypto.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libsodium.a" ${MACOS_LIBS_DIR}/lib/libsodium.a
+            verbose_copy "${HOMEBREW_PREFIX}/lib/libwownero-seed.a" ${MACOS_LIBS_DIR}/lib/libwownero-seed.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libevent.a" ${MACOS_LIBS_DIR}/lib/libevent.a
         ;;
         "host-apple-ios")
@@ -166,6 +176,7 @@ pushd $repo/contrib/depends
                 ./build_sodium.sh
                 ./build_zmq.sh
                 ./build_unbound.sh
+                ./build_wownero_seed.sh
             popd
             POLYSEED_DIR=../../../external/polyseed/build/${HOST_ABI}
             rm -rf ${POLYSEED_DIR}
@@ -193,6 +204,7 @@ pushd $repo/contrib/depends
             verbose_copy "${IOS_PREFIX}/lib/libssl.a" ${IOS_LIBS_DIR}/lib/libssl.a
             verbose_copy "${IOS_PREFIX}/lib/libcrypto.a" ${IOS_LIBS_DIR}/lib/libcrypto.a
             verbose_copy "${IOS_PREFIX}/lib/libsodium.a" ${IOS_LIBS_DIR}/lib/libsodium.a
+            verbose_copy "${IOS_PREFIX}/lib/libwownero-seed.a" ${IOS_LIBS_DIR}/lib/libwownero-seed.a
             # verbose_copy "${IOS_PREFIX}/lib/libevent.a" ${IOS_LIBS_DIR}/lib/libevent.a
         ;;
         *)

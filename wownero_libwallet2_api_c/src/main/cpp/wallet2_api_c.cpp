@@ -5,7 +5,7 @@
 #include <cstring>
 #include <thread>
 #include "../../../../wownero/src/wallet/api/wallet2_api.h"
-
+#include "../../../../external/wownero-seed/include/wownero_seed/wownero_seed.hpp"
 
 #ifdef __cplusplus
 extern "C"
@@ -1861,6 +1861,44 @@ uint64_t WOWNERO_cw_WalletListener_height(void* cw_walletListener_ptr) {
     WOWNERO_cw_WalletListener *listener = reinterpret_cast<WOWNERO_cw_WalletListener*>(cw_walletListener_ptr);
     return listener->cw_isNeedToRefresh();
 };
+
+// 14-word polyseed compat
+// wow was really quick to implement polyseed support (aka wownero-seed), which
+// results in this maintenance burden we have to go through.
+//
+// Code is borrowed from
+// https://github.com/cypherstack/flutter_libmonero/blob/2c684cedba6c3d9353c7ea748cadb5a246008027/cw_wownero/ios/Classes/wownero_api.cpp#L240
+// this code slightly goes against the way of being simple
+void* WOWNERO_deprecated_restore14WordSeed(char *path, char *password, char *language, int32_t networkType, char *error) {
+    Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
+    Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
+
+    // 14 word seeds /*
+    time_t time = std::time(nullptr);
+    wownero_seed wow_seed(time, "wownero");
+
+    std::stringstream seed_stream;
+    seed_stream << wow_seed;
+    std::string seed = seed_stream.str();
+
+    std::stringstream key_stream;
+    key_stream << wow_seed.key();
+    std::string spendKey = key_stream.str();
+
+    uint64_t restoreHeight = wow_seed.blockheight();
+
+    Monero::Wallet *wallet = walletManager->createDeterministicWalletFromSpendKey(
+        std::string(path),
+        std::string(password),
+        std::string(language),
+        static_cast<Monero::NetworkType>(_networkType),
+        (uint64_t)restoreHeight,
+        spendKey,
+        1);
+    wallet->setCacheAttribute("cake.seed", seed);
+    return reinterpret_cast<void*>(wallet);
+}
+
 
 #ifdef __cplusplus
 }

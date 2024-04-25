@@ -135,6 +135,17 @@ if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-m
 endif()
 
 #############
+# Wownero Seed
+#############
+
+if (${MONERO_FLAVOR} STREQUAL "wownero")
+    set(EXTRA_LIBS_WOWNEROSEED wownero-seed)
+    add_library(wownero-seed STATIC IMPORTED)
+    set_target_properties(wownero-seed PROPERTIES IMPORTED_LOCATION
+        ${EXTERNAL_LIBS_DIR}/lib/libwownero-seed.a)
+endif()
+
+#############
 # Utf8proc
 #############
 
@@ -369,6 +380,7 @@ target_link_libraries(  wallet2_api_c
                         polyseed
                         polyseed-wrapper
                         ${EXTRA_LIBS_POLYSEED}
+                        ${EXTRA_LIBS_WOWNEROSEED}
                         utf8proc
 
                         ssl
