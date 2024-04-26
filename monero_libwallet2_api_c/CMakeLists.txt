@@ -287,7 +287,8 @@ include_directories( ${EXTERNAL_LIBS_DIR}/include )
 message(STATUS EXTERNAL_LIBS_DIR :  ${EXTERNAL_LIBS_DIR})
 
 if(${HOST_ABI} STREQUAL "x86_64-linux-gnu" OR
-   ${HOST_ABI} STREQUAL "x86_64-apple-darwin11")
+   ${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR
+   ${HOST_ABI} STREQUAL "x86_64-linux-android")
     set(EXTRA_LIBS "wallet-crypto")
 else()
     set(EXTRA_LIBS "")

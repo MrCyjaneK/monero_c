@@ -1,4 +1,4 @@
-From d1a4fae14cf24b9b6644b840d9bfdf3360ef0ff3 Mon Sep 17 00:00:00 2001
+From ffa7b0f65d40e941c05940e70fe278493c48d594 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 25 Apr 2024 10:06:04 +0200
 Subject: [PATCH] build wownero-seed
@@ -8,9 +8,9 @@ Subject: [PATCH] build wownero-seed
  contrib/depends/hosts/darwin.mk               |   1 +
  contrib/depends/hosts/mingw32.mk              |   3 +
  contrib/depends/packages/packages.mk          |   2 +-
- contrib/depends/packages/wownero_seed.mk      |  31 ++
+ contrib/depends/packages/wownero_seed.mk      |  35 ++
  .../0001-fix-duplicate-symbol-error.patch     | 498 ++++++++++++++++++
- 6 files changed, 536 insertions(+), 2 deletions(-)
+ 6 files changed, 540 insertions(+), 2 deletions(-)
  create mode 100644 contrib/depends/packages/wownero_seed.mk
  create mode 100644 contrib/depends/patches/wownero_seed/0001-fix-duplicate-symbol-error.patch
 
@@ -66,10 +66,10 @@ index 8783d4955..3d513c5a2 100644
  ifneq ($(GITIAN),1)
 diff --git a/contrib/depends/packages/wownero_seed.mk b/contrib/depends/packages/wownero_seed.mk
 new file mode 100644
-index 000000000..703e34a46
+index 000000000..b376f80c5
 --- /dev/null
 +++ b/contrib/depends/packages/wownero_seed.mk
-@@ -0,0 +1,31 @@
+@@ -0,0 +1,35 @@
 +package=wownero_seed
 +$(package)_version=0.3.0
 +$(package)_download_path=https://github.com/MrCyjaneK/wownero-seed/archive/
@@ -82,17 +82,21 @@ index 000000000..703e34a46
 +    patch -p1 < $($(package)_patch_dir)/0001-fix-duplicate-symbol-error.patch
 +endef
 +
-+define $(package)_darwin_config_cmds
-+    CC="$($(package)_cc)" CXX="$($(package)_cxx)" cmake -DCMAKE_RANLIB="$($(package)_ranlib)" -DCMAKE_AR="$($(package)_ar)" -DCMAKE_INSTALL_PREFIX="$(host_prefix)" .
-+endef
 +
-+define $(package)_config_cmds
-+    CC="$($(package)_cc)" CXX="$($(package)_cxx)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DCMAKE_POSITION_INDEPENDENT_CODE=ON .
-+endef
++ifeq ($(host_os),darwin)
++    define $(package)_config_cmds
++        CC="$($(package)_cc)" CXX="$($(package)_cxx)" cmake -DCMAKE_RANLIB="$($(package)_ranlib)" -DCMAKE_AR="$($(package)_ar)" -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DCMAKE_POSITION_INDEPENDENT_CODE=ON .
++    endef
++else
++    define $(package)_config_cmds
++        CC="$($(package)_cc)" CXX="$($(package)_cxx)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DCMAKE_POSITION_INDEPENDENT_CODE=ON .
++    endef
++endif
 +
 +define $(package)_set_vars
 +  $(package)_build_opts=CC="$($(package)_cc)" CXX="$($(package)_cxx)"
 +endef
++
 +
 +define $(package)_build_cmds
 +    CC="$($(package)_cc)" CXX="$($(package)_cxx)" $(MAKE) VERBOSE=1
