@@ -1220,6 +1220,13 @@ void MONERO_Wallet_setSubaddressLabel(void* wallet_ptr, uint32_t accountIndex, u
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->setSubaddressLabel(accountIndex, addressIndex, std::string(label));
 }
+
+void* MONERO_Wallet_multisig(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    Monero::MultisigState *mstate_ptr = new Monero::MultisigState(wallet->multisig());
+    return reinterpret_cast<void*>(mstate_ptr);
+}
+
 const char* MONERO_Wallet_getMultisigInfo(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->getMultisigInfo();
@@ -1228,6 +1235,50 @@ const char* MONERO_Wallet_getMultisigInfo(void* wallet_ptr) {
     memcpy(buffer, str.c_str(), size + 1);
     return buffer;
 }
+
+const char* MONERO_Wallet_makeMultisig(void* wallet_ptr, const char* info, const char* info_separator, uint32_t threshold) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    std::string str = wallet->makeMultisig(splitStringVector(std::string(info), std::string(info_separator)), threshold);
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
+
+const char* MONERO_Wallet_exchangeMultisigKeys(void* wallet_ptr, const char* info, const char* info_separator, bool force_update_use_with_caution) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    std::string str = wallet->exchangeMultisigKeys(splitStringVector(std::string(info), std::string(info_separator)), force_update_use_with_caution);
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
+
+const char* MONERO_Wallet_exportMultisigImages(void* wallet_ptr, const char* separator) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    std::string str; 
+    wallet->exportMultisigImages(str);
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
+
+size_t MONERO_Wallet_importMultisigImages(void* wallet_ptr, const char* info, const char* info_separator) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->importMultisigImages(splitStringVector(std::string(info), std::string(info_separator)));
+}
+
+size_t MONERO_Wallet_hasMultisigPartialKeyImages(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->hasMultisigPartialKeyImages();
+}
+
+void* MONERO_Wallet_restoreMultisigTransaction(void* wallet_ptr, const char* signData) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return reinterpret_cast<void*>(wallet->restoreMultisigTransaction(std::string(signData)));
+}
+
 
 Monero::PendingTransaction::Priority PendingTransaction_Priority_fromInt(int value) {
     switch(value) {
@@ -1732,8 +1783,8 @@ uint64_t MONERO_DEBUG_test3(uint64_t x) {
 }
 
 void* MONERO_DEBUG_test4(uint64_t x) {
-    int y = x;
-    return reinterpret_cast<void*>(&y);
+    int *y = new int(x);
+    return reinterpret_cast<void*>(y);
 }
 
 const char* MONERO_DEBUG_test5() {

@@ -169,6 +169,19 @@ std::set<std::string> splitString(const std::string& str, const std::string& del
     return tokens;
 }
 
+std::vector<std::string> splitStringVector(const std::string& str, const std::string& delim) {
+    std::vector<std::string> tokens;
+    if (str.empty()) return tokens;
+    size_t pos = 0;
+    std::string content = str;  // Copy of str so we can safely erase content
+    while ((pos = content.find(delim)) != std::string::npos) {
+        tokens.push_back(content.substr(0, pos));
+        content.erase(0, pos + delim.length());
+    }
+    tokens.push_back(content);  // Inserting the last token
+    return tokens;
+}
+
 std::vector<uint64_t> splitStringUint(const std::string& str, const std::string& delim) {
     std::vector<uint64_t> tokens;
     if (str.empty()) return tokens;

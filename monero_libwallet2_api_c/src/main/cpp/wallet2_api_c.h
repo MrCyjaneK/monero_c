@@ -678,14 +678,21 @@ extern ADDAPI const char* MONERO_Wallet_getSubaddressLabel(void* wallet_ptr, uin
 //     virtual void setSubaddressLabel(uint32_t accountIndex, uint32_t addressIndex, const std::string &label) = 0;
 extern ADDAPI void MONERO_Wallet_setSubaddressLabel(void* wallet_ptr, uint32_t accountIndex, uint32_t addressIndex, const char* label);
 //     virtual MultisigState multisig() const = 0;
+extern ADDAPI void* MONERO_Wallet_multisig(void* wallet_ptr);
 //     virtual std::string getMultisigInfo() const = 0;
 extern ADDAPI const char* MONERO_Wallet_getMultisigInfo(void* wallet_ptr);
 //     virtual std::string makeMultisig(const std::vector<std::string>& info, uint32_t threshold) = 0;
+extern ADDAPI const char* MONERO_Wallet_makeMultisig(void* wallet_ptr, const char* info, const char* info_separator, uint32_t threshold);
 //     virtual std::string exchangeMultisigKeys(const std::vector<std::string> &info, const bool force_update_use_with_caution) = 0;
+extern ADDAPI const char* MONERO_Wallet_exchangeMultisigKeys(void* wallet_ptr, const char* info, const char* info_separator, bool force_update_use_with_caution);
 //     virtual bool exportMultisigImages(std::string& images) = 0;
+extern ADDAPI const char* MONERO_Wallet_exportMultisigImages(void* wallet_ptr, const char* separator);
 //     virtual size_t importMultisigImages(const std::vector<std::string>& images) = 0;
+extern ADDAPI size_t MONERO_Wallet_importMultisigImages(void* wallet_ptr, const char* info, const char* info_separator);
 //     virtual bool hasMultisigPartialKeyImages() const = 0;
+extern ADDAPI size_t MONERO_Wallet_hasMultisigPartialKeyImages(void* wallet_ptr);
 //     virtual PendingTransaction*  restoreMultisigTransaction(const std::string& signData) = 0;
+extern ADDAPI void* MONERO_Wallet_restoreMultisigTransaction(void* wallet_ptr, const char* signData);
 //     virtual PendingTransaction * createTransactionMultDest(const std::vector<std::string> &dst_addr, const std::string &payment_id,
 //                                                    optional<std::vector<uint64_t>> amount, uint32_t mixin_count,
 //                                                    PendingTransaction::Priority = PendingTransaction::Priority_Low,

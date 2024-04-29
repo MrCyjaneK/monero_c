@@ -10,3 +10,4 @@ const char* vectorToString(const std::vector<std::set<uint32_t>>& vec, const std
 const char* vectorToString(const std::set<uint32_t>& intSet, const std::string separator);
 std::set<std::string> splitString(const std::string& str, const std::string& delim);
 std::vector<uint64_t> splitStringUint(const std::string& str, const std::string& delim);
+std::vector<std::string> splitStringVector(const std::string& str, const std::string& delim);
