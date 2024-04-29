@@ -131,15 +131,20 @@ pushd $repo/contrib/depends
                 CC="${CC}" CXX="${CXX}" cmake ../..
                 make $NPROC
             popd
-            WOWNEROSEED_DIR=../../../external/polyseed/build/${HOST_ABI}
-            rm -rf ${WOWNEROSEED_DIR}
-            mkdir -p ${WOWNEROSEED_DIR}
-            pushd ${WOWNEROSEED_DIR}
-                git reset --hard
-                patch -p1 < ../wownero-seed-0001-fix-duplicate-symbol-error.patch
-                CC="${CC}" CXX="${CXX}" cmake ../..
-                make $NPROC
-            popd
+            if [[ "$repo" == "wownero" ]];
+            then
+                WOWNEROSEED_DIR=../../../external/wownero-seed/build/${HOST_ABI}
+                rm -rf ${WOWNEROSEED_DIR}
+                mkdir -p ${WOWNEROSEED_DIR}
+                pushd ${WOWNEROSEED_DIR}
+                    pushd ../..
+                        git reset --hard
+                        patch -p1 < ../wownero-seed-0001-fix-duplicate-symbol-error.patch
+                    popd
+                    CC="${CC}" CXX="${CXX}" cmake ../..
+                    make $NPROC
+                popd
+            fi
             MACOS_LIBS_DIR="${PWD}/host-apple-darwin"
             rm -rf ${MACOS_LIBS_DIR}
             mkdir -p ${MACOS_LIBS_DIR}/lib
@@ -159,7 +164,10 @@ pushd $repo/contrib/depends
             verbose_copy "${HOMEBREW_PREFIX}/lib/libssl.a" ${MACOS_LIBS_DIR}/lib/libssl.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libcrypto.a" ${MACOS_LIBS_DIR}/lib/libcrypto.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libsodium.a" ${MACOS_LIBS_DIR}/lib/libsodium.a
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libwownero-seed.a" ${MACOS_LIBS_DIR}/lib/libwownero-seed.a
+            if [[ "$repo" == "wownero" ]];
+            then
+                verbose_copy "${WOWNEROSEED_DIR}/libwownero-seed.a" ${MACOS_LIBS_DIR}/lib/libwownero-seed.a
+            fi
             verbose_copy "${HOMEBREW_PREFIX}/lib/libevent.a" ${MACOS_LIBS_DIR}/lib/libevent.a
         ;;
         "host-apple-ios")
@@ -185,6 +193,20 @@ pushd $repo/contrib/depends
                 CC="${IOS_CC}" CXX="${IOS_CXX}" cmake  -DCMAKE_TOOLCHAIN_FILE=../../../ios-cmake/ios.toolchain.cmake -DPLATFORM=OS64 ../..
                 make $NPROC
             popd
+            if [[ "$repo" == "wownero" ]];
+            then
+                WOWNEROSEED_DIR=../../../external/wownero-seed/build/${HOST_ABI}
+                rm -rf ${WOWNEROSEED_DIR}
+                mkdir -p ${WOWNEROSEED_DIR}
+                pushd ${WOWNEROSEED_DIR}
+                    pushd ../..
+                        git reset --hard
+                        patch -p1 < ../wownero-seed-0001-fix-duplicate-symbol-error.patch
+                    popd
+                    CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=../../../ios-cmake/ios.toolchain.cmake -DPLATFORM=OS64 ../..
+                    make $NPROC
+                popd
+            fi
             IOS_LIBS_DIR="${PWD}/host-apple-ios"
             rm -rf ${IOS_LIBS_DIR}
             mkdir -p ${IOS_LIBS_DIR}/lib
@@ -204,7 +226,10 @@ pushd $repo/contrib/depends
             verbose_copy "${IOS_PREFIX}/lib/libssl.a" ${IOS_LIBS_DIR}/lib/libssl.a
             verbose_copy "${IOS_PREFIX}/lib/libcrypto.a" ${IOS_LIBS_DIR}/lib/libcrypto.a
             verbose_copy "${IOS_PREFIX}/lib/libsodium.a" ${IOS_LIBS_DIR}/lib/libsodium.a
-            verbose_copy "${IOS_PREFIX}/lib/libwownero-seed.a" ${IOS_LIBS_DIR}/lib/libwownero-seed.a
+            if [[ "$repo" == "wownero" ]];
+            then
+                verbose_copy "${WOWNEROSEED_DIR}/libwownero-seed.a" ${IOS_LIBS_DIR}/lib/libwownero-seed.a
+            fi
             # verbose_copy "${IOS_PREFIX}/lib/libevent.a" ${IOS_LIBS_DIR}/lib/libevent.a
         ;;
         *)
