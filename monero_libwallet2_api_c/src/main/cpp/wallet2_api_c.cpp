@@ -1911,6 +1911,12 @@ uint64_t MONERO_cw_WalletListener_height(void* cw_walletListener_ptr) {
     return listener->cw_isNeedToRefresh();
 };
 
+// i hate windows
+
+void MONERO_free(void* ptr) {
+    free(ptr);
+}
+
 #ifdef __cplusplus
 }
 #endif

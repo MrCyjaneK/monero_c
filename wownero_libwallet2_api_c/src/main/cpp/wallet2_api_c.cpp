@@ -1932,6 +1932,12 @@ void* WOWNERO_deprecated_create14WordSeed(char *path, char *password, char *lang
     return reinterpret_cast<void*>(wallet);
 }
 
+// i hate windows
+
+void WOWNERO_free(void* ptr) {
+    free(ptr);
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -276,3 +276,4 @@ _MONERO_cw_WalletListener_height
 _MONERO_WalletManager_createDeterministicWalletFromSpendKey
 _MONERO_PendingTransaction_txKey
 _MONERO_PendingTransaction_hex
+_MONERO_free

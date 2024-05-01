@@ -1011,6 +1011,8 @@ extern ADDAPI bool MONERO_cw_WalletListener_isNewTransactionExist(void* cw_walle
 extern ADDAPI void MONERO_cw_WalletListener_resetIsNewTransactionExist(void* cw_walletListener_ptr);
 extern ADDAPI uint64_t MONERO_cw_WalletListener_height(void* cw_walletListener_ptr);
 
+extern ADDAPI void MONERO_free(void* ptr);
+
 #ifdef __cplusplus
 }
 #endif
