@@ -1895,6 +1895,7 @@ void* WOWNERO_deprecated_restore14WordSeed(char *path, char *password, char *see
         spendKey,
         1);
     wallet->setCacheAttribute("cake.seed", seed_str);
+    return reinterpret_cast<void*>(wallet);
 }
 
 uint64_t WOWNERO_deprecated_14WordSeedHeight(char *seed) {
