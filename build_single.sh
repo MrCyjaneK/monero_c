@@ -374,4 +374,11 @@ pushd release/$repo
         rm ${HOST_ABI}_libgcc_s_sjlj-1.dll.xz || true
         xz -e ${HOST_ABI}_libgcc_s_sjlj-1.dll
     fi
+    if [[ "$HOST_ABI" == "x86_64-linux-android" || "$HOST_ABI" == "i686-linux-android" || "$HOST_ABI" == "aarch64-linux-android" || "$HOST_ABI" == "arm-linux-androideabi" ]];
+    then
+        cp ../../monero/contrib/depends/$HOST_ABI/native/$HOST_ABI/lib*/libc++_shared.so ${HOST_ABI}_libc++_shared.so || \
+            cp ../../monero/contrib/depends/$HOST_ABI/native/$HOST_ABI/lib/armv7-a/libc++_shared.so ${HOST_ABI}_libc++_shared.so
+        rm ${HOST_ABI}_libc++_shared.so.xz || true
+        xz -e ${HOST_ABI}_libc++_shared.so
+    fi
 popd
