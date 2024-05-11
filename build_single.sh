@@ -149,6 +149,10 @@ pushd $repo/contrib/depends
             rm -rf ${MACOS_LIBS_DIR}
             mkdir -p ${MACOS_LIBS_DIR}/lib
             export HOMEBREW_PREFIX=/opt/homebrew
+            if [[ ! -d "$HOMEBREW_PREFIX" ]];
+            then
+                export HOMEBREW_PREFIX=/usr/local
+            fi
             verbose_copy "${HOMEBREW_PREFIX}/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_chrono-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_chrono-mt.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_locale-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_locale-mt.a
@@ -184,7 +188,10 @@ pushd $repo/contrib/depends
                 ./build_sodium.sh
                 ./build_zmq.sh
                 ./build_unbound.sh
-                ./build_wownero_seed.sh
+                if [[ "$repo" == "wownero" ]];
+                then
+                    ./build_wownero_seed.sh
+                fi
             popd
             POLYSEED_DIR=../../../external/polyseed/build/${HOST_ABI}
             rm -rf ${POLYSEED_DIR}
