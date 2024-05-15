@@ -18,6 +18,14 @@ elseif(${HOST_ABI} STREQUAL "host-apple-ios")
     set(CMAKE_SYSTEM_NAME iOS)
 endif()
 
+if (${HOST_ABI} STREQUAL "host-apple-darwin")
+    EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
+    if (NOT ${ARCHITECTURE} STREQUAL arm64)
+        set(CMAKE_OSX_ARCHITECTURES x86_64)
+    endif()
+endif()
+
+
 add_library( wallet2_api_c
              SHARED
              src/main/cpp/helpers.cpp
