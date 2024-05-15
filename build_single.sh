@@ -99,7 +99,7 @@ case "$HOST_ABI" in
         export CC="clang -stdlib=libc++ -target arm64-apple-darwin11 -mmacosx-version-min=10.8 --sysroot $WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin/aarch64-apple-darwin11-"
         export CXX="clang++ -stdlib=libc++ -target arm64-apple-darwin11 -mmacosx-version-min=10.8 --sysroot $WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin/aarch64-apple-darwin11-"
     ;;
-    "host-apple-darwin")
+    "host-apple-darwin"|"x86_64-host-apple-darwin"|"aarch64-host-apple-darwin")
         export CC="clang"
         export CXX="clang++"
     ;;
@@ -117,7 +117,7 @@ pushd $repo/contrib/depends
         "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "arm-linux-androideabi" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11")
             CC=gcc CXX=g++ make HOST="$HOST_ABI" "$NPROC"
         ;;
-        "host-apple-darwin")
+        "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin")
             echo "===================================="
             echo "=                                  ="
             echo "=  CHECK README.md IF BUILD FAILS  ="
@@ -145,7 +145,7 @@ pushd $repo/contrib/depends
                     make $NPROC
                 popd
             fi
-            MACOS_LIBS_DIR="${PWD}/host-apple-darwin"
+            MACOS_LIBS_DIR="${PWD}/${HOST_ABI}"
             rm -rf ${MACOS_LIBS_DIR}
             mkdir -p ${MACOS_LIBS_DIR}/lib
             if [[ "x$HOMEBREW_PREFIX" == "x" ]];
@@ -288,7 +288,7 @@ pushd $repo/build/${HOST_ABI}
         "aarch64-apple-darwin11")
             env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D ARCH="armv8-a" -D BUILD_64=ON -D CMAKE_BUILD_TYPE=$buildType -D BUILD_TAG="mac-armv8" ../..
         ;;
-        "host-apple-darwin")
+        "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin")
             env CC="${CC}" CXX="${CXX}" cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D BUILD_64=ON -D CMAKE_BUILD_TYPE=$buildType ../..
         ;;
         "host-apple-ios")
@@ -323,7 +323,7 @@ pushd ${repo}_libwallet2_api_c
     mkdir -p build/${HOST_ABI} -p
     pushd build/${HOST_ABI}
         case $HOST_ABI in
-            "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "arm-linux-androideabi" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11" | "host-apple-darwin")
+            "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "arm-linux-androideabi" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11" | "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin")
                 env CC="${CC}" CXX="${CXX}" cmake -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
                 CC="${CC}" CXX="${CXX}" make $NPROC
             ;;
@@ -349,7 +349,7 @@ pushd release/$repo
         cp ../../$repo/build/${HOST_ABI}/external/polyseed/libpolyseed.${APPENDIX} ${HOST_ABI}_libpolyseed.${APPENDIX}
         rm ${HOST_ABI}_libpolyseed.${APPENDIX}.xz || true
         xz -e ${HOST_ABI}_libpolyseed.${APPENDIX}
-    elif [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" || "${HOST_ABI}" == "host-apple-darwin" || "${HOST_ABI}" == "host-apple-ios" ]];
+    elif [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" || "${HOST_ABI}" == "host-apple-darwin" || "${HOST_ABI}" == "x86_64-host-apple-darwin" || "${HOST_ABI}" == "aarch64-host-apple-darwin" || "${HOST_ABI}" == "host-apple-ios" ]];
     then
         APPENDIX="${APPENDIX}dylib"
     else

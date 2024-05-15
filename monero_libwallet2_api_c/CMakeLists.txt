@@ -18,7 +18,9 @@ elseif(${HOST_ABI} STREQUAL "host-apple-ios")
     set(CMAKE_SYSTEM_NAME iOS)
 endif()
 
-if (${HOST_ABI} STREQUAL "host-apple-darwin")
+if (${HOST_ABI} STREQUAL "host-apple-darwin" OR 
+    ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR
+    ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin")
     EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
     if (NOT ${ARCHITECTURE} STREQUAL arm64)
         set(CMAKE_OSX_ARCHITECTURES x86_64)
@@ -302,7 +304,9 @@ else()
     set(EXTRA_LIBS "")
 endif()
 
-if (${HOST_ABI} STREQUAL "host-apple-darwin")
+if (${HOST_ABI} STREQUAL "host-apple-darwin" OR
+    ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR
+    ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin")
     EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
     if (NOT ${ARCHITECTURE} STREQUAL arm64)
         set(EXTRA_LIBS "wallet-crypto")
@@ -312,7 +316,9 @@ endif()
 if (${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11")
   set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" hidapi)
 #   set_target_properties(wallet2_api_c PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
-elseif(${HOST_ABI} STREQUAL "host-apple-darwin")
+elseif(${HOST_ABI} STREQUAL "host-apple-darwin" OR
+       ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR
+       ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin")
     set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" apple_nghttp2 event)
 elseif(${HOST_ABI} STREQUAL "host-apple-ios")
   set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" iconv )
@@ -326,7 +332,7 @@ if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-m
     set(EXTRA_LIBS_WINDOWS ssp wsock32 ws2_32 iconv-win iphlpapi crypt32 hidapi)
 endif()
 
-if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" OR ${HOST_ABI} STREQUAL "host-apple-darwin" OR ${HOST_ABI} STREQUAL "host-apple-ios")
+if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" OR ${HOST_ABI} STREQUAL "host-apple-darwin" OR ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin" OR ${HOST_ABI} STREQUAL "host-apple-ios")
     set_target_properties(wallet2_api_c PROPERTIES SUFFIX ".dylib")
     
     set_target_properties(wallet2_api_c PROPERTIES NO_SONAME 1)
@@ -338,11 +344,11 @@ elseif(${MONERO_FLAVOR} STREQUAL "wownero")
     target_compile_definitions(wallet2_api_c PRIVATE FLAVOR_WOWNERO)
 endif()
 
-if(NOT ${HOST_ABI} STREQUAL "x86_64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "host-apple-darwin" AND NOT  ${HOST_ABI} STREQUAL "host-apple-ios")
+if(NOT ${HOST_ABI} STREQUAL "x86_64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "host-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin" AND NOT  ${HOST_ABI} STREQUAL "host-apple-ios")
     set_target_properties(wallet2_api_c PROPERTIES LINK_FLAGS "-Wl,--exclude-libs,ALL")
 endif()
 
-if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" OR ${HOST_ABI} STREQUAL "host-apple-darwin" OR ${HOST_ABI} STREQUAL "host-apple-ios")
+if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" OR ${HOST_ABI} STREQUAL "host-apple-darwin" OR ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin" OR ${HOST_ABI} STREQUAL "host-apple-ios")
     if (${MONERO_FLAVOR} STREQUAL "monero")
         set(EXPORTED_SYMBOLS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/monero_libwallet2_api_c.exp)
     elseif(${MONERO_FLAVOR} STREQUAL "wownero")
