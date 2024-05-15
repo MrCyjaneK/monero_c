@@ -294,6 +294,13 @@ else()
     set(EXTRA_LIBS "")
 endif()
 
+if (${HOST_ABI} STREQUAL "host-apple-darwin")
+    EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
+    if (NOT ${ARCHITECTURE} STREQUAL arm64)
+        set(EXTRA_LIBS "wallet-crypto")
+    endif()
+endif()
+
 if (${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11")
   set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" hidapi)
 #   set_target_properties(wallet2_api_c PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")

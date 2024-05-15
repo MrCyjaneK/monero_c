@@ -148,10 +148,13 @@ pushd $repo/contrib/depends
             MACOS_LIBS_DIR="${PWD}/host-apple-darwin"
             rm -rf ${MACOS_LIBS_DIR}
             mkdir -p ${MACOS_LIBS_DIR}/lib
-            export HOMEBREW_PREFIX=/opt/homebrew
-            if [[ ! -d "$HOMEBREW_PREFIX" ]];
+            if [[ "x$HOMEBREW_PREFIX" == "x" ]];
             then
-                export HOMEBREW_PREFIX=/usr/local
+                export HOMEBREW_PREFIX=/opt/homebrew
+                if [[ ! -d "$HOMEBREW_PREFIX" ]];
+                then
+                    export HOMEBREW_PREFIX=/usr/local
+                fi
             fi
             verbose_copy "${HOMEBREW_PREFIX}/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_chrono-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_chrono-mt.a
