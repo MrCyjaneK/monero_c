@@ -77,6 +77,7 @@ extern ADDAPI int MONERO_PendingTransaction_status(void* pendingTx_ptr);
 extern ADDAPI const char* MONERO_PendingTransaction_errorString(void* pendingTx_ptr);
 //     virtual bool commit(const std::string &filename = "", bool overwrite = false) = 0;
 extern ADDAPI bool MONERO_PendingTransaction_commit(void* pendingTx_ptr, const char* filename, bool overwrite);
+extern ADDAPI const char* MONERO_PendingTransaction_commitUR(void* pendingTx_ptr, int max_fragment_length);
 //     virtual uint64_t amount() const = 0;
 extern ADDAPI uint64_t MONERO_PendingTransaction_amount(void* pendingTx_ptr);
 //     virtual uint64_t dust() const = 0;
@@ -136,6 +137,7 @@ extern ADDAPI uint64_t MONERO_UnsignedTransaction_minMixinCount(void* unsignedTx
 extern ADDAPI uint64_t MONERO_UnsignedTransaction_txCount(void* unsignedTx_ptr);
 //     virtual bool sign(const std::string &signedFileName) = 0;
 extern ADDAPI bool MONERO_UnsignedTransaction_sign(void* unsignedTx_ptr, const char* signedFileName);
+extern ADDAPI const char* MONERO_UnsignedTransaction_signUR(void* unsignedTx_ptr, int max_fragment_length);
 // };
 // struct TransactionInfo
 // {
@@ -717,8 +719,10 @@ extern ADDAPI void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char
 //     virtual PendingTransaction * createSweepUnmixableTransaction() = 0;
 //     virtual UnsignedTransaction * loadUnsignedTx(const std::string &unsigned_filename) = 0;
 extern ADDAPI void* MONERO_Wallet_loadUnsignedTx(void* wallet_ptr, const char* unsigned_filename);
+extern ADDAPI void* MONERO_Wallet_loadUnsignedUR(void* wallet_ptr, const char* input);
 //     virtual bool submitTransaction(const std::string &fileName) = 0;
 extern ADDAPI bool MONERO_Wallet_submitTransaction(void* wallet_ptr, const char* fileName);
+extern ADDAPI bool MONERO_Wallet_submitTransactionUR(void* wallet_ptr, const char* input);
 //     virtual void disposeTransaction(PendingTransaction * t) = 0;
 //     virtual uint64_t estimateTransactionFee(const std::vector<std::pair<std::string, uint64_t>> &destinations,
 //                                             PendingTransaction::Priority priority) const = 0;
@@ -726,8 +730,10 @@ extern ADDAPI bool MONERO_Wallet_submitTransaction(void* wallet_ptr, const char*
 extern ADDAPI bool MONERO_Wallet_hasUnknownKeyImages(void* wallet_ptr);
 //     virtual bool exportKeyImages(const std::string &filename, bool all = false) = 0;
 extern ADDAPI bool MONERO_Wallet_exportKeyImages(void* wallet_ptr, const char* filename, bool all);
+extern ADDAPI bool MONERO_Wallet_exportKeyImagesUR(void* wallet_ptr, size_t max_fragment_length, bool all) ;
 //     virtual bool importKeyImages(const std::string &filename) = 0;
 extern ADDAPI bool MONERO_Wallet_importKeyImages(void* wallet_ptr, const char* filename);
+extern ADDAPI bool MONERO_Wallet_importKeyImagesUR(void* wallet_ptr, const char* input);
 //     virtual bool exportOutputs(const std::string &filename, bool all = false) = 0;
 extern ADDAPI bool MONERO_Wallet_exportOutputs(void* wallet_ptr, const char* filename, bool all);
 extern ADDAPI const char* MONERO_Wallet_exportOutputsUR(void* wallet_ptr, size_t max_fragment_length, bool all);

@@ -78,6 +78,14 @@ bool MONERO_PendingTransaction_commit(void* pendingTx_ptr, const char* filename,
     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
     return pendingTx->commit(std::string(filename), overwrite);
 }
+const char* MONERO_PendingTransaction_commitUR(void* pendingTx_ptr, int max_fragment_length) {
+    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+    std::string str = pendingTx->commitUR(max_fragment_length);
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
 uint64_t MONERO_PendingTransaction_amount(void* pendingTx_ptr) {
     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
     return pendingTx->amount();
@@ -193,7 +201,14 @@ bool MONERO_UnsignedTransaction_sign(void* unsignedTx_ptr, const char* signedFil
     Monero::UnsignedTransaction *unsignedTx = reinterpret_cast<Monero::UnsignedTransaction*>(unsignedTx_ptr);
     return unsignedTx->sign(std::string(signedFileName));
 }
-
+const char* MONERO_UnsignedTransaction_signUR(void* unsignedTx_ptr, int max_fragment_length) {
+    Monero::UnsignedTransaction *unsignedTx = reinterpret_cast<Monero::UnsignedTransaction*>(unsignedTx_ptr);
+    std::string str = unsignedTx->signUR(max_fragment_length);
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
 // TransactionInfo
 int MONERO_TransactionInfo_direction(void* txInfo_ptr) {
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
@@ -1338,9 +1353,18 @@ void* MONERO_Wallet_loadUnsignedTx(void* wallet_ptr, const char* fileName) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->loadUnsignedTx(std::string(fileName));
 }
+
+void* MONERO_Wallet_loadUnsignedTxUR(void* wallet_ptr, const char* input) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->loadUnsignedTxUR(std::string(input));
+}
 bool MONERO_Wallet_submitTransaction(void* wallet_ptr, const char* fileName) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->submitTransaction(std::string(fileName));
+}
+bool MONERO_Wallet_submitTransactionUR(void* wallet_ptr, const char* input) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->submitTransactionUR(std::string(input));
 }
 bool MONERO_Wallet_hasUnknownKeyImages(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
@@ -1350,9 +1374,22 @@ bool MONERO_Wallet_exportKeyImages(void* wallet_ptr, const char* filename, bool 
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->exportKeyImages(std::string(filename), all);
 }
+
+const char* MONERO_Wallet_exportKeyImagesUR(void* wallet_ptr, size_t max_fragment_length, bool all) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    std::string str = wallet->exportKeyImagesUR(max_fragment_length, all);
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
 bool MONERO_Wallet_importKeyImages(void* wallet_ptr, const char* filename) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->importKeyImages(std::string(filename));
+}
+bool MONERO_Wallet_importKeyImagesUR(void* wallet_ptr, const char* input) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->importKeyImagesUR(std::string(input));
 }
 bool MONERO_Wallet_exportOutputs(void* wallet_ptr, const char* filename, bool all) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
