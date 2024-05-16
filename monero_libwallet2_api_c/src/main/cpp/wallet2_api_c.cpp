@@ -1358,9 +1358,21 @@ bool MONERO_Wallet_exportOutputs(void* wallet_ptr, const char* filename, bool al
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->exportOutputs(std::string(filename), all);
 }
+const char* MONERO_Wallet_exportOutputsUR(void* wallet_ptr, size_t max_fragment_length, bool all) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    std::string str = wallet->exportOutputsUR(max_fragment_length, all);
+    const std::string::size_type size = str.size();
+    char *buffer = new char[size + 1];   //we need extra char for NUL
+    memcpy(buffer, str.c_str(), size + 1);
+    return buffer;
+}
 bool MONERO_Wallet_importOutputs(void* wallet_ptr, const char* filename) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->importOutputs(std::string(filename));
+}
+bool MONERO_Wallet_importOutputsUR(void* wallet_ptr, const char* input) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->importOutputsUR(std::string(input));
 }
 //     virtual bool setupBackgroundSync(const BackgroundSyncType background_sync_type, const std::string &wallet_password, const optional<std::string> &background_cache_password) = 0;
 bool MONERO_Wallet_setupBackgroundSync(void* wallet_ptr, int background_sync_type, const char* wallet_password, const char* background_cache_password) {

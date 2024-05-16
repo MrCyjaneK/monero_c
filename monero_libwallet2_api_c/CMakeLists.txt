@@ -164,6 +164,15 @@ set_target_properties(utf8proc PROPERTIES IMPORTED_LOCATION
         ${MONERO_DIR}/build/${HOST_ABI}/external/utf8proc/libutf8proc.a)
 
 #############
+# bc-ur
+#############
+
+add_library(bc-ur STATIC IMPORTED)
+set_target_properties(bc-ur PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/external/bc-ur/libbc-ur.a)
+
+
+#############
 # Monero
 #############
 
@@ -404,6 +413,8 @@ target_link_libraries(  wallet2_api_c
                         ${EXTRA_LIBS_POLYSEED}
                         ${EXTRA_LIBS_WOWNEROSEED}
                         utf8proc
+
+                        bc-ur
 
                         ssl
                         crypto

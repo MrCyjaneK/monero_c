@@ -178,6 +178,7 @@ _MONERO_Wallet_errorString
 _MONERO_Wallet_estimateBlockChainHeight
 _MONERO_Wallet_exportKeyImages
 _MONERO_Wallet_exportOutputs
+_MONERO_Wallet_exportOutputsUR
 _MONERO_Wallet_filename
 _MONERO_Wallet_genPaymentId
 _MONERO_Wallet_getBackgroundSyncType
@@ -197,6 +198,7 @@ _MONERO_Wallet_hasUnknownKeyImages
 _MONERO_Wallet_history
 _MONERO_Wallet_importKeyImages
 _MONERO_Wallet_importOutputs
+_MONERO_Wallet_importOutputsUR
 _MONERO_Wallet_init
 _MONERO_Wallet_init3
 _MONERO_Wallet_integratedAddress

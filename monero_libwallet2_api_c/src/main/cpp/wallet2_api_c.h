@@ -730,8 +730,10 @@ extern ADDAPI bool MONERO_Wallet_exportKeyImages(void* wallet_ptr, const char* f
 extern ADDAPI bool MONERO_Wallet_importKeyImages(void* wallet_ptr, const char* filename);
 //     virtual bool exportOutputs(const std::string &filename, bool all = false) = 0;
 extern ADDAPI bool MONERO_Wallet_exportOutputs(void* wallet_ptr, const char* filename, bool all);
+extern ADDAPI const char* MONERO_Wallet_exportOutputsUR(void* wallet_ptr, size_t max_fragment_length, bool all);
 //     virtual bool importOutputs(const std::string &filename) = 0;
 extern ADDAPI bool MONERO_Wallet_importOutputs(void* wallet_ptr, const char* filename);
+extern ADDAPI bool MONERO_Wallet_importOutputsUR(void* wallet_ptr, const char* input);
 //     virtual bool scanTransactions(const std::vector<std::string> &txids) = 0;
 //     virtual bool setupBackgroundSync(const BackgroundSyncType background_sync_type, const std::string &wallet_password, const optional<std::string> &background_cache_password) = 0;
 extern ADDAPI bool MONERO_Wallet_setupBackgroundSync(void* wallet_ptr, int background_sync_type, const char* wallet_password, const char* background_cache_password);
