@@ -1,4 +1,4 @@
-From 5739318774025df8bb99eca5263c83bbbc228f01 Mon Sep 17 00:00:00 2001
+From 692e1f93bc0ae7b40b6ecec5ea8f47658ffd1816 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 16 May 2024 17:28:59 +0200
 Subject: [PATCH] WIP: UR functions
@@ -15,6 +15,7 @@ Now we are fully in memory
  CMakeLists.txt                          |   4 +-
  external/CMakeLists.txt                 |   1 +
  external/bc-ur                          |   1 +
+ src/device/device_ledger.cpp            |   2 +-
  src/wallet/CMakeLists.txt               |   1 +
  src/wallet/api/pending_transaction.cpp  |  33 +++
  src/wallet/api/pending_transaction.h    |   1 +
@@ -25,7 +26,7 @@ Now we are fully in memory
  src/wallet/api/wallet2_api.h            |  19 +-
  src/wallet/wallet2.cpp                  |  96 ++++----
  src/wallet/wallet2.h                    |   2 +
- 14 files changed, 447 insertions(+), 49 deletions(-)
+ 15 files changed, 448 insertions(+), 50 deletions(-)
  create mode 160000 external/bc-ur
 
 diff --git a/.gitmodules b/.gitmodules
@@ -76,11 +77,24 @@ index 1b9761d70..0df9f9116 100644
 \ No newline at end of file
 diff --git a/external/bc-ur b/external/bc-ur
 new file mode 160000
-index 000000000..cafffa854
+index 000000000..e37d44418
 --- /dev/null
 +++ b/external/bc-ur
 @@ -0,0 +1 @@
-+Subproject commit cafffa854d04c6266597935bb68f8d360b632ad6
++Subproject commit e37d44418bb9d4b222a81ec894d69f0a6d3730cc
+diff --git a/src/device/device_ledger.cpp b/src/device/device_ledger.cpp
+index a4b5f3ef0..7d004ea8c 100644
+--- a/src/device/device_ledger.cpp
++++ b/src/device/device_ledger.cpp
+@@ -318,7 +318,7 @@ namespace hw {
+     //automatic lock one more level on device ensuring the current thread is allowed to use it
+     #define AUTO_LOCK_CMD() \
+       /* lock both mutexes without deadlock*/ \
+-      boost::lock(device_locker, command_locker); \
++      boost::lock(command_locker, device_locker); \
+       /* make sure both already-locked mutexes are unlocked at the end of scope */ \
+       boost::lock_guard<boost::recursive_mutex> lock1(device_locker, boost::adopt_lock); \
+       boost::lock_guard<boost::mutex> lock2(command_locker, boost::adopt_lock)
 diff --git a/src/wallet/CMakeLists.txt b/src/wallet/CMakeLists.txt
 index 6095f99d5..b163212b7 100644
 --- a/src/wallet/CMakeLists.txt
@@ -835,5 +849,5 @@ index 0d9a9298f..539d5056c 100644
      bool import_key_images(signed_tx_set & signed_tx, size_t offset=0, bool only_selected_transfers=false);
      crypto::public_key get_tx_pub_key_from_received_outs(const tools::wallet2::transfer_details &td) const;
 -- 
-2.45.0
+2.25.1
 

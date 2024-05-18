@@ -730,7 +730,7 @@ extern ADDAPI bool MONERO_Wallet_submitTransactionUR(void* wallet_ptr, const cha
 extern ADDAPI bool MONERO_Wallet_hasUnknownKeyImages(void* wallet_ptr);
 //     virtual bool exportKeyImages(const std::string &filename, bool all = false) = 0;
 extern ADDAPI bool MONERO_Wallet_exportKeyImages(void* wallet_ptr, const char* filename, bool all);
-extern ADDAPI bool MONERO_Wallet_exportKeyImagesUR(void* wallet_ptr, size_t max_fragment_length, bool all) ;
+extern ADDAPI const char* MONERO_Wallet_exportKeyImagesUR(void* wallet_ptr, size_t max_fragment_length, bool all) ;
 //     virtual bool importKeyImages(const std::string &filename) = 0;
 extern ADDAPI bool MONERO_Wallet_importKeyImages(void* wallet_ptr, const char* filename);
 extern ADDAPI bool MONERO_Wallet_importKeyImagesUR(void* wallet_ptr, const char* input);
