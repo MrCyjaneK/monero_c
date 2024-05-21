@@ -1,4 +1,4 @@
-From 692e1f93bc0ae7b40b6ecec5ea8f47658ffd1816 Mon Sep 17 00:00:00 2001
+From f91e92ddaa7c12dcc8f38ac37ff852446bd10722 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 16 May 2024 17:28:59 +0200
 Subject: [PATCH] WIP: UR functions
@@ -10,12 +10,22 @@ especially because it allows us to
 skip the part when we have to store
 things to file to encode them later.
 Now we are fully in memory
+
+Things broken in the commit
+- ledger support.
+  AUTO_LOCK_CMD macro causes compile time
+  issues with this patch. I don't know why
+  just yet, this is a issue that I'll fix
+  later. However (considering the purpose
+  of this patch) it is not a dealbreaker.
 ---
  .gitmodules                             |   3 +
  CMakeLists.txt                          |   4 +-
+ contrib/depends/hosts/darwin.mk         |   2 +-
+ contrib/depends/toolchain.cmake.in      |   2 +-
  external/CMakeLists.txt                 |   1 +
  external/bc-ur                          |   1 +
- src/device/device_ledger.cpp            |   2 +-
+ src/device/device_ledger.cpp            |   5 +-
  src/wallet/CMakeLists.txt               |   1 +
  src/wallet/api/pending_transaction.cpp  |  33 +++
  src/wallet/api/pending_transaction.h    |   1 +
@@ -26,7 +36,7 @@ Now we are fully in memory
  src/wallet/api/wallet2_api.h            |  19 +-
  src/wallet/wallet2.cpp                  |  96 ++++----
  src/wallet/wallet2.h                    |   2 +
- 15 files changed, 448 insertions(+), 50 deletions(-)
+ 17 files changed, 452 insertions(+), 53 deletions(-)
  create mode 160000 external/bc-ur
 
 diff --git a/.gitmodules b/.gitmodules
@@ -62,6 +72,29 @@ index 63b8c5079..6028c0961 100644
      check_submodule(external/miniupnp)
      check_submodule(external/rapidjson)
      check_submodule(external/trezor-common)
+diff --git a/contrib/depends/hosts/darwin.mk b/contrib/depends/hosts/darwin.mk
+index cbe795081..b14ee5c5b 100644
+--- a/contrib/depends/hosts/darwin.mk
++++ b/contrib/depends/hosts/darwin.mk
+@@ -1,4 +1,4 @@
+-OSX_MIN_VERSION=10.8
++OSX_MIN_VERSION=10.14
+ LD64_VERSION=609
+ ifeq (aarch64, $(host_arch))
+ CC_target=arm64-apple-$(host_os)
+diff --git a/contrib/depends/toolchain.cmake.in b/contrib/depends/toolchain.cmake.in
+index f118c754e..f26655d68 100644
+--- a/contrib/depends/toolchain.cmake.in
++++ b/contrib/depends/toolchain.cmake.in
+@@ -94,7 +94,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+   SET(BREW OFF)
+   SET(PORT OFF)
+   SET(CMAKE_OSX_SYSROOT "@prefix@/native/SDK/")
+-  SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.08")
++  SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.14")
+   SET(CMAKE_CXX_STANDARD 14)
+   SET(LLVM_ENABLE_PIC OFF)
+   SET(LLVM_ENABLE_PIE OFF)
 diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
 index 1b9761d70..0df9f9116 100644
 --- a/external/CMakeLists.txt
@@ -77,21 +110,28 @@ index 1b9761d70..0df9f9116 100644
 \ No newline at end of file
 diff --git a/external/bc-ur b/external/bc-ur
 new file mode 160000
-index 000000000..e37d44418
+index 000000000..d82e7c753
 --- /dev/null
 +++ b/external/bc-ur
 @@ -0,0 +1 @@
-+Subproject commit e37d44418bb9d4b222a81ec894d69f0a6d3730cc
++Subproject commit d82e7c753e710b8000706dc3383b498438795208
 diff --git a/src/device/device_ledger.cpp b/src/device/device_ledger.cpp
-index a4b5f3ef0..7d004ea8c 100644
+index a4b5f3ef0..90675df11 100644
 --- a/src/device/device_ledger.cpp
 +++ b/src/device/device_ledger.cpp
-@@ -318,7 +318,7 @@ namespace hw {
+@@ -313,12 +313,13 @@ namespace hw {
+ 
+     /* ======================================================================= */
+     /*  LOCKER                                                                 */
+-    /* ======================================================================= */ 
++    /* ======================================================================= */
+     
      //automatic lock one more level on device ensuring the current thread is allowed to use it
++    #pragma message ("Warning AUTO_LOCK_CMD is intentionally left broken. This is yet to be fixed.")
      #define AUTO_LOCK_CMD() \
        /* lock both mutexes without deadlock*/ \
 -      boost::lock(device_locker, command_locker); \
-+      boost::lock(command_locker, device_locker); \
++      /* boost::lock(device_locker, command_locker); */ \
        /* make sure both already-locked mutexes are unlocked at the end of scope */ \
        boost::lock_guard<boost::recursive_mutex> lock1(device_locker, boost::adopt_lock); \
        boost::lock_guard<boost::mutex> lock2(command_locker, boost::adopt_lock)
@@ -849,5 +889,5 @@ index 0d9a9298f..539d5056c 100644
      bool import_key_images(signed_tx_set & signed_tx, size_t offset=0, bool only_selected_transfers=false);
      crypto::public_key get_tx_pub_key_from_received_outs(const tools::wallet2::transfer_details &td) const;
 -- 
-2.25.1
+2.39.2
 

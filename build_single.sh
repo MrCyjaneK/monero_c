@@ -91,13 +91,13 @@ case "$HOST_ABI" in
     ;;
     "x86_64-apple-darwin11")
         export PATH="$WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/bin:$PATH"
-        export CC="clang -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.8 --sysroot $WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
-        export CXX="clang++ -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.8 --sysroot $WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
+        export CC="clang -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.14 --sysroot $WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
+        export CXX="clang++ -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.14 --sysroot $WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
     ;;
     "aarch64-apple-darwin11")
         export PATH="$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin:$PATH"
-        export CC="clang -stdlib=libc++ -target arm64-apple-darwin11 -mmacosx-version-min=10.8 --sysroot $WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin/aarch64-apple-darwin11-"
-        export CXX="clang++ -stdlib=libc++ -target arm64-apple-darwin11 -mmacosx-version-min=10.8 --sysroot $WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin/aarch64-apple-darwin11-"
+        export CC="clang -stdlib=libc++ -target arm64-apple-darwin11 -mmacosx-version-min=10.14 --sysroot $WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin/aarch64-apple-darwin11-"
+        export CXX="clang++ -stdlib=libc++ -target arm64-apple-darwin11 -mmacosx-version-min=10.14 --sysroot $WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin/aarch64-apple-darwin11-"
     ;;
     "host-apple-darwin"|"x86_64-host-apple-darwin"|"aarch64-host-apple-darwin")
         export CC="clang"
