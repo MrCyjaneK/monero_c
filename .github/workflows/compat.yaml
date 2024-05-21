@@ -1,0 +1,108 @@
+name: compatibility check
+on: [push, pull_request]
+jobs:
+  mingw:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+    steps:
+      - name: Install dependencies
+        run: |
+          apt update
+          apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Patch sources
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@mrcyjanek.net"
+          git config --global user.name "CI mrcyjanek.net"
+          ./apply_patches.sh monero
+          ./apply_patches.sh wownero
+      - name: monero/x86_64-w64-mingw32
+        run: ./build_single.sh monero x86_64-w64-mingw32 -j$(nproc)
+      - name: wownero/x86_64-w64-mingw32
+        run: ./build_single.sh wownero x86_64-w64-mingw32 -j$(nproc)
+      - name: monero/i686-w64-mingw32
+        run: ./build_single.sh monero i686-w64-mingw32 -j$(nproc)
+      - name: wownero/i686-w64-mingw32
+        run: ./build_single.sh wownero i686-w64-mingw32 -j$(nproc)
+      - name: Upload Artifact
+        uses: kittaakos/upload-artifact-as-is@v0
+        with:
+          path: release/*/*.xz
+
+  android:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+    steps:
+      - name: Install dependencies
+        run: |
+          apt update
+          apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf unzip python-is-python3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Patch sources
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@mrcyjanek.net"
+          git config --global user.name "CI mrcyjanek.net"
+          ./apply_patches.sh monero
+          ./apply_patches.sh wownero
+      - name: monero/x86_64-linux-android
+        run: ./build_single.sh monero x86_64-linux-android -j$(nproc)
+      - name: wownero/x86_64-linux-android
+        run: ./build_single.sh wownero x86_64-linux-android -j$(nproc)
+      - name: monero/aarch64-linux-android
+        run: ./build_single.sh monero aarch64-linux-android -j$(nproc)
+      - name: wownero/aarch64-linux-android
+        run: ./build_single.sh wownero aarch64-linux-android -j$(nproc)
+      - name: monero/arm-linux-androideabi
+        run: ./build_single.sh monero arm-linux-androideabi -j$(nproc)
+      - name: wownero/arm-linux-androideabi
+        run: ./build_single.sh wownero arm-linux-androideabi -j$(nproc)
+      - name: Upload Artifact
+        uses: kittaakos/upload-artifact-as-is@v0
+        with:
+          path: release/*/*.xz
+  linux:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+    steps:
+      - name: Install dependencies
+        run: |
+          apt update
+          apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-i686-linux-gnu g++-i686-linux-gnu
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Patch sources
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@mrcyjanek.net"
+          git config --global user.name "CI mrcyjanek.net"
+          ./apply_patches.sh monero
+          ./apply_patches.sh wownero
+      - name: monero/x86_64-linux-gnu
+        run: ./build_single.sh monero x86_64-linux-gnu -j$(nproc)
+      - name: wownero/x86_64-linux-gnu
+        run: ./build_single.sh wownero x86_64-linux-gnu -j$(nproc)
+      - name: monero/aarch64-linux-gnu
+        run: ./build_single.sh monero aarch64-linux-gnu -j$(nproc)
+      - name: wownero/aarch64-linux-gnu
+        run: ./build_single.sh wownero aarch64-linux-gnu -j$(nproc)
+      - name: monero/i686-linux-gnu
+        run: ./build_single.sh monero i686-linux-gnu -j$(nproc)
+      - name: wownero/i686-linux-gnu
+        run: ./build_single.sh wownero i686-linux-gnu -j$(nproc)
+      - name: Upload Artifact
+        uses: kittaakos/upload-artifact-as-is@v0
+        with:
+          path: release/*/*.xz
