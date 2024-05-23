@@ -59,23 +59,47 @@ case "$HOST_ABI" in
     ;;
     "x86_64-linux-android")
         export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
-        export CC=x86_64-linux-android21-clang
-        export CXX=x86_64-linux-android21-clang++
+        if [[ "$repo" == "wownero" ]];
+        then
+            export CC=x86_64-linux-android-clang
+            export CXX=x86_64-linux-android-clang++
+        else
+            export CC=x86_64-linux-android21-clang
+            export CXX=x86_64-linux-android21-clang++
+        fi
     ;;
     "i686-linux-android")
         export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
-        export CC=i686-linux-android21-clang
-        export CXX=i686-linux-android21-clang++
+        if [[ "$repo" == "wownero" ]];
+        then
+            export CC=i686-linux-android-clang
+            export CXX=i686-linux-android-clang++
+        else
+            export CC=i686-linux-android21-clang
+            export CXX=i686-linux-android21-clang++
+        fi
     ;;
     "aarch64-linux-android")
         export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
-        export CC=aarch64-linux-android21-clang
-        export CXX=aarch64-linux-android21-clang++
+        if [[ "$repo" == "wownero" ]];
+        then
+            export CC=aarch64-linux-android-clang
+            export CXX=aarch64-linux-android-clang++
+        else
+            export CC=aarch64-linux-android21-clang
+            export CXX=aarch64-linux-android21-clang++
+        fi
     ;;
     "arm-linux-androideabi")
         export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
-        export CC=aarch64-linux-android21-clang
-        export CXX=aarch64-linux-android21-clang++
+        if [[ "$repo" == "wownero" ]];
+        then
+            export CC=aarch64-linux-android-clang
+            export CXX=aarch64-linux-android-clang++
+        else
+            export CC=aarch64-linux-android21-clang
+            export CXX=aarch64-linux-android21-clang++
+        fi
     ;;
     "i686-w64-mingw32")
         update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
@@ -365,25 +389,9 @@ pushd release/$repo
         rm ${HOST_ABI}_libwinpthread-1.dll.xz || true
         xz -e ${HOST_ABI}_libwinpthread-1.dll
         ####
-        cp /usr/lib/gcc/${HOST_ABI}/*-posix/libstdc++-6.dll ${HOST_ABI}_libstdc++-6.dll
-        rm ${HOST_ABI}_libstdc++-6.dll.xz || true
-        xz -e ${HOST_ABI}_libstdc++-6.dll
-        #### 
         cp /usr/lib/gcc/${HOST_ABI}/*-posix/libssp-0.dll ${HOST_ABI}_libssp-0.dll
         rm ${HOST_ABI}_libssp-0.dll.xz || true
         xz -e ${HOST_ABI}_libssp-0.dll
-    fi
-    if [[ "$HOST_ABI" == "x86_64-w64-mingw32" ]];
-    then
-        cp /usr/lib/gcc/${HOST_ABI}/*-posix/libgcc_s_seh-1.dll ${HOST_ABI}_libgcc_s_seh-1.dll
-        rm ${HOST_ABI}_libgcc_s_seh-1.dll.xz || true
-        xz -e ${HOST_ABI}_libgcc_s_seh-1.dll
-    fi
-    if [[ "$HOST_ABI" == "i686-w64-mingw32" ]];
-    then
-        cp /usr/lib/gcc/${HOST_ABI}/*-posix/libgcc_s_sjlj-1.dll ${HOST_ABI}_libgcc_s_sjlj-1.dll
-        rm ${HOST_ABI}_libgcc_s_sjlj-1.dll.xz || true
-        xz -e ${HOST_ABI}_libgcc_s_sjlj-1.dll
     fi
     if [[ "$HOST_ABI" == "x86_64-linux-android" || "$HOST_ABI" == "i686-linux-android" || "$HOST_ABI" == "aarch64-linux-android" || "$HOST_ABI" == "arm-linux-androideabi" ]];
     then
