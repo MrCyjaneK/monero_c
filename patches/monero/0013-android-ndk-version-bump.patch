@@ -1,14 +1,14 @@
-From 29bdcc2760da4e26ca4320394560e4fdf1d3736f Mon Sep 17 00:00:00 2001
+From 5815bf9d5dd2420915fafb73a3314eb467a489a7 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 23 May 2024 08:02:49 +0200
 Subject: [PATCH] android ndk version bump
 
 ---
  contrib/depends/hosts/android.mk        | 16 +++++++++++++---
- contrib/depends/packages/android_ndk.mk | 12 +++++++-----
+ contrib/depends/packages/android_ndk.mk | 20 ++++++++++++++------
  contrib/depends/packages/boost.mk       |  1 +
  contrib/depends/toolchain.cmake.in      | 11 ++++++-----
- 4 files changed, 27 insertions(+), 13 deletions(-)
+ 4 files changed, 34 insertions(+), 14 deletions(-)
 
 diff --git a/contrib/depends/hosts/android.mk b/contrib/depends/hosts/android.mk
 index d6f8b99dd..e1c99aef3 100644
@@ -41,10 +41,10 @@ index d6f8b99dd..e1c99aef3 100644
  android_CFLAGS=-pipe
  android_CXXFLAGS=$(android_CFLAGS)
 diff --git a/contrib/depends/packages/android_ndk.mk b/contrib/depends/packages/android_ndk.mk
-index 5deff76c7..e5a433a38 100644
+index 5deff76c7..1ad250653 100644
 --- a/contrib/depends/packages/android_ndk.mk
 +++ b/contrib/depends/packages/android_ndk.mk
-@@ -1,8 +1,8 @@
+@@ -1,8 +1,10 @@
  package=android_ndk
 -$(package)_version=17b
 +$(package)_version=26d
@@ -53,20 +53,27 @@ index 5deff76c7..e5a433a38 100644
 -$(package)_sha256_hash=5dfbbdc2d3ba859fed90d0e978af87c71a91a5be1f6e1c40ba697503d48ccecd
 +$(package)_file_name=android-ndk-r$($(package)_version)-linux.zip
 +$(package)_sha256_hash=eefeafe7ccf177de7cc57158da585e7af119bb7504a63604ad719e4b2a328b54
++
++$(package)_version_apiversion=21
  
  define $(package)_set_vars
  $(package)_config_opts_arm=--arch arm
-@@ -17,8 +17,10 @@ define $(package)_extract_cmds
+@@ -17,8 +19,14 @@ define $(package)_extract_cmds
  endef
  
  define $(package)_stage_cmds
-+  mkdir -p $(build_prefix) &&\
-+  echo $(build_prefix)/toolchain && \
-   android-ndk-r$($(package)_version)/build/tools/make_standalone_toolchain.py --api 21 \
+-  android-ndk-r$($(package)_version)/build/tools/make_standalone_toolchain.py --api 21 \
 -    --install-dir $(build_prefix) --stl=libc++ $($(package)_config_opts) &&\
 -  mv $(build_prefix) $($(package)_staging_dir)/$(host_prefix)
++  mkdir -p $(build_prefix) &&\
++  echo $(build_prefix)/toolchain && \
++  android-ndk-r$($(package)_version)/build/tools/make_standalone_toolchain.py --api $($(package)_version_apiversion) \
 +    --install-dir $(build_prefix)/toolchain --stl=libc++ $($(package)_config_opts) &&\
-+  mv $(build_prefix)/toolchain $($(package)_staging_dir)/$(host_prefix)/native
++  mv $(build_prefix)/toolchain $($(package)_staging_dir)/$(host_prefix)/native && \
++  cp $($(package)_staging_dir)/$(host_prefix)/native/bin/llvm-ar $($(package)_staging_dir)/$(host_prefix)/native/bin/$(host)$($(package)_version_apiversion)-ar &&\
++  cp $($(package)_staging_dir)/$(host_prefix)/native/bin/llvm-ranlib $($(package)_staging_dir)/$(host_prefix)/native/bin/$(host)$($(package)_version_apiversion)-ranlib &&\
++  cp $($(package)_staging_dir)/$(host_prefix)/native/bin/llvm-ar $($(package)_staging_dir)/$(host_prefix)/native/bin/$(host)-ar &&\
++  cp $($(package)_staging_dir)/$(host_prefix)/native/bin/llvm-ranlib $($(package)_staging_dir)/$(host_prefix)/native/bin/$(host)-ranlib
  endef
  
 diff --git a/contrib/depends/packages/boost.mk b/contrib/depends/packages/boost.mk

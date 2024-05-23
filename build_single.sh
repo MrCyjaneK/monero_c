@@ -94,11 +94,11 @@ case "$HOST_ABI" in
         export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
         if [[ "$repo" == "wownero" ]];
         then
-            export CC=aarch64-linux-android-clang
-            export CXX=aarch64-linux-android-clang++
+            export CC=arm-linux-androideabi-clang
+            export CXX=arm-linux-androideabi-clang++
         else
-            export CC=aarch64-linux-android21-clang
-            export CXX=aarch64-linux-android21-clang++
+            export CC=armv7a-linux-androideabi21-clang
+            export CXX=armv7a-linux-androideabi21-clang++
         fi
     ;;
     "i686-w64-mingw32")

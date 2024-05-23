@@ -129,8 +129,48 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: release/gh/*
+  darwin:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+    steps:
+      - name: Install dependencies
+        run: |
+          apt update
+          apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-i686-linux-gnu g++-i686-linux-gnu
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Patch sources
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@mrcyjanek.net"
+          git config --global user.name "CI mrcyjanek.net"
+          ./apply_patches.sh monero
+          ./apply_patches.sh wownero
+      - name: monero/x86_64-apple-darwin11
+        run: ./build_single.sh monero x86_64-apple-darwin11 -j$(nproc)
+      - name: wownero/x86_64-apple-darwin11
+        run: ./build_single.sh wownero x86_64-apple-darwin11 -j$(nproc)
+      - name: monero/aarch64-apple-darwin11
+        run: ./build_single.sh monero aarch64-apple-darwin11 -j$(nproc)
+      - name: wownero/aarch64-apple-darwin11
+        run: ./build_single.sh wownero aarch64-apple-darwin11 -j$(nproc)
+      - name: rename artifacts
+        run: |
+          mkdir release/gh/
+          for i in release/monero/*
+          do
+              mv "$i" "release/gh/monero_$(basename $i)"
+          done
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: release/gh/*
   macos-host:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -140,7 +180,7 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@master
       - name: Install brew dependencies
         run: |
-          brew install unbound boost@1.76 zmq
+          brew install git unbound boost@1.76 zmq
           brew link boost@1.76
       - uses: actions/checkout@v4
         with:
