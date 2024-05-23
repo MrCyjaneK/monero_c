@@ -306,8 +306,7 @@ include_directories( ${EXTERNAL_LIBS_DIR}/include )
 message(STATUS EXTERNAL_LIBS_DIR :  ${EXTERNAL_LIBS_DIR})
 
 if(${HOST_ABI} STREQUAL "x86_64-linux-gnu" OR
-   ${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR
-   ${HOST_ABI} STREQUAL "x86_64-linux-android")
+   ${HOST_ABI} STREQUAL "x86_64-apple-darwin11")
     set(EXTRA_LIBS "wallet-crypto")
 else()
     set(EXTRA_LIBS "")
@@ -349,6 +348,7 @@ endif()
 
 if (${MONERO_FLAVOR} STREQUAL "monero")
     target_compile_definitions(wallet2_api_c PRIVATE FLAVOR_MONERO)
+    set(BCUR_ENABLED bc-ur)
 elseif(${MONERO_FLAVOR} STREQUAL "wownero")
     target_compile_definitions(wallet2_api_c PRIVATE FLAVOR_WOWNERO)
 endif()
@@ -414,7 +414,7 @@ target_link_libraries(  wallet2_api_c
                         ${EXTRA_LIBS_WOWNEROSEED}
                         utf8proc
 
-                        bc-ur
+                        ${BCUR_ENABLED}
 
                         ssl
                         crypto
