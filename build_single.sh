@@ -169,6 +169,9 @@ pushd $repo/contrib/depends
                     make $NPROC
                 popd
             fi
+            pushd ../../../external/macos
+                ./build_unbound.sh
+            popd
             MACOS_LIBS_DIR="${PWD}/${HOST_ABI}"
             rm -rf ${MACOS_LIBS_DIR}
             mkdir -p ${MACOS_LIBS_DIR}/lib
@@ -180,7 +183,9 @@ pushd $repo/contrib/depends
                     export HOMEBREW_PREFIX=/usr/local
                 fi
             fi
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
+            # NOTE: we can use unbound from brew but app store rejects the app
+            # verbose_copy "${HOMEBREW_PREFIX}/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
+            verbose_copy "../../../external/macos/build/MACOS/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_chrono-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_chrono-mt.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_locale-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_locale-mt.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_date_time-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_date_time-mt.a

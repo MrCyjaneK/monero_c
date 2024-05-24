@@ -2,6 +2,9 @@ name: compatibility check
 on: [push]
 jobs:
   mingw:
+    strategy:
+      matrix:
+        coin: [monero, wownero]
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
@@ -19,22 +22,17 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh monero
-          ./apply_patches.sh wownero
-      - name: monero/x86_64-w64-mingw32
-        run: ./build_single.sh monero x86_64-w64-mingw32 -j$(nproc)
-      - name: wownero/x86_64-w64-mingw32
-        run: ./build_single.sh wownero x86_64-w64-mingw32 -j$(nproc)
-      - name: monero/i686-w64-mingw32
-        run: ./build_single.sh monero i686-w64-mingw32 -j$(nproc)
-      - name: wownero/i686-w64-mingw32
-        run: ./build_single.sh wownero i686-w64-mingw32 -j$(nproc)
+          ./apply_patches.sh ${{ matrix.coin }}
+      - name: ${{ matrix.coin }}/x86_64-w64-mingw32
+        run: ./build_single.sh ${{ matrix.coin }} x86_64-w64-mingw32 -j$(nproc)
+      - name: ${{ matrix.coin }}/i686-w64-mingw32
+        run: ./build_single.sh ${{ matrix.coin }} i686-w64-mingw32 -j$(nproc)
       - name: rename artifacts
         run: |
           mkdir release/gh/
-          for i in release/monero/*
+          for i in release/${{ matrix.coin }}/*
           do
-              mv "$i" "release/gh/monero_$(basename $i)"
+              mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -42,6 +40,9 @@ jobs:
         with:
           files: release/gh/*
   android:
+    strategy:
+      matrix:
+        coin: [monero, wownero]
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
@@ -59,26 +60,19 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh monero
-          ./apply_patches.sh wownero
-      - name: monero/x86_64-linux-android
-        run: ./build_single.sh monero x86_64-linux-android -j$(nproc)
-      - name: wownero/x86_64-linux-android
-        run: ./build_single.sh wownero x86_64-linux-android -j$(nproc)
-      - name: monero/aarch64-linux-android
-        run: ./build_single.sh monero aarch64-linux-android -j$(nproc)
-      - name: wownero/aarch64-linux-android
-        run: ./build_single.sh wownero aarch64-linux-android -j$(nproc)
-      - name: monero/arm-linux-androideabi
-        run: ./build_single.sh monero arm-linux-androideabi -j$(nproc)
-      - name: wownero/arm-linux-androideabi
-        run: ./build_single.sh wownero arm-linux-androideabi -j$(nproc)
+          ./apply_patches.sh ${{ matrix.coin }}
+      - name: ${{ matrix.coin }}/x86_64-linux-android
+        run: ./build_single.sh ${{ matrix.coin }} x86_64-linux-android -j$(nproc)
+      - name: ${{ matrix.coin }}/aarch64-linux-android
+        run: ./build_single.sh ${{ matrix.coin }} aarch64-linux-android -j$(nproc)
+      - name: ${{ matrix.coin }}/arm-linux-androideabi
+        run: ./build_single.sh ${{ matrix.coin }} arm-linux-androideabi -j$(nproc)
       - name: rename artifacts
         run: |
           mkdir release/gh/
-          for i in release/monero/*
+          for i in release/${{ matrix.coin }}/*
           do
-              mv "$i" "release/gh/monero_$(basename $i)"
+              mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -86,6 +80,9 @@ jobs:
         with:
           files: release/gh/*
   linux:
+    strategy:
+      matrix:
+        coin: [monero, wownero]
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
@@ -103,26 +100,19 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh monero
-          ./apply_patches.sh wownero
-      - name: monero/x86_64-linux-gnu
-        run: ./build_single.sh monero x86_64-linux-gnu -j$(nproc)
-      - name: wownero/x86_64-linux-gnu
-        run: ./build_single.sh wownero x86_64-linux-gnu -j$(nproc)
-      - name: monero/aarch64-linux-gnu
-        run: ./build_single.sh monero aarch64-linux-gnu -j$(nproc)
-      - name: wownero/aarch64-linux-gnu
-        run: ./build_single.sh wownero aarch64-linux-gnu -j$(nproc)
-      - name: monero/i686-linux-gnu
-        run: ./build_single.sh monero i686-linux-gnu -j$(nproc)
-      - name: wownero/i686-linux-gnu
-        run: ./build_single.sh wownero i686-linux-gnu -j$(nproc)
+          ./apply_patches.sh ${{ matrix.coin }}
+      - name: ${{ matrix.coin }}/x86_64-linux-gnu
+        run: ./build_single.sh ${{ matrix.coin }} x86_64-linux-gnu -j$(nproc)
+      - name: ${{ matrix.coin }}/aarch64-linux-gnu
+        run: ./build_single.sh ${{ matrix.coin }} aarch64-linux-gnu -j$(nproc)
+      - name: ${{ matrix.coin }}/i686-linux-gnu
+        run: ./build_single.sh ${{ matrix.coin }} i686-linux-gnu -j$(nproc)
       - name: rename artifacts
         run: |
           mkdir release/gh/
-          for i in release/monero/*
+          for i in release/${{ matrix.coin }}/*
           do
-              mv "$i" "release/gh/monero_$(basename $i)"
+              mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -130,6 +120,9 @@ jobs:
         with:
           files: release/gh/*
   darwin:
+    strategy:
+      matrix:
+        coin: [monero, wownero]
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
@@ -149,20 +142,16 @@ jobs:
           git config --global user.name "CI mrcyjanek.net"
           ./apply_patches.sh monero
           ./apply_patches.sh wownero
-      - name: monero/x86_64-apple-darwin11
-        run: ./build_single.sh monero x86_64-apple-darwin11 -j$(nproc)
-      - name: wownero/x86_64-apple-darwin11
-        run: ./build_single.sh wownero x86_64-apple-darwin11 -j$(nproc)
-      - name: monero/aarch64-apple-darwin11
-        run: ./build_single.sh monero aarch64-apple-darwin11 -j$(nproc)
-      - name: wownero/aarch64-apple-darwin11
-        run: ./build_single.sh wownero aarch64-apple-darwin11 -j$(nproc)
+      - name: ${{ matrix.coin }}/x86_64-apple-darwin11
+        run: ./build_single.sh ${{ matrix.coin }} x86_64-apple-darwin11 -j$(nproc)
+      - name: ${{ matrix.coin }}/aarch64-apple-darwin11
+        run: ./build_single.sh ${{ matrix.coin }} aarch64-apple-darwin11 -j$(nproc)
       - name: rename artifacts
         run: |
           mkdir release/gh/
-          for i in release/monero/*
+          for i in release/${{ matrix.coin }}/*
           do
-              mv "$i" "release/gh/monero_$(basename $i)"
+              mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -191,12 +180,7 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh monero
-          ./apply_patches.sh wownero
+          ./apply_patches.sh ${{ matrix.coin }}
       - name: monero/host-apple-darwin
         run: |
-          ./build-single.sh monero host-apple-darwin -j$(sysctl -n hw.activecpu)
-      - name: wownero/host-apple-darwin
-        run: |
-          ./build-single.sh wownero host-apple-darwin -j$(sysctl -n hw.activecpu)
-          
+          ./build-single.sh ${{ matrix.coin }} host-apple-darwin -j$(sysctl -n hw.activecpu)
