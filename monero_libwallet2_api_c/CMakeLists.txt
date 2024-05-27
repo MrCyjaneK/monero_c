@@ -291,10 +291,6 @@ add_library(hidapi STATIC IMPORTED)
 set_target_properties(hidapi PROPERTIES IMPORTED_LOCATION
     ${EXTERNAL_LIBS_DIR}/lib/libhidapi.a)
 
-add_library(event STATIC IMPORTED)
-set_target_properties(event PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libevent.a)
-
 #############
 # System
 #############
@@ -327,7 +323,7 @@ if (${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch6
 elseif(${HOST_ABI} STREQUAL "host-apple-darwin" OR
        ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR
        ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin")
-    set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" apple_nghttp2 event)
+    set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" apple_nghttp2)
 elseif(${HOST_ABI} STREQUAL "host-apple-ios")
   set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" iconv )
 endif()

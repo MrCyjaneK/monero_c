@@ -3,13 +3,6 @@ set -x -e
 
 . config.sh
 
-#### add m4 to path
-# NOTE: this may not be needed.
-
-HOMEBREW_PREFIX="$(brew config | grep HOMEBREW_PREFIX | awk '{ print $2 }')"
-M4_VERSION="$(brew info m4 | head -1 | awk '{ print $4 }')"
-export PATH="${HOMEBREW_PREFIX}/Cellar/m4/${M4_VERSION}/bin/:$PATH"
-
 #### expat
 
 EXPAT_VERSION=R_2_4_8
@@ -40,6 +33,7 @@ cd $UNBOUND_DIR_PATH
 test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
 
 ./configure --prefix="${EXTERNAL_MACOS_DIR}" \
+	    --with-ssl="${HOMEBREW_PREFIX}" \
 			--with-libexpat="${EXTERNAL_MACOS_DIR}" \
 			--enable-static \
 			--disable-shared \

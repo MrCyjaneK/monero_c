@@ -183,7 +183,7 @@ pushd $repo/contrib/depends
                     export HOMEBREW_PREFIX=/usr/local
                 fi
             fi
-            # NOTE: we can use unbound from brew but app store rejects the app
+            # NOTE: we can use unbound from brew but app store rejects the app because of nghttp2 symbols being included
             # verbose_copy "${HOMEBREW_PREFIX}/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
             verbose_copy "../../../external/macos/build/MACOS/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_chrono-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_chrono-mt.a
@@ -204,7 +204,6 @@ pushd $repo/contrib/depends
             then
                 verbose_copy "${WOWNEROSEED_DIR}/libwownero-seed.a" ${MACOS_LIBS_DIR}/lib/libwownero-seed.a
             fi
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libevent.a" ${MACOS_LIBS_DIR}/lib/libevent.a
         ;;
         "host-apple-ios")
             echo "===================================="
@@ -318,7 +317,11 @@ pushd $repo/build/${HOST_ABI}
             env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D ARCH="armv8-a" -D BUILD_64=ON -D CMAKE_BUILD_TYPE=$buildType -D BUILD_TAG="mac-armv8" ../..
         ;;
         "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin")
-            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D BUILD_64=ON -D CMAKE_BUILD_TYPE=$buildType ../..
+	    PREFIX="$(realpath "${PWD}/../../../external/macos/build/MACOS")"
+	    env \
+		CMAKE_INCLUDE_PATH="${PREFIX}/include" \
+		CMAKE_LIBRARY_PATH="${PREFIX}/lib" \
+		CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D BUILD_64=ON -D CMAKE_BUILD_TYPE=$buildType ../..
         ;;
         "host-apple-ios")
             PREFIX="$(realpath "${PWD}/../../../external/ios/build/ios")"
