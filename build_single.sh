@@ -403,7 +403,25 @@ pushd release/$repo
     fi
     if [[ "$HOST_ABI" == "x86_64-linux-android" || "$HOST_ABI" == "i686-linux-android" || "$HOST_ABI" == "aarch64-linux-android" || "$HOST_ABI" == "arm-linux-androideabi" ]];
     then
-        cp ../../monero/contrib/depends/${HOST_ABI}/native/sysroot/usr/lib/${HOST_ABI}/libc++_shared.so ${HOST_ABI}_libc++_shared.so
+        if [[ "$repo" == "wownero" ]];
+        then
+            if [[ "$HOST_ABI" == "x86_64-linux-android" ]];
+            then
+                cp ../../$repo/contrib/depends/${HOST_ABI}/native/${HOST_ABI}/lib64/libc++_shared.so ${HOST_ABI}_libc++_shared.so
+            elif [[ "$HOST_ABI" == "i686-linux-android" ]];
+            then
+                echo "unsupported $HOST_ABI"
+                exit 1
+            elif [[ "$HOST_ABI" == "aarch64-linux-android" ]];
+            then
+                cp ../../$repo/contrib/depends/${HOST_ABI}/native/${HOST_ABI}/lib/libc++_shared.so ${HOST_ABI}_libc++_shared.so
+            elif [[ "$HOST_ABI" == "arm-linux-androideabi" ]];
+            then
+                cp ../../$repo/contrib/depends/${HOST_ABI}/native/${HOST_ABI}/lib/armv7-a/libc++_shared.so ${HOST_ABI}_libc++_shared.so
+            fi
+        else
+            cp ../../$repo/contrib/depends/${HOST_ABI}/native/sysroot/usr/lib/${HOST_ABI}/libc++_shared.so ${HOST_ABI}_libc++_shared.so
+        fi
         rm ${HOST_ABI}_libc++_shared.so.xz || true
         xz -e ${HOST_ABI}_libc++_shared.so
     fi
