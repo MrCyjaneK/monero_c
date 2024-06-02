@@ -30,6 +30,6 @@ fi
 
 ./build-libssl.sh --version=1.1.1q --targets="ios-cross-arm64" --deprecated
 
-mv -f -n ${OPEN_SSL_DIR_PATH}/include/* $EXTERNAL_IOS_INCLUDE_DIR
+mv -f ${OPEN_SSL_DIR_PATH}/include/* $EXTERNAL_IOS_INCLUDE_DIR
 mv ${OPEN_SSL_DIR_PATH}/lib/libcrypto-iOS.a ${EXTERNAL_IOS_LIB_DIR}/libcrypto.a
 mv ${OPEN_SSL_DIR_PATH}/lib/libssl-iOS.a ${EXTERNAL_IOS_LIB_DIR}/libssl.a
