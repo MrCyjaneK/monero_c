@@ -719,7 +719,7 @@ extern ADDAPI void* MONERO_Wallet_createTransaction(void* wallet_ptr, const char
 //     virtual PendingTransaction * createSweepUnmixableTransaction() = 0;
 //     virtual UnsignedTransaction * loadUnsignedTx(const std::string &unsigned_filename) = 0;
 extern ADDAPI void* MONERO_Wallet_loadUnsignedTx(void* wallet_ptr, const char* unsigned_filename);
-extern ADDAPI void* MONERO_Wallet_loadUnsignedUR(void* wallet_ptr, const char* input);
+extern ADDAPI void* MONERO_Wallet_loadUnsignedTxUR(void* wallet_ptr, const char* input);
 //     virtual bool submitTransaction(const std::string &fileName) = 0;
 extern ADDAPI bool MONERO_Wallet_submitTransaction(void* wallet_ptr, const char* fileName);
 extern ADDAPI bool MONERO_Wallet_submitTransactionUR(void* wallet_ptr, const char* input);
