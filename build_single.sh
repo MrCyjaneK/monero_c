@@ -59,47 +59,23 @@ case "$HOST_ABI" in
     ;;
     "x86_64-linux-android")
         export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
-        if [[ "$repo" == "wownero" ]];
-        then
-            export CC=x86_64-linux-android-clang
-            export CXX=x86_64-linux-android-clang++
-        else
-            export CC=x86_64-linux-android21-clang
-            export CXX=x86_64-linux-android21-clang++
-        fi
+        export CC=x86_64-linux-android21-clang
+        export CXX=x86_64-linux-android21-clang++
     ;;
     "i686-linux-android")
         export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
-        if [[ "$repo" == "wownero" ]];
-        then
-            export CC=i686-linux-android-clang
-            export CXX=i686-linux-android-clang++
-        else
-            export CC=i686-linux-android21-clang
-            export CXX=i686-linux-android21-clang++
-        fi
+        export CC=i686-linux-android21-clang
+        export CXX=i686-linux-android21-clang++
     ;;
     "aarch64-linux-android")
         export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
-        if [[ "$repo" == "wownero" ]];
-        then
-            export CC=aarch64-linux-android-clang
-            export CXX=aarch64-linux-android-clang++
-        else
-            export CC=aarch64-linux-android21-clang
-            export CXX=aarch64-linux-android21-clang++
-        fi
+        export CC=aarch64-linux-android21-clang
+        export CXX=aarch64-linux-android21-clang++
     ;;
-    "arm-linux-androideabi")
+    "armv7a-linux-androideabi")
         export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
-        if [[ "$repo" == "wownero" ]];
-        then
-            export CC=arm-linux-androideabi-clang
-            export CXX=arm-linux-androideabi-clang++
-        else
-            export CC=armv7a-linux-androideabi21-clang
-            export CXX=armv7a-linux-androideabi21-clang++
-        fi
+        export CC=armv7a-linux-androideabi21-clang
+        export CXX=armv7a-linux-androideabi21-clang++
     ;;
     "i686-w64-mingw32")
         update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
@@ -138,7 +114,7 @@ case "$HOST_ABI" in
 esac
 pushd $repo/contrib/depends
     case "$HOST_ABI" in
-        "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "arm-linux-androideabi" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11")
+        "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "armv7a-linux-androideabi" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11")
             CC=gcc CXX=g++ make HOST="$HOST_ABI" "$NPROC"
         ;;
         "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin")
@@ -301,7 +277,7 @@ pushd $repo/build/${HOST_ABI}
         "aarch64-linux-android")
             env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv8-a" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-armv8" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="arm64-v8a" ../..
         ;;
-        "arm-linux-androideabi")
+        "armv7a-linux-androideabi")
             env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv7-a" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-armv7" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="armeabi-v7a" ../..
         ;;
         "x86_64-w64-mingw32")
@@ -355,7 +331,7 @@ pushd ${repo}_libwallet2_api_c
     mkdir -p build/${HOST_ABI} -p
     pushd build/${HOST_ABI}
         case $HOST_ABI in
-            "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11" | "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "arm-linux-androideabi")
+            "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11" | "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "armv7a-linux-androideabi")
                 echo $CC
                 env CC="${CC}" CXX="${CXX}" cmake -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
                 CC="${CC}" CXX="${CXX}" make $NPROC
@@ -401,7 +377,7 @@ pushd release/$repo
         rm ${HOST_ABI}_libssp-0.dll.xz || true
         xz -e ${HOST_ABI}_libssp-0.dll
     fi
-    if [[ "$HOST_ABI" == "x86_64-linux-android" || "$HOST_ABI" == "i686-linux-android" || "$HOST_ABI" == "aarch64-linux-android" || "$HOST_ABI" == "arm-linux-androideabi" ]];
+    if [[ "$HOST_ABI" == "x86_64-linux-android" || "$HOST_ABI" == "i686-linux-android" || "$HOST_ABI" == "aarch64-linux-android" || "$HOST_ABI" == "armv7a-linux-androideabi" ]];
     then
         cp ../../$repo/contrib/depends/${HOST_ABI}/native/sysroot/usr/lib/${HOST_ABI}/libc++_shared.so ${HOST_ABI}_libc++_shared.so
         rm ${HOST_ABI}_libc++_shared.so.xz || true

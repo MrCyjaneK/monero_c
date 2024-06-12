@@ -63,7 +63,7 @@ set_target_properties(ssl PROPERTIES IMPORTED_LOCATION
 # Boost
 ############
 
-if(${HOST_ABI} STREQUAL "x86_64-linux-android" OR ${HOST_ABI} STREQUAL "aarch64-linux-android" OR ${HOST_ABI} STREQUAL "arm-linux-androideabi" OR ${HOST_ABI} STREQUAL "i686-linux-android")
+if(${HOST_ABI} STREQUAL "x86_64-linux-android" OR ${HOST_ABI} STREQUAL "aarch64-linux-android" OR ${HOST_ABI} STREQUAL "armv7a-linux-androideabi" OR ${HOST_ABI} STREQUAL "i686-linux-android")
     set(CMAKE_LINKER ${HOST_ABI}-ld)
     set(BOOST_WTF "-mt-s")
     set(BOOST_WTF_PART "")
