@@ -379,7 +379,12 @@ pushd release/$repo
     fi
     if [[ "$HOST_ABI" == "x86_64-linux-android" || "$HOST_ABI" == "i686-linux-android" || "$HOST_ABI" == "aarch64-linux-android" || "$HOST_ABI" == "armv7a-linux-androideabi" ]];
     then
-        cp ../../$repo/contrib/depends/${HOST_ABI}/native/sysroot/usr/lib/${HOST_ABI}/libc++_shared.so ${HOST_ABI}_libc++_shared.so
+        SYSROOT_TRIPLET=${HOST_ABI}
+        if [[ "${HOST_ABI}" == "armv7a-linux-androideabi" ]];
+        then
+            SYSROOT_TRIPLET="arm-linux-androideabi"
+        fi
+        cp ../../$repo/contrib/depends/${HOST_ABI}/native/sysroot/usr/lib/${SYSROOT_TRIPLET}/libc++_shared.so ${HOST_ABI}_libc++_shared.so
         rm ${HOST_ABI}_libc++_shared.so.xz || true
         xz -e ${HOST_ABI}_libc++_shared.so
     fi
