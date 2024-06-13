@@ -66,8 +66,8 @@ jobs:
         run: ./build_single.sh ${{ matrix.coin }} x86_64-linux-android -j$(nproc)
       - name: ${{ matrix.coin }}/aarch64-linux-android
         run: ./build_single.sh ${{ matrix.coin }} aarch64-linux-android -j$(nproc)
-      - name: ${{ matrix.coin }}/arm-linux-androideabi
-        run: ./build_single.sh ${{ matrix.coin }} arm-linux-androideabi -j$(nproc)
+      - name: ${{ matrix.coin }}/armv7a-linux-androideabi
+        run: ./build_single.sh ${{ matrix.coin }} armv7a-linux-androideabi -j$(nproc)
       - name: rename artifacts
         run: |
           mkdir release/gh/
@@ -162,29 +162,3 @@ jobs:
         with:
           files: release/gh/*
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
-  macos-host:
-    runs-on: macos-14
-    steps:
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '15.2'
-      - name: Set up Homebrew
-        id: set-up-homebrew
-        uses: Homebrew/actions/setup-homebrew@master
-      - name: Install brew dependencies
-        run: |
-          brew install git unbound boost@1.76 zmq
-          brew link boost@1.76
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          submodules: recursive
-      - name: Patch sources
-        run: |
-          git config --global --add safe.directory '*'
-          git config --global user.email "ci@mrcyjanek.net"
-          git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh ${{ matrix.coin }}
-      - name: monero/host-apple-darwin
-        run: |
-          ./build-single.sh ${{ matrix.coin }} host-apple-darwin -j$(sysctl -n hw.activecpu)
