@@ -41,5 +41,5 @@ source ./contrib/ios/setenv_ios.sh
 ./contrib/ios/install_tools.sh
 ./contrib/ios/install_expat.sh
 ./configure --build="$AUTOTOOLS_BUILD" --host="$AUTOTOOLS_HOST" --prefix="$IOS_PREFIX" --with-ssl="$IOS_PREFIX" --with-libexpat="$IOS_PREFIX"
-make
+make -j$(sysctl -n hw.logicalcpu)
 make install

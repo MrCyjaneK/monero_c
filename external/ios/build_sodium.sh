@@ -29,7 +29,7 @@ else
     exit 1
 fi
 
-./dist-build/apple-xcframework.sh
+../../../../libsodium_apple-ios.sh
 
 mv -f ${SODIUM_PATH}/libsodium-apple/ios/include/* $EXTERNAL_IOS_INCLUDE_DIR
 mv -f ${SODIUM_PATH}/libsodium-apple/ios/lib/* $EXTERNAL_IOS_LIB_DIR

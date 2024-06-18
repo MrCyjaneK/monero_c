@@ -31,7 +31,7 @@ fi
 mkdir -p cmake-build
 cd cmake-build
 cmake ..
-make
+make -j$(sysctl -n hw.logicalcpu)
 
 
 cp ${ZMQ_PATH}/include/* $EXTERNAL_IOS_INCLUDE_DIR
