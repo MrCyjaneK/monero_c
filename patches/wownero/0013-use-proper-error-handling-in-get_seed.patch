@@ -1,17 +1,47 @@
-From 5854ceb70da0677ab74abc5153549c965780b445 Mon Sep 17 00:00:00 2001
+From 50e09195fcb79debf5951c69717b9d4f239ed8e1 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 24 Jun 2024 10:49:12 +0200
 Subject: [PATCH] use proper error handling in get_seed
 
 ---
- src/wallet/wallet2.cpp | 3 +++
- 1 file changed, 3 insertions(+)
+ src/wallet/api/wallet.cpp | 17 ++++++++++++-----
+ src/wallet/wallet2.cpp    |  3 +++
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index ac3e6d51e..8bdd75a5a 100644
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -880,12 +880,19 @@ bool WalletImpl::close(bool store)
+ 
+ std::string WalletImpl::seed(const std::string& seed_offset) const
+ {
+-    if (checkBackgroundSync("cannot get seed"))
++    if (checkBackgroundSync("cannot get seed")) {
++        setStatusError("cannot get seed");
+         return std::string();
+-    epee::wipeable_string seed;
+-    if (m_wallet)
+-        m_wallet->get_seed(seed, seed_offset);
+-    return std::string(seed.data(), seed.size()); // TODO
++    }
++    try {
++        epee::wipeable_string seed;
++        if (m_wallet)
++            m_wallet->get_seed(seed, seed_offset);
++        return std::string(seed.data(), seed.size()); // TODO
++    } catch (const std::exception &e) {
++        setStatusError(e.what());
++        return std::string();
++    }
+ }
+ 
+ bool WalletImpl::getPolyseed(std::string &seed_words, std::string &passphrase) const
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 2b3eaad2e..4073974d9 100644
+index 23b56810e..f7bdf2429 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -1445,11 +1445,13 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
+@@ -1452,11 +1452,13 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
    bool keys_deterministic = is_deterministic();
    if (!keys_deterministic)
    {
@@ -25,7 +55,7 @@ index 2b3eaad2e..4073974d9 100644
      std::cout << "seed_language not set" << std::endl;
      return false;
    }
-@@ -1459,6 +1461,7 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
+@@ -1466,6 +1468,7 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
      key = cryptonote::encrypt_key(key, passphrase);
    if (!crypto::ElectrumWords::bytes_to_words(key, electrum_words, seed_language))
    {
