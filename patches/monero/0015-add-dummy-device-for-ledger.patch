@@ -1,4 +1,4 @@
-From a1bc57a00254ed47216c90edb1752c68e3fd77d3 Mon Sep 17 00:00:00 2001
+From be3d650501e25e26322c4a8c092d6bb89b1f71b5 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
 Subject: [PATCH] add dummy device for ledger
@@ -8,13 +8,13 @@ Subject: [PATCH] add dummy device for ledger
  src/device/CMakeLists.txt      |   2 +
  src/device/device.hpp          |   2 +-
  src/device/device_io_dummy.cpp | 132 +++++++++++++++++++++++++++++++++
- src/device/device_io_dummy.hpp |  69 +++++++++++++++++
+ src/device/device_io_dummy.hpp |  74 ++++++++++++++++++
  src/device/device_ledger.cpp   |   4 +-
  src/device/device_ledger.hpp   |   5 ++
  src/wallet/api/wallet.cpp      |  92 +++++++++++++++++++++++
  src/wallet/api/wallet.h        |  18 +++++
  src/wallet/api/wallet2_api.h   |  12 +++
- 10 files changed, 338 insertions(+), 4 deletions(-)
+ 10 files changed, 343 insertions(+), 4 deletions(-)
  create mode 100644 src/device/device_io_dummy.cpp
  create mode 100644 src/device/device_io_dummy.hpp
 
@@ -210,10 +210,10 @@ index 000000000..1f94480ef
 \ No newline at end of file
 diff --git a/src/device/device_io_dummy.hpp b/src/device/device_io_dummy.hpp
 new file mode 100644
-index 000000000..8c486f1d7
+index 000000000..a1733616d
 --- /dev/null
 +++ b/src/device/device_io_dummy.hpp
-@@ -0,0 +1,69 @@
+@@ -0,0 +1,74 @@
 +// Copyright (c) 2017-2022, The Monero Project
 +//
 +// All rights reserved.
@@ -251,7 +251,12 @@ index 000000000..8c486f1d7
 +
 +namespace hw {
 +    namespace io {
-+
++        struct hid_conn_params {
++            unsigned int vid;
++            unsigned int pid;
++            int interface_number;
++            unsigned short usage_page;
++        };
 +        class device_io_dummy : device_io {
 +        private:
 +            boost::mutex mutex;
