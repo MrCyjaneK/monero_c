@@ -832,6 +832,16 @@ extern ADDAPI bool MONERO_Wallet_reconnectDevice(void* wallet_ptr);
 extern ADDAPI uint64_t MONERO_Wallet_getBytesReceived(void* wallet_ptr);
 //     virtual uint64_t getBytesSent() = 0;
 extern ADDAPI uint64_t MONERO_Wallet_getBytesSent(void* wallet_ptr);
+    // HIDAPI_DUMMY
+extern ADDAPI bool MONERO_Wallet_getStateIsConnected(void* wallet_ptr);
+extern ADDAPI unsigned char* MONERO_Wallet_getSendToDevice(void* wallet_ptr);
+extern ADDAPI size_t MONERO_Wallet_getSendToDeviceLength(void* wallet_ptr);
+extern ADDAPI unsigned char* MONERO_Wallet_getReceivedFromDevice(void* wallet_ptr);
+extern ADDAPI size_t MONERO_Wallet_getReceivedFromDeviceLength(void* wallet_ptr);
+extern ADDAPI bool MONERO_Wallet_getWaitsForDeviceSend(void* wallet_ptr);
+extern ADDAPI bool MONERO_Wallet_getWaitsForDeviceReceive(void* wallet_ptr);
+extern ADDAPI void MONERO_Wallet_setDeviceReceivedData(void* wallet_ptr, unsigned char* data, size_t len);
+extern ADDAPI void MONERO_Wallet_setDeviceSendData(void* wallet_ptr, unsigned char* data, size_t len);
 // };
 
 // struct WalletManager
