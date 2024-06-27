@@ -53,7 +53,41 @@ case "$HOST_ABI" in
         export CC="${HOST_ABI}-gcc"
         export CXX="${HOST_ABI}-g++"
     ;;
+    "i686-meego-linux-gnu")
+        # sanity checks, we should only run on native cpu
+        if [[ ! "$(uname -m)" == "x86_64" ]];
+        then
+            echo "${HOST_ABI} builds are only supported on x86_64 host."
+            exit 1
+        fi
+        # we also only support sailfishos linux
+        source /etc/os-release
+        if [[ ! "$ID" == "sailfishos" ]];
+        then
+            echo "${HOST_ABI} builds are only supported on sailfishos host."
+            exit 1
+        fi
+        export CC="${HOST_ABI}-gcc"
+        export CXX="${HOST_ABI}-g++"
+    ;;
     "aarch64-linux-gnu")
+        export CC="${HOST_ABI}-gcc"
+        export CXX="${HOST_ABI}-g++"
+    ;;
+    "aarch64-meego-linux-gnu")
+        # sanity checks, we should only run on native cpu
+        if [[ ! "$(uname -m)" == "aarch64" ]];
+        then
+            echo "${HOST_ABI} builds are only supported on aarch64 host."
+            exit 1
+        fi
+        # we also only support sailfishos linux
+        source /etc/os-release
+        if [[ ! "$ID" == "sailfishos" ]];
+        then
+            echo "${HOST_ABI} builds are only supported on sailfishos host."
+            exit 1
+        fi
         export CC="${HOST_ABI}-gcc"
         export CXX="${HOST_ABI}-g++"
     ;;
@@ -114,7 +148,7 @@ case "$HOST_ABI" in
 esac
 pushd $repo/contrib/depends
     case "$HOST_ABI" in
-        "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "armv7a-linux-androideabi" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11")
+        "x86_64-linux-gnu" | "i686-linux-gnu" | "i686-meego-linux-gnu" | "aarch64-linux-gnu" | "aarch64-meego-linux-gnu" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "armv7a-linux-androideabi" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11")
             CC=gcc CXX=g++ make HOST="$HOST_ABI" "$NPROC"
         ;;
         "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin")
@@ -265,7 +299,13 @@ pushd $repo/build/${HOST_ABI}
         "i686-linux-gnu")
             env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="i686" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-x86" -D CMAKE_SYSTEM_NAME="Linux" ../..
         ;;
+        "i686-meego-linux-gnu")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="i686" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-x86" -D CMAKE_SYSTEM_NAME="Linux" ../..
+        ;;
         "aarch64-linux-gnu")
+            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv8-a" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-armv8" -D CMAKE_SYSTEM_NAME="Linux" ../..
+        ;;
+        "aarch64-meego-linux-gnu")
             env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv8-a" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-armv8" -D CMAKE_SYSTEM_NAME="Linux" ../..
         ;;
         "x86_64-linux-android")
@@ -331,7 +371,7 @@ pushd ${repo}_libwallet2_api_c
     mkdir -p build/${HOST_ABI} -p
     pushd build/${HOST_ABI}
         case $HOST_ABI in
-            "x86_64-linux-gnu" | "i686-linux-gnu" | "aarch64-linux-gnu" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11" | "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "armv7a-linux-androideabi")
+            "x86_64-linux-gnu" | "i686-linux-gnu" | "i686-meego-linux-gnu" | "aarch64-linux-gnu" | "aarch64-meego-linux-gnu" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11" | "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "armv7a-linux-androideabi")
                 echo $CC
                 env CC="${CC}" CXX="${CXX}" cmake -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
                 CC="${CC}" CXX="${CXX}" make $NPROC

@@ -122,6 +122,70 @@ jobs:
         with:
           files: release/gh/*
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+  sailfishos_aarch64:
+    strategy:
+      matrix:
+        coin: [monero, wownero]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Patch sources
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@mrcyjanek.net"
+          git config --global user.name "CI mrcyjanek.net"
+          ./apply_patches.sh ${{ matrix.coin }}
+      - name: ${{ matrix.coin }}/aarch64-meego-linux-gnu
+        run: |
+          docker run --rm -v $PWD:$PWD -w $PWD ghcr.io/mrcyjanek/sailfishos:4.6.0.11_target_aarch64 bash -c 'zypper in -f -y perl-IPC-Cmd curl ccache gperf cmake ffmpeg-tools git clang libxkbcommon-devel wayland-protocols-devel wayland-client wayland-egl-devel make glibc-static && git config --global --add safe.directory '*' && git config --global user.email "ci@mrcyjanek.net" && git config --global user.name "CI mrcyjanek.net" && for i in gcc g++ ar ranlib; do ln -s /usr/bin/$i /usr/bin/aarch64-meego-linux-gnu-$i; done && ./build_single.sh ${{ matrix.coin }} aarch64-meego-linux-gnu -j$(nproc)'
+      - name: rename artifacts
+        run: |
+          mkdir release/gh/
+          for i in release/${{ matrix.coin }}/*
+          do
+              mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+          done
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: release/gh/*
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+  sailfishos_i486:
+    strategy:
+      matrix:
+        coin: [monero, wownero]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Patch sources
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@mrcyjanek.net"
+          git config --global user.name "CI mrcyjanek.net"
+          ./apply_patches.sh ${{ matrix.coin }}
+      - name: ${{ matrix.coin }}/aarch64-meego-linux-gnu
+        run: |
+          docker run --rm -v $PWD:$PWD -w $PWD ghcr.io/mrcyjanek/sailfishos:4.6.0.11_target_i486 bash -c 'zypper in -f -y perl-IPC-Cmd curl ccache gperf cmake ffmpeg-tools git clang libxkbcommon-devel wayland-protocols-devel wayland-client wayland-egl-devel make glibc-static && git config --global --add safe.directory '*' && git config --global user.email "ci@mrcyjanek.net" && git config --global user.name "CI mrcyjanek.net" && for i in gcc g++ ar ranlib; do ln -s /usr/bin/$i /usr/bin/i686-linux-gnu-$i; done && ./build_single.sh ${{ matrix.coin }} i684-meego-linux-gnu -j$(nproc)'
+      - name: rename artifacts
+        run: |
+          mkdir release/gh/
+          for i in release/${{ matrix.coin }}/*
+          do
+              mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+          done
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: release/gh/*
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
   darwin:
     strategy:
       matrix:
