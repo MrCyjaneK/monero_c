@@ -328,7 +328,13 @@ elseif(${HOST_ABI} STREQUAL "host-apple-ios")
   set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" iconv )
 endif()
 
-# target_compile_options(wallet2_api_c PRIVATE -static-libstdc++)
+if (${HOST_ABI} STREQUAL "x86_64-linux-android" OR
+    ${HOST_ABI} STREQUAL "i686-linux-android" OR
+    ${HOST_ABI} STREQUAL "aarch64-linux-android" OR
+    ${HOST_ABI} STREQUAL "armv7a-linux-androideabi")
+    add_link_options(wallet2_api_c PRIVATE -static-libstdc++)
+endif()
+
 
 if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-mingw32")
     set_target_properties(wallet2_api_c PROPERTIES SUFFIX ".dll")
