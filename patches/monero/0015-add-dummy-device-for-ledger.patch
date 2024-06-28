@@ -1,4 +1,4 @@
-From be3d650501e25e26322c4a8c092d6bb89b1f71b5 Mon Sep 17 00:00:00 2001
+From c8f6042d2a1df4c40e96dbd55d798b1b2b3dc5fb Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
 Subject: [PATCH] add dummy device for ledger
@@ -37,24 +37,24 @@ index 6028c0961..e7fa90abb 100644
    add_definitions(-DHAVE_HIDAPI)
    include_directories(${HIDAPI_INCLUDE_DIR})
 diff --git a/src/device/CMakeLists.txt b/src/device/CMakeLists.txt
-index e4f1159b5..1ca016aba 100644
+index e4f1159b5..c5e74ab79 100644
 --- a/src/device/CMakeLists.txt
 +++ b/src/device/CMakeLists.txt
-@@ -45,6 +45,7 @@ set(device_headers
+@@ -29,6 +29,7 @@
+ set(device_sources
+   device.cpp
+   device_default.cpp
++  device_io_dummy.cpp
+   log.cpp
+   )
+ 
+@@ -45,6 +46,7 @@ set(device_headers
    device_io.hpp
    device_default.hpp
    device_cold.hpp
 +  device_io_dummy.hpp
    log.hpp
   )
- 
-@@ -53,6 +54,7 @@ if(HIDAPI_FOUND)
-     ${device_headers} 
-     device_ledger.hpp
-     device_io_hid.hpp
-+    device_io_dummy.cpp
-     )
- endif()
  
 diff --git a/src/device/device.hpp b/src/device/device.hpp
 index 392703a24..4368840ab 100644
@@ -495,5 +495,5 @@ index 2bbb32c8b..c8d6bb179 100644
  
  /**
 -- 
-2.39.2
+2.43.2
 
