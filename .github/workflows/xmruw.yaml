@@ -20,9 +20,9 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh ${{ matrix.coin }}
-      - name: ${{ matrix.coin }}/aarch64-linux-android
-        run: ./build_single.sh ${{ matrix.coin }} aarch64-linux-android -j$(nproc)
+          ./apply_patches.sh monero
+      - name: monero/aarch64-linux-android
+        run: ./build_single.sh monero aarch64-linux-android -j$(nproc)
       - uses: kuhnroyal/flutter-fvm-config-action@v2
         id: fvm-config-action
       - uses: subosito/flutter-action@v2
