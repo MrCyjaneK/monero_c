@@ -10,7 +10,7 @@ jobs:
       - name: Install dependencies
         run: |
           apt update
-          apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf unzip python-is-python3
+          apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf unzip python-is-python3 jq
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
