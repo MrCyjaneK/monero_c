@@ -334,22 +334,6 @@ elseif(${HOST_ABI} STREQUAL "host-apple-ios")
   set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" iconv )
 endif()
 
-if (${HOST_ABI} STREQUAL "x86_64-linux-android" OR
-    ${HOST_ABI} STREQUAL "i686-linux-android" OR
-    ${HOST_ABI} STREQUAL "aarch64-linux-android")
-    add_library(libcppstatic STATIC IMPORTED)
-    set_target_properties(libcppstatic PROPERTIES IMPORTED_LOCATION
-        ${MONERO_DIR}/contrib/depends/${HOST_ABI}/native/sysroot/usr/lib/${HOST_ABI}/libc++_static.a)
-    add_link_options(wallet2_api_c PRIVATE -static-libstdc++)
-    set(EXTRA_LIBS_ANDROID libcppstatic)
-elseif(${HOST_ABI} STREQUAL "armv7a-linux-androideabi")
-    add_library(libcppstatic STATIC IMPORTED)
-    set_target_properties(libcppstatic PROPERTIES IMPORTED_LOCATION
-        ${MONERO_DIR}/contrib/depends/${HOST_ABI}/native/sysroot/usr/lib/arm-linux-androideabi/libc++_static.a)
-    add_link_options(wallet2_api_c PRIVATE -static-libstdc++)
-endif()
-
-
 if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-mingw32")
     set_target_properties(wallet2_api_c PROPERTIES SUFFIX ".dll")
     set(EXTRA_LIBS_WINDOWS ssp wsock32 ws2_32 iconv-win iphlpapi crypt32 hidapi)
