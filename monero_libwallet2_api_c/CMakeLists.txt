@@ -156,9 +156,15 @@ endif()
 
 if (${MONERO_FLAVOR} STREQUAL "wownero")
     set(EXTRA_LIBS_WOWNEROSEED wownero-seed)
-    add_library(wownero-seed STATIC IMPORTED)
-    set_target_properties(wownero-seed PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/lib/libwownero-seed.a)
+    if(${HOST_ABI} STREQUAL "aarch64-meego-linux-gnu")
+        add_library(wownero-seed STATIC IMPORTED)
+        set_target_properties(wownero-seed PROPERTIES IMPORTED_LOCATION
+            ${EXTERNAL_LIBS_DIR}/lib64/libwownero-seed.a)
+    else()
+        add_library(wownero-seed STATIC IMPORTED)
+        set_target_properties(wownero-seed PROPERTIES IMPORTED_LOCATION
+            ${EXTERNAL_LIBS_DIR}/lib/libwownero-seed.a)
+    endif()
 endif()
 
 #############
