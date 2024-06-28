@@ -44,7 +44,7 @@ jobs:
           ./build_changelog.sh
           cp ../release/monero/aarch64-linux-android_libwallet2_api_c.so.xz android/app/src/main/jniLibs/arm64-v8a/libmonero_libwallet2_api_c.so.xz
           unxz -f android/app/src/main/jniLibs/arm64-v8a/*.xz
-          flutter build apk --flavor clean --dart-define=libstealth_calculator=false
+          flutter build apk --debug --flavor clean --dart-define=libstealth_calculator=false
       - name: Archive code coverage results
         uses: actions/upload-artifact@v4
         with:
