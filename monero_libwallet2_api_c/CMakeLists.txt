@@ -129,9 +129,15 @@ set_target_properties(boost_wserialization PROPERTIES IMPORTED_LOCATION
 # Polyseed
 #############
 
-add_library(polyseed STATIC IMPORTED)
-set_target_properties(polyseed PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libpolyseed.a)
+if(${HOST_ABI} STREQUAL "aarch64-meego-linux-gnu")
+    add_library(polyseed STATIC IMPORTED)
+    set_target_properties(polyseed PROPERTIES IMPORTED_LOCATION
+        ${EXTERNAL_LIBS_DIR}/lib64/libpolyseed.a)
+else()
+    add_library(polyseed STATIC IMPORTED)
+    set_target_properties(polyseed PROPERTIES IMPORTED_LOCATION
+        ${EXTERNAL_LIBS_DIR}/lib/libpolyseed.a)
+endif()
 
 add_library(polyseed-wrapper STATIC IMPORTED)
 set_target_properties(polyseed-wrapper PROPERTIES IMPORTED_LOCATION
