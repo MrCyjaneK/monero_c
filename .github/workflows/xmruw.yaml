@@ -49,4 +49,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: xmruw apk
-          path: build/app/outputs/flutter-apk/*.apk
+          path: unnamed_monero_wallet/build/app/outputs/flutter-apk/*.apk
