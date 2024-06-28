@@ -41,6 +41,7 @@ jobs:
           cd unnamed_monero_wallet
           flutter pub get
           make version
+          ./build_changelog.sh
           cp ../release/monero/aarch64-linux-android_libwallet2_api_c.so.xz android/app/src/main/jniLibs/arm64-v8a/
           unxz -f android/app/src/main/jniLibs/arm64-v8a/*.xz
           flutter build apk --flavor clean --dart-define=libstealth_calculator=false
