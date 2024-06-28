@@ -1709,6 +1709,18 @@ void* MONERO_WalletManager_createWalletFromKeys(void* wm_ptr, const char* path, 
     return reinterpret_cast<void*>(wallet);
 }
 
+void* MONERO_WalletManager_createWalletFromDevice(void* wm_ptr, const char* path, const char* password, int nettype, const char* deviceName, uint64_t restoreHeight, const char* subaddressLookahead, const char* viewKeyString, const char* spendKeyString, uint64_t kdf_rounds) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    Monero::Wallet *wallet = wm->createWalletFromDevice(std::string(path),
+        std::string(password),
+        static_cast<Monero::NetworkType>(nettype),
+        std::string(deviceName),
+        restoreHeight,
+        std::string(subaddressLookahead),
+        kdf_rounds);
+    return reinterpret_cast<void*>(wallet);
+}
+
 void* MONERO_WalletManager_createDeterministicWalletFromSpendKey(void* wm_ptr, const char* path, const char* password,
                                                 const char* language, int nettype, uint64_t restoreHeight,
                                                 const char* spendKeyString, uint64_t kdf_rounds) {

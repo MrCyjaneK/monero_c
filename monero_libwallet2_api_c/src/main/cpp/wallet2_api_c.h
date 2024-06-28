@@ -928,6 +928,7 @@ extern ADDAPI void* MONERO_WalletManager_createDeterministicWalletFromSpendKey(v
 //                                             const std::string &subaddressLookahead = "",
 //                                             uint64_t kdf_rounds = 1,
 //                                             WalletListener * listener = nullptr) = 0;
+extern ADDAPI void* MONERO_WalletManager_createWalletFromDevice(void* wm_ptr, const char* path, const char* password, int nettype, const char* deviceName, uint64_t restoreHeight, const char* subaddressLookahead, const char* viewKeyString, const char* spendKeyString, uint64_t kdf_rounds);
 //     virtual Wallet * createWalletFromPolyseed(const std::string &path,
 //                                               const std::string &password,
 //                                               NetworkType nettype,
