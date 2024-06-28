@@ -40,7 +40,6 @@ jobs:
           java-version: '17'
       - name: build xmruw
         run: |
-          git clone https://github.com/mrcyjanek/unnamed_monero_wallet
           cd unnamed_monero_wallet
           flutter pub get
           make version
