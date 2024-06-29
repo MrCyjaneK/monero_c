@@ -1,4 +1,4 @@
-From c8f6042d2a1df4c40e96dbd55d798b1b2b3dc5fb Mon Sep 17 00:00:00 2001
+From 362b749afa1dbdf3181032cb20acc98a5f4981ac Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
 Subject: [PATCH] add dummy device for ledger
@@ -7,14 +7,14 @@ Subject: [PATCH] add dummy device for ledger
  CMakeLists.txt                 |   6 +-
  src/device/CMakeLists.txt      |   2 +
  src/device/device.hpp          |   2 +-
- src/device/device_io_dummy.cpp | 132 +++++++++++++++++++++++++++++++++
- src/device/device_io_dummy.hpp |  74 ++++++++++++++++++
+ src/device/device_io_dummy.cpp | 141 +++++++++++++++++++++++++++++++++
+ src/device/device_io_dummy.hpp |  74 +++++++++++++++++
  src/device/device_ledger.cpp   |   4 +-
  src/device/device_ledger.hpp   |   5 ++
- src/wallet/api/wallet.cpp      |  92 +++++++++++++++++++++++
+ src/wallet/api/wallet.cpp      |  92 +++++++++++++++++++++
  src/wallet/api/wallet.h        |  18 +++++
  src/wallet/api/wallet2_api.h   |  12 +++
- 10 files changed, 343 insertions(+), 4 deletions(-)
+ 10 files changed, 352 insertions(+), 4 deletions(-)
  create mode 100644 src/device/device_io_dummy.cpp
  create mode 100644 src/device/device_io_dummy.hpp
 
@@ -71,10 +71,10 @@ index 392703a24..4368840ab 100644
  #endif
 diff --git a/src/device/device_io_dummy.cpp b/src/device/device_io_dummy.cpp
 new file mode 100644
-index 000000000..1f94480ef
+index 000000000..a7e9c41a1
 --- /dev/null
 +++ b/src/device/device_io_dummy.cpp
-@@ -0,0 +1,132 @@
+@@ -0,0 +1,141 @@
 +// Copyright (c) 2017-2022, The Monero Project
 +//
 +// All rights reserved.
@@ -130,6 +130,15 @@ index 000000000..1f94480ef
 +bool hw::io::device_io_dummy::waitsForDeviceReceive = false;
 +
 +namespace hw {
++
++#ifndef HIDAPI_FOUND
++    namespace ledger {
++        void register_all(std::map<std::string, std::unique_ptr<device>> &registry) {
++            MDEBUG("register_all()");
++        }
++    }
++#endif
++
 +    namespace io {
 +
 +#undef MONERO_DEFAULT_LOG_CATEGORY
@@ -495,5 +504,5 @@ index 2bbb32c8b..c8d6bb179 100644
  
  /**
 -- 
-2.43.2
+2.39.2
 
