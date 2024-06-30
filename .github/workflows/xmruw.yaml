@@ -21,6 +21,8 @@ jobs:
           ./apply_patches.sh monero
       - name: monero/aarch64-linux-android
         run: ./build_single.sh monero aarch64-linux-android -j$(nproc)
+      - name: wownero/aarch64-linux-android
+        run: ./build_single.sh monero aarch64-linux-android -j$(nproc)
       - name: clone xmruw
         run: |
           git clone https://github.com/mrcyjanek/unnamed_monero_wallet
@@ -36,16 +38,27 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
-      - name: build xmruw
+      - name: build xmruw (monero)
         run: |
           cd unnamed_monero_wallet
+          ./codegen.sh -DCOIN_MONERO -DLIBSTEALTH_DISABLED
           flutter pub get
           make version
           ./build_changelog.sh
           cp ../release/monero/aarch64-linux-android_libwallet2_api_c.so.xz android/app/src/main/jniLibs/arm64-v8a/libmonero_libwallet2_api_c.so.xz
           unxz -f android/app/src/main/jniLibs/arm64-v8a/*.xz
-          flutter build apk --debug --flavor clean --dart-define=libstealth_calculator=false
-      - name: Archive code coverage results
+          flutter build apk --debug --flavor clean_monero
+      - name: build xmruw (wownero)
+        run: |
+          cd unnamed_monero_wallet
+          ./codegen.sh -DCOIN_WOWNERO -DLIBSTEALTH_DISABLED
+          flutter pub get
+          make version
+          ./build_changelog.sh
+          cp ../release/wownero/aarch64-linux-android_libwallet2_api_c.so.xz android/app/src/main/jniLibs/arm64-v8a/libwownero_libwallet2_api_c.so.xz
+          unxz -f android/app/src/main/jniLibs/arm64-v8a/*.xz
+          flutter build apk --debug --flavor clean_wownero
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: xmruw apk
