@@ -22,7 +22,7 @@ jobs:
       - name: monero/aarch64-linux-android
         run: ./build_single.sh monero aarch64-linux-android -j$(nproc)
       - name: wownero/aarch64-linux-android
-        run: ./build_single.sh monero aarch64-linux-android -j$(nproc)
+        run: ./build_single.sh wownero aarch64-linux-android -j$(nproc)
       - name: clone xmruw
         run: |
           git clone https://github.com/mrcyjanek/unnamed_monero_wallet
