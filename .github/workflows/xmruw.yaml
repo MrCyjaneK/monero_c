@@ -3,18 +3,11 @@ run-name: Building xmruw for supported targets
 on: [push]
 jobs:
   android:
+    strategy:
+      matrix:
+        coin: [monero, wownero]
     runs-on: ubuntu-latest
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: insightsengineering/disk-space-reclaimer@v1
-        with:
-          tools-cache: true
-          android: false
-          dotnet: true
-          haskell: true
-          large-packages: true
-          swap-storage: true
-          docker-images: true
       - name: Install dependencies
         run: |
           sudo apt update
@@ -28,12 +21,9 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh monero
-          ./apply_patches.sh wownero
-      - name: monero/aarch64-linux-android
-        run: ./build_single.sh monero aarch64-linux-android -j$(nproc)
-      - name: wownero/aarch64-linux-android
-        run: ./build_single.sh wownero aarch64-linux-android -j$(nproc)
+          ./apply_patches.sh ${{ matrix.coin }}
+      - name: ${{ matrix.coin }}/aarch64-linux-android
+        run: ./build_single.sh ${{ matrix.coin }} aarch64-linux-android -j$(nproc)
       - name: clone xmruw
         run: |
           git clone https://github.com/mrcyjanek/unnamed_monero_wallet
@@ -49,26 +39,17 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
-      - name: build xmruw (monero)
+      - name: build xmruw (${{ matrix.coin }})
         run: |
           cd unnamed_monero_wallet
-          ./codegen.sh -DCOIN_MONERO -DLIBSTEALTH_DISABLED
+          if [[ "${{ matrix.coin }}" == "monero" ]]; then ./codegen.sh -DCOIN_MONERO -DLIBSTEALTH_DISABLED; fi
+          if [[ "${{ matrix.coin }}" == "wownero" ]]; then ./codegen.sh -DCOIN_WOWNERO -DLIBSTEALTH_DISABLED; fi
           flutter pub get
           make version
           ./build_changelog.sh
-          cp ../release/monero/aarch64-linux-android_libwallet2_api_c.so.xz android/app/src/main/jniLibs/arm64-v8a/libmonero_libwallet2_api_c.so.xz
+          cp ../release/${{ matrix.coin }}/aarch64-linux-android_libwallet2_api_c.so.xz android/app/src/main/jniLibs/arm64-v8a/lib${{ matrix.coin }}_libwallet2_api_c.so.xz
           unxz -f android/app/src/main/jniLibs/arm64-v8a/*.xz
-          flutter build apk --debug --flavor clean_monero
-      - name: build xmruw (wownero)
-        run: |
-          cd unnamed_monero_wallet
-          ./codegen.sh -DCOIN_WOWNERO -DLIBSTEALTH_DISABLED
-          flutter pub get
-          make version
-          ./build_changelog.sh
-          cp ../release/wownero/aarch64-linux-android_libwallet2_api_c.so.xz android/app/src/main/jniLibs/arm64-v8a/libwownero_libwallet2_api_c.so.xz
-          unxz -f android/app/src/main/jniLibs/arm64-v8a/*.xz
-          flutter build apk --debug --flavor clean_wownero
+          flutter build apk --debug --flavor clean_${{ matrix.coin }}
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
