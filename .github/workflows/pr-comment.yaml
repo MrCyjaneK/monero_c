@@ -1,7 +1,7 @@
 name: Comment on pull request
 on:
   workflow_run:
-    workflows: ['compatibility check', 'Build xmruw']
+    workflows: ['Building xmruw for supported targets']
     types: [completed]
 jobs:
   pr_comment:
