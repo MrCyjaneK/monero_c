@@ -32,7 +32,7 @@ jobs:
           mkdir release/gh/
           for i in release/${{ matrix.coin }}/*
           do
-              mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mingw ${{ matrix.coin }}
-          path: release/gh/*
+          path: release/${{ matrix.coin }}
   android:
     strategy:
       matrix:
@@ -78,7 +78,7 @@ jobs:
           mkdir release/gh/
           for i in release/${{ matrix.coin }}/*
           do
-              mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -90,7 +90,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android ${{ matrix.coin }}
-          path: release/gh/*
+          path: release/${{ matrix.coin }}
   linux:
     strategy:
       matrix:
@@ -124,7 +124,7 @@ jobs:
           mkdir release/gh/
           for i in release/${{ matrix.coin }}/*
           do
-              mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -136,7 +136,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux ${{ matrix.coin }}
-          path: release/gh/*
+          path: release/${{ matrix.coin }}
   sailfishos_aarch64:
     strategy:
       matrix:
@@ -163,7 +163,7 @@ jobs:
           sudo mkdir release/gh/
           for i in release/${{ matrix.coin }}/*
           do
-              sudo mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              sudo cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -175,7 +175,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sfos aarch64 ${{ matrix.coin }}
-          path: release/gh/*
+          path: release/${{ matrix.coin }}
   sailfishos_i486:
     strategy:
       matrix:
@@ -200,7 +200,7 @@ jobs:
           sudo mkdir release/gh/
           for i in release/${{ matrix.coin }}/*
           do
-              sudo mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              sudo cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -212,7 +212,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sfos_i486 ${{ matrix.coin }}
-          path: release/gh/*
+          path: release/${{ matrix.coin }}
   darwin:
     strategy:
       matrix:
@@ -245,7 +245,7 @@ jobs:
           mkdir release/gh/
           for i in release/${{ matrix.coin }}/*
           do
-              mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -257,7 +257,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: darwin ${{ matrix.coin }}
-          path: release/gh/*
+          path: release/${{ matrix.coin }}
   macos:
     strategy:
       matrix:
@@ -291,7 +291,7 @@ jobs:
           mkdir release/gh/
           for i in release/${{ matrix.coin }}/*
           do
-              mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -302,7 +302,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos ${{ matrix.coin }}
-          path: release/gh/*
+          path: release/${{ matrix.coin }}
   ios:
     strategy:
       matrix:
@@ -336,7 +336,7 @@ jobs:
           mkdir release/gh/
           for i in release/${{ matrix.coin }}/*
           do
-              mv "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -347,4 +347,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios ${{ matrix.coin }}
-          path: release/gh/*
+          path: release/${{ matrix.coin }}
