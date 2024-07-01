@@ -22,11 +22,6 @@ jobs:
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
           ./apply_patches.sh ${{ matrix.coin }}
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ${{ matrix.coin }}
-          key: aarch64-linux-android-${{ matrix.coin }}-${{ runner.os }}-${{ hashFiles('patches/${{ matrix.coin }}/*.patch') }}
       - name: ${{ matrix.coin }}/aarch64-linux-android
         run: ./build_single.sh ${{ matrix.coin }} aarch64-linux-android -j$(nproc)
       - name: clone xmruw
