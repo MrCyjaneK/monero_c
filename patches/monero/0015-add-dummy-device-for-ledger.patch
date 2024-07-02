@@ -1,4 +1,4 @@
-From 362b749afa1dbdf3181032cb20acc98a5f4981ac Mon Sep 17 00:00:00 2001
+From 93a88f3cc2b355e4ee17082804ed428243d7c993 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
 Subject: [PATCH] add dummy device for ledger
@@ -6,7 +6,7 @@ Subject: [PATCH] add dummy device for ledger
 ---
  CMakeLists.txt                 |   6 +-
  src/device/CMakeLists.txt      |   2 +
- src/device/device.hpp          |   2 +-
+ src/device/device.hpp          |  12 +--
  src/device/device_io_dummy.cpp | 141 +++++++++++++++++++++++++++++++++
  src/device/device_io_dummy.hpp |  74 +++++++++++++++++
  src/device/device_ledger.cpp   |   4 +-
@@ -14,7 +14,7 @@ Subject: [PATCH] add dummy device for ledger
  src/wallet/api/wallet.cpp      |  92 +++++++++++++++++++++
  src/wallet/api/wallet.h        |  18 +++++
  src/wallet/api/wallet2_api.h   |  12 +++
- 10 files changed, 352 insertions(+), 4 deletions(-)
+ 10 files changed, 352 insertions(+), 14 deletions(-)
  create mode 100644 src/device/device_io_dummy.cpp
  create mode 100644 src/device/device_io_dummy.hpp
 
@@ -57,18 +57,28 @@ index e4f1159b5..c5e74ab79 100644
   )
  
 diff --git a/src/device/device.hpp b/src/device/device.hpp
-index 392703a24..4368840ab 100644
+index 392703a24..ffd419779 100644
 --- a/src/device/device.hpp
 +++ b/src/device/device.hpp
-@@ -39,7 +39,7 @@
- #define USE_DEVICE_LEDGER 1
+@@ -34,17 +34,7 @@
+ #include "ringct/rctTypes.h"
+ #include "cryptonote_config.h"
+ 
+-
+-#ifndef USE_DEVICE_LEDGER
+-#define USE_DEVICE_LEDGER 1
+-#endif
+-
+-#if !defined(HAVE_HIDAPI) 
+-#undef  USE_DEVICE_LEDGER
+-#define USE_DEVICE_LEDGER 0
+-#endif
+-
+-#if USE_DEVICE_LEDGER
++#if defined(HAVE_HIDAPI) || defined(HIDAPI_DUMMY)
+ #define WITH_DEVICE_LEDGER
  #endif
  
--#if !defined(HAVE_HIDAPI) 
-+#if !defined(HAVE_HIDAPI) && !defined(HIDAPI_DUMMY)
- #undef  USE_DEVICE_LEDGER
- #define USE_DEVICE_LEDGER 0
- #endif
 diff --git a/src/device/device_io_dummy.cpp b/src/device/device_io_dummy.cpp
 new file mode 100644
 index 000000000..a7e9c41a1
