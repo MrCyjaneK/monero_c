@@ -298,6 +298,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: release/gh/*
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
       - name: Upload lib
         uses: actions/upload-artifact@v4
         with:
@@ -343,6 +344,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: release/gh/*
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
       - name: Upload lib
         uses: actions/upload-artifact@v4
         with:

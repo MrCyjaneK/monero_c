@@ -1,20 +1,21 @@
-From 93a88f3cc2b355e4ee17082804ed428243d7c993 Mon Sep 17 00:00:00 2001
+From 942bc24e0f00a3382287cfbded60b0ceaf1297e0 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
 Subject: [PATCH] add dummy device for ledger
 
 ---
  CMakeLists.txt                 |   6 +-
- src/device/CMakeLists.txt      |   2 +
+ src/device/CMakeLists.txt      |   6 +-
+ src/device/device.cpp          |  10 ++-
  src/device/device.hpp          |  12 +--
- src/device/device_io_dummy.cpp | 141 +++++++++++++++++++++++++++++++++
- src/device/device_io_dummy.hpp |  74 +++++++++++++++++
- src/device/device_ledger.cpp   |   4 +-
- src/device/device_ledger.hpp   |   5 ++
- src/wallet/api/wallet.cpp      |  92 +++++++++++++++++++++
+ src/device/device_io_dummy.cpp | 133 +++++++++++++++++++++++++++++++++
+ src/device/device_io_dummy.hpp |  74 ++++++++++++++++++
+ src/device/device_ledger.cpp   |   6 +-
+ src/device/device_ledger.hpp   |   7 +-
+ src/wallet/api/wallet.cpp      |  92 +++++++++++++++++++++++
  src/wallet/api/wallet.h        |  18 +++++
  src/wallet/api/wallet2_api.h   |  12 +++
- 10 files changed, 352 insertions(+), 14 deletions(-)
+ 11 files changed, 355 insertions(+), 21 deletions(-)
  create mode 100644 src/device/device_io_dummy.cpp
  create mode 100644 src/device/device_io_dummy.hpp
 
@@ -37,10 +38,10 @@ index 6028c0961..e7fa90abb 100644
    add_definitions(-DHAVE_HIDAPI)
    include_directories(${HIDAPI_INCLUDE_DIR})
 diff --git a/src/device/CMakeLists.txt b/src/device/CMakeLists.txt
-index e4f1159b5..c5e74ab79 100644
+index e4f1159b5..14d398f87 100644
 --- a/src/device/CMakeLists.txt
 +++ b/src/device/CMakeLists.txt
-@@ -29,6 +29,7 @@
+@@ -29,10 +29,11 @@
  set(device_sources
    device.cpp
    device_default.cpp
@@ -48,7 +49,12 @@ index e4f1159b5..c5e74ab79 100644
    log.cpp
    )
  
-@@ -45,6 +46,7 @@ set(device_headers
+-if(HIDAPI_FOUND)
++if(HIDAPI_FOUND OR HIDAPI_DUMMY)
+   set(device_sources 
+     ${device_sources} 
+     device_ledger.cpp
+@@ -45,10 +46,11 @@ set(device_headers
    device_io.hpp
    device_default.hpp
    device_cold.hpp
@@ -56,6 +62,49 @@ index e4f1159b5..c5e74ab79 100644
    log.hpp
   )
  
+-if(HIDAPI_FOUND)
++if(HIDAPI_FOUND OR HIDAPI_DUMMY)
+   set(device_headers 
+     ${device_headers} 
+     device_ledger.hpp
+diff --git a/src/device/device.cpp b/src/device/device.cpp
+index e6cd358b6..636929feb 100644
+--- a/src/device/device.cpp
++++ b/src/device/device.cpp
+@@ -29,7 +29,7 @@
+ 
+ #include "device.hpp"
+ #include "device_default.hpp"
+-#ifdef WITH_DEVICE_LEDGER
++#if defined(WITH_DEVICE_LEDGER) || defined(HIDAPI_DUMMY)
+ #include "device_ledger.hpp"
+ #endif
+ #include "misc_log_ex.h"
+@@ -57,7 +57,7 @@ namespace hw {
+ 
+     device_registry::device_registry(){
+         hw::core::register_all(registry);
+-        #ifdef WITH_DEVICE_LEDGER
++        #if defined(WITH_DEVICE_LEDGER) || defined(HIDAPI_DUMMY)
+         hw::ledger::register_all(registry);
+         #endif
+         atexit(clear_device_registry);
+@@ -83,11 +83,13 @@ namespace hw {
+ 
+         auto device = registry.find(device_descriptor_lookup);
+         if (device == registry.end()) {
+-            MERROR("Device not found in registry: '" << device_descriptor << "'. Known devices: ");
++            std::stringstream ss("Device not found in registry: '" + device_descriptor + "'. Known devices: ");
++            MERROR("Device not found in registry: '" << device_descriptor << "'. Known devices: \n");
+             for( const auto& sm_pair : registry ) {
++                ss << "\n- " + sm_pair.first;
+                 MERROR(" - " << sm_pair.first);
+             }
+-            throw std::runtime_error("device not found: " + device_descriptor);
++            throw std::runtime_error("device not found: " + device_descriptor + "\nlalala\n" + ss.str());
+         }
+         return *device->second;
+     }
 diff --git a/src/device/device.hpp b/src/device/device.hpp
 index 392703a24..ffd419779 100644
 --- a/src/device/device.hpp
@@ -81,10 +130,10 @@ index 392703a24..ffd419779 100644
  
 diff --git a/src/device/device_io_dummy.cpp b/src/device/device_io_dummy.cpp
 new file mode 100644
-index 000000000..a7e9c41a1
+index 000000000..fb082694e
 --- /dev/null
 +++ b/src/device/device_io_dummy.cpp
-@@ -0,0 +1,141 @@
+@@ -0,0 +1,133 @@
 +// Copyright (c) 2017-2022, The Monero Project
 +//
 +// All rights reserved.
@@ -129,6 +178,7 @@ index 000000000..a7e9c41a1
 +#include <boost/scope_exit.hpp>
 +#include "log.hpp"
 +#include "device_io_dummy.hpp"
++#include "device_ledger.hpp"
 +
 +
 +bool hw::io::device_io_dummy::stateIsConnected = false;
@@ -140,15 +190,6 @@ index 000000000..a7e9c41a1
 +bool hw::io::device_io_dummy::waitsForDeviceReceive = false;
 +
 +namespace hw {
-+
-+#ifndef HIDAPI_FOUND
-+    namespace ledger {
-+        void register_all(std::map<std::string, std::unique_ptr<device>> &registry) {
-+            MDEBUG("register_all()");
-+        }
-+    }
-+#endif
-+
 +    namespace io {
 +
 +#undef MONERO_DEFAULT_LOG_CATEGORY
@@ -308,7 +349,7 @@ index 000000000..a1733616d
 +
 +#endif // HAVE_HIDAPI
 diff --git a/src/device/device_ledger.cpp b/src/device/device_ledger.cpp
-index 90675df11..6aac0a44c 100644
+index 90675df11..136c6094b 100644
 --- a/src/device/device_ledger.cpp
 +++ b/src/device/device_ledger.cpp
 @@ -41,7 +41,7 @@ namespace hw {
@@ -329,8 +370,18 @@ index 90675df11..6aac0a44c 100644
        this->mode = NONE;
        this->has_view_key = false;
        this->tx_in_progress = false;
+@@ -532,7 +532,9 @@ namespace hw {
+ 
+     bool device_ledger::connect(void) {
+       this->disconnect();
++      #ifndef HIDAPI_DUMMY
+       hw_device.connect(known_devices);
++      #endif
+       this->reset();
+       #ifdef DEBUG_HWDEVICE
+       cryptonote::account_public_address pubkey;
 diff --git a/src/device/device_ledger.hpp b/src/device/device_ledger.hpp
-index 03058c4f1..023183e13 100644
+index 03058c4f1..506f27c4a 100644
 --- a/src/device/device_ledger.hpp
 +++ b/src/device/device_ledger.hpp
 @@ -35,6 +35,7 @@
@@ -341,6 +392,15 @@ index 03058c4f1..023183e13 100644
  #include <boost/thread/mutex.hpp>
  #include <boost/thread/recursive_mutex.hpp>
  
+@@ -56,7 +57,7 @@ namespace hw {
+ 
+     void register_all(std::map<std::string, std::unique_ptr<device>> &registry);
+ 
+-    #ifdef WITH_DEVICE_LEDGER
++    #if defined(WITH_DEVICE_LEDGER) || defined(HIDAPI_DUMMY)
+ 
+     // Origin: https://github.com/LedgerHQ/ledger-app-monero/blob/master/src/monero_types.h
+     #define SW_OK                                   0x9000
 @@ -148,7 +149,11 @@ namespace hw {
          mutable boost::mutex   command_locker;
  
