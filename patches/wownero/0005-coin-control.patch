@@ -1,7 +1,7 @@
-From f2484ecd2a8255fab9613cce346ee3c24f4a6ba6 Mon Sep 17 00:00:00 2001
+From 0b17875257270149c5de45c2f43bab723a3905b7 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Wed, 27 Mar 2024 16:31:36 +0100
-Subject: [PATCH 5/9] coin control
+Subject: [PATCH 05/14] coin control
 
 ---
  src/wallet/api/coins.cpp     | 62 ++++++++++++++++++++++++++++++++++++
@@ -118,7 +118,7 @@ index 3293d8ae9..bcd8b517f 100644
          WalletImpl *m_wallet;
          std::vector<CoinsInfo*> m_rows;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index b5c346754..2dad8bc61 100644
+index 4b2693f23..ed309de34 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -2018,11 +2018,11 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<stri
@@ -221,5 +221,5 @@ index 294a2d1f6..d1e68baac 100644
      bool frozen(const crypto::key_image &ki) const;
      bool frozen(const transfer_details &td) const;
 -- 
-2.44.0
+2.39.2
 

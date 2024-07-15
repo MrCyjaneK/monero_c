@@ -1,7 +1,7 @@
-From 65bba6df70902a6783f3a179c7fe049a1293c9c2 Mon Sep 17 00:00:00 2001
+From 8b7d9017d465f4e7797291d56082100704a3c59a Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 26 Mar 2024 06:55:38 +0100
-Subject: [PATCH 1/9] Fix wallet_api compilation target
+Subject: [PATCH 01/14] Fix wallet_api compilation target
  https://git.wownero.com/wownero/wownero/issues/483
 
 ---
@@ -27,5 +27,5 @@ index 823f122c2..d81ddec93 100644
              pendingTxPostProcess(transaction);
  
 -- 
-2.44.0
+2.39.2
 

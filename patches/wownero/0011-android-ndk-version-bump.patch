@@ -1,7 +1,7 @@
-From ee4e13b1cbd9cd5c5a1eea14415c758d89a5062f Mon Sep 17 00:00:00 2001
+From 8918f1a30ace05044a0e72a7bd661880e2ada35e Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 23 May 2024 08:02:49 +0200
-Subject: [PATCH] android ndk version bump
+Subject: [PATCH 11/14] android ndk version bump
 
 ---
  contrib/depends/hosts/android.mk        | 16 +++++++++++++---

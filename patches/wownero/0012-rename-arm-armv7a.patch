@@ -1,7 +1,7 @@
-From 6b931c1af6965b3da03b795e711b87eaaec17838 Mon Sep 17 00:00:00 2001
+From ed6bcc39821f50fc42914c60133f3773b934d9a1 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 12 Jun 2024 15:48:01 +0200
-Subject: [PATCH] rename arm -> armv7a
+Subject: [PATCH 12/14] rename arm -> armv7a
 
 ---
  contrib/depends/hosts/android.mk        | 2 +-

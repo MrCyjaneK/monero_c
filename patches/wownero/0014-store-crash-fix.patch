@@ -1,7 +1,7 @@
-From 286acdf6951194536ead88de80a7940b320bd056 Mon Sep 17 00:00:00 2001
+From 584cf058ca441a46aa054d2d401b20f31ff7732e Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 11 May 2024 16:25:10 +0200
-Subject: [PATCH] store crash fix
+Subject: [PATCH 14/14] store crash fix
 
 Monero wallet crashes (sometimes) when it is syncing,
 while the proper solution (that can be seen in feather)
@@ -43,7 +43,7 @@ the current state.
  4 files changed, 26 insertions(+), 15 deletions(-)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 04f278e15..29339207f 100644
+index 02cf7c79b..b416c9535 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -57,8 +57,8 @@ using namespace cryptonote;
