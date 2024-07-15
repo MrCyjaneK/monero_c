@@ -4,7 +4,7 @@
 	branch = release-v0.18
 [submodule "wownero"]
 	path = wownero
-	url = https://git.wownero.com/wownero/wownero
+	url = https://github.com/wownero-mirror/wownero
 [submodule "external/polyseed"]
 	path = external/polyseed
 	url = https://github.com/tevador/polyseed
@@ -13,4 +13,4 @@
 	url = https://github.com/leetal/ios-cmake
 [submodule "external/wownero-seed"]
 	path = external/wownero-seed
-	url = https://git.wownero.com/wowlet/wownero-seed.git
+	url = https://github.com/wownero-mirror/wownero-seed
