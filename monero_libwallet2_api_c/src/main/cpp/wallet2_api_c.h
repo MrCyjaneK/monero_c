@@ -101,7 +101,7 @@ extern ADDAPI const char* MONERO_PendingTransaction_signersKeys(void* pendingTx_
 //     virtual std::vector<std::string> hex() const = 0;
 extern ADDAPI const char* MONERO_PendingTransaction_hex(void* pendingTx_ptr, const char* separator);
 //     virtual std::vector<std::string> txKey() const = 0;
-extern ADDAPI const char* MONERO_PendingTransaction_txHex(void* pendingTx_ptr, const char* separator);
+// extern ADDAPI const char* MONERO_PendingTransaction_txHex(void* pendingTx_ptr, const char* separator);
 // };
 
 // struct UnsignedTransaction

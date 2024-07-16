@@ -1861,6 +1861,10 @@ void MONERO_WalletManagerFactory_setLogLevel(int level) {
     Monero::WalletManagerFactory::setLogLevel(level);
 }
 
+void MONERO_WalletManagerFactory_setLogCategories(const char* categories) {
+    Monero::WalletManagerFactory::setLogCategories(std::string(categories));
+}
+
 // DEBUG functions
 
 // As it turns out we need a bit more functions to make sure that the library is working.

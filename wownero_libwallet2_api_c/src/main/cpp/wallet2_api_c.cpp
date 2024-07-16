@@ -133,6 +133,12 @@ const char* WOWNERO_PendingTransaction_hex(void* pendingTx_ptr, const char* sepa
     return vectorToString(txid, std::string(separator));
 }
 
+// const char* WOWNERO_PendingTransaction_txHex(void* pendingTx_ptr, const char* separator) {
+//     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+//     std::vector<std::string> txid = pendingTx->txHex();
+//     return vectorToString(txid, std::string(separator));
+// }
+
 const char* WOWNERO_PendingTransaction_txKey(void* pendingTx_ptr, const char* separator) {
     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
     std::vector<std::string> txid = pendingTx->txKey();
@@ -1613,9 +1619,10 @@ bool WOWNERO_WalletManager_verifyWalletPassword(void* wm_ptr, const char* keys_f
     return wm->verifyWalletPassword(std::string(keys_file_name), std::string(password), no_spend_key, kdf_rounds);
 }
 //     virtual bool queryWalletDevice(Wallet::Device& device_type, const std::string &keys_file_name, const std::string &password, uint64_t kdf_rounds = 1) const = 0;
-// bool WOWNERO_WalletManager_queryWalletDevice(int device_type, const char* keys_file_name, const char* password, uint64_t kdf_rounds) {
-//     return Monero::WalletManagerFactory::getWalletManager()->queryWalletDevice(device_type, std::string(keys_file_name), std::string(password), kdf_rounds);
-//}
+// bool WOWNERO_WalletManager_queryWalletDevice(void* wm_ptr, int device_type, const char* keys_file_name, const char* password, uint64_t kdf_rounds) {
+//     Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+//     return wm->queryWalletDevice(reinterpret_cast<Monero::Wallet::Device>(device_type), std::string(keys_file_name), std::string(password), kdf_rounds);
+// }
 //     virtual std::vector<std::string> findWallets(const std::string &path) = 0;
 const char* WOWNERO_WalletManager_findWallets(void* wm_ptr, const char* path, const char* separator) {
     Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
@@ -1703,6 +1710,10 @@ void* WOWNERO_WalletManagerFactory_getWalletManager() {
 
 void WOWNERO_WalletManagerFactory_setLogLevel(int level) {
     Monero::WalletManagerFactory::setLogLevel(level);
+}
+
+void WOWNERO_WalletManagerFactory_setLogCategories(const char* categories) {
+    Monero::WalletManagerFactory::setLogCategories(std::string(categories));
 }
 
 // DEBUG functions

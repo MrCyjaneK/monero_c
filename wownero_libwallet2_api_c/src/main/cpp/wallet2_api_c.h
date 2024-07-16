@@ -100,7 +100,7 @@ extern ADDAPI const char* WOWNERO_PendingTransaction_signersKeys(void* pendingTx
 //     virtual std::vector<std::string> hex() const = 0;
 extern ADDAPI const char* WOWNERO_PendingTransaction_hex(void* pendingTx_ptr, const char* separator);
 //     virtual std::vector<std::string> txKey() const = 0;
-extern ADDAPI const char* WOWNERO_PendingTransaction_txHex(void* pendingTx_ptr, const char* separator);
+// extern ADDAPI const char* WOWNERO_PendingTransaction_txHex(void* pendingTx_ptr, const char* separator);
 // };
 
 // struct UnsignedTransaction
@@ -921,7 +921,7 @@ extern ADDAPI bool WOWNERO_WalletManager_walletExists(void* wm_ptr, const char* 
 //     virtual bool verifyWalletPassword(const std::string &keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const = 0;
 extern ADDAPI bool WOWNERO_WalletManager_verifyWalletPassword(void* wm_ptr, const char* keys_file_name, const char* password, bool no_spend_key, uint64_t kdf_rounds);
 //     virtual bool queryWalletDevice(Wallet::Device& device_type, const std::string &keys_file_name, const std::string &password, uint64_t kdf_rounds = 1) const = 0;
-extern ADDAPI bool WOWNERO_WalletManager_queryWalletDevice(int device_type, const char* keys_file_name, const char* password, uint64_t kdf_rounds);
+// extern ADDAPI bool WOWNERO_WalletManager_queryWalletDevice(void* wm_ptr, int device_type, const char* keys_file_name, const char* password, uint64_t kdf_rounds);
 //     virtual std::vector<std::string> findWallets(const std::string &path) = 0;
 extern ADDAPI const char* WOWNERO_WalletManager_findWallets(void* wm_ptr, const char* path, const char* separator);
 //     virtual std::string errorString() const = 0;
