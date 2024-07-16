@@ -1,4 +1,4 @@
-From 08c9a02339ceda7d033dbffd9e0093f1cacea6ec Mon Sep 17 00:00:00 2001
+From f813a27e5842afde721494b9a1038d8f9d00016b Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 24 Jun 2024 10:49:12 +0200
 Subject: [PATCH 13/14] use proper error handling in get_seed
@@ -64,5 +64,5 @@ index 2b3eaad2e..4073974d9 100644
      crypto::ElectrumWords::bytes_to_words(key, electrum_words, "English");
    }
 -- 
-2.39.2
+2.45.2
 

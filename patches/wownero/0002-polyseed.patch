@@ -1,4 +1,4 @@
-From 114c13e1f26b32532a23e2db1c89403568bb8ee4 Mon Sep 17 00:00:00 2001
+From 8729f36a109b33a080f5ee117a9d2a53fb55a47a Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 09:42:37 +0100
 Subject: [PATCH 02/14] polyseed
@@ -1295,5 +1295,5 @@ index df34f9abf..db5c1feb3 100644
      uint32_t m_multisig_threshold;
      std::vector<crypto::public_key> m_multisig_signers;
 -- 
-2.39.2
+2.45.2
 

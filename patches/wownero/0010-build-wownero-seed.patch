@@ -1,4 +1,4 @@
-From 6c94fb26ef4d87ceb53cdcf9fb372bc3420e9db9 Mon Sep 17 00:00:00 2001
+From 6b220ce6f3bb9f57375d6bf06b70f82f043856c8 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 25 Apr 2024 10:06:04 +0200
 Subject: [PATCH 10/14] build wownero-seed
@@ -609,5 +609,5 @@ index 000000000..a8f8fe059
 +--
 +2.39.2
 -- 
-2.39.2
+2.45.2
 

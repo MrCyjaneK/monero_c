@@ -1,4 +1,4 @@
-From 0b17875257270149c5de45c2f43bab723a3905b7 Mon Sep 17 00:00:00 2001
+From 820424507f43711e5e6b31a68dfda7e430cdae9d Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Wed, 27 Mar 2024 16:31:36 +0100
 Subject: [PATCH 05/14] coin control
@@ -221,5 +221,5 @@ index 294a2d1f6..d1e68baac 100644
      bool frozen(const crypto::key_image &ki) const;
      bool frozen(const transfer_details &td) const;
 -- 
-2.39.2
+2.45.2
 

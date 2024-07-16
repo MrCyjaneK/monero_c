@@ -1,4 +1,4 @@
-From 584cf058ca441a46aa054d2d401b20f31ff7732e Mon Sep 17 00:00:00 2001
+From 462a261e97814d71b976fe04af26cda2637deb4f Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 11 May 2024 16:25:10 +0200
 Subject: [PATCH 14/14] store crash fix
@@ -209,5 +209,5 @@ index d1e68baac..556306f20 100644
      i_wallet2_callback* m_callback;
      hw::device::device_type m_key_device_type;
 -- 
-2.39.2
+2.45.2
 

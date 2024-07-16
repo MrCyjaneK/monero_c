@@ -1,4 +1,4 @@
-From 8918f1a30ace05044a0e72a7bd661880e2ada35e Mon Sep 17 00:00:00 2001
+From aff9394b39ccfa9842d47007a644f08b6b370e55 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 23 May 2024 08:02:49 +0200
 Subject: [PATCH 11/14] android ndk version bump
@@ -116,5 +116,5 @@ index f118c754e..249213b20 100644
    SET(CMAKE_C_COMPILER @CC@)
    SET(CMAKE_CXX_COMPILER @CXX@)
 -- 
-2.39.2
+2.45.2
 
