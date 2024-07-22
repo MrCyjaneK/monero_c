@@ -1,15 +1,15 @@
-From c4499815188a0b8103092da07260074359a1874e Mon Sep 17 00:00:00 2001
+From 5c1727c760557c0fd83ba1e4e66be2d10c58e890 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 10:09:50 +0100
-Subject: [PATCH 03/10] airgap
+Subject: [PATCH] airgap
 
 ---
- src/wallet/api/wallet.cpp    | 23 ++++++++++++++++++++++
+ src/wallet/api/wallet.cpp    | 23 ++++++++++++++++++
  src/wallet/api/wallet.h      |  2 ++
  src/wallet/api/wallet2_api.h |  3 +++
- src/wallet/wallet2.cpp       | 38 ++++++++++++++++++++++++++++++------
+ src/wallet/wallet2.cpp       | 45 +++++++++++++++++++++++++++++++-----
  src/wallet/wallet2.h         |  1 +
- 5 files changed, 61 insertions(+), 6 deletions(-)
+ 5 files changed, 68 insertions(+), 6 deletions(-)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
 index 1a9c6f674..42887dced 100644
@@ -94,7 +94,7 @@ index 4268b656e..4edaefefd 100644
      * \brief exportKeyImages - exports key images to file
      * \param filename
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index c7cbdbbe6..700816da6 100644
+index c7cbdbbe6..794992b2e 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -949,6 +949,16 @@ uint32_t get_subaddress_clamped_sum(uint32_t idx, uint32_t extra)
@@ -160,16 +160,24 @@ index c7cbdbbe6..700816da6 100644
      {
        if (td.amount() > m_ignore_outputs_above || td.amount() < m_ignore_outputs_below)
        {
-@@ -11337,8 +11364,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
+@@ -11337,9 +11364,15 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
  
    LOG_PRINT_L2("Starting with " << num_nondust_outputs << " non-dust outputs and " << num_dust_outputs << " dust outputs");
  
 -  if (unused_dust_indices_per_subaddr.empty() && unused_transfers_indices_per_subaddr.empty())
 -    return std::vector<wallet2::pending_tx>();
-+  THROW_WALLET_EXCEPTION_IF(unused_dust_indices_per_subaddr.empty() && unused_transfers_indices_per_subaddr.empty(), error::wallet_internal_error, "No enotes available to spend")
++  // use tobotoht's code path on view-only wallet, otherwise default to upstream
++  bool throwOnNoEnotes = m_account.get_device().device_protocol() == hw::device::PROTOCOL_COLD || m_watch_only || m_multisig || m_is_background_wallet;
  
++  if (throwOnNoEnotes) {
++    THROW_WALLET_EXCEPTION_IF(unused_dust_indices_per_subaddr.empty() && unused_transfers_indices_per_subaddr.empty(), error::wallet_internal_error, "No enotes available to spend")
++  } else {
++    if (unused_dust_indices_per_subaddr.empty() && unused_transfers_indices_per_subaddr.empty())
++      return std::vector<wallet2::pending_tx>();
++  }
    // if empty, put dummy entry so that the front can be referenced later in the loop
    if (unused_dust_indices_per_subaddr.empty())
+     unused_dust_indices_per_subaddr.push_back({});
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
 index d37332dd1..fc69b3d36 100644
 --- a/src/wallet/wallet2.h
@@ -183,5 +191,5 @@ index d37332dd1..fc69b3d36 100644
      std::map<uint32_t, uint64_t> balance_per_subaddress(uint32_t subaddr_index_major, bool strict) const;
      std::map<uint32_t, std::pair<uint64_t, std::pair<uint64_t, uint64_t>>> unlocked_balance_per_subaddress(uint32_t subaddr_index_major, bool strict);
 -- 
-2.44.0
+2.43.0
 
