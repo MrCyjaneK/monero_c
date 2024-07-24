@@ -162,7 +162,7 @@ jobs:
           key: ccache-${{ github.job }}-${{ matrix.coin }}
       - name: Cache Externals
         id: cache-externals
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/sources
