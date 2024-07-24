@@ -23,13 +23,19 @@ jobs:
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
           ./apply_patches.sh ${{ matrix.coin }}
-      - name: Cache Externals
+      - name: ccache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.coin }}
+      - name: Cache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/sources
             ${{ matrix.coin }}/contrib/depends/built
-          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('patches/*/*.patch') }}
+          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/x86_64-w64-mingw32
         run: ./build_single.sh ${{ matrix.coin }} x86_64-w64-mingw32 -j$(nproc)
       - name: ${{ matrix.coin }}/i686-w64-mingw32
@@ -60,6 +66,17 @@ jobs:
     container:
       image: debian:bookworm
     steps:
+      - name: Free Disk Space
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
       - name: Install dependencies
         run: |
           apt update
@@ -74,13 +91,19 @@ jobs:
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
           ./apply_patches.sh ${{ matrix.coin }}
-      - name: Cache Externals
+      - name: ccache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.coin }}
+      - name: Cache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/sources
             ${{ matrix.coin }}/contrib/depends/built
-          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('patches/*/*.patch') }}
+          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/x86_64-linux-android
         run: ./build_single.sh ${{ matrix.coin }} x86_64-linux-android -j$(nproc)
       - name: ${{ matrix.coin }}/aarch64-linux-android
@@ -127,13 +150,19 @@ jobs:
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
           ./apply_patches.sh ${{ matrix.coin }}
-      - name: Cache Externals
+      - name: ccache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.coin }}
+      - name: Cache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/sources
             ${{ matrix.coin }}/contrib/depends/built
-          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('patches/*/*.patch') }}
+          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/x86_64-linux-gnu
         run: ./build_single.sh ${{ matrix.coin }} x86_64-linux-gnu -j$(nproc)
       - name: ${{ matrix.coin }}/aarch64-linux-gnu
@@ -176,20 +205,19 @@ jobs:
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
           ./apply_patches.sh ${{ matrix.coin }}
-      - name: Cache Externals
+      - name: ccache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.coin }}
+      - name: Cache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/sources
             ${{ matrix.coin }}/contrib/depends/built
-          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('patches/*/*.patch') }}
-      - name: Cache Externals
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ matrix.coin }}/contrib/depends/sources
-            ${{ matrix.coin }}/contrib/depends/built
-          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('patches/*/*.patch') }}
+          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/aarch64-meego-linux-gnu
         run: |
           docker run --rm -v $PWD:$PWD -w $PWD ghcr.io/mrcyjanek/sailfishos:4.6.0.11_target_aarch64 bash -c 'zypper in -f -y perl-IPC-Cmd curl ccache gperf cmake ffmpeg-tools git clang libxkbcommon-devel wayland-protocols-devel wayland-client wayland-egl-devel make glibc-static && git config --global --add safe.directory "*" && for i in gcc g++ ar ranlib; do ln -s /usr/bin/$i /usr/bin/aarch64-meego-linux-gnu-$i; ln -s /usr/bin/$i /usr/bin/aarch64-linux-gnu-$i; done && ./build_single.sh ${{ matrix.coin }} aarch64-meego-linux-gnu -j$(nproc)'
@@ -227,13 +255,19 @@ jobs:
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
           ./apply_patches.sh ${{ matrix.coin }}
-      - name: Cache Externals
+      - name: ccache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.coin }}
+      - name: Cache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/sources
             ${{ matrix.coin }}/contrib/depends/built
-          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('patches/*/*.patch') }}
+          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/aarch64-meego-linux-gnu
         run: |
           docker run --rm -v $PWD:$PWD -w $PWD ghcr.io/mrcyjanek/sailfishos:4.6.0.11_target_i486 bash -c 'zypper in -f -y perl-IPC-Cmd curl ccache gperf cmake ffmpeg-tools git clang libxkbcommon-devel wayland-protocols-devel wayland-client wayland-egl-devel make glibc-static && git config --global --add safe.directory "*" && for i in gcc g++ ar ranlib; do ln -s /usr/bin/$i /usr/bin/i686-linux-gnu-$i; ln -s /usr/bin/$i /usr/bin/i686-meego-linux-gnu-$i; done && ./build_single.sh ${{ matrix.coin }} i686-meego-linux-gnu -j$(nproc)'
@@ -278,13 +312,19 @@ jobs:
           git config --global user.name "CI mrcyjanek.net"
           ./apply_patches.sh monero
           ./apply_patches.sh wownero
-      - name: Cache Externals
+      - name: ccache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.coin }}
+      - name: Cache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/sources
             ${{ matrix.coin }}/contrib/depends/built
-          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('patches/*/*.patch') }}
+          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/x86_64-apple-darwin11
         run: ./build_single.sh ${{ matrix.coin }} x86_64-apple-darwin11 -j$(nproc)
       - name: ${{ matrix.coin }}/aarch64-apple-darwin11
@@ -332,13 +372,19 @@ jobs:
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
           ./apply_patches.sh ${{ matrix.coin }}
-      - name: Cache Externals
+      - name: ccache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.coin }}
+      - name: Cache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/sources
             ${{ matrix.coin }}/contrib/depends/built
-          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('patches/*/*.patch') }}
+          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: build
         run: |
           ./build_single.sh ${{ matrix.coin }} aarch64-host-apple-darwin -j$(sysctl -n hw.logicalcpu) 
@@ -385,13 +431,19 @@ jobs:
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
           ./apply_patches.sh ${{ matrix.coin }}
-      - name: Cache Externals
+      - name: ccache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.coin }}
+      - name: Cache
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/sources
             ${{ matrix.coin }}/contrib/depends/built
-          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('patches/*/*.patch') }}
+          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: build
         run: |
           ./build_single.sh ${{ matrix.coin }} host-apple-ios -j$(sysctl -n hw.logicalcpu) 
