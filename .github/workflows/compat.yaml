@@ -102,7 +102,6 @@ jobs:
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/built/*
-            !${{ matrix.coin }}/contrib/depends/built/*/android_ndk
             ${{ matrix.coin }}/contrib/depends/sources/*
           key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/x86_64-linux-android
@@ -129,6 +128,10 @@ jobs:
         with:
           name: android ${{ matrix.coin }}
           path: release/${{ matrix.coin }}
+      - name: remove android_ndk
+        run: |
+          rm -rf ${{ matrix.coin }}/contrib/depends/built/*/android_ndk
+          rm -rf ${{ matrix.coin }}/contrib/depends/sources/android-ndk-r26d-linux.zip
   linux:
     strategy:
       matrix:
