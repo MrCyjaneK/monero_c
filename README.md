@@ -60,12 +60,6 @@ While building I aim to compile the code at oldest supported release of debian, 
 | host-apple-darwin      | arm64-apple-darwin23 | dependencies: `brew install unbound boost@1.76 zmq && brew link boost@1.76` |
 | host-apple-ios         | arm64-apple-darwin23 |       |
 
-Libraries on CI are build using the following docker images:
-- git.mrcyjanek.net/mrcyjanek/debian:buster
-- git.mrcyjanek.net/mrcyjanek/debian:bookworm
-
-It is entirely possible to use upstream debian:buster / debian:bookworm
-
 ## Design
 
 Functions are as simple as reasonably possible as few steps should be performed to get from the exposed C api to actual wallet2 (or wallet3 in future) api calls.
