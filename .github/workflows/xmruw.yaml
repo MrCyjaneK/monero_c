@@ -3,6 +3,9 @@ run-name: Building xmruw for supported targets
 on:
   pull_request:
     types: [opened, reopened, synchronize]
+permissions:
+  issues: write
+  pull-requests: write
 jobs:
   android:
     strategy:

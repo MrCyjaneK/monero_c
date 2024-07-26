@@ -2,6 +2,9 @@ name: Build cake_wallet for android
 on:
   pull_request:
     types: [opened, reopened, synchronize]
+permissions:
+  issues: write
+  pull-requests: write
 
 jobs:
   cake_wallet:
