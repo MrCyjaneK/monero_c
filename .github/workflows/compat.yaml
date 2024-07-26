@@ -350,6 +350,12 @@ jobs:
         with:
           name: darwin ${{ matrix.coin }}
           path: release/${{ matrix.coin }}
+      - name: remove darwin sdk
+        run: |
+          rm -rf ${{ matrix.coin }}/contrib/depends/built/*/darwin_sdk
+          rm -rf ${{ matrix.coin }}/contrib/depends/built/*/native_clang
+          rm -rf ${{ matrix.coin }}/contrib/depends/sources/clang-llvm*.tar.xz
+          rm -rf ${{ matrix.coin }}/contrib/depends/sources/MacOSX*sdk.tar.xz
   macos:
     strategy:
       matrix:
