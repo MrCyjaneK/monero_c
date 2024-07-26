@@ -1,5 +1,4 @@
 name: Build xmruw
-run-name: Building xmruw for supported targets
 on: [push]
 jobs:
   android:

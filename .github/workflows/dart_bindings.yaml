@@ -1,0 +1,34 @@
+name: Check if dart bindings are in sync
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+permissions:
+  issues: write
+  pull-requests: write
+jobs:
+  android:
+    strategy:
+      matrix:
+        coin: [monero, wownero]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: 8BitJonny/gh-get-current-pr@3.0.0
+        id: PR
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: generate bindings
+        run:
+          cd impls/monero.dart
+          ./update_bindings.sh
+      - name: Create or update comment
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            
