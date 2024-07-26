@@ -74,5 +74,5 @@ jobs:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            [download xmruw #${{github.event.workflow_run.id}}](https://nightly.link/MrCyjaneK/monero_c/actions/runs/${{github.event.workflow_run.id}})
+            [download xmruw #${{github.run_id}}](https://nightly.link/MrCyjaneK/monero_c/actions/runs/${{github.run_id}})
           edit-mode: replace
