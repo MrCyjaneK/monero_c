@@ -5415,5 +5415,3 @@ class MoneroC {
   late final _MONERO_free =
       _MONERO_freePtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 }
-
-// intentionally left here
