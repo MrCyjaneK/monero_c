@@ -1,6 +1,8 @@
 name: Build xmruw
 run-name: Building xmruw for supported targets
-on: [push]
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
 jobs:
   android:
     strategy:
@@ -55,3 +57,19 @@ jobs:
         with:
           name: ${{ matrix.coin }} xmruw apk
           path: unnamed_monero_wallet/build/app/outputs/flutter-apk/*.apk
+      - name: Find Comment
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: download xmruw
+
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            [download xmruw #${{github.event.workflow_run.id}}](https://nightly.link/MrCyjaneK/monero_c/actions/runs/${{github.event.workflow_run.id}})
+          edit-mode: replace

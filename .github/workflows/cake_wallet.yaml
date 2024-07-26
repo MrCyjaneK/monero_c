@@ -1,5 +1,7 @@
 name: Build cake_wallet for android
-on: [ push ]
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
 
 jobs:
   cake_wallet:
@@ -198,3 +200,19 @@ jobs:
           rm -rf monero/contrib/depends/sources/android-ndk-r26d-linux.zip
           rm -rf wownero/contrib/depends/built/*/android_ndk
           rm -rf wownero/contrib/depends/sources/android-ndk-r26d-linux.zip
+      - name: Find Comment
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: download cake_wallet
+
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            [download cake_wallet #${{github.event.workflow_run.id}}](https://nightly.link/MrCyjaneK/monero_c/actions/runs/${{github.event.workflow_run.id}})
+          edit-mode: replace
