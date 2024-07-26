@@ -25,6 +25,13 @@ jobs:
         run:
           cd impls/monero.dart
           ./update_bindings.sh
+      - name: check if git tree is clean
+        run:
+          if [ -z "$(git status --porcelain)" ]; then 
+            exit 0
+          else 
+            exit 1
+          fi
       - name: Create or update comment
         if: failure()
         uses: peter-evans/create-or-update-comment@v4
