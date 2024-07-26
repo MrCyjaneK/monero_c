@@ -7,9 +7,6 @@ permissions:
   pull-requests: write
 jobs:
   android:
-    strategy:
-      matrix:
-        coin: [monero, wownero]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,11 +19,11 @@ jobs:
         with:
           channel: stable
       - name: generate bindings
-        run:
+        run: |
           cd impls/monero.dart
           ./update_bindings.sh
       - name: check if git tree is clean
-        run:
+        run: |
           if [ -z "$(git status --porcelain)" ]; then 
             exit 0
           else 
@@ -38,4 +35,5 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
+            Invalid bindings found in monero.dart, make sure to run `./impls/monero.dart/update_bindings.sh`
             
