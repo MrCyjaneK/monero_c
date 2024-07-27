@@ -224,7 +224,6 @@ jobs:
       - name: Find Comment
         continue-on-error: true
         uses: peter-evans/find-comment@v3
-        continue-on-error: true
         id: fc
         with:
           issue-number: ${{steps.get_issue_number.outputs.result}}
