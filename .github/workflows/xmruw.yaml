@@ -62,7 +62,7 @@ jobs:
           path: unnamed_monero_wallet/build/app/outputs/flutter-apk/*.apk
       - name: Find Comment
         uses: peter-evans/find-comment@v3
-        continue-on-failure: true
+        continue-on-error: true
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
