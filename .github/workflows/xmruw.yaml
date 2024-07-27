@@ -60,7 +60,7 @@ jobs:
         with:
           name: ${{ matrix.coin }} xmruw apk
           path: unnamed_monero_wallet/build/app/outputs/flutter-apk/*.apk
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@v7
         continue-on-error: true
         id: get_issue_number
         with:

@@ -474,7 +474,7 @@ jobs:
       mingw, android, linux, sailfishos_aarch64, sailfishos_i486, darwin, macos, ios
     ]
     steps:
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@v7
         continue-on-error: true
         id: get_issue_number
         with:
