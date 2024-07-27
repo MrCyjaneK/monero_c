@@ -476,7 +476,8 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
           body-includes: download libraries
-      - name: Create or update comment
+      - name: Update comment
+        if: steps.fc.outcome == 'success'
         uses: peter-evans/create-or-update-comment@v4
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
@@ -484,3 +485,10 @@ jobs:
           body: |
             [download libraries #${{github.run_id}}](https://nightly.link/MrCyjaneK/monero_c/actions/runs/${{github.run_id}})
           edit-mode: replace
+      - name: Create comment
+        if: steps.fc.outcome == 'failure'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            [download libraries #${{github.run_id}}](https://nightly.link/MrCyjaneK/monero_c/actions/runs/${{github.run_id}}) (this comment will update whenever you push)
