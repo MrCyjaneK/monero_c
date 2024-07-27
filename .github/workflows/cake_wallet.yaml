@@ -71,7 +71,7 @@ jobs:
           git config --global user.email "CI@cakewallet.com"
           git config --global user.name "Cake Github Actions"
       - name: Flutter action
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.19.6"
           channel: stable
