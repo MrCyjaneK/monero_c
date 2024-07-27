@@ -192,7 +192,7 @@ jobs:
     strategy:
       matrix:
         coin: [monero, wownero]
-    runs-on: buildjet-4vcpu-ubuntu-2204-arm
+    runs-on: buildjet-2vcpu-ubuntu-2204-arm
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -468,27 +468,48 @@ jobs:
       mingw, android, linux, sailfishos_aarch64, sailfishos_i486, darwin, macos, ios
     ]
     steps:
-      - name: Find Comment
-        uses: peter-evans/find-comment@v3
+      - uses: actions/github-script@v6
         continue-on-error: true
+        id: get_issue_number
+        with:
+          script: |
+            if (context.issue.number) {
+              // Return issue number if present
+              return context.issue.number;
+            } else {
+              // Otherwise return issue number from commit
+              return (
+                await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  commit_sha: context.sha,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                })
+              ).data[0].number;
+            }
+          result-encoding: string
+      - name: Find Comment
+        continue-on-error: true
+        uses: peter-evans/find-comment@v3
         id: fc
         with:
-          issue-number: ${{ github.event.pull_request.number }}
+          issue-number: ${{steps.get_issue_number.outputs.result}}
           comment-author: 'github-actions[bot]'
           body-includes: download libraries
       - name: Update comment
+        continue-on-error: true
         if: steps.fc.outcome == 'success'
         uses: peter-evans/create-or-update-comment@v4
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
+          issue-number: ${{steps.get_issue_number.outputs.result}}
           body: |
             [download libraries #${{github.run_id}}](https://nightly.link/MrCyjaneK/monero_c/actions/runs/${{github.run_id}})
           edit-mode: replace
       - name: Create comment
+        continue-on-error: true
         if: steps.fc.outcome == 'failure'
         uses: peter-evans/create-or-update-comment@v4
         with:
-          issue-number: ${{ github.event.pull_request.number }}
+          issue-number: ${{steps.get_issue_number.outputs.result}}
           body: |
             [download libraries #${{github.run_id}}](https://nightly.link/MrCyjaneK/monero_c/actions/runs/${{github.run_id}}) (this comment will update whenever you push)
