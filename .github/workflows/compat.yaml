@@ -36,7 +36,6 @@ jobs:
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/built/*
-            ${{ matrix.coin }}/contrib/depends/sources/*
           key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/x86_64-w64-mingw32
         run: ./build_single.sh ${{ matrix.coin }} x86_64-w64-mingw32 -j$(nproc)
@@ -103,7 +102,6 @@ jobs:
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/built/*
-            ${{ matrix.coin }}/contrib/depends/sources/*
           key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/x86_64-linux-android
         run: ./build_single.sh ${{ matrix.coin }} x86_64-linux-android -j$(nproc)
@@ -165,7 +163,6 @@ jobs:
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/built/*
-            ${{ matrix.coin }}/contrib/depends/sources/*
           key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/x86_64-linux-gnu
         run: ./build_single.sh ${{ matrix.coin }} x86_64-linux-gnu -j$(nproc)
@@ -224,7 +221,6 @@ jobs:
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/built/*
-            ${{ matrix.coin }}/contrib/depends/sources/*
           key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/aarch64-meego-linux-gnu
         run: |
@@ -273,7 +269,6 @@ jobs:
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/built/*
-            ${{ matrix.coin }}/contrib/depends/sources/*
           key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/aarch64-meego-linux-gnu
         run: |
@@ -329,7 +324,6 @@ jobs:
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/built/*
-            ${{ matrix.coin }}/contrib/depends/sources/*
           key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: ${{ matrix.coin }}/x86_64-apple-darwin11
         run: ./build_single.sh ${{ matrix.coin }} x86_64-apple-darwin11 -j$(nproc)
@@ -388,7 +382,6 @@ jobs:
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/built/*
-            ${{ matrix.coin }}/contrib/depends/sources/*
           key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: build
         run: |
@@ -446,7 +439,6 @@ jobs:
         with:
           path: |
             ${{ matrix.coin }}/contrib/depends/built/*
-            ${{ matrix.coin }}/contrib/depends/sources/*
           key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: build
         run: |
@@ -478,6 +470,7 @@ jobs:
     steps:
       - name: Find Comment
         uses: peter-evans/find-comment@v3
+        continue-on-failure: true
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}

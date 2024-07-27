@@ -43,7 +43,6 @@ jobs:
         with:
           path: |
             */contrib/depends/built/*
-            */contrib/depends/sources/*
           key: depends-${{ github.job }}-monero-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
 
       - name: build monero_c
@@ -205,6 +204,7 @@ jobs:
           rm -rf wownero/contrib/depends/sources/android-ndk-r26d-linux.zip
       - name: Find Comment
         uses: peter-evans/find-comment@v3
+        continue-on-failure: true
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
