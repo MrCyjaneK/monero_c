@@ -1036,8 +1036,6 @@ extern ADDAPI void MONERO_free(void* ptr);
 extern ADDAPI const char* MONERO_checksum_wallet2_api_c_h();
 extern ADDAPI const char* MONERO_checksum_wallet2_api_c_cpp();
 extern ADDAPI const char* MONERO_checksum_wallet2_api_c_exp();
-extern ADDAPI int MONERO_checksum_wallet2_api_c_version();
-extern ADDAPI const char* MONERO_checksum_wallet2_api_c_date();
 
 #ifdef __cplusplus
 }

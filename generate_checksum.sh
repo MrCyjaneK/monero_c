@@ -16,8 +16,6 @@ do
 const char * ${COIN}_wallet2_api_c_h_sha256 = "${COIN_wallet2_api_c_h_sha256}";
 const char * ${COIN}_wallet2_api_c_cpp_sha256 = "${COIN_wallet2_api_c_cpp_sha256}";
 const char * ${COIN}_wallet2_api_c_exp_sha256 = "${COIN_wallet2_api_c_exp_sha256}";
-const int ${COIN}_libwallet2_api_c_version = ${COIN_libwallet2_api_c_version};
-const char * ${COIN}_wallet2_api_c_date = "${COIN_libwallet2_api_c_date}";
 #endif
 EOF
     cat > impls/monero.dart/lib/src/checksum_${coin}.dart << EOF
@@ -25,7 +23,6 @@ EOF
 const String wallet2_api_c_h_sha256 = "${COIN_wallet2_api_c_h_sha256}";
 const String wallet2_api_c_cpp_sha256 = "${COIN_wallet2_api_c_cpp_sha256}";
 const String wallet2_api_c_exp_sha256 = "${COIN_wallet2_api_c_exp_sha256}";
-const int libwallet2_api_c_version = ${COIN_libwallet2_api_c_version};
-const String wallet2_api_c_date = "${COIN_libwallet2_api_c_date}";
 EOF
 done
+

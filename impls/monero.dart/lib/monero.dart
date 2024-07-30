@@ -3945,24 +3945,6 @@ String MONERO_checksum_wallet2_api_c_exp() {
   return s.cast<Utf8>().toDartString();
 }
 
-int MONERO_checksum_wallet2_api_c_version() {
-  debugStart?.call('MONERO_checksum_wallet2_api_c_version');
-  lib ??= MoneroC(DynamicLibrary.open(libPath));
-
-  final s = lib!.MONERO_checksum_wallet2_api_c_version();
-  debugEnd?.call('MONERO_checksum_wallet2_api_c_version');
-  return s;
-}
-
-String MONERO_checksum_wallet2_api_c_date() {
-  debugStart?.call('MONERO_checksum_wallet2_api_c_date');
-  lib ??= MoneroC(DynamicLibrary.open(libPath));
-
-  final s = lib!.MONERO_checksum_wallet2_api_c_date();
-  debugEnd?.call('MONERO_checksum_wallet2_api_c_date');
-  return s.cast<Utf8>().toDartString();
-}
-
 void MONERO_free(Pointer<Void> wlptr) {
   debugStart?.call('MONERO_free');
   lib ??= MoneroC(DynamicLibrary.open(libPath));

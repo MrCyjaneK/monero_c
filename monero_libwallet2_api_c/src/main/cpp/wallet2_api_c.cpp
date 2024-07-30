@@ -2029,12 +2029,6 @@ const char* MONERO_checksum_wallet2_api_c_cpp() {
 const char* MONERO_checksum_wallet2_api_c_exp() {
     return MONERO_wallet2_api_c_exp_sha256;
 }
-int MONERO_checksum_wallet2_api_c_version() {
-    return MONERO_libwallet2_api_c_version;
-}
-const char* MONERO_checksum_wallet2_api_c_date() {
-    return MONERO_wallet2_api_c_date;
-}
 // i hate windows
 
 void MONERO_free(void* ptr) {
