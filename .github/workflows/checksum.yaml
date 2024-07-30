@@ -1,4 +1,4 @@
-name: Check if dart bindings are in sync
+name: Check if checksums are in sync
 on: [push]
 permissions:
   issues: write
@@ -16,10 +16,9 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - name: generate bindings
+      - name: generate checksums
         run: |
-          cd impls/monero.dart
-          ./update_bindings.sh
+          ./generate_checksum.sh
       - name: check if git tree is clean
         run: |
           if [ -z "$(git status --porcelain)" ]; then 
@@ -34,5 +33,5 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Invalid bindings found in monero.dart, make sure to run `./impls/monero.dart/update_bindings.sh`
+            Invalid checksums, please run `./generate_checksum.sh`
             

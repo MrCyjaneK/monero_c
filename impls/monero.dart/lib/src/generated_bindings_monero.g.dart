@@ -5414,4 +5414,58 @@ class MoneroC {
           'MONERO_free');
   late final _MONERO_free =
       _MONERO_freePtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  ffi.Pointer<ffi.Char> MONERO_checksum_wallet2_api_c_h() {
+    return _MONERO_checksum_wallet2_api_c_h();
+  }
+
+  late final _MONERO_checksum_wallet2_api_c_hPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+          'MONERO_checksum_wallet2_api_c_h');
+  late final _MONERO_checksum_wallet2_api_c_h =
+      _MONERO_checksum_wallet2_api_c_hPtr.asFunction<
+          ffi.Pointer<ffi.Char> Function()>();
+
+  ffi.Pointer<ffi.Char> MONERO_checksum_wallet2_api_c_cpp() {
+    return _MONERO_checksum_wallet2_api_c_cpp();
+  }
+
+  late final _MONERO_checksum_wallet2_api_c_cppPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+          'MONERO_checksum_wallet2_api_c_cpp');
+  late final _MONERO_checksum_wallet2_api_c_cpp =
+      _MONERO_checksum_wallet2_api_c_cppPtr.asFunction<
+          ffi.Pointer<ffi.Char> Function()>();
+
+  ffi.Pointer<ffi.Char> MONERO_checksum_wallet2_api_c_exp() {
+    return _MONERO_checksum_wallet2_api_c_exp();
+  }
+
+  late final _MONERO_checksum_wallet2_api_c_expPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+          'MONERO_checksum_wallet2_api_c_exp');
+  late final _MONERO_checksum_wallet2_api_c_exp =
+      _MONERO_checksum_wallet2_api_c_expPtr.asFunction<
+          ffi.Pointer<ffi.Char> Function()>();
+
+  int MONERO_checksum_wallet2_api_c_version() {
+    return _MONERO_checksum_wallet2_api_c_version();
+  }
+
+  late final _MONERO_checksum_wallet2_api_c_versionPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function()>>(
+          'MONERO_checksum_wallet2_api_c_version');
+  late final _MONERO_checksum_wallet2_api_c_version =
+      _MONERO_checksum_wallet2_api_c_versionPtr.asFunction<int Function()>();
+
+  ffi.Pointer<ffi.Char> MONERO_checksum_wallet2_api_c_date() {
+    return _MONERO_checksum_wallet2_api_c_date();
+  }
+
+  late final _MONERO_checksum_wallet2_api_c_datePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+          'MONERO_checksum_wallet2_api_c_date');
+  late final _MONERO_checksum_wallet2_api_c_date =
+      _MONERO_checksum_wallet2_api_c_datePtr.asFunction<
+          ffi.Pointer<ffi.Char> Function()>();
 }

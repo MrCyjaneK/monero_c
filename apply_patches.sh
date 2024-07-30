@@ -1,4 +1,7 @@
 #!/bin/bash
+
+cd "$(realpath $(dirname $0))"
+
 repo="$1"
 
 if [[ "x$repo" == "x" ]];

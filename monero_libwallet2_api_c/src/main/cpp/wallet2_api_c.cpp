@@ -5,7 +5,7 @@
 #include <cstring>
 #include <thread>
 #include "../../../../monero/src/wallet/api/wallet2_api.h"
-
+#include "monero_checksum.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -2020,6 +2020,21 @@ uint64_t MONERO_cw_WalletListener_height(void* cw_walletListener_ptr) {
     return listener->cw_isNeedToRefresh();
 };
 
+const char* MONERO_checksum_wallet2_api_c_h() {
+    return MONERO_wallet2_api_c_h_sha256;
+}
+const char* MONERO_checksum_wallet2_api_c_cpp() {
+    return MONERO_wallet2_api_c_cpp_sha256;
+}
+const char* MONERO_checksum_wallet2_api_c_exp() {
+    return MONERO_wallet2_api_c_exp_sha256;
+}
+int MONERO_checksum_wallet2_api_c_version() {
+    return MONERO_libwallet2_api_c_version;
+}
+const char* MONERO_checksum_wallet2_api_c_date() {
+    return MONERO_wallet2_api_c_date;
+}
 // i hate windows
 
 void MONERO_free(void* ptr) {

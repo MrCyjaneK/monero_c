@@ -1,7 +1,5 @@
 name: Build cake_wallet for android
-on:
-  pull_request:
-    types: [opened, reopened, synchronize]
+on: [push]
 permissions:
   issues: write
   pull-requests: write
