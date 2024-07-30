@@ -36,5 +36,5 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Invalid bindings found in monero.dart, make sure to run `./impls/monero.dart/update_bindings.sh`
+            Invalid checksums, please run `./generate_checksum.sh`
             
