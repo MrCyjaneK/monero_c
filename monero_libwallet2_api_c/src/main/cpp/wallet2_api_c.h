@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <unistd.h>
+#include "monero_checksum.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -1031,6 +1032,12 @@ extern ADDAPI void MONERO_cw_WalletListener_resetIsNewTransactionExist(void* cw_
 extern ADDAPI uint64_t MONERO_cw_WalletListener_height(void* cw_walletListener_ptr);
 
 extern ADDAPI void MONERO_free(void* ptr);
+
+extern ADDAPI const char* MONERO_checksum_wallet2_api_c_h();
+extern ADDAPI const char* MONERO_checksum_wallet2_api_c_cpp();
+extern ADDAPI const char* MONERO_checksum_wallet2_api_c_exp();
+extern ADDAPI int MONERO_checksum_wallet2_api_c_version();
+extern ADDAPI const char* MONERO_checksum_wallet2_api_c_date();
 
 #ifdef __cplusplus
 }

@@ -1,1 +1,0 @@
-../../monero_libwallet2_api_c/src/main/cpp/wallet2_api_c.h

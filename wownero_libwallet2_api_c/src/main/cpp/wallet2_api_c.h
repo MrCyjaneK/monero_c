@@ -1012,6 +1012,12 @@ extern ADDAPI uint64_t WOWNERO_deprecated_14WordSeedHeight(char *seed);
 
 extern ADDAPI void WOWNERO_free(void* ptr);
 
+extern ADDAPI const char* WOWNERO_checksum_wallet2_api_c_h();
+extern ADDAPI const char* WOWNERO_checksum_wallet2_api_c_cpp();
+extern ADDAPI const char* WOWNERO_checksum_wallet2_api_c_exp();
+extern ADDAPI int WOWNERO_checksum_wallet2_api_c_version();
+extern ADDAPI const char* WOWNERO_checksum_wallet2_api_c_date();
+
 #ifdef __cplusplus
 }
 #endif

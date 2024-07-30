@@ -77,6 +77,8 @@ import 'dart:io';
 import 'package:ffi/ffi.dart';
 import 'package:monero/src/generated_bindings_monero.g.dart';
 
+export 'src/checksum_monero.dart';
+
 typedef PendingTransaction = Pointer<Void>;
 
 MoneroC? lib;
@@ -3914,6 +3916,51 @@ int MONERO_cw_WalletListener_height(WalletListener wlptr) {
   final s = lib!.MONERO_cw_WalletListener_height(wlptr);
   debugEnd?.call('MONERO_cw_WalletListener_height');
   return s;
+}
+
+String MONERO_checksum_wallet2_api_c_h() {
+  debugStart?.call('MONERO_checksum_wallet2_api_c_h');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+
+  final s = lib!.MONERO_checksum_wallet2_api_c_h();
+  debugEnd?.call('MONERO_checksum_wallet2_api_c_h');
+  return s.cast<Utf8>().toDartString();
+}
+
+String MONERO_checksum_wallet2_api_c_cpp() {
+  debugStart?.call('MONERO_checksum_wallet2_api_c_cpp');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+
+  final s = lib!.MONERO_checksum_wallet2_api_c_cpp();
+  debugEnd?.call('MONERO_checksum_wallet2_api_c_cpp');
+  return s.cast<Utf8>().toDartString();
+}
+
+String MONERO_checksum_wallet2_api_c_exp() {
+  debugStart?.call('MONERO_checksum_wallet2_api_c_exp');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+
+  final s = lib!.MONERO_checksum_wallet2_api_c_exp();
+  debugEnd?.call('MONERO_checksum_wallet2_api_c_exp');
+  return s.cast<Utf8>().toDartString();
+}
+
+int MONERO_checksum_wallet2_api_c_version() {
+  debugStart?.call('MONERO_checksum_wallet2_api_c_version');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+
+  final s = lib!.MONERO_checksum_wallet2_api_c_version();
+  debugEnd?.call('MONERO_checksum_wallet2_api_c_version');
+  return s;
+}
+
+String MONERO_checksum_wallet2_api_c_date() {
+  debugStart?.call('MONERO_checksum_wallet2_api_c_date');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+
+  final s = lib!.MONERO_checksum_wallet2_api_c_date();
+  debugEnd?.call('MONERO_checksum_wallet2_api_c_date');
+  return s.cast<Utf8>().toDartString();
 }
 
 void MONERO_free(Pointer<Void> wlptr) {

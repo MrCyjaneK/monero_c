@@ -1,11 +1,8 @@
-name: Build 
-
-
-
-
-on:
-  pull_request:
-    types: [opened, reopened, synchronize]
+name: Build xmruw
+on: [push]
+permissions:
+  issues: write
+  pull-requests: write
 permissions:
   issues: write
   pull-requests: write

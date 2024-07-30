@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(realpath $(dirname $0))"
+
 function verbose_copy() {
     echo "==> cp $1 $2"
     cp $1 $2

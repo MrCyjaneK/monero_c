@@ -6,6 +6,7 @@
 #include <thread>
 #include "../../../../wownero/src/wallet/api/wallet2_api.h"
 #include "../../../../external/wownero-seed/include/wownero_seed/wownero_seed.hpp"
+#include "monero_checksum.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -1957,6 +1958,21 @@ void* WOWNERO_deprecated_create14WordSeed(char *path, char *password, char *lang
     return reinterpret_cast<void*>(wallet);
 }
 
+const char* WOWNERO_checksum_wallet2_api_c_h() {
+    return WOWNERO_wallet2_api_c_h_sha256;
+}
+const char* WOWNERO_checksum_wallet2_api_c_cpp() {
+    return WOWNERO_wallet2_api_c_cpp_sha256;
+}
+const char* WOWNERO_checksum_wallet2_api_c_exp() {
+    return WOWNERO_wallet2_api_c_exp_sha256;
+}
+int WOWNERO_checksum_wallet2_api_c_version() {
+    return WOWNERO_libwallet2_api_c_version;
+}
+const char* WOWNERO_checksum_wallet2_api_c_date() {
+    return WOWNERO_wallet2_api_c_date;
+}
 // i hate windows
 
 void WOWNERO_free(void* ptr) {
