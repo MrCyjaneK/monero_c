@@ -7,8 +7,8 @@ do
     COIN_wallet2_api_c_h_sha256=$(sha256sum ${coin}_libwallet2_api_c/src/main/cpp/wallet2_api_c.h | xargs | awk '{ print $1 }')
     COIN_wallet2_api_c_cpp_sha256=$(sha256sum ${coin}_libwallet2_api_c/src/main/cpp/wallet2_api_c.cpp | xargs | awk '{ print $1 }')
     COIN_wallet2_api_c_exp_sha256=$(sha256sum ${coin}_libwallet2_api_c/${coin}_libwallet2_api_c.exp | xargs | awk '{ print $1 }')
-    COIN_libwallet2_api_c_version=$(git log --oneline -- ${coin}_libwallet2_api_c | wc -l)
-    COIN_libwallet2_api_c_date=$(git log -1 --format=%ci -- ${coin}_libwallet2_api_c)
+    COIN_libwallet2_api_c_version=$(git log --exclude=${coin}_checksum.h --oneline -- ${coin}_libwallet2_api_c | wc -l)
+    COIN_libwallet2_api_c_date=$(git log --exclude=${coin}_checksum.h -1 --format=%ai -- ${coin}_libwallet2_api_c)
 
     cat > ${coin}_libwallet2_api_c/src/main/cpp/${coin}_checksum.h << EOF
 #ifndef MONEROC_CHECKSUMS
