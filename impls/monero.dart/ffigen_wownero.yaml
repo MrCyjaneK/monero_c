@@ -1,0 +1,11 @@
+name: WowneroC
+description: monero_c wownero bindings
+output: 'lib/src/generated_bindings_wownero.g.dart'
+headers:
+  entry-points:
+    - 'wownero_wallet2_api_c.h'
+
+exclude-all-by-default: true
+functions:
+  include:
+    - "WOWNERO_.+"

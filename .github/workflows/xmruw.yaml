@@ -1,11 +1,15 @@
-name: Build xmruw
-run-name: Building xmruw for supported targets
+name: Build 
+
+
+
+
 on:
   pull_request:
     types: [opened, reopened, synchronize]
 permissions:
   issues: write
   pull-requests: write
+
 jobs:
   android:
     strategy:

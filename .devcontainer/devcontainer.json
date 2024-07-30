@@ -16,8 +16,10 @@
                 "terminal.integrated.profiles.linux": { "zsh": { "path": "/bin/zsh" } }
             },
 			"extensions": [
+                "dart-code.flutter",
+                "dart-code.dart-code"
 			]
 		}
 	},
-	"remoteUser": "user"
+	"remoteUser": "ubuntu"
 }
