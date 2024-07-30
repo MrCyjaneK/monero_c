@@ -3634,25 +3634,6 @@ String WOWNERO_checksum_wallet2_api_c_exp() {
   return s.cast<Utf8>().toDartString();
 }
 
-int WOWNERO_checksum_wallet2_api_c_version() {
-  debugStart?.call('WOWNERO_checksum_wallet2_api_c_version');
-  lib ??= WowneroC(DynamicLibrary.open(libPath));
-
-  final s = lib!.WOWNERO_checksum_wallet2_api_c_version();
-  debugEnd?.call('WOWNERO_checksum_wallet2_api_c_version');
-  return s;
-}
-
-String WOWNERO_checksum_wallet2_api_c_date() {
-  debugStart?.call('WOWNERO_checksum_wallet2_api_c_date');
-  lib ??= WowneroC(DynamicLibrary.open(libPath));
-
-  final s = lib!.WOWNERO_checksum_wallet2_api_c_date();
-  debugEnd?.call('WOWNERO_checksum_wallet2_api_c_date');
-  return s.cast<Utf8>().toDartString();
-}
-
-
 void WOWNERO_free(Pointer<Void> wlptr) {
   debugStart?.call('WOWNERO_free');
   lib ??= WowneroC(DynamicLibrary.open(libPath));

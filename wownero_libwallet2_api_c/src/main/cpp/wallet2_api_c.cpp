@@ -1967,12 +1967,6 @@ const char* WOWNERO_checksum_wallet2_api_c_cpp() {
 const char* WOWNERO_checksum_wallet2_api_c_exp() {
     return WOWNERO_wallet2_api_c_exp_sha256;
 }
-int WOWNERO_checksum_wallet2_api_c_version() {
-    return WOWNERO_libwallet2_api_c_version;
-}
-const char* WOWNERO_checksum_wallet2_api_c_date() {
-    return WOWNERO_wallet2_api_c_date;
-}
 // i hate windows
 
 void WOWNERO_free(void* ptr) {

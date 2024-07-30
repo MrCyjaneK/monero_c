@@ -5010,25 +5010,4 @@ class WowneroC {
   late final _WOWNERO_checksum_wallet2_api_c_exp =
       _WOWNERO_checksum_wallet2_api_c_expPtr.asFunction<
           ffi.Pointer<ffi.Char> Function()>();
-
-  int WOWNERO_checksum_wallet2_api_c_version() {
-    return _WOWNERO_checksum_wallet2_api_c_version();
-  }
-
-  late final _WOWNERO_checksum_wallet2_api_c_versionPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function()>>(
-          'WOWNERO_checksum_wallet2_api_c_version');
-  late final _WOWNERO_checksum_wallet2_api_c_version =
-      _WOWNERO_checksum_wallet2_api_c_versionPtr.asFunction<int Function()>();
-
-  ffi.Pointer<ffi.Char> WOWNERO_checksum_wallet2_api_c_date() {
-    return _WOWNERO_checksum_wallet2_api_c_date();
-  }
-
-  late final _WOWNERO_checksum_wallet2_api_c_datePtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
-          'WOWNERO_checksum_wallet2_api_c_date');
-  late final _WOWNERO_checksum_wallet2_api_c_date =
-      _WOWNERO_checksum_wallet2_api_c_datePtr.asFunction<
-          ffi.Pointer<ffi.Char> Function()>();
 }
