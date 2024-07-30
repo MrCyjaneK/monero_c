@@ -177,7 +177,7 @@ jobs:
 
       - name: Rename app
         run: |
-          echo -e "id=com.cakewallet.moneroc_${{ env.PR_NUMBER }}\nname=${{ github.ref_name }}" | tr '/-' '_' > /opt/android/cake_wallet/android/app.properties
+          echo -e "id=com.cakewallet.moneroc_${{ env.PR_NUMBER }}\nname=${{ github.ref_name }}" | tr '/-.' '_' > /opt/android/cake_wallet/android/app.properties
 
       - name: Build
         run: |
