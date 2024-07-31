@@ -19,16 +19,7 @@ else
     mkdir -p $BOOST_DIR_PATH || true
     cp -r "${MONEROC_DIR}/external/Apple-Boost-BuildScript" $BOOST_DIR_PATH
 fi
-
-# Verify if the repository was cloned successfully.
-if [ -d "$BOOST_DIR_PATH/.git" ]; then
-    echo "Boost repository cloned successfully."
-	cd $BOOST_DIR_PATH
-    git checkout build
-else
-    echo "Failed to clone Boost repository. Exiting."
-    exit 1
-fi
+cd $BOOST_DIR_PATH
 
 ./boost.sh -ios \
 	--min-ios-version ${MIN_IOS_VERSION} \

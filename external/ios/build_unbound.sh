@@ -22,16 +22,7 @@ else
 	cp -r "${MONEROC_DIR}/external/unbound" ${UNBOUND_DIR_PATH}
 fi
 
-# Verify if the repository was cloned successfully.
-if [ -d "$UNBOUND_DIR_PATH/.git" ]; then
-    echo "Unbound repository cloned successfully."
-	cd $UNBOUND_DIR_PATH
-	git checkout $UNBOUND_VERSION # Or UNBOUND_HASH.
-	test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
-else
-    echo "Failed to clone Unbound repository. Exiting."
-    exit 1
-fi
+cd $UNBOUND_DIR_PATH
 
 export IOS_SDK=iPhone
 export IOS_CPU=arm64

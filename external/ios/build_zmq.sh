@@ -19,14 +19,7 @@ else
 	cp -r "${MONEROC_DIR}/external/libzmq" $ZMQ_PATH
 fi
 
-# Verify if the repository was cloned successfully.
-if [ -d "$ZMQ_PATH/.git" ]; then
-    echo "ZeroMQ repository cloned successfully."
-	cd $ZMQ_PATH
-else
-    echo "Failed to clone ZeroMQ repository. Exiting."
-    exit 1
-fi
+cd $ZMQ_PATH
 
 mkdir -p cmake-build
 cd cmake-build

@@ -17,15 +17,7 @@ else
     mkdir -p "$OPEN_SSL_DIR_PATH" || true
 	cp -r "${MONEROC_DIR}/external/OpenSSL-for-iPhone" $OPEN_SSL_DIR_PATH
 fi
-exit 0
-# Verify if the repository was cloned successfully.
-if [ -d "$OPEN_SSL_DIR_PATH/.git" ]; then
-    echo "OpenSSL repository cloned successfully."
-	cd $OPEN_SSL_DIR_PATH
-else
-    echo "Failed to clone OpenSSL repository. Exiting."
-    exit 1
-fi
+cd $OPEN_SSL_DIR_PATH
 
 ./build-libssl.sh --version=1.1.1q --targets="ios-cross-arm64" --deprecated
 
