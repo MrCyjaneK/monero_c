@@ -5,7 +5,6 @@ set -e
 . ./config.sh
 
 ZMQ_PATH="${EXTERNAL_IOS_SOURCE_DIR}/libzmq"
-ZMQ_URL="https://github.com/zeromq/libzmq.git"
 
 echo "============================ ZMQ ============================"
 
@@ -16,7 +15,7 @@ if [ -d "$ZMQ_PATH" ]; then
     echo "ZeroMQ directory already exists."
 else
     echo "Cloning ZeroMQ from $ZeroMQ_URL"
-	git clone $ZMQ_URL $ZMQ_PATH
+	cp -a "${MONEROC_DIR}/external/libzmq" $ZMQ_PATH
 fi
 
 # Verify if the repository was cloned successfully.

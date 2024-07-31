@@ -18,7 +18,7 @@ if [ -d "$UNBOUND_DIR_PATH" ]; then
     echo "Unbound directory already exists."
 else
     echo "Cloning Unbound from $Unbound_URL"
-	git clone $UNBOUND_GIT_URL -b ${UNBOUND_VERSION} ${UNBOUND_DIR_PATH}
+	cp -a "${MONEROC_DIR}/external/unbound" ${UNBOUND_DIR_PATH}
 fi
 
 # Verify if the repository was cloned successfully.

@@ -4,7 +4,6 @@ set -e
 
 . ./config.sh
 
-OPEN_SSL_URL="https://github.com/x2on/OpenSSL-for-iPhone.git"
 OPEN_SSL_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/OpenSSL"
 
 echo "============================ OpenSSL ============================"
@@ -16,7 +15,7 @@ if [ -d "$OPEN_SSL_DIR_PATH" ]; then
     echo "OpenSSL directory already exists."
 else
     echo "Cloning OpenSSL from $OPEN_SSL_URL"
-	git clone $OPEN_SSL_URL $OPEN_SSL_DIR_PATH
+	cp -a "${MONEROC_DIR}/external/OpenSSL-for-iPhone" $OPEN_SSL_DIR_PATH
 fi
 
 # Verify if the repository was cloned successfully.

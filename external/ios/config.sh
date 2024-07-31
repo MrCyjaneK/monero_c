@@ -1,6 +1,7 @@
 #!/bin/sh
 
 export IOS_SCRIPTS_DIR="$(pwd)"
+export MONEROC_DIR="$(pwd)/../.."
 export CW_ROOT="${IOS_SCRIPTS_DIR}"
 export EXTERNAL_DIR="${CW_ROOT}/build"
 export EXTERNAL_IOS_DIR="${EXTERNAL_DIR}/ios"
