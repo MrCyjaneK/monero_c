@@ -64,7 +64,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: "11.x"
+          java-version: "17.x"
       - name: Configure placeholder git details
         run: |
           git config --global user.email "CI@cakewallet.com"
