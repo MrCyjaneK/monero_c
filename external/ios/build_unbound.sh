@@ -18,6 +18,7 @@ if [ -d "$UNBOUND_DIR_PATH" ]; then
     echo "Unbound directory already exists."
 else
     echo "Cloning Unbound from $Unbound_URL"
+    mkdir -p ${UNBOUND_DIR_PATH} || true
 	cp -r "${MONEROC_DIR}/external/unbound" ${UNBOUND_DIR_PATH}
 fi
 

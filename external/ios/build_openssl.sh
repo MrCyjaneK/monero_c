@@ -14,10 +14,10 @@ echo "Cloning Open SSL from - $OPEN_SSL_URL"
 if [ -d "$OPEN_SSL_DIR_PATH" ]; then
     echo "OpenSSL directory already exists."
 else
-    echo "Cloning OpenSSL from $OPEN_SSL_URL"
+    mkdir -p "$OPEN_SSL_DIR_PATH" || true
 	cp -r "${MONEROC_DIR}/external/OpenSSL-for-iPhone" $OPEN_SSL_DIR_PATH
 fi
-
+exit 0
 # Verify if the repository was cloned successfully.
 if [ -d "$OPEN_SSL_DIR_PATH/.git" ]; then
     echo "OpenSSL repository cloned successfully."

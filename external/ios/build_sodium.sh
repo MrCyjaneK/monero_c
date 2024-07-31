@@ -16,6 +16,7 @@ if [ -d "$SODIUM_PATH" ]; then
     echo "Sodium directory already exists."
 else
     echo "Cloning Sodium from $SODIUM_URL"
+    mkdir -p $SODIUM_PATH || true
 	cp -r "${MONEROC_DIR}/external/libsodium" $SODIUM_PATH
 fi
 

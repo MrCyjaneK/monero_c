@@ -15,6 +15,7 @@ if [ -d "$ZMQ_PATH" ]; then
     echo "ZeroMQ directory already exists."
 else
     echo "Cloning ZeroMQ from $ZeroMQ_URL"
+    mkdir -p $ZMQ_PATH || true
 	cp -r "${MONEROC_DIR}/external/libzmq" $ZMQ_PATH
 fi
 
