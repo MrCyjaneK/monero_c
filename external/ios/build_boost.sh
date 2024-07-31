@@ -16,7 +16,7 @@ if [ -d "$BOOST_DIR_PATH" ]; then
     echo "Boost directory already exists."
 else
     echo "Cloning Boost from $BOOST_URL"
-    cp -a "${MONEROC_DIR}/external/Apple-Boost-BuildScript" $BOOST_DIR_PATH
+    cp -r "${MONEROC_DIR}/external/Apple-Boost-BuildScript" $BOOST_DIR_PATH
 fi
 
 # Verify if the repository was cloned successfully.

@@ -16,7 +16,7 @@ if [ -d "$SODIUM_PATH" ]; then
     echo "Sodium directory already exists."
 else
     echo "Cloning Sodium from $SODIUM_URL"
-	cp -a "${MONEROC_DIR}/external/libsodium" $SODIUM_PATH
+	cp -r "${MONEROC_DIR}/external/libsodium" $SODIUM_PATH
 fi
 
 ../../../../libsodium_apple-ios.sh
