@@ -17,6 +17,7 @@ if [ -d "$BOOST_DIR_PATH" ]; then
 else
     echo "Cloning Boost from $BOOST_URL"
     mkdir -p $BOOST_DIR_PATH || true
+    rm -rf $BOOST_DIR_PATH || true
     cp -r "${MONEROC_DIR}/external/Apple-Boost-BuildScript" $BOOST_DIR_PATH
 fi
 cd $BOOST_DIR_PATH

@@ -16,6 +16,7 @@ if [ -d "$ZMQ_PATH" ]; then
 else
     echo "Cloning ZeroMQ from $ZeroMQ_URL"
     mkdir -p $ZMQ_PATH || true
+    rm -rf $ZMQ_PATH
 	cp -r "${MONEROC_DIR}/external/libzmq" $ZMQ_PATH
 fi
 

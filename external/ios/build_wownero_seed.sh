@@ -10,8 +10,8 @@ SEED_SRC_DIR="${EXTERNAL_IOS_SOURCE_DIR}/seed"
 rm -rf "$SEED_SRC_DIR" > /dev/null
 
 echo "[*] cloning $SEED_URL"
-rm -rf ${SEED_SRC_DIR} || true
 mkdir -p ${SEED_SRC_DIR} || true
+rm -rf ${SEED_SRC_DIR}
 cp -r "${MONEROC_DIR}/external/wownero-seed" ${SEED_SRC_DIR}
 cd $SEED_SRC_DIR
 

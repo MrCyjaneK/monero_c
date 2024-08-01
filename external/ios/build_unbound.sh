@@ -19,6 +19,7 @@ if [ -d "$UNBOUND_DIR_PATH" ]; then
 else
     echo "Cloning Unbound from $Unbound_URL"
     mkdir -p ${UNBOUND_DIR_PATH} || true
+    rm -rf ${UNBOUND_DIR_PATH}
 	cp -r "${MONEROC_DIR}/external/unbound" ${UNBOUND_DIR_PATH}
 fi
 

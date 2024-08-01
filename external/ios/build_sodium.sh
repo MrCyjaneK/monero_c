@@ -17,9 +17,11 @@ if [ -d "$SODIUM_PATH" ]; then
 else
     echo "Cloning Sodium from $SODIUM_URL"
     mkdir -p $SODIUM_PATH || true
+    rm -rf $SODIUM_PATH
 	cp -r "${MONEROC_DIR}/external/libsodium" $SODIUM_PATH
 fi
 
+cd $SODIUM_PATH
 ../../../../libsodium_apple-ios.sh
 
 mv -f ${SODIUM_PATH}/libsodium-apple/ios/include/* $EXTERNAL_IOS_INCLUDE_DIR

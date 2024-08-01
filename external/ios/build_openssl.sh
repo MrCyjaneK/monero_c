@@ -15,12 +15,14 @@ if [ -d "$OPEN_SSL_DIR_PATH" ]; then
     echo "OpenSSL directory already exists."
 else
     mkdir -p "$OPEN_SSL_DIR_PATH" || true
+    rm -rf "$OPEN_SSL_DIR_PATH"
 	cp -r "${MONEROC_DIR}/external/OpenSSL-for-iPhone" $OPEN_SSL_DIR_PATH
 fi
 cd $OPEN_SSL_DIR_PATH
 
 ./build-libssl.sh --version=1.1.1q --targets="ios-cross-arm64" --deprecated
 
+
 mv -f ${OPEN_SSL_DIR_PATH}/include/* $EXTERNAL_IOS_INCLUDE_DIR
-mv ${OPEN_SSL_DIR_PATH}/lib/libcrypto-iOS.a ${EXTERNAL_IOS_LIB_DIR}/libcrypto.a
-mv ${OPEN_SSL_DIR_PATH}/lib/libssl-iOS.a ${EXTERNAL_IOS_LIB_DIR}/libssl.a
+mv -f ${OPEN_SSL_DIR_PATH}/lib/libcrypto-iOS.a ${EXTERNAL_IOS_LIB_DIR}/libcrypto.a
+mv -f ${OPEN_SSL_DIR_PATH}/lib/libssl-iOS.a ${EXTERNAL_IOS_LIB_DIR}/libssl.a
