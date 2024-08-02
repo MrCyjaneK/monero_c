@@ -100,7 +100,9 @@ build_ios() {
 
 mkdir -p "${PREFIX}/tmp"
 
-echo "Building for iOS..."
+echo "Building for iOS... ($LOG_FILE)"
+./autogen.sh
+./configure
 build_ios >"$LOG_FILE" 2>&1 || exit 1
 
 echo "Adding the Clibsodium module map for Swift..."
