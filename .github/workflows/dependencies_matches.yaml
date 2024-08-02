@@ -57,9 +57,6 @@ jobs:
       - name: prepare
         run: |
           set -x
-          pushd external/polyseed
-            echo "EXTERNAL_POLYSEED=$(git rev-parse HEAD)" >> $GITHUB_ENV
-          popd
           pushd ${{ matrix.coin }}/contrib/depends
             make download # sorry, this is the easiest way
             mkdir sources/polyseed
@@ -69,8 +66,8 @@ jobs:
           popd
       - name: diff
         run: |
-          OUTPUT=$(diff -ra external/polyseed ${{ matrix.coin }}/contrib/depends/sources/polyseed | grep -v .git)
-          if [[ ! "x$OUTPUT" == "x" ]];
+          OUTPUT=$(diff -ra external/polyseed ${{ matrix.coin }}/contrib/depends/sources/polyseed | grep -v .git | wc -l)
+          if [[ ! "x$OUTPUT" == "x0" ]];
           then
             diff -ra external/polyseed ${{ matrix.coin }}/contrib/depends/sources/polyseed/*
             exit 1
