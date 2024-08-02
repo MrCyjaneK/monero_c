@@ -6,15 +6,14 @@ set -x -e
 
 SEED_VERSION=0.3.0
 SEED_SRC_DIR="${EXTERNAL_IOS_SOURCE_DIR}/seed"
-SEED_URL="https://git.wownero.com/wowlet/wownero-seed.git"
-SEED_SHA_HEAD="d3f68be347facfeebbd8f68fd74982c705cb917b"
 
 rm -rf "$SEED_SRC_DIR" > /dev/null
 
 echo "[*] cloning $SEED_URL"
-git clone --branch ${SEED_VERSION} ${SEED_URL} ${SEED_SRC_DIR}
+mkdir -p ${SEED_SRC_DIR} || true
+rm -rf ${SEED_SRC_DIR}
+cp -r "${MONEROC_DIR}/external/wownero-seed" ${SEED_SRC_DIR}
 cd $SEED_SRC_DIR
-git reset --hard $SEED_SHA_HEAD
 
 patch -p1 < ../../../../../wownero-seed-0001-fix-duplicate-symbol-error.patch
 

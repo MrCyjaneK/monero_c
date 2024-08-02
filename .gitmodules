@@ -14,3 +14,20 @@
 [submodule "external/wownero-seed"]
 	path = external/wownero-seed
 	url = https://github.com/wownero-mirror/wownero-seed
+[submodule "external/Apple-Boost-BuildScript"]
+	path = external/Apple-Boost-BuildScript
+	url = https://github.com/cake-tech/Apple-Boost-BuildScript.git
+	branch = build
+[submodule "external/OpenSSL-for-iPhone"]
+	path = external/OpenSSL-for-iPhone
+	url = https://github.com/x2on/OpenSSL-for-iPhone.git
+[submodule "external/libsodium"]
+	path = external/libsodium
+	url = https://github.com/jedisct1/libsodium.git
+[submodule "external/unbound"]
+	path = external/unbound
+	url = https://github.com/NLnetLabs/unbound.git
+	branch = release-1.16.2
+[submodule "external/libzmq"]
+	path = external/libzmq
+	url = https://github.com/zeromq/libzmq

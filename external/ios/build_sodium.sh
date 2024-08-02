@@ -16,19 +16,12 @@ if [ -d "$SODIUM_PATH" ]; then
     echo "Sodium directory already exists."
 else
     echo "Cloning Sodium from $SODIUM_URL"
-	git clone $SODIUM_URL $SODIUM_PATH
+    mkdir -p $SODIUM_PATH || true
+    rm -rf $SODIUM_PATH
+	cp -r "${MONEROC_DIR}/external/libsodium" $SODIUM_PATH
 fi
 
-# Verify if the repository was cloned successfully.
-if [ -d "$SODIUM_PATH/.git" ]; then
-    echo "Sodium repository cloned successfully."
-	cd $SODIUM_PATH
-	git checkout 443617d7507498f7477703f0b51cb596d4539262
-else
-    echo "Failed to clone Sodium repository. Exiting."
-    exit 1
-fi
-
+cd $SODIUM_PATH
 ../../../../libsodium_apple-ios.sh
 
 mv -f ${SODIUM_PATH}/libsodium-apple/ios/include/* $EXTERNAL_IOS_INCLUDE_DIR
