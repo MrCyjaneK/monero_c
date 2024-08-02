@@ -7,8 +7,6 @@ on: [push]
 jobs:
   wownero-seed:
     runs-on: ubuntu-latest
-    container:
-      image: debian:bookworm
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,8 +43,6 @@ jobs:
       matrix:
         coin: [monero, wownero]
     runs-on: ubuntu-latest
-    container:
-      image: debian:bookworm
     steps:
       - uses: actions/checkout@v4
         with:
