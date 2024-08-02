@@ -3,10 +3,6 @@ name: Check if dependencies match
 # at the same time, this check makes sure that we do use
 # the same version of said libraries.
 on: [push]
-permissions:
-  issues: write
-  pull-requests: write
-
 
 jobs:
   wownero-seed:
@@ -34,16 +30,16 @@ jobs:
           echo "WOWNERO_WOWNEROSEED=$(cat wownero/contrib/depends/packages/wownero_seed.mk | grep _download_file | tr '=.' '\n' | head -2 | tail -1)" >> $GITHUB_ENV
       - name: compare hashes
         run: |
-        if [[ "x$WOWNERO_WOWNEROSEED" == "x" ]];
-        then
-          echo "Unable to obtain wownero seed from wownero repo"
-          exit 1
-        fi
-        if [[ ! "x$EXTERNAL_WOWNEROSEED" == "x$WOWNERO_WOWNEROSEED" ]];
-        then
-          echo "external/wownero-seed doesn't match wownero/contrib/depends/packages/wownero_seed.mk checksum"
-          exit 1
-        fi
+          if [[ "x$WOWNERO_WOWNEROSEED" == "x" ]];
+          then
+            echo "Unable to obtain wownero seed from wownero repo"
+            exit 1
+          fi
+          if [[ ! "x$EXTERNAL_WOWNEROSEED" == "x$WOWNERO_WOWNEROSEED" ]];
+          then
+            echo "external/wownero-seed doesn't match wownero/contrib/depends/packages/wownero_seed.mk checksum"
+            exit 1
+          fi
   polyseed:
     strategy:
       matrix:
