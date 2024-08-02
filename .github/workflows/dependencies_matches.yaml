@@ -72,6 +72,6 @@ jobs:
           OUTPUT=$(diff -ra external/polyseed ${{ matrix.coin }}/contrib/depends/sources/polyseed | grep -v .git)
           if [[ ! "x$OUTPUT" == "x" ]];
           then
-            diff -ra external/polyseed ${{ matrix.coin }}/contrib/depends/sources/polyseed 
+            diff -ra external/polyseed ${{ matrix.coin }}/contrib/depends/sources/polyseed/*
             exit 1
           fi
