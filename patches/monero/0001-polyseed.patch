@@ -1,18 +1,15 @@
-From b9fac308d903e9dd79b95d6db73c37807e1219b7 Mon Sep 17 00:00:00 2001
+From 8324040dfb89bd90b414ea685b2aa758a461fbc4 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 09:42:37 +0100
-Subject: [PATCH 01/10] polyseed
+Subject: [PATCH 01/16] polyseed
 
 Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
 ---
- .github/workflows/build.yml            |   4 +-
  .gitmodules                            |   6 +
  CMakeLists.txt                         |   4 +-
  contrib/epee/include/wipeable_string.h |   7 +
  contrib/epee/src/wipeable_string.cpp   |  10 ++
  external/CMakeLists.txt                |   2 +
- external/polyseed                      |   1 +
- external/utf8proc                      |   1 +
  src/CMakeLists.txt                     |   1 +
  src/cryptonote_basic/CMakeLists.txt    |   1 +
  src/cryptonote_basic/account.cpp       |  23 +++-
@@ -30,30 +27,13 @@ Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
  src/wallet/api/wallet_manager.h        |  10 ++
  src/wallet/wallet2.cpp                 | 102 ++++++++++++--
  src/wallet/wallet2.h                   |  30 +++-
- 25 files changed, 809 insertions(+), 21 deletions(-)
- create mode 160000 external/polyseed
- create mode 160000 external/utf8proc
+ 22 files changed, 805 insertions(+), 19 deletions(-)
  create mode 100644 src/polyseed/CMakeLists.txt
  create mode 100644 src/polyseed/pbkdf2.c
  create mode 100644 src/polyseed/pbkdf2.h
  create mode 100644 src/polyseed/polyseed.cpp
  create mode 100644 src/polyseed/polyseed.hpp
 
-diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
-index 4c1e381c0..70bea03b3 100644
---- a/.github/workflows/build.yml
-+++ b/.github/workflows/build.yml
-@@ -124,8 +124,8 @@ jobs:
-     - name: build
-       run: |
-         ${{env.CCACHE_SETTINGS}}
--        cmake .
--        make wallet_api -j3
-+        cmake -S . -B build
-+        cmake --build build wallet_api -j3
- 
-   test-ubuntu:
-     needs: build-ubuntu
 diff --git a/.gitmodules b/.gitmodules
 index 721cce3b4..73a23fb35 100644
 --- a/.gitmodules
@@ -148,20 +128,6 @@ index 5b7f69a56..1b9761d70 100644
 +add_subdirectory(polyseed EXCLUDE_FROM_ALL)
 +add_subdirectory(utf8proc EXCLUDE_FROM_ALL)
 \ No newline at end of file
-diff --git a/external/polyseed b/external/polyseed
-new file mode 160000
-index 000000000..9d4f1a032
---- /dev/null
-+++ b/external/polyseed
-@@ -0,0 +1 @@
-+Subproject commit 9d4f1a032585656e1a642ee70cdf929001badba6
-diff --git a/external/utf8proc b/external/utf8proc
-new file mode 160000
-index 000000000..1cb28a66c
---- /dev/null
-+++ b/external/utf8proc
-@@ -0,0 +1 @@
-+Subproject commit 1cb28a66ca79a0845e99433fd1056257456cef8b
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index 3335d3c21..06b708cf0 100644
 --- a/src/CMakeLists.txt
@@ -468,7 +434,7 @@ index 000000000..f6253b9d7
 \ No newline at end of file
 diff --git a/src/polyseed/polyseed.cpp b/src/polyseed/polyseed.cpp
 new file mode 100644
-index 000000000..0a8852777
+index 000000000..231a48a94
 --- /dev/null
 +++ b/src/polyseed/polyseed.cpp
 @@ -0,0 +1,182 @@
@@ -520,7 +486,7 @@ index 000000000..0a8852777
 +      if (result < 0 || result > (POLYSEED_STR_SIZE - 1)) {
 +        throw std::runtime_error("Unicode normalization failed");
 +      }
-+            
++
 +      result = utf8proc_reencode(buffer, result, options);
 +      if (result < 0 || result > POLYSEED_STR_SIZE) {
 +        throw std::runtime_error("Unicode normalization failed");
@@ -829,7 +795,7 @@ index 000000000..2c8c777a7
 +#endif //POLYSEED_HPP
 \ No newline at end of file
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 8d7364cba..472f05016 100644
+index fc4f89128..d96ea97ea 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -690,6 +690,28 @@ bool WalletImpl::recoverFromDevice(const std::string &path, const std::string &p
@@ -876,7 +842,7 @@ index 8d7364cba..472f05016 100644
 +    }
 +
 +    bool result = m_wallet->get_polyseed(seed_words_epee, passphrase_epee);
-+    
++
 +    seed_words.assign(seed_words_epee.data(), seed_words_epee.size());
 +    passphrase.assign(passphrase_epee.data(), passphrase_epee.size());
 +
@@ -898,7 +864,7 @@ index 8d7364cba..472f05016 100644
 +bool Wallet::createPolyseed(std::string &seed_words, std::string &err, const std::string &language)
 +{
 +    epee::wipeable_string seed_words_epee(seed_words.c_str(), seed_words.size());
-+    
++
 +    try {
 +        polyseed::data polyseed(POLYSEED_COIN);
 +        polyseed.create(0);
@@ -1026,7 +992,7 @@ index a223e1df9..28fcd36c9 100644
      bool walletExists(const std::string &path) override;
      bool verifyWalletPassword(const std::string &keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const override;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index f34b10988..e4e02c782 100644
+index 64f486e71..9e95f44d6 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -92,6 +92,7 @@ using namespace epee;
@@ -1074,7 +1040,7 @@ index f34b10988..e4e02c782 100644
    return true;
  }
  //----------------------------------------------------------------------------------------------------
-@@ -4629,6 +4646,9 @@ boost::optional<wallet2::keys_file_data> wallet2::get_keys_file_data(const epee:
+@@ -4630,6 +4647,9 @@ boost::optional<wallet2::keys_file_data> wallet2::get_keys_file_data(const epee:
    value2.SetInt(m_enable_multisig ? 1 : 0);
    json.AddMember("enable_multisig", value2, json.GetAllocator());
  
@@ -1084,7 +1050,7 @@ index f34b10988..e4e02c782 100644
    // Serialize the JSON object
    rapidjson::StringBuffer buffer;
    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-@@ -4776,6 +4796,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
+@@ -4777,6 +4797,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
      m_credits_target = 0;
      m_enable_multisig = false;
      m_allow_mismatched_daemon_version = false;
@@ -1092,7 +1058,7 @@ index f34b10988..e4e02c782 100644
    }
    else if(json.IsObject())
    {
-@@ -5012,6 +5033,8 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
+@@ -5013,6 +5034,8 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
      m_credits_target = field_credits_target;
      GET_FIELD_FROM_JSON_RETURN_ON_ERROR(json, enable_multisig, int, Int, false, false);
      m_enable_multisig = field_enable_multisig;
@@ -1101,7 +1067,7 @@ index f34b10988..e4e02c782 100644
    }
    else
    {
-@@ -5284,6 +5307,48 @@ void wallet2::init_type(hw::device::device_type device_type)
+@@ -5285,6 +5308,48 @@ void wallet2::init_type(hw::device::device_type device_type)
    m_key_device_type = device_type;
  }
  
@@ -1150,7 +1116,7 @@ index f34b10988..e4e02c782 100644
  /*!
   * \brief  Generates a wallet or restores one. Assumes the multisig setup
   *         has already completed for the provided multisig info.
-@@ -5411,7 +5476,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
+@@ -5412,7 +5477,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
    return retval;
  }
  
@@ -1159,7 +1125,7 @@ index f34b10988..e4e02c782 100644
   {
     // -1 month for fluctuations in block time and machine date/time setup.
     // avg seconds per block
-@@ -5435,7 +5500,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
+@@ -5436,7 +5501,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
     // the daemon is currently syncing.
     // If we use the approximate height we subtract one month as
     // a safety margin.
@@ -1168,7 +1134,7 @@ index f34b10988..e4e02c782 100644
     uint64_t target_height = get_daemon_blockchain_target_height(err);
     if (err.empty()) {
       if (target_height < height)
-@@ -13135,7 +13200,7 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
+@@ -13133,7 +13198,7 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
    return target_height;
  }
  
@@ -1177,16 +1143,16 @@ index f34b10988..e4e02c782 100644
  {
    // time of v2 fork
    const time_t fork_time = m_nettype == TESTNET ? 1448285909 : m_nettype == STAGENET ? 1520937818 : 1458748658;
-@@ -13144,7 +13209,7 @@ uint64_t wallet2::get_approximate_blockchain_height() const
+@@ -13142,7 +13207,7 @@ uint64_t wallet2::get_approximate_blockchain_height() const
    // avg seconds per block
    const int seconds_per_block = DIFFICULTY_TARGET_V2;
    // Calculated blockchain height
 -  uint64_t approx_blockchain_height = fork_block + (time(NULL) - fork_time)/seconds_per_block;
 +  uint64_t approx_blockchain_height = fork_block + ((t > 0 ? t : time(NULL)) - fork_time)/seconds_per_block;
    // testnet and stagenet got some huge rollbacks, so the estimation is way off
-   static const uint64_t approximate_rolled_back_blocks = m_nettype == TESTNET ? 342100 : 30000;
+   static const uint64_t approximate_rolled_back_blocks = m_nettype == TESTNET ? 342100 : m_nettype == STAGENET ? 60000 : 30000;
    if ((m_nettype == TESTNET || m_nettype == STAGENET) && approx_blockchain_height > approximate_rolled_back_blocks)
-@@ -14862,15 +14927,6 @@ bool wallet2::parse_uri(const std::string &uri, std::string &address, std::strin
+@@ -14860,15 +14925,6 @@ bool wallet2::parse_uri(const std::string &uri, std::string &address, std::strin
  //----------------------------------------------------------------------------------------------------
  uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, uint8_t day)
  {
@@ -1202,7 +1168,7 @@ index f34b10988..e4e02c782 100644
    std::tm date = { 0, 0, 0, 0, 0, 0, 0, 0 };
    date.tm_year = year - 1900;
    date.tm_mon  = month - 1;
-@@ -14879,7 +14935,23 @@ uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, ui
+@@ -14877,7 +14933,23 @@ uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, ui
    {
      throw std::runtime_error("month or day out of range");
    }
@@ -1227,7 +1193,7 @@ index f34b10988..e4e02c782 100644
    uint64_t height_min = 0;
    uint64_t height_max = get_daemon_blockchain_height(err) - 1;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 3144a8fd3..b540eff6b 100644
+index c38d77675..91ec72e0f 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -72,6 +72,7 @@
@@ -1303,5 +1269,5 @@ index 3144a8fd3..b540eff6b 100644
      uint32_t m_multisig_threshold;
      std::vector<crypto::public_key> m_multisig_signers;
 -- 
-2.44.0
+2.39.2
 

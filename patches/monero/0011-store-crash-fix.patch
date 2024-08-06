@@ -1,7 +1,7 @@
-From 0fe816689af4bce256eae2efa6a8eee0cb8b8097 Mon Sep 17 00:00:00 2001
+From 238c847c153c74953b094d83bfe181a596771d37 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 11 May 2024 16:25:10 +0200
-Subject: [PATCH] store crash fix
+Subject: [PATCH 11/16] store crash fix
 
 Monero wallet crashes (sometimes) when it is syncing,
 while the proper solution (that can be seen in feather)
@@ -43,7 +43,7 @@ the current state.
  4 files changed, 26 insertions(+), 15 deletions(-)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 2411d948c..90e107137 100644
+index ec4ae51ff..306c9b8ae 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -56,8 +56,8 @@ using namespace cryptonote;
@@ -74,7 +74,7 @@ index 2411d948c..90e107137 100644
      try {
          if (path.empty()) {
              m_wallet->store();
-@@ -2592,10 +2593,10 @@ void WalletImpl::refreshThreadFunc()
+@@ -2591,10 +2592,10 @@ void WalletImpl::refreshThreadFunc()
          }
  
          LOG_PRINT_L3(__FUNCTION__ << ": refresh lock acquired...");
@@ -87,7 +87,7 @@ index 2411d948c..90e107137 100644
              LOG_PRINT_L3(__FUNCTION__ << ": refreshing...");
              doRefresh();
          }
-@@ -2625,12 +2626,12 @@ void WalletImpl::doRefresh()
+@@ -2624,12 +2625,12 @@ void WalletImpl::doRefresh()
              }
              m_wallet->find_and_save_rings(false);
          } else {
@@ -102,7 +102,7 @@ index 2411d948c..90e107137 100644
  
      if (m_wallet2Callback->getListener()) {
          m_wallet2Callback->getListener()->refreshed();
-@@ -2640,9 +2641,9 @@ void WalletImpl::doRefresh()
+@@ -2639,9 +2640,9 @@ void WalletImpl::doRefresh()
  
  void WalletImpl::startRefresh()
  {
@@ -114,7 +114,7 @@ index 2411d948c..90e107137 100644
          m_refreshCV.notify_one();
      }
  }
-@@ -2652,7 +2653,7 @@ void WalletImpl::startRefresh()
+@@ -2651,7 +2652,7 @@ void WalletImpl::startRefresh()
  void WalletImpl::stopRefresh()
  {
      if (!m_refreshThreadDone) {
@@ -123,7 +123,7 @@ index 2411d948c..90e107137 100644
          m_refreshThreadDone = true;
          m_refreshCV.notify_one();
          m_refreshThread.join();
-@@ -2663,9 +2664,7 @@ void WalletImpl::pauseRefresh()
+@@ -2662,9 +2663,7 @@ void WalletImpl::pauseRefresh()
  {
      LOG_PRINT_L2(__FUNCTION__ << ": refresh paused...");
      // TODO synchronize access
@@ -147,7 +147,7 @@ index d0f443abc..2ad2b62a4 100644
      std::atomic<int>  m_refreshIntervalMillis;
      std::atomic<bool> m_refreshShouldRescan;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 5331f90fc..e5773a26b 100644
+index 61601f70c..4de226a4a 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -1203,6 +1203,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
@@ -173,7 +173,7 @@ index 5331f90fc..e5773a26b 100644
  bool wallet2::set_proxy(const std::string &address)
  {
    return m_http_client->set_proxy(address);
-@@ -4145,8 +4154,9 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
+@@ -4146,8 +4155,9 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
    // infer when we get an incoming output
  
    bool first = true, last = false;
@@ -185,7 +185,7 @@ index 5331f90fc..e5773a26b 100644
      std::vector<cryptonote::block_complete_entry> next_blocks;
      std::vector<parsed_block> next_parsed_blocks;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 52886fb85..0d9a9298f 100644
+index fdc1a6212..3ce710433 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -1086,6 +1086,8 @@ private:
@@ -206,5 +206,5 @@ index 52886fb85..0d9a9298f 100644
      i_wallet2_callback* m_callback;
      hw::device::device_type m_key_device_type;
 -- 
-2.45.0
+2.39.2
 

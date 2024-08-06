@@ -1,13 +1,13 @@
-From bc3d91b07d77893983bbed0b165ce41e034579a7 Mon Sep 17 00:00:00 2001
+From 3343e3fbbd05546b3858c98afe3bad4673f250c8 Mon Sep 17 00:00:00 2001
 From: Your Name <you@example.com>
 Date: Thu, 28 Mar 2024 02:03:08 +0100
-Subject: [PATCH 06/10] macos build fix
+Subject: [PATCH 06/16] macos build fix
 
 ---
  contrib/depends/hosts/darwin.mk               |  2 +
  contrib/depends/packages/polyseed.mk          | 13 +++--
- .../polyseed/0001-disable-soname.patch        | 49 +++++++++++++++++++
- 3 files changed, 60 insertions(+), 4 deletions(-)
+ .../polyseed/0001-disable-soname.patch        | 48 +++++++++++++++++++
+ 3 files changed, 59 insertions(+), 4 deletions(-)
  create mode 100644 contrib/depends/patches/polyseed/0001-disable-soname.patch
 
 diff --git a/contrib/depends/hosts/darwin.mk b/contrib/depends/hosts/darwin.mk
@@ -57,10 +57,10 @@ index 2ddeac621..0071b20f3 100644
  define $(package)_stage_cmds
 diff --git a/contrib/depends/patches/polyseed/0001-disable-soname.patch b/contrib/depends/patches/polyseed/0001-disable-soname.patch
 new file mode 100644
-index 000000000..a261636e8
+index 000000000..bd97dd394
 --- /dev/null
 +++ b/contrib/depends/patches/polyseed/0001-disable-soname.patch
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,48 @@
 +From aabafcfc0572651436d024a635483c49042fad7f Mon Sep 17 00:00:00 2001
 +From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 +Date: Thu, 28 Mar 2024 00:32:51 +0100
@@ -81,7 +81,7 @@ index 000000000..a261636e8
 ++                                          NO_SONAME 1
 +                                           C_STANDARD 11
 +                                           C_STANDARD_REQUIRED ON)
-+ 
++
 +@@ -45,16 +46,17 @@ include_directories(polyseed_static
 +   include/)
 + target_compile_definitions(polyseed_static PRIVATE POLYSEED_STATIC)
@@ -89,7 +89,7 @@ index 000000000..a261636e8
 ++                                                 NO_SONAME 1
 +                                                  C_STANDARD 11
 +                                                  C_STANDARD_REQUIRED ON)
-+ 
++
 +-add_executable(polyseed-tests
 +-  tests/tests.c)
 +-include_directories(polyseed-tests
@@ -104,12 +104,11 @@ index 000000000..a261636e8
 ++# target_compile_definitions(polyseed-tests PRIVATE POLYSEED_STATIC)
 ++# target_link_libraries(polyseed-tests
 ++#   PRIVATE polyseed_static)
-+ 
++
 + include(GNUInstallDirs)
 + install(TARGETS polyseed polyseed_static
-+-- 
++--
 +2.39.2
-+
 -- 
-2.44.0
+2.39.2
 

@@ -1,7 +1,7 @@
-From f91e92ddaa7c12dcc8f38ac37ff852446bd10722 Mon Sep 17 00:00:00 2001
+From 1b938a3f98468de3fa06b21a458104cf32831586 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 16 May 2024 17:28:59 +0200
-Subject: [PATCH] WIP: UR functions
+Subject: [PATCH 12/16] WIP: UR functions
 
 This commit adds UR functions for UR tasks,
 I believe that the right place to get
@@ -283,7 +283,7 @@ index 30065a7fa..a94b23f75 100644
      uint64_t minMixinCount() const override;
  
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 90e107137..ac3e6d51e 100644
+index 306c9b8ae..5ca190c7d 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -48,6 +48,7 @@
@@ -726,10 +726,10 @@ index 1c3a11c39..2bbb32c8b 100644
      /*!
       * \brief scanTransactions - scan a list of transaction ids, this operation may reveal the txids to the remote node and affect your privacy
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index e5773a26b..23b56810e 100644
+index 4de226a4a..7d97e683b 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -14051,33 +14051,40 @@ crypto::public_key wallet2::get_tx_pub_key_from_received_outs(const tools::walle
+@@ -14056,33 +14056,40 @@ crypto::public_key wallet2::get_tx_pub_key_from_received_outs(const tools::walle
  
  bool wallet2::export_key_images(const std::string &filename, bool all) const
  {
@@ -793,7 +793,7 @@ index e5773a26b..23b56810e 100644
  //----------------------------------------------------------------------------------------------------
  std::pair<uint64_t, std::vector<std::pair<crypto::key_image, crypto::signature>>> wallet2::export_key_images(bool all) const
  {
-@@ -14132,53 +14139,60 @@ std::pair<uint64_t, std::vector<std::pair<crypto::key_image, crypto::signature>>
+@@ -14137,53 +14144,60 @@ std::pair<uint64_t, std::vector<std::pair<crypto::key_image, crypto::signature>>
    return std::make_pair(offset, ski);
  }
  
@@ -873,7 +873,7 @@ index e5773a26b..23b56810e 100644
      ski.push_back(std::make_pair(key_image, signature));
    }
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 0d9a9298f..539d5056c 100644
+index 3ce710433..9ff169a40 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -1650,9 +1650,11 @@ private:

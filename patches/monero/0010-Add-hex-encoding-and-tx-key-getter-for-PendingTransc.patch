@@ -1,7 +1,7 @@
-From db90a0218d581276fcede6f188cc951499095a2f Mon Sep 17 00:00:00 2001
+From 3cc8b1f822f642b574fe38ff27627b362002eab7 Mon Sep 17 00:00:00 2001
 From: M <m@cakewallet.com>
 Date: Fri, 21 Apr 2023 15:43:47 -0400
-Subject: [PATCH 10/10] Add hex encoding and tx key getter for
+Subject: [PATCH 10/16] Add hex encoding and tx key getter for
  PendingTransction in wallet api.
 
 ---
@@ -64,5 +64,5 @@ index a585c8212..1c3a11c39 100644
  
  /**
 -- 
-2.44.0
+2.39.2
 
