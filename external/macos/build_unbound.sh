@@ -9,9 +9,15 @@ EXPAT_VERSION=R_2_4_8
 EXPAT_HASH="3bab6c09bbe8bf42d84b81563ddbcf4cca4be838"
 EXPAT_SRC_DIR=${EXTERNAL_MACOS_SOURCE_DIR}/libexpat
 rm -rf $EXPAT_SRC_DIR
-git clone https://github.com/libexpat/libexpat.git -b ${EXPAT_VERSION} ${EXPAT_SRC_DIR}
+if [ -d "$EXPAT_SRC_DIR" ]; then
+    echo "Unbound directory already exists."
+else
+    echo "Cloning Unbound from $Unbound_URL"
+    mkdir -p ${EXPAT_SRC_DIR} || true
+    rm -rf ${EXPAT_SRC_DIR}
+	cp -r "${MONEROC_DIR}/external/libexpat" ${EXPAT_SRC_DIR}
+fi
 cd $EXPAT_SRC_DIR
-test `git rev-parse HEAD` = ${EXPAT_HASH} || exit 1
 cd $EXPAT_SRC_DIR/expat
 
 ./buildconf.sh
@@ -28,10 +34,16 @@ UNBOUND_DIR_PATH="${EXTERNAL_MACOS_SOURCE_DIR}/unbound-1.16.2"
 
 echo "============================ Unbound ============================"
 rm -rf ${UNBOUND_DIR_PATH}
-git clone https://github.com/NLnetLabs/unbound.git -b ${UNBOUND_VERSION} ${UNBOUND_DIR_PATH}
+# Check if the directory already exists.
+if [ -d "$UNBOUND_DIR_PATH" ]; then
+    echo "Unbound directory already exists."
+else
+    echo "Cloning Unbound from $Unbound_URL"
+    mkdir -p ${UNBOUND_DIR_PATH} || true
+    rm -rf ${UNBOUND_DIR_PATH}
+	cp -r "${MONEROC_DIR}/external/unbound" ${UNBOUND_DIR_PATH}
+fi
 cd $UNBOUND_DIR_PATH
-test `git rev-parse HEAD` = ${UNBOUND_HASH} || exit 1
-
 ./configure --prefix="${EXTERNAL_MACOS_DIR}" \
 	    --with-ssl="${HOMEBREW_PREFIX}" \
 			--with-libexpat="${EXTERNAL_MACOS_DIR}" \
