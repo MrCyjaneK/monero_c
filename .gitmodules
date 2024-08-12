@@ -31,3 +31,6 @@
 [submodule "external/libzmq"]
 	path = external/libzmq
 	url = https://github.com/zeromq/libzmq
+[submodule "external/libexpat"]
+	path = external/libexpat
+	url = https://github.com/libexpat/libexpat.git
