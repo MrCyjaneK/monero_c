@@ -2,6 +2,15 @@
 
 cd "$(realpath $(dirname $0))"
 
+proccount=1
+if [[ "x$(uname)" == "xDarwin" ]];
+then
+    proccount=$(sysctl -n hw.physicalcpu)
+elif [[ "x$(uname)" == "xLinux" ]];
+then
+    proccount=$(nproc)
+fi
+
 function verbose_copy() {
     echo "==> cp $1 $2"
     cp $1 $2
@@ -11,13 +20,13 @@ set -e
 repo=$1
 if [[ "x$repo" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$(nproc)"
+    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
     exit 1
 fi
 
 if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" ]];
 then
-    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$(nproc)"
+    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
     echo "Invalid target given, only monero and wownero are supported targets"
 fi
 
@@ -31,7 +40,7 @@ fi
 HOST_ABI="$2"
 if [[ "x$HOST_ABI" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$(nproc)"
+    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
     exit 1
 fi
 
@@ -39,7 +48,7 @@ NPROC="$3"
 
 if [[ "x$NPROC" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$(nproc)"
+    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
     exit 1
 fi
 cd $(dirname $0)
@@ -181,20 +190,19 @@ pushd $repo/contrib/depends
                     make $NPROC
                 popd
             fi
-            pushd ../../../external/macos
-                ./build_unbound.sh
-            popd
             MACOS_LIBS_DIR="${PWD}/${HOST_ABI}"
             rm -rf ${MACOS_LIBS_DIR}
             mkdir -p ${MACOS_LIBS_DIR}/lib
-            if [[ "x$HOMEBREW_PREFIX" == "x" ]];
+            if [[ "$(uname -m)" == "arm64" ]];
             then
-                export HOMEBREW_PREFIX=/opt/homebrew
-                if [[ ! -d "$HOMEBREW_PREFIX" ]];
-                then
-                    export HOMEBREW_PREFIX=/usr/local
-                fi
+                export HOMEBREW_PREFIX="/opt/homebrew"
+            elif [[ "$(uname -m)" == "x86_64" ]];
+            then
+                export HOMEBREW_PREFIX="/usr/local"
             fi
+            pushd ../../../external/macos
+                ./build_unbound.sh
+            popd
             # NOTE: we can use unbound from brew but app store rejects the app because of nghttp2 symbols being included
             # verbose_copy "${HOMEBREW_PREFIX}/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
             verbose_copy "../../../external/macos/build/MACOS/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
