@@ -1,4 +1,4 @@
-name: compatibility check
+name: full compatibility check
 on: [push]
 permissions:
   issues: write
@@ -631,16 +631,11 @@ jobs:
           cd /opt/android/cake_wallet
           flutter build apk --release --split-per-abi
 
-      - name: Rename apk file
-        run: |
-          cd /opt/android/cake_wallet/build/app/outputs/flutter-apk
-          mkdir test-apk
-          cp app-arm64-v8a-release.apk "test-apk/$(echo ${{ github.ref_name }} | sed 's/[^a-zA-Z0-9]//g').apk"
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: cake wallet android
-          path: unnamed_monero_wallet/build/app/outputs/flutter-apk/*.apk
+          path: /opt/android/cake_wallet/build/app/outputs/flutter-apk/*.apk
 
       - name: remove android_ndk
         run: |
@@ -662,14 +657,8 @@ jobs:
           sudo apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf unzip python-is-python3 jq
       - uses: actions/download-artifact@v4
         with:
-          name: android monero
-          path: release/monero
-      - uses: actions/download-artifact@v4
-        with:
-          name: android wownero
-          path: release/wownero
-      - name: ${{ matrix.coin }}/aarch64-linux-android
-        run: ./build_single.sh ${{ matrix.coin }} aarch64-linux-android -j$(nproc)
+          name: android ${{ matrix.coin }}
+          path: release/${{ matrix.coin }}
       - name: clone xmruw
         run: |
           git clone https://github.com/mrcyjanek/unnamed_monero_wallet
