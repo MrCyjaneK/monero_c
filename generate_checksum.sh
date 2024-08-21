@@ -30,9 +30,11 @@ const String wallet2_api_c_cpp_sha256 = "${COIN_wallet2_api_c_cpp_sha256}";
 const String wallet2_api_c_exp_sha256 = "${COIN_wallet2_api_c_exp_sha256}";
 EOF
     cat > impls/monero.ts/checksum_${coin}.ts << EOF
-export const ${COIN}_wallet2_api_c_h_sha256 = "${COIN_wallet2_api_c_h_sha256}";
-export const ${COIN}_wallet2_api_c_cpp_sha256 = "${COIN_wallet2_api_c_cpp_sha256}";
-export const ${COIN}_wallet2_api_c_exp_sha256 = "${COIN_wallet2_api_c_exp_sha256}";
+export const ${coin}Checksum = {
+    wallet2_api_c_h_sha256: "${COIN_wallet2_api_c_h_sha256}",
+    wallet2_api_c_cpp_sha256: "${COIN_wallet2_api_c_cpp_sha256}",
+    wallet2_api_c_exp_sha256: "${COIN_wallet2_api_c_exp_sha256}",
+}
 EOF
 done
 

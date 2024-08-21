@@ -1,17 +1,15 @@
-import { Wallet } from "./wallet.ts";
-import { WalletManager } from "./wallet_manager.ts";
-import { platform } from 'node:process';
-
+import { exit, platform } from "node:process";
+import { moneroChecksum } from "./checksum_monero.ts";
 const libPath = () => {
-  if (platform == 'win32') return 'monero_libwallet2_api_c.dll'
+  if (platform == 'win32') return './lib/monero_libwallet2_api_c.dll'
   // ios missing, if you ever happen to run this on iOS
   //  1) seek help
   //  2) return
   //     2.1) if compliant with app store - MoneroWallet.framework/MoneroWallet
   //     2.2) if hacked around 'monero_libwallet2_api_c.dylib'
-  if (platform == 'darwin') return './monero_libwallet2_api_c.dylib'
-  if (platform == 'android') return 'libmonero_libwallet2_api_c.so'
-  return 'monero_libwallet2_api_c.so'
+  if (platform == 'darwin') return './lib/monero_libwallet2_api_c.dylib'
+  if (platform == 'android') return './lib/libmonero_libwallet2_api_c.so'
+  return './lib/monero_libwallet2_api_c.so'
 };
 
 export const dylib = Deno.dlopen(libPath(), {
@@ -89,98 +87,50 @@ export const dylib = Deno.dlopen(libPath(), {
     // uint64_t
     result: "u64",
   },
+  "MONERO_checksum_wallet2_api_c_h": {
+    parameters: [],
+    result: "pointer"
+  },
+  "MONERO_checksum_wallet2_api_c_cpp": {
+    parameters: [],
+    result: "pointer"
+  },
+  "MONERO_checksum_wallet2_api_c_exp": {
+    parameters: [],
+    result: "pointer"
+  }
   //#endregion
 });
 
 if (import.meta.main) {
-  let option: string | null = null;
-  while (option !== "o" && option !== "c") {
-    const message = option
-      ? "Your option has to be either (c)reate or (o)pen"
-      : "Do you want to (c)reate or (o)pen a wallet?";
-    option = prompt(message);
+  const hashHcpp = new Deno.UnsafePointerView(dylib.symbols.MONERO_checksum_wallet2_api_c_h()!).getCString();
+  const hashHts = moneroChecksum.wallet2_api_c_h_sha256;
+  const hashCPPcpp = new Deno.UnsafePointerView(dylib.symbols.MONERO_checksum_wallet2_api_c_cpp()!).getCString();
+  const hashCPPts = moneroChecksum.wallet2_api_c_cpp_sha256;
+  const hashEXPcpp = new Deno.UnsafePointerView(dylib.symbols.MONERO_checksum_wallet2_api_c_exp()!).getCString();
+  const hashEXPts = moneroChecksum.wallet2_api_c_exp_sha256;
+  let errCode = 0;
+  if (hashHcpp == hashHts) {
+    console.log("Header file check match")
+  } else {
+    console.log("ERR: Header file check mismatch")
+    errCode++;
   }
-
-  const path = prompt("Wallet path:");
-  if (!path) throw "You have to set path";
-  const absolutePath = import.meta.resolve(path).replace("file://", "");
-
-  const password = prompt("Password:");
-  if (!password) throw "You have to choose password";
-
-  const walletManager = await WalletManager.new();
-  const wallet = option === "c"
-    ? await Wallet.create(walletManager, absolutePath, password)
-    : await Wallet.open(walletManager, absolutePath, password);
-
-  const error = await wallet.error();
-  if (error) throw error;
-
-  const address = await wallet.address();
-
-  if (address !== null) {
-    console.log("Your address is:", address);
+  if (hashCPPcpp == hashCPPts) {
+    console.log("CPP source file check match")
+  } else {
+    console.log(`ERR: CPP source file check mismatch ${hashCPPcpp} == ${hashCPPts}`)
+    errCode++;
   }
-}
-
-if (import.meta.main) {
-  let option: string | null = null;
-  while (option !== "o" && option !== "c") {
-    const message = option
-      ? "Your option has to be either (c)reate or (o)pen"
-      : "Do you want to (c)reate or (o)pen a wallet?";
-    option = prompt(message);
+  if (hashEXPcpp == hashEXPts) {
+    console.log("EXP file check match")
+  } else {
+    if (platform != "darwin") {
+      console.log("WARN: EXP source file check mismatch")
+    } else {
+      console.log(`ERR: EXP source file check mismatch ${hashEXPcpp} == ${hashEXPts}`)
+    }
+    errCode++;
   }
-
-  const path = prompt("Wallet path:");
-  if (!path) throw "You have to set path";
-  const absolutePath = import.meta.resolve(path).replace("file://", "");
-
-  const password = prompt("Password:");
-  if (!password) throw "You have to choose password";
-
-  const walletManager = await WalletManager.new();
-  const wallet = option === "c"
-    ? await Wallet.create(walletManager, absolutePath, password)
-    : await Wallet.open(walletManager, absolutePath, password);
-
-  const error = await wallet.error();
-  if (error) throw error;
-
-  const address = await wallet.address();
-
-  if (address !== null) {
-    console.log("Your address is:", address);
-  }
-}
-
-if (import.meta.main) {
-  let option: string | null = null;
-  while (option !== "o" && option !== "c") {
-    const message = option
-      ? "Your option has to be either (c)reate or (o)pen"
-      : "Do you want to (c)reate or (o)pen a wallet?";
-    option = prompt(message);
-  }
-
-  const path = prompt("Wallet path:");
-  if (!path) throw "You have to set path";
-  const absolutePath = import.meta.resolve(path).replace("file://", "");
-
-  const password = prompt("Password:");
-  if (!password) throw "You have to choose password";
-
-  const walletManager = await WalletManager.new();
-  const wallet = option === "c"
-    ? await Wallet.create(walletManager, absolutePath, password)
-    : await Wallet.open(walletManager, absolutePath, password);
-
-  const error = await wallet.error();
-  if (error) throw error;
-
-  const address = await wallet.address();
-
-  if (address !== null) {
-    console.log("Your address is:", address);
-  }
+  exit(errCode);
 }
