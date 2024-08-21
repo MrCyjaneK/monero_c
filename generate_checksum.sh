@@ -1,6 +1,11 @@
 #!/bin/bash
 cd "$(realpath $(dirname $0))"
 
+if [[ "$(uname)" == "Darwin" ]];
+then
+    function sha256sum() { shasum -a 256 "$@" ; } && export -f sha256sum
+fi
+
 for coin in monero wownero;
 do
     COIN=$(echo "$coin" | tr a-z A-Z)
@@ -23,6 +28,11 @@ EOF
 const String wallet2_api_c_h_sha256 = "${COIN_wallet2_api_c_h_sha256}";
 const String wallet2_api_c_cpp_sha256 = "${COIN_wallet2_api_c_cpp_sha256}";
 const String wallet2_api_c_exp_sha256 = "${COIN_wallet2_api_c_exp_sha256}";
+EOF
+    cat > impls/monero.ts/checksum_${coin}.ts << EOF
+export const ${COIN}_wallet2_api_c_h_sha256 = "${COIN_wallet2_api_c_h_sha256}";
+export const ${COIN}_wallet2_api_c_cpp_sha256 = "${COIN_wallet2_api_c_cpp_sha256}";
+export const ${COIN}_wallet2_api_c_exp_sha256 = "${COIN_wallet2_api_c_exp_sha256}";
 EOF
 done
 
