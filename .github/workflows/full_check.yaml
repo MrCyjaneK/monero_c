@@ -806,7 +806,7 @@ jobs:
           mv x86_64-linux-gnu_libwallet2_api_c.so monero_libwallet2_api_c.so
           cd ..
       - name: Run tests
-        run: 
+        run: |
           cd impls/monero.ts
           deno --unstable-ffi run --allow-ffi monero_bindings.ts
 
