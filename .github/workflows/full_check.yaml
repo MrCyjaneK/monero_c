@@ -137,7 +137,7 @@ jobs:
         coin: [monero, wownero]
     runs-on: ubuntu-latest
     container:
-      image: debian:bookworm
+      image: debian:bullseye
     steps:
       - name: Install dependencies
         run: |
@@ -778,7 +778,7 @@ jobs:
           path: release
   deno_monerots_test_linux:
     name: test ts library
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [
       lib_linux
     ]
