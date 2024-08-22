@@ -808,7 +808,7 @@ jobs:
       - name: Run tests
         run: |
           cd impls/monero.ts
-          deno --unstable-ffi run --allow-ffi monero_bindings.ts
+          deno run --unstable-ffi --allow-ffi monero_bindings.ts
 
   comment_pr:
     name: comment on pr
