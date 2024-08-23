@@ -8,6 +8,10 @@ environment:
 
 dependencies:
   ffi: ^2.1.0
+  ledger_flutter:
+    git:
+      url: https://github.com/MrCyjaneK/ledger-flutter
+      ref: d68f1be485717bedad0779ee6114afec1896fbc9
 
 dev_dependencies:
   lints: ^4.0.0
