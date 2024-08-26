@@ -482,7 +482,10 @@ jobs:
     steps:
       - name: set branch name
         run: echo "BRANCH_NAME=${{ github.ref_name }}" >> $GITHUB_ENV
-
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
       - uses: actions/download-artifact@v4
         with:
           name: android monero
@@ -527,12 +530,19 @@ jobs:
 
       - name: Execute Build and Setup Commands
         run: |
+          main_dir="$PWD"
           sudo mkdir -p /opt/android
           sudo chown $USER /opt/android
           cd /opt/android
           -y curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
           cargo install cargo-ndk
           git clone https://github.com/cake-tech/cake_wallet.git --branch main --depth=1
+          pushd cake_wallet/cw_monero
+            sed -i '/  monero:/,/path:/c\  monero:\n    path: '"$main_dir/impls/monero.dart" pubspec.yaml
+          popd
+          pushd cake_wallet/cw_wownero
+            sed -i '/  monero:/,/path:/c\  monero:\n    path: '"$main_dir/impls/monero.dart" pubspec.yaml
+          popd
           cd cake_wallet/scripts/android/
           ./install_ndk.sh
           source ./app_env.sh cakewallet
@@ -651,6 +661,10 @@ jobs:
         coin: [monero, wownero]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
       - name: Install dependencies
         run: |
           sudo apt update
@@ -676,9 +690,11 @@ jobs:
           java-version: '17'
       - name: build xmruw (${{ matrix.coin }})
         run: |
+          main_dir=$PWD
           cd unnamed_monero_wallet
           if [[ "${{ matrix.coin }}" == "monero" ]]; then ./codegen.sh -DCOIN_MONERO -DLIBSTEALTH_DISABLED; fi
           if [[ "${{ matrix.coin }}" == "wownero" ]]; then ./codegen.sh -DCOIN_WOWNERO -DLIBSTEALTH_DISABLED; fi
+          sed -i '/  monero:/,/path:/c\  monero:\n    path: '"$main_dir/impls/monero.dart" pubspec.yaml
           flutter pub get
           make version
           ./build_changelog.sh
