@@ -427,10 +427,10 @@ index 8bdd75a5a..d8661b213 100644
  
  using namespace std;
  using namespace cryptonote;
-@@ -3299,4 +3302,94 @@ uint64_t WalletImpl::getBytesSent()
+@@ -3299,4 +3302,95 @@ uint64_t WalletImpl::getBytesSent()
      return m_wallet->get_bytes_sent();
  }
- 
+
 +
 +// HIDAPI_DUMMY
 +bool WalletImpl::getStateIsConnected() {
@@ -502,6 +502,7 @@ index 8bdd75a5a..d8661b213 100644
 +    return;
 +    #else
 +    hw::io::device_io_dummy::receivedFromDevice = static_cast<unsigned char *>(malloc(len));
++    hw::io::device_io_dummy::receivedFromDeviceLength = len;
 +    memset(hw::io::device_io_dummy::receivedFromDevice, 0, len);
 +    memcpy(hw::io::device_io_dummy::receivedFromDevice, data, len);
 +    hw::io::device_io_dummy::waitsForDeviceReceive = false;

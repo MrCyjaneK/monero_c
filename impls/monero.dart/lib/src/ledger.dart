@@ -23,7 +23,10 @@ void enableLedgerExchange(
       final response = await exchange(ledger, device, ledgerRequest);
 
       final Pointer<Uint8> result = malloc<Uint8>(response.length);
-      result.asTypedList(response.length).addAll(response);
+      for (var i = 0; i < response.length; i++) {
+        result.asTypedList(response.length)[i] = response[i];
+      }
+
       monero.Wallet_setDeviceReceivedData(
           ptr, result.cast<UnsignedChar>(), response.length);
 
