@@ -1,4 +1,4 @@
-From 07f41c8afda9eafca519d44f5c6c34316f5ebb71 Mon Sep 17 00:00:00 2001
+From 77f328ba6befb9b964f764a27f8a03b71bf9095d Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
 Subject: [PATCH] add dummy device for ledger
@@ -12,10 +12,10 @@ Subject: [PATCH] add dummy device for ledger
  src/device/device_io_dummy.hpp |  74 ++++++++++++++++++
  src/device/device_ledger.cpp   |   6 +-
  src/device/device_ledger.hpp   |   7 +-
- src/wallet/api/wallet.cpp      |  93 +++++++++++++++++++++++
+ src/wallet/api/wallet.cpp      |  94 +++++++++++++++++++++++
  src/wallet/api/wallet.h        |  18 +++++
  src/wallet/api/wallet2_api.h   |  12 +++
- 11 files changed, 356 insertions(+), 21 deletions(-)
+ 11 files changed, 357 insertions(+), 21 deletions(-)
  create mode 100644 src/device/device_io_dummy.cpp
  create mode 100644 src/device/device_io_dummy.hpp
 
@@ -414,7 +414,7 @@ index 03058c4f1..506f27c4a 100644
          unsigned char buffer_send[BUFFER_SEND_SIZE];
          unsigned int  length_recv;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 8bdd75a5a..d8661b213 100644
+index 8bdd75a5a..09f91c5e2 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -49,6 +49,9 @@
@@ -430,7 +430,7 @@ index 8bdd75a5a..d8661b213 100644
 @@ -3299,4 +3302,95 @@ uint64_t WalletImpl::getBytesSent()
      return m_wallet->get_bytes_sent();
  }
-
+ 
 +
 +// HIDAPI_DUMMY
 +bool WalletImpl::getStateIsConnected() {
@@ -576,5 +576,5 @@ index 2bbb32c8b..c8d6bb179 100644
  
  /**
 -- 
-2.39.2
+2.45.1.windows.1
 
