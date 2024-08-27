@@ -10,7 +10,7 @@ import 'package:ledger_flutter/src/utils/buffer.dart';
 import 'package:monero/monero.dart' as monero;
 
 Timer? _ledgerExchangeTimer;
-Uint8List _lastLedgerRequest = Uint8List(0);
+String _lastLedgerRequest = '';
 
 void enableLedgerExchange(
     monero.wallet ptr, Ledger ledger, LedgerDevice device) {
@@ -19,7 +19,9 @@ void enableLedgerExchange(
     final ledgerRequest = monero.Wallet_getSendToDevice(ptr)
         .cast<Uint8>()
         .asTypedList(ledgerRequestLength);
-    if (ledgerRequestLength > 0 && _lastLedgerRequest != ledgerRequest) {
+    if (ledgerRequestLength > 0 && _lastLedgerRequest != ledgerRequest.join()) {
+      _lastLedgerRequest = ledgerRequest.join();
+
       final response = await exchange(ledger, device, ledgerRequest);
 
       final Pointer<Uint8> result = malloc<Uint8>(response.length);
