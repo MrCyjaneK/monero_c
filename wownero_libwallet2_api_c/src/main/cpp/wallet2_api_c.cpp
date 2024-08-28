@@ -1252,7 +1252,7 @@ void* WOWNERO_Wallet_createTransactionMultDest(void* wallet_ptr, const char* dst
                                                 uint32_t subaddr_account,
                                                 const char* preferredInputs, const char* preferredInputs_separator) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    std::set<std::string> dst_addr = splitStringVector(std::string(dst_addr_list), std::string(dst_addr_list_separator));
+    std::vector<std::string> dst_addr = splitStringVector(std::string(dst_addr_list), std::string(dst_addr_list_separator));
 
     Monero::optional<std::vector<uint64_t>> optAmount;
     if (!amount_sweep_all) {
