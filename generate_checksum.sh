@@ -1,6 +1,6 @@
 #!/bin/bash
 cd "$(realpath $(dirname $0))"
-
+function sha256sum() { shasum -a 256 "$@" ; } && export -f sha256sum
 for coin in monero wownero;
 do
     submodule_hash=$(git ls-tree HEAD ${coin} | xargs | awk '{ print $3 }')
