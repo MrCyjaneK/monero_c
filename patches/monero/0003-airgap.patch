@@ -1,7 +1,7 @@
-From 5c1727c760557c0fd83ba1e4e66be2d10c58e890 Mon Sep 17 00:00:00 2001
+From 5385d085c547b675adfccb64314d1c6f7bf2d508 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 10:09:50 +0100
-Subject: [PATCH] airgap
+Subject: [PATCH 03/16] airgap
 
 ---
  src/wallet/api/wallet.cpp    | 23 ++++++++++++++++++
@@ -12,7 +12,7 @@ Subject: [PATCH] airgap
  5 files changed, 68 insertions(+), 6 deletions(-)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 1a9c6f674..42887dced 100644
+index 7d430b655..837b98e6b 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -1129,6 +1129,24 @@ uint64_t WalletImpl::unlockedBalance(uint32_t accountIndex) const
@@ -94,7 +94,7 @@ index 4268b656e..4edaefefd 100644
      * \brief exportKeyImages - exports key images to file
      * \param filename
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index c7cbdbbe6..794992b2e 100644
+index f2381740a..41cf1fd41 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -949,6 +949,16 @@ uint32_t get_subaddress_clamped_sum(uint32_t idx, uint32_t extra)
@@ -114,7 +114,7 @@ index c7cbdbbe6..794992b2e 100644
  static void setup_shim(hw::wallet_shim * shim, tools::wallet2 * wallet)
  {
    shim->get_tx_pub_key_from_received_outs = std::bind(&tools::wallet2::get_tx_pub_key_from_received_outs, wallet, std::placeholders::_1);
-@@ -7037,6 +7047,25 @@ uint64_t wallet2::unlocked_balance(uint32_t index_major, bool strict, uint64_t *
+@@ -7038,6 +7048,25 @@ uint64_t wallet2::unlocked_balance(uint32_t index_major, bool strict, uint64_t *
    return amount;
  }
  //----------------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ index c7cbdbbe6..794992b2e 100644
  std::map<uint32_t, uint64_t> wallet2::balance_per_subaddress(uint32_t index_major, bool strict) const
  {
    std::map<uint32_t, uint64_t> amount_per_subaddr;
-@@ -7887,9 +7916,7 @@ bool wallet2::sign_tx(unsigned_tx_set &exported_txs, std::vector<wallet2::pendin
+@@ -7889,9 +7918,7 @@ bool wallet2::sign_tx(unsigned_tx_set &exported_txs, std::vector<wallet2::pendin
      crypto::key_derivation derivation;
      std::vector<crypto::key_derivation> additional_derivations;
  
@@ -179,7 +179,7 @@ index c7cbdbbe6..794992b2e 100644
    if (unused_dust_indices_per_subaddr.empty())
      unused_dust_indices_per_subaddr.push_back({});
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index d37332dd1..fc69b3d36 100644
+index 56cc118f4..b9aa7a00d 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -1172,6 +1172,7 @@ private:
@@ -191,5 +191,5 @@ index d37332dd1..fc69b3d36 100644
      std::map<uint32_t, uint64_t> balance_per_subaddress(uint32_t subaddr_index_major, bool strict) const;
      std::map<uint32_t, std::pair<uint64_t, std::pair<uint64_t, uint64_t>>> unlocked_balance_per_subaddress(uint32_t subaddr_index_major, bool strict);
 -- 
-2.43.0
+2.39.2
 
