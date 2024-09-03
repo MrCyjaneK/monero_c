@@ -3230,7 +3230,9 @@ String WalletManager_findWallets(WalletManager wm_ptr, {required String path}) {
         .cast<Utf8>();
     final str = strPtr.toDartString();
     calloc.free(path_);
-    WOWNERO_free(strPtr.cast());
+    if (str.isNotEmpty) {
+      WOWNERO_free(strPtr.cast());
+    }
     debugEnd?.call('WOWNERO_WalletManager_findWallets');
     return str;
   } catch (e) {

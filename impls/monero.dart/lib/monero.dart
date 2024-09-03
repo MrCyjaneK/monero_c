@@ -3595,7 +3595,9 @@ String WalletManager_findWallets(WalletManager wm_ptr, {required String path}) {
         .cast<Utf8>();
     final str = strPtr.toDartString();
     calloc.free(path_);
-    MONERO_free(strPtr.cast());
+    if (str.isNotEmpty) {
+      MONERO_free(strPtr.cast());
+    }
     debugEnd?.call('MONERO_WalletManager_findWallets');
     return str;
   } catch (e) {
