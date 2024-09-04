@@ -3220,7 +3220,8 @@ bool WalletManager_verifyWalletPassword(
   return s;
 }
 
-String WalletManager_findWallets(WalletManager wm_ptr, {required String path}) {
+List<String> WalletManager_findWallets(WalletManager wm_ptr,
+    {required String path}) {
   debugStart?.call('WOWNERO_WalletManager_findWallets');
   lib ??= WowneroC(DynamicLibrary.open(libPath));
   try {
@@ -3230,13 +3231,15 @@ String WalletManager_findWallets(WalletManager wm_ptr, {required String path}) {
         .cast<Utf8>();
     final str = strPtr.toDartString();
     calloc.free(path_);
-    WOWNERO_free(strPtr.cast());
+    if (str.isNotEmpty) {
+      WOWNERO_free(strPtr.cast());
+    }
     debugEnd?.call('WOWNERO_WalletManager_findWallets');
-    return str;
+    return str.split(";");
   } catch (e) {
     errorHandler?.call('WOWNERO_WalletManager_findWallets', e);
     debugEnd?.call('WOWNERO_WalletManager_findWallets');
-    return "";
+    return [];
   }
 }
 
@@ -3605,7 +3608,6 @@ int WOWNERO_deprecated_14WordSeedHeight({
   debugEnd?.call('WOWNERO_deprecated_14WordSeedHeight');
   return s;
 }
-
 
 String WOWNERO_checksum_wallet2_api_c_h() {
   debugStart?.call('WOWNERO_checksum_wallet2_api_c_h');
