@@ -105,8 +105,26 @@ void Function(String call)? debugStart = (call) {
   debugCallLength[call] ??= <int>[];
   debugCallLength[call]!.add(sw.elapsedMicroseconds);
 };
+void debugChores() {
+  for (var key in debugCallLength.keys) {
+    if (debugCallLength[key]!.length > 1000000) {
+      final elm =
+          debugCallLength[key]!.reduce((value, element) => value + element);
+      debugCallLength[key]!.clear();
+      debugCallLength["${key}_1M"] ??= <int>[];
+      debugCallLength["${key}_1M"]!.add(elm);
+    }
+  }
+}
+
+int debugCount = 0;
+
 void Function(String call)? debugEnd = (call) {
   final id = debugCallLength[call]!.length - 1;
+  if (++debugCount > 1000000) {
+    debugCount = 0;
+    debugChores();
+  }
   debugCallLength[call]![id] =
       sw.elapsedMicroseconds - debugCallLength[call]![id];
 };
