@@ -101,9 +101,11 @@ final Stopwatch sw = Stopwatch()..start();
 bool printStarts = false;
 
 void Function(String call)? debugStart = (call) {
-  if (printStarts) print("MONERO: $call");
-  debugCallLength[call] ??= <int>[];
-  debugCallLength[call]!.add(sw.elapsedMicroseconds);
+  try {
+    if (printStarts) print("MONERO: $call");
+    debugCallLength[call] ??= <int>[];
+    debugCallLength[call]!.add(sw.elapsedMicroseconds);
+  } catch (e) {}
 };
 void debugChores() {
   for (var key in debugCallLength.keys) {
@@ -120,13 +122,15 @@ void debugChores() {
 int debugCount = 0;
 
 void Function(String call)? debugEnd = (call) {
-  final id = debugCallLength[call]!.length - 1;
-  if (++debugCount > 1000000) {
-    debugCount = 0;
-    debugChores();
-  }
-  debugCallLength[call]![id] =
-      sw.elapsedMicroseconds - debugCallLength[call]![id];
+  try {
+    final id = debugCallLength[call]!.length - 1;
+    if (++debugCount > 1000000) {
+      debugCount = 0;
+      debugChores();
+    }
+    debugCallLength[call]![id] =
+        sw.elapsedMicroseconds - debugCallLength[call]![id];
+  } catch (e) {}
 };
 void Function(String call, dynamic error)? errorHandler = (call, error) {
   print("$call: $error");
