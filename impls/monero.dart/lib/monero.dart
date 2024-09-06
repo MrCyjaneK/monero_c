@@ -3585,7 +3585,8 @@ bool WalletManager_verifyWalletPassword(
   return s;
 }
 
-String WalletManager_findWallets(WalletManager wm_ptr, {required String path}) {
+List<String> WalletManager_findWallets(WalletManager wm_ptr,
+    {required String path}) {
   debugStart?.call('MONERO_WalletManager_findWallets');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
   try {
@@ -3595,13 +3596,15 @@ String WalletManager_findWallets(WalletManager wm_ptr, {required String path}) {
         .cast<Utf8>();
     final str = strPtr.toDartString();
     calloc.free(path_);
-    MONERO_free(strPtr.cast());
+    if (str.isNotEmpty) {
+      MONERO_free(strPtr.cast());
+    }
     debugEnd?.call('MONERO_WalletManager_findWallets');
-    return str;
+    return str.split(";");
   } catch (e) {
     errorHandler?.call('MONERO_WalletManager_findWallets', e);
     debugEnd?.call('MONERO_WalletManager_findWallets');
-    return "";
+    return [];
   }
 }
 
