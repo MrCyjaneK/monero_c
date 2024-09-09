@@ -621,6 +621,8 @@ jobs:
           echo "const nanoNowNodesApiKey = '';" >> cw_nano/lib/.secrets.g.dart
           echo "const tronGridApiKey = '';" >> cw_tron/lib/.secrets.g.dart
           echo "const tronNowNodesApiKey = '';" >> cw_tron/lib/.secrets.g.dart
+          echo "const stealthExBearerToken = '';" >> lib/.secrets.g.dart
+          echo "const stealthExAdditionalFeePercent = '';" >> lib/.secrets.g.dart
 
       - name: Rename app
         run: |
