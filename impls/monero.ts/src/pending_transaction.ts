@@ -22,7 +22,7 @@ export class PendingTransaction {
     const error = await dylib.symbols.MONERO_PendingTransaction_errorString(this.#pendingTxPtr);
     if (!error) return null;
 
-    return readCString(error) || null;
+    return await readCString(error) || null;
   }
 
   async throwIfError(sanitize = true): Promise<void> {
@@ -50,7 +50,7 @@ export class PendingTransaction {
     );
     if (!result) return null;
     await this.throwIfError();
-    return readCString(result) || null;
+    return await readCString(result) || null;
   }
 
   async amount(): Promise<bigint> {
@@ -72,7 +72,7 @@ export class PendingTransaction {
     );
     if (!result) return null;
     await this.throwIfError(sanitize);
-    return readCString(result) || null;
+    return await readCString(result) || null;
   }
 
   async txCount(): Promise<bigint> {

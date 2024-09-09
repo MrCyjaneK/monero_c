@@ -50,12 +50,12 @@ export class TransactionInfo {
 
   async description(): Promise<string> {
     const description = await dylib.symbols.MONERO_TransactionInfo_description(this.#txInfoPtr);
-    return readCString(description) || "";
+    return await readCString(description) || "";
   }
 
   async subaddrIndex(): Promise<string> {
     const subaddrIndex = await dylib.symbols.MONERO_TransactionInfo_subaddrIndex(this.#txInfoPtr);
-    return readCString(subaddrIndex) || "";
+    return await readCString(subaddrIndex) || "";
   }
 
   async subaddrAccount(): Promise<number> {
@@ -64,7 +64,7 @@ export class TransactionInfo {
 
   async label(): Promise<string> {
     const label = await dylib.symbols.MONERO_TransactionInfo_label(this.#txInfoPtr);
-    return readCString(label) || "";
+    return await readCString(label) || "";
   }
 
   async confirmations(): Promise<bigint> {
@@ -77,7 +77,7 @@ export class TransactionInfo {
 
   async hash(): Promise<string> {
     const hash = await dylib.symbols.MONERO_TransactionInfo_hash(this.#txInfoPtr);
-    return readCString(hash) || "";
+    return await readCString(hash) || "";
   }
 
   async timestamp(): Promise<bigint> {
@@ -86,7 +86,7 @@ export class TransactionInfo {
 
   async paymentId(): Promise<string> {
     const paymentId = await dylib.symbols.MONERO_TransactionInfo_paymentId(this.#txInfoPtr);
-    return readCString(paymentId) || "";
+    return await readCString(paymentId) || "";
   }
 
   async transfersCount(): Promise<number> {
@@ -99,6 +99,6 @@ export class TransactionInfo {
 
   async transfersAddress(index: number): Promise<string> {
     const transfersAddress = await dylib.symbols.MONERO_TransactionInfo_transfers_address(this.#txInfoPtr, index);
-    return readCString(transfersAddress) || "";
+    return await readCString(transfersAddress) || "";
   }
 }

@@ -153,7 +153,7 @@ export class Wallet {
       const error = await this.errorString();
       throw new Error(`Failed getting address from a wallet: ${error ?? "<Error unknown>"}`);
     }
-    return readCString(address);
+    return await readCString(address);
   }
 
   async balance(accountIndex = 0): Promise<bigint> {
@@ -174,7 +174,7 @@ export class Wallet {
     const error = await dylib.symbols.MONERO_Wallet_errorString(this.#walletPtr);
     if (!error) return null;
 
-    return readCString(error) || null;
+    return await readCString(error) || null;
   }
 
   async throwIfError(sanitize = true): Promise<void> {
@@ -253,7 +253,7 @@ export class Wallet {
       const error = await this.errorString();
       throw new Error(`Failed getting subaddress label from a wallet: ${error ?? "<Error unknown>"}`);
     }
-    return readCString(label);
+    return await readCString(label);
   }
 
   async setSubaddressLabel(accountIndex: number, addressIndex: number, label: string): Promise<void> {

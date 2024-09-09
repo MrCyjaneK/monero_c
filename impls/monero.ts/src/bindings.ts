@@ -523,6 +523,14 @@ export const symbols = {
     result: "pointer",
   },
   //#endregion
+
+  "MONERO_free": {
+    nonblocking: true,
+    // void* ptr
+    parameters: ["pointer"],
+    // void
+    result: "void",
+  },
 } as const;
 
 type MoneroTsDylib = Deno.DynamicLibrary<typeof symbols>;
