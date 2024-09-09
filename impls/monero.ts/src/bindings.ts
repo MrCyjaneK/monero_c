@@ -1,20 +1,4 @@
-let libPath: string;
-switch (Deno.build.os) {
-  case "darwin":
-    libPath = "./lib/monero_libwallet2_api_c.dylib";
-    break;
-  case "android":
-    libPath = "./lib/libmonero_libwallet2_api_c.so";
-    break;
-  case "windows":
-    libPath = "./lib/monero_libwallet2_api_c.dll";
-    break;
-  default:
-    libPath = "./lib/monero_libwallet2_api_c.so";
-    break;
-}
-
-export const dylib = Deno.dlopen(libPath, {
+export const symbols = {
   "MONERO_WalletManagerFactory_getWalletManager": {
     nonblocking: true,
     parameters: [],
@@ -539,4 +523,32 @@ export const dylib = Deno.dlopen(libPath, {
     result: "pointer",
   },
   //#endregion
-});
+} as const;
+
+type MoneroTsDylib = Deno.DynamicLibrary<typeof symbols>;
+
+export let dylib: MoneroTsDylib;
+export function loadDylib(newDylib?: MoneroTsDylib) {
+  if (newDylib) {
+    dylib = newDylib;
+    return;
+  }
+
+  let libPath: string;
+  switch (Deno.build.os) {
+    case "darwin":
+      libPath = "./lib/monero_libwallet2_api_c.dylib";
+      break;
+    case "android":
+      libPath = "./lib/libmonero_libwallet2_api_c.so";
+      break;
+    case "windows":
+      libPath = "./lib/monero_libwallet2_api_c.dll";
+      break;
+    default:
+      libPath = "./lib/monero_libwallet2_api_c.so";
+      break;
+  }
+
+  dylib = Deno.dlopen(libPath, symbols);
+}
