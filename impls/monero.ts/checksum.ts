@@ -1,6 +1,8 @@
 import { moneroChecksum } from "./checksum_monero.ts";
 import { readCString } from "./src/utils.ts";
-import { dylib } from "./src/bindings.ts";
+import { dylib, loadDylib } from "./src/bindings.ts";
+
+loadDylib();
 
 export class ChecksumError extends Error {
   readonly code: number;
