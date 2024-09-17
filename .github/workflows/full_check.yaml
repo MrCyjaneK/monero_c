@@ -623,6 +623,10 @@ jobs:
           echo "const tronNowNodesApiKey = '';" >> cw_tron/lib/.secrets.g.dart
           echo "const stealthExBearerToken = '';" >> lib/.secrets.g.dart
           echo "const stealthExAdditionalFeePercent = '';" >> lib/.secrets.g.dart
+          echo "const letsExchangeBearerToken = '';" >> lib/.secrets.g.dart
+          echo "const letsExchangeAffiliateId = '';" >> lib/.secrets.g.dart
+          echo "const etherScanApiKey = '';" >> lib/.secrets.g.dart
+          echo "const polygonScanApiKey = '';" >> lib/.secrets.g.dart
 
       - name: Rename app
         run: |
