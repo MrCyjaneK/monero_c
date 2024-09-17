@@ -21,7 +21,7 @@ export class ChecksumError extends Error {
  * @returns {ChecksumError} which contains information about why checksum failed
  */
 export async function validateChecksum(): Promise<ChecksumError | null> {
-  const cppHeaderHash = await readCString(await dylib.symbols.MONERO_checksum_wallet2_api_c_h());
+  const cppHeaderHash = await readCString(await dylib.symbols.MONERO_checksum_wallet2_api_c_h(), false);
   const tsHeaderHash = moneroChecksum.wallet2_api_c_h_sha256;
 
   const errors: string[] = [];
@@ -32,14 +32,14 @@ export async function validateChecksum(): Promise<ChecksumError | null> {
     errorCode++;
   }
 
-  const cppSourceHash = await readCString(await dylib.symbols.MONERO_checksum_wallet2_api_c_cpp());
+  const cppSourceHash = await readCString(await dylib.symbols.MONERO_checksum_wallet2_api_c_cpp(), false);
   const tsSourceHash = moneroChecksum.wallet2_api_c_cpp_sha256;
   if (cppSourceHash !== tsSourceHash) {
     errors.push(`ERR: CPP source file check mismatch ${cppSourceHash} == ${tsSourceHash}`);
     errorCode++;
   }
 
-  const cppExportHash = await readCString(await dylib.symbols.MONERO_checksum_wallet2_api_c_exp());
+  const cppExportHash = await readCString(await dylib.symbols.MONERO_checksum_wallet2_api_c_exp(), false);
   const tsExportHash = moneroChecksum.wallet2_api_c_exp_sha256;
   if (cppExportHash !== tsExportHash) {
     if (Deno.build.os !== "darwin") {

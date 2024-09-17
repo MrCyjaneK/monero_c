@@ -7,14 +7,19 @@ export function CString(string: string): Deno.PointerValue<string> {
   return Deno.UnsafePointer.of(textEncoder.encode(`${string}\x00`));
 }
 
-// This method reads string from the given pointer and frees the string
-// SAFETY: Do not use readCString twice on the same pointer as it will cause double free
-//         In that case just use `Deno.UnsafePointerView(ptr).getCString()` directly
-export async function readCString(pointer: Deno.PointerObject): Promise<string>;
-export async function readCString(pointer: Deno.PointerValue): Promise<string | null>;
-export async function readCString(pointer: Deno.PointerValue): Promise<string | null> {
+/**
+ * This method reads string from the given pointer and frees the string.
+ *
+ * SAFETY: Do not use readCString twice on the same pointer as it will cause double free\
+ *          If you want to read CString without freeing it set the {@linkcode free} parameter to false
+ */
+export async function readCString(pointer: Deno.PointerObject, free?: boolean): Promise<string>;
+export async function readCString(pointer: Deno.PointerValue, free?: boolean): Promise<string | null>;
+export async function readCString(pointer: Deno.PointerValue, free = true): Promise<string | null> {
   if (!pointer) return null;
   const string = new Deno.UnsafePointerView(pointer).getCString();
-  await dylib.symbols.MONERO_free(pointer);
+  if (free) {
+    await dylib.symbols.MONERO_free(pointer);
+  }
   return string;
 }
