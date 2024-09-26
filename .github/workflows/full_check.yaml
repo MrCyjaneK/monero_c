@@ -473,7 +473,7 @@ jobs:
 
   wallet_cake_android:
     needs: [ lib_android ]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     env:
       STORE_PASS: test@cake_wallet
       KEY_PASS: test@cake_wallet
