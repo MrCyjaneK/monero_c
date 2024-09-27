@@ -650,54 +650,54 @@ jobs:
           rm -rf wownero/contrib/depends/built/*/android_ndk
           rm -rf wownero/contrib/depends/sources/android-ndk-r26d-linux.zip
 
-  wallet_xmruw_android:
-    needs: [ lib_android ]
-    strategy:
-      matrix:
-        coin: [monero, wownero]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf unzip python-is-python3 jq
-      - uses: actions/download-artifact@v4
-        with:
-          name: android ${{ matrix.coin }}
-          path: release/${{ matrix.coin }}
-      - name: clone xmruw
-        run: |
-          git clone https://github.com/mrcyjanek/unnamed_monero_wallet
-          cd unnamed_monero_wallet
-          cp -a .fvm* ..
-      - uses: kuhnroyal/flutter-fvm-config-action@v2
-        id: fvm-config-action
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ steps.fvm-config-action.outputs.FLUTTER_VERSION }}
-          channel: ${{ steps.fvm-config-action.outputs.FLUTTER_CHANNEL }}
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-      - name: build xmruw (${{ matrix.coin }})
-        run: |
-          cd unnamed_monero_wallet
-          if [[ "${{ matrix.coin }}" == "monero" ]]; then ./codegen.sh -DCOIN_MONERO -DLIBSTEALTH_DISABLED; fi
-          if [[ "${{ matrix.coin }}" == "wownero" ]]; then ./codegen.sh -DCOIN_WOWNERO -DLIBSTEALTH_DISABLED; fi
-          flutter pub get
-          make version
-          ./build_changelog.sh
-          cp ../release/${{ matrix.coin }}/aarch64-linux-android_libwallet2_api_c.so.xz android/app/src/main/jniLibs/arm64-v8a/lib${{ matrix.coin }}_libwallet2_api_c.so.xz
-          cp ../release/${{ matrix.coin }}/x86_64-linux-android_libwallet2_api_c.so.xz android/app/src/main/jniLibs/x86_64/lib${{ matrix.coin }}_libwallet2_api_c.so.xz
-          cp ../release/${{ matrix.coin }}/armv7a-linux-androideabi_libwallet2_api_c.so.xz android/app/src/main/jniLibs/armeabi-v7a/lib${{ matrix.coin }}_libwallet2_api_c.so.xz
-          unxz -f android/app/src/main/jniLibs/*/*.xz
-          flutter build apk --release --flavor clean_${{ matrix.coin }}
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.coin }} xmruw apk
-          path: unnamed_monero_wallet/build/app/outputs/flutter-apk/*.apk
+  #wallet_xmruw_android:
+  #  needs: [ lib_android ]
+  #  strategy:
+  #    matrix:
+  #      coin: [monero, wownero]
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Install dependencies
+  #      run: |
+  #        sudo apt update
+  #        sudo apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf unzip python-is-python3 jq
+  #    - uses: actions/download-artifact@v4
+  #      with:
+  #        name: android ${{ matrix.coin }}
+  #        path: release/${{ matrix.coin }}
+  #    - name: clone xmruw
+  #      run: |
+  #        git clone https://github.com/mrcyjanek/unnamed_monero_wallet
+  #        cd unnamed_monero_wallet
+  #        cp -a .fvm* ..
+  #    - uses: kuhnroyal/flutter-fvm-config-action@v2
+  #      id: fvm-config-action
+  #    - uses: subosito/flutter-action@v2
+  #      with:
+  #        flutter-version: ${{ steps.fvm-config-action.outputs.FLUTTER_VERSION }}
+  #        channel: ${{ steps.fvm-config-action.outputs.FLUTTER_CHANNEL }}
+  #    - uses: actions/setup-java@v4
+  #      with:
+  #        distribution: 'zulu'
+  #        java-version: '17'
+  #    - name: build xmruw (${{ matrix.coin }})
+  #      run: |
+  #        cd unnamed_monero_wallet
+  #        if [[ "${{ matrix.coin }}" == "monero" ]]; then ./codegen.sh -DCOIN_MONERO -DLIBSTEALTH_DISABLED; fi
+  #        if [[ "${{ matrix.coin }}" == "wownero" ]]; then ./codegen.sh -DCOIN_WOWNERO -DLIBSTEALTH_DISABLED; fi
+  #        flutter pub get
+  #        make version
+  #        ./build_changelog.sh
+  #        cp ../release/${{ matrix.coin }}/aarch64-linux-android_libwallet2_api_c.so.xz android/app/src/main/jniLibs/arm64-v8a/lib${{ matrix.coin }}_libwallet2_api_c.so.xz
+  #        cp ../release/${{ matrix.coin }}/x86_64-linux-android_libwallet2_api_c.so.xz android/app/src/main/jniLibs/x86_64/lib${{ matrix.coin }}_libwallet2_api_c.so.xz
+  #        cp ../release/${{ matrix.coin }}/armv7a-linux-androideabi_libwallet2_api_c.so.xz android/app/src/main/jniLibs/armeabi-v7a/lib${{ matrix.coin }}_libwallet2_api_c.so.xz
+  #        unxz -f android/app/src/main/jniLibs/*/*.xz
+  #        flutter build apk --release --flavor clean_${{ matrix.coin }}
+  #    - name: Upload APK
+  #      uses: actions/upload-artifact@v4
+  #      with:
+  #        name: ${{ matrix.coin }} xmruw apk
+  #        path: unnamed_monero_wallet/build/app/outputs/flutter-apk/*.apk
   bulk_lib_release:
     name: create single release file
     runs-on: ubuntu-latest
@@ -821,8 +821,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [
       lib_mingw, lib_android, lib_linux, lib_sailfishos_aarch64, lib_sailfishos_i486, lib_darwin, lib_macos, lib_ios,
-      wallet_cake_android,
-      wallet_xmruw_android
+      wallet_cake_android #,
+      #wallet_xmruw_android
     ]
     steps:
       - uses: actions/github-script@v7
