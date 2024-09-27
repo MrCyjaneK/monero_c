@@ -2,6 +2,15 @@
 
 cd "$(realpath $(dirname $0))"
 
+proccount=1
+if [[ "x$(uname)" == "xDarwin" ]];
+then
+    proccount=$(sysctl -n hw.physicalcpu)
+elif [[ "x$(uname)" == "xLinux" ]];
+then
+    proccount=$(nproc)
+fi
+
 function verbose_copy() {
     echo "==> cp $1 $2"
     cp $1 $2
@@ -11,13 +20,13 @@ set -e
 repo=$1
 if [[ "x$repo" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$(nproc)"
+    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
     exit 1
 fi
 
 if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" ]];
 then
-    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$(nproc)"
+    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
     echo "Invalid target given, only monero and wownero are supported targets"
 fi
 
@@ -31,7 +40,7 @@ fi
 HOST_ABI="$2"
 if [[ "x$HOST_ABI" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$(nproc)"
+    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
     exit 1
 fi
 
@@ -39,7 +48,7 @@ NPROC="$3"
 
 if [[ "x$NPROC" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$(nproc)"
+    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
     exit 1
 fi
 cd $(dirname $0)
@@ -181,20 +190,19 @@ pushd $repo/contrib/depends
                     make $NPROC
                 popd
             fi
-            pushd ../../../external/macos
-                ./build_unbound.sh
-            popd
             MACOS_LIBS_DIR="${PWD}/${HOST_ABI}"
             rm -rf ${MACOS_LIBS_DIR}
             mkdir -p ${MACOS_LIBS_DIR}/lib
-            if [[ "x$HOMEBREW_PREFIX" == "x" ]];
+            if [[ "$(uname -m)" == "arm64" ]];
             then
-                export HOMEBREW_PREFIX=/opt/homebrew
-                if [[ ! -d "$HOMEBREW_PREFIX" ]];
-                then
-                    export HOMEBREW_PREFIX=/usr/local
-                fi
+                export HOMEBREW_PREFIX="/opt/homebrew"
+            elif [[ "$(uname -m)" == "x86_64" ]];
+            then
+                export HOMEBREW_PREFIX="/usr/local"
             fi
+            pushd ../../../external/macos
+                ./build_unbound.sh
+            popd
             # NOTE: we can use unbound from brew but app store rejects the app because of nghttp2 symbols being included
             # verbose_copy "${HOMEBREW_PREFIX}/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
             verbose_copy "../../../external/macos/build/MACOS/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
@@ -311,7 +319,7 @@ pushd $repo/build/${HOST_ABI}
             env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv8-a" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-armv8" -D CMAKE_SYSTEM_NAME="Linux" ../..
         ;;
         "x86_64-linux-android")
-            env CC="${CC}" CXX="${CXX}" cmake -DHIDAPI_DUMMY=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-x86_64" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="x86_64" ../..
+            env CC="${CC}" CXX="${CXX}" cmake -DMONERO_WALLET_CRYPTO_LIBRARY=amd64-64-24k -DHIDAPI_DUMMY=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-x86_64" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="x86_64" ../..
         ;;
         "i686-linux-android")
             env CC="${CC}" CXX="${CXX}" cmake -DHIDAPI_DUMMY=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-x86" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="x86" ../..

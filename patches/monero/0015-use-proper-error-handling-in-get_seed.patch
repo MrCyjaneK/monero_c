@@ -1,7 +1,7 @@
-From 50e09195fcb79debf5951c69717b9d4f239ed8e1 Mon Sep 17 00:00:00 2001
+From 6e7a9770e4f18f931f5caca7dec2a197e779afbc Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 24 Jun 2024 10:49:12 +0200
-Subject: [PATCH] use proper error handling in get_seed
+Subject: [PATCH 15/16] use proper error handling in get_seed
 
 ---
  src/wallet/api/wallet.cpp | 17 ++++++++++++-----
@@ -9,7 +9,7 @@ Subject: [PATCH] use proper error handling in get_seed
  2 files changed, 15 insertions(+), 5 deletions(-)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index ac3e6d51e..8bdd75a5a 100644
+index 5ca190c7d..a307d35a7 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -880,12 +880,19 @@ bool WalletImpl::close(bool store)
@@ -38,7 +38,7 @@ index ac3e6d51e..8bdd75a5a 100644
  
  bool WalletImpl::getPolyseed(std::string &seed_words, std::string &passphrase) const
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 23b56810e..f7bdf2429 100644
+index 7d97e683b..8e44806fc 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -1452,11 +1452,13 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab

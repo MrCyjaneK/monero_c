@@ -101,14 +101,36 @@ final Stopwatch sw = Stopwatch()..start();
 bool printStarts = false;
 
 void Function(String call)? debugStart = (call) {
-  if (printStarts) print("MONERO: $call");
-  debugCallLength[call] ??= <int>[];
-  debugCallLength[call]!.add(sw.elapsedMicroseconds);
+  try {
+    if (printStarts) print("MONERO: $call");
+    debugCallLength[call] ??= <int>[];
+    debugCallLength[call]!.add(sw.elapsedMicroseconds);
+  } catch (e) {}
 };
+void debugChores() {
+  for (var key in debugCallLength.keys) {
+    if (debugCallLength[key]!.length > 1000000) {
+      final elm =
+          debugCallLength[key]!.reduce((value, element) => value + element);
+      debugCallLength[key]!.clear();
+      debugCallLength["${key}_1M"] ??= <int>[];
+      debugCallLength["${key}_1M"]!.add(elm);
+    }
+  }
+}
+
+int debugCount = 0;
+
 void Function(String call)? debugEnd = (call) {
-  final id = debugCallLength[call]!.length - 1;
-  debugCallLength[call]![id] =
-      sw.elapsedMicroseconds - debugCallLength[call]![id];
+  try {
+    final id = debugCallLength[call]!.length - 1;
+    if (++debugCount > 1000000) {
+      debugCount = 0;
+      debugChores();
+    }
+    debugCallLength[call]![id] =
+        sw.elapsedMicroseconds - debugCallLength[call]![id];
+  } catch (e) {}
 };
 void Function(String call, dynamic error)? errorHandler = (call, error) {
   print("$call: $error");
@@ -3585,7 +3607,8 @@ bool WalletManager_verifyWalletPassword(
   return s;
 }
 
-String WalletManager_findWallets(WalletManager wm_ptr, {required String path}) {
+List<String> WalletManager_findWallets(WalletManager wm_ptr,
+    {required String path}) {
   debugStart?.call('MONERO_WalletManager_findWallets');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
   try {
@@ -3595,13 +3618,15 @@ String WalletManager_findWallets(WalletManager wm_ptr, {required String path}) {
         .cast<Utf8>();
     final str = strPtr.toDartString();
     calloc.free(path_);
-    MONERO_free(strPtr.cast());
+    if (str.isNotEmpty) {
+      MONERO_free(strPtr.cast());
+    }
     debugEnd?.call('MONERO_WalletManager_findWallets');
-    return str;
+    return str.split(";");
   } catch (e) {
     errorHandler?.call('MONERO_WalletManager_findWallets', e);
     debugEnd?.call('MONERO_WalletManager_findWallets');
-    return "";
+    return [];
   }
 }
 
