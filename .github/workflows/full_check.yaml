@@ -467,7 +467,6 @@ jobs:
         with:
           name: ios ${{ matrix.coin }}
           path: release/${{ matrix.coin }}
-
   bulk_lib_release:
     name: create single release file
     runs-on: ubuntu-latest
