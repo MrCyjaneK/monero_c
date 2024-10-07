@@ -31,7 +31,7 @@ fi
 
 set -e
 cd $repo
-git am -3 ../patches/$repo/*.patch
+git am -3 --whitespace=fix --reject ../patches/$repo/*.patch
 if [[ "$repo" == "wownero" ]];
 then
     pushd external/randomwow

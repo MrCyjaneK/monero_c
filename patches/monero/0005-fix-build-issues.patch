@@ -1,7 +1,7 @@
-From a24797410dcda06617ff2a81de3129d38b69f2a2 Mon Sep 17 00:00:00 2001
+From 0f1d5e1296dc1e8c9ee323fa7bdf706ff76df2a7 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 12 Mar 2024 17:59:13 +0100
-Subject: [PATCH 05/10] fix build issues
+Subject: [PATCH 05/16] fix build issues
 
 ---
  contrib/depends/hosts/linux.mk                |  8 +++----
@@ -133,5 +133,5 @@ index 000000000..f05cb2b6a
 + #else
 +     #ifdef POLYSEED_SHARED
 -- 
-2.44.0
+2.39.2
 
