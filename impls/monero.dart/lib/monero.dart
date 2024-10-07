@@ -3585,6 +3585,24 @@ bool WalletManager_verifyWalletPassword(
   return s;
 }
 
+int WalletManager_queryWalletDevice(
+  WalletManager wm_ptr, {
+  required String keysFileName,
+  required String password,
+  required int kdfRounds,
+}) {
+  debugStart?.call('MONERO_WalletManager_queryWalletDevice');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+  final keysFileName_ = keysFileName.toNativeUtf8().cast<Char>();
+  final password_ = password.toNativeUtf8().cast<Char>();
+  final s = lib!.MONERO_WalletManager_queryWalletDevice(
+      wm_ptr, keysFileName_, password_, kdfRounds);
+  calloc.free(keysFileName_);
+  calloc.free(password_);
+  debugEnd?.call('MONERO_WalletManager_queryWalletDevice');
+  return s;
+}
+
 String WalletManager_findWallets(WalletManager wm_ptr, {required String path}) {
   debugStart?.call('MONERO_WalletManager_findWallets');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
