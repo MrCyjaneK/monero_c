@@ -12,3 +12,6 @@ name = "monero_rust"
 path = "src/main.rs"
 
 [dependencies]
+
+[build-dependencies]
+bindgen = "0.70.1"
