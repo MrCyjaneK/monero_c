@@ -24,6 +24,7 @@
 [submodule "external/libsodium"]
 	path = external/libsodium
 	url = https://github.com/jedisct1/libsodium.git
+	branch = stable
 [submodule "external/unbound"]
 	path = external/unbound
 	url = https://github.com/NLnetLabs/unbound.git
