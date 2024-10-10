@@ -2,8 +2,15 @@
 `monero_c` bindings for Rust.
 
 ## Getting started
+<!--
+### Prerequisites
+You may need
+```
+sudo apt-get install libhidapi-dev
+```
+-->
 1. Build `monero_c`
-2. Copy the `monero_c` static library to `monero_rust`.
+2. Copy the `monero_c` library to `monero_rust`.
 3. Run `monero_rust` example
 
 ### Build `monero_c`
@@ -26,12 +33,13 @@ git submodule update --init --recursive --force
 ```
 <!-- TODO add unxz etc -->
 
-### Copy the `monero_c` static library to `monero_rust`. 
-Copy your `libwallet` static library to `monero_c/impls/monero_rust/lib`.
+### Copy the `monero_c` library to `monero_rust`. 
+Copy your `libwallet` library to `monero_c/impls/monero_rust/lib`.
 ```
 cp build/release/monero/x86_64-linux-gnu_libwallet2_api_c.so ../lib
+mv ../lib/x86_64-linux-gnu_libwallet2_api_c.so ../lib/libx86_64-linux-gnu_libwallet2_api_c.so
 ```
-<!-- TODO automatically copy using arch provided as param IAW TODO above -->
+<!-- TODO automatically copy and rename using arch param IAW TODO above -->
 
 ### Run `monero_rust` example
 From `monero_c/impls/monero_rust`:

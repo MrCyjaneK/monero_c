@@ -1,0 +1,14 @@
+[package]
+name = "monero_rust"
+version = "0.0.1"
+edition = "2021"
+description = "monero_c Rust bindings."
+repository = "https://github.com/ManyMath/monero_rust"
+license = "MIT"
+build = "build.rs"
+
+[[bin]]
+name = "monero_rust"
+path = "src/main.rs"
+
+[dependencies]
