@@ -1,2 +1,3 @@
-scripts/build
+target/
+scripts/monero_c
 lib/

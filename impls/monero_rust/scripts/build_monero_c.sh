@@ -1,56 +1,69 @@
-# See https://github.com/MrCyjaneK/monero_c for the most up-to-date build docs,
-# this is an example and a starting point for building monero_c for use in Rust
-# but it should be automated either using CMake or Cargo (preferred).
-
-# From https://github.com/cypherstack/flutter_libmonero/blob/main/scripts/linux/build_all.sh
-# flutter_libmonero/scripts/linux/build_all.sh:
-
-set -x -e
-
-# Build monero_c.
-cd "$(dirname "$0")"
-
-if [[ ! "x$(uname)" == "xLinux" ]];
-then
-    echo "Only Linux hosts can build linux";
-    exit 1
-fi
-
-#../prepare_moneroc.sh
-# See https://github.com/cypherstack/flutter_libmonero/blob/main/scripts/prepare_moneroc.sh
-# scripts/prepare_moneroc.sh:
-
 #!/bin/bash
 
 set -x -e
 
-cd "$(dirname "$0")"
+# See https://github.com/MrCyjaneK/monero_c for the most up-to-date build docs,
+# this is an example and a starting point for building monero_c for use in Rust
+# but it should be automated either using CMake or Cargo (preferred).
 
-# Allow script caller to pass commit hash.
-# dirty hack to handle broken monero_c on android. Uses same hash on linux as well to make dev life easier
-# CHASH="$1"
-# if [ -z "$CHASH" ]; then
-#   CHASH="294b593db30e8803586dfd0f47e716ce1200c766"
-# fi
+# Detect architecture.
+ARCH=$(uname -m)
+OS=$(uname -s)
 
-# # We should be in monero_c/impls/monero_rust/scripts...
-# cd ../../..
-# Instead of building the monero_c we already have, let's clone another, "fresher" one (:
+case $ARCH-$OS in
+    x86_64-Linux)
+        TARGET_ARCH="x86_64-linux-gnu"
+        ;;
+    i686-Linux)
+        TARGET_ARCH="i686-linux-gnu"
+        ;;
+    aarch64-Linux)
+        TARGET_ARCH="aarch64-linux-gnu"
+        ;;
+    x86_64-Android)
+        TARGET_ARCH="x86_64-linux-android"
+        ;;
+    i686-Android)
+        TARGET_ARCH="i686-linux-android"
+        ;;
+    aarch64-Android)
+        TARGET_ARCH="aarch64-linux-android"
+        ;;
+    armv7l-Android)
+        TARGET_ARCH="arm-linux-androideabi"
+        ;;
+    i686-Windows)
+        TARGET_ARCH="i686-w64-mingw32"
+        ;;
+    x86_64-Windows)
+        TARGET_ARCH="x86_64-w64-mingw32"
+        ;;
+    x86_64-Darwin)
+        TARGET_ARCH="host-apple-darwin"
+        ;;
+    arm64-Darwin)
+        TARGET_ARCH="host-apple-ios"
+        ;;
+    *)
+        echo "Unsupported architecture: $ARCH on OS: $OS"
+        exit 1
+        ;;
+esac
 
-#rm -rf build
-if [[ ! -d "build" ]];
+#../prepare_moneroc.sh
+# See https://github.com/cypherstack/flutter_libmonero/blob/main/scripts/prepare_moneroc.sh
+# flutter_libmonero/scripts/prepare_moneroc.sh:
+
+if [[ ! -d "monero_c" ]];
 then
-    git clone https://github.com/sneurlax/monero_c build --branch rust
-    cd build
-else
-    cd build
+    #rm -rf monero_c
+    git clone https://github.com/sneurlax/monero_c --branch rust
 fi
-# git checkout "6eb571ea498ed7b854934785f00fabfd0dadf75b" # TODO update.
-git checkout rust
+cd monero_c
+#git checkout "6eb571ea498ed7b854934785f00fabfd0dadf75b"
 git reset --hard
-# TODO migrate all git repos to github (or back to the official wow repo, which is spotty).
-# git config submodule.libs/wownero.url https://git.cypherstack.com/Cypher_Stack/wownero
-# git config submodule.libs/wownero-seed.url https://git.cypherstack.com/Cypher_Stack/wownero-seed
+#git config submodule.libs/wownero.url https://git.cypherstack.com/Cypher_Stack/wownero
+#git config submodule.libs/wownero-seed.url https://git.cypherstack.com/Cypher_Stack/wownero-seed
 git submodule update --init --force --recursive
 ./apply_patches.sh monero
 #./apply_patches.sh wownero
@@ -60,20 +73,30 @@ then
     ./apply_patches.sh monero
 fi
 
-# if [[ ! -f "wownero/.patch-applied" ]];
-# then
-#     ./apply_patches.sh wownero
-# fi
-#  cd ..
-
-echo "monero_c source prepared"
+#if [[ ! -f "wownero/.patch-applied" ]];
+#then
+#    ./apply_patches.sh wownero
+#fi
 
 # flutter_libmonero/scripts/linux/build_all.sh cont. ...
 
-pushd ../build
-    ./build_single.sh monero x86_64-linux-gnu -j8 # TODO use nproc or similar.
-#     ./build_single.sh wownero x86_64-linux-gnu -j8
+pushd ../monero_c
+    ./build_single.sh monero "$TARGET_ARCH" -j$(nproc)
+    #./build_single.sh wownero "$TARGET_ARCH" -j$(nproc)
 popd
 
-unxz -f build/release/monero/x86_64-linux-gnu_libwallet2_api_c.so.xz
-#unxz -f build/release/wownero/x86_64-linux-gnu_libwallet2_api_c.so.xz
+unxz -f release/monero/${TARGET_ARCH}_libwallet2_api_c.so.xz
+#unxz -f release/wownero/${TARGET_ARCH}_libwallet2_api_c.so.xz
+
+# Navigate back to /scripts.
+cd ..
+
+# Copy the built .so file to a generic name.
+SO_FILE="monero_c/release/monero/${TARGET_ARCH}_libwallet2_api_c.so"
+if [[ -f "$SO_FILE" ]]; then
+    cp "$SO_FILE" "../lib/libwallet2_api_c.so"
+    echo "Copied $SO_FILE to libwallet2_api_c.so"
+else
+    echo "Error: $SO_FILE not found."
+    exit 1
+fi
