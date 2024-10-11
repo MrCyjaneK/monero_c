@@ -42,5 +42,5 @@ cargo run
 ```
 
 ## Using `monero_rust` in your own crate
-Refer to the `example` folder.  `libwallet2_api_c.so` must be in the same 
-directory as the binary (*eg.* at `example/target/debug/libwallet2_api_c.so`).
+Refer to the `example` folder.  `libwallet2_api_c.so` must be in `lib/` or in 
+the same directory as the binary (*eg.* in `example/target/debug/`).

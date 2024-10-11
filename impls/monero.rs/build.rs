@@ -40,6 +40,6 @@ fn main() {
         .join("src")
         .join("bindings.rs");
     bindings
-        .write_to_file(&out_path)
+        .write_to_file(out_path)
         .expect("Couldn't write bindings!");
 }

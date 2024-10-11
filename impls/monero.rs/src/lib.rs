@@ -1,5 +1,6 @@
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int, c_void};
+use std::path::PathBuf;
 use std::ptr::NonNull;
 use std::sync::Arc;
 
@@ -24,34 +25,72 @@ pub struct WalletManager {
     library: Arc<Library>,
 }
 
+#[cfg(target_os = "windows")]
+const LIB_NAME: &str = "wallet2_api_c.dll";
+#[cfg(target_os = "linux")]
+const LIB_NAME: &str = "libwallet2_api_c.so";
+#[cfg(target_os = "macos")]
+const LIB_NAME: &str = "libwallet2_api_c.dylib";
+
 impl WalletManager {
     /// Create a new WalletManager, optionally specifying the path to the shared library.
     pub fn new(lib_path: Option<&str>) -> WalletResult<Self> {
         let lib = match lib_path {
-            Some(path) => {
-                unsafe {
-                    Library::new(path).map_err(|e| WalletError::LibraryLoadError(e.to_string()))?
-                }
-            }
+            Some(path) => unsafe {
+                Library::new(path).map_err(|e| WalletError::LibraryLoadError(e.to_string()))?
+            },
             None => {
-                // Attempt to load from the same directory as the executable.
+                // Attempt to load from multiple candidate paths.
                 let exe_path = std::env::current_exe()
                     .map_err(|e| WalletError::LibraryLoadError(e.to_string()))?;
                 let exe_dir = exe_path.parent().ok_or_else(|| {
                     WalletError::LibraryLoadError("Failed to get executable directory".to_string())
                 })?;
-                let lib_path = exe_dir.join("libwallet2_api_c.so");
 
-                unsafe {
-                    if lib_path.exists() {
-                        Library::new(lib_path)
-                            .map_err(|e| WalletError::LibraryLoadError(e.to_string()))?
-                    } else {
-                        // Fallback to standard locations.
-                        Library::new("libwallet2_api_c.so")
-                            .map_err(|e| WalletError::LibraryLoadError(e.to_string()))?
+                // Prepare the list of candidate paths.
+                let mut candidates: Vec<PathBuf> = Vec::new();
+
+                // Candidate 1: ../../lib/libwallet2_api_c.so relative to the executable.
+                if let Some(lib_dir) = exe_dir.parent().and_then(|p| p.parent()) {
+                    let lib_path = lib_dir.join("lib").join(LIB_NAME);
+                    candidates.push(lib_path);
+                }
+
+                // Candidate 2: libwallet2_api_c.so in the same directory as the executable.
+                candidates.push(exe_dir.join(LIB_NAME));
+
+                // Candidate 3: Let the library loader search standard library paths.
+                // We represent this by using the library name directly.
+                candidates.push(PathBuf::from(LIB_NAME));
+
+                // Try to load the library from the candidate paths.
+                let mut library = None;
+                for candidate in &candidates {
+                    let result = unsafe { Library::new(candidate) };
+                    match result {
+                        Ok(lib) => {
+                            library = Some(lib);
+                            break;
+                        }
+                        Err(err) => {
+                            eprintln!(
+                                "Failed to load library from {}: {}",
+                                candidate.display(),
+                                err
+                            );
+                            continue; // Try next candidate.
+                        }
                     }
                 }
+
+                // If none of the candidates worked, return an error.
+                library.ok_or_else(|| {
+                    WalletError::LibraryLoadError(format!(
+                        "Failed to load {} from paths: {:?}",
+                        LIB_NAME,
+                        candidates
+                    ))
+                })?
             }
         };
 
@@ -59,7 +98,8 @@ impl WalletManager {
 
         unsafe {
             let func: Symbol<unsafe extern "C" fn() -> *mut c_void> =
-                library.get(b"MONERO_WalletManagerFactory_getWalletManager\0")
+                library
+                    .get(b"MONERO_WalletManagerFactory_getWalletManager\0")
                     .map_err(|e| WalletError::LibraryLoadError(e.to_string()))?;
             let ptr = func();
             NonNull::new(ptr)
