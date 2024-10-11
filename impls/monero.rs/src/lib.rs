@@ -26,11 +26,15 @@ pub struct WalletManager {
 }
 
 #[cfg(target_os = "windows")]
-const LIB_NAME: &str = "wallet2_api_c.dll";
-#[cfg(target_os = "linux")]
-const LIB_NAME: &str = "libwallet2_api_c.so";
+const LIB_NAME: &str = "monero_libwallet2_api_c.dll";
 #[cfg(target_os = "macos")]
-const LIB_NAME: &str = "libwallet2_api_c.dylib";
+const LIB_NAME: &str = "monero_libwallet2_api_c.dylib";
+#[cfg(target_os = "ios")]
+const LIB_NAME: &str = "MoneroWallet.framework/MoneroWallet";
+#[cfg(target_os = "android")]
+const LIB_NAME: &str = "MoneroWallet.framework/MoneroWallet";
+#[cfg(target_os = "linux")]
+const LIB_NAME: &str = "monero_libwallet2_api_c.so";
 
 impl WalletManager {
     /// Create a new WalletManager, optionally specifying the path to the shared library.
@@ -50,16 +54,27 @@ impl WalletManager {
                 // Prepare the list of candidate paths.
                 let mut candidates: Vec<PathBuf> = Vec::new();
 
-                // Candidate 1: ../../lib/libwallet2_api_c.so relative to the executable.
+                // Candidate 1: ../../../../release/ relative to the executable.
+                if let Some(lib_dir) = exe_dir
+                    .parent()
+                    .and_then(|p| p.parent())
+                    .and_then(|p| p.parent())
+                    .and_then(|p| p.parent())
+                {
+                    let lib_path = lib_dir.join("release").join(LIB_NAME);
+                    candidates.push(lib_path);
+                }
+
+                // Candidate 2: ../../lib/ relative to the executable.
                 if let Some(lib_dir) = exe_dir.parent().and_then(|p| p.parent()) {
                     let lib_path = lib_dir.join("lib").join(LIB_NAME);
                     candidates.push(lib_path);
                 }
 
-                // Candidate 2: libwallet2_api_c.so in the same directory as the executable.
+                // Candidate 3: library in the same directory as the executable.
                 candidates.push(exe_dir.join(LIB_NAME));
 
-                // Candidate 3: Let the library loader search standard library paths.
+                // Candidate 4: Let the library loader search standard library paths.
                 // We represent this by using the library name directly.
                 candidates.push(PathBuf::from(LIB_NAME));
 
