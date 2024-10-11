@@ -21,7 +21,7 @@ cd scripts
 
 or build it manually as in:
 ```
-git clone https://git.mrcyjanek.net/sneurlax/monero_c --branch rust
+git clone https://git.mrcyjanek.net/MrCyjaneK/monero_c --branch rust
 cd monero_c
 git submodule update --init --recursive
 rm -rf monero wownero release # Clean any previous builds.
