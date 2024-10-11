@@ -7,11 +7,14 @@ repository = "https://github.com/ManyMath/monero_rust"
 license = "MIT"
 build = "build.rs"
 
-[[bin]]
+[lib]
 name = "monero_rust"
-path = "src/main.rs"
+path = "src/lib.rs"
+crate-type = ["lib", "cdylib"]
 
 [dependencies]
+libc = "0.2"
 
 [build-dependencies]
 bindgen = "0.70.1"
+

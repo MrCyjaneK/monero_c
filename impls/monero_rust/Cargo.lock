@@ -123,6 +123,7 @@ name = "monero_rust"
 version = "0.0.1"
 dependencies = [
  "bindgen",
+ "libc",
 ]
 
 [[package]]
