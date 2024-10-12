@@ -6,6 +6,17 @@ use std::sync::Arc;
 
 use libloading::{Library, Symbol};
 
+#[cfg(target_os = "android")]
+const LIB_NAME: &str = "libmonero_libwallet2_api_c.so";
+#[cfg(target_os = "ios")]
+const LIB_NAME: &str = "MoneroWallet.framework/MoneroWallet";
+#[cfg(target_os = "linux")]
+const LIB_NAME: &str = "monero_libwallet2_api_c.so";
+#[cfg(target_os = "macos")]
+const LIB_NAME: &str = "monero_libwallet2_api_c.dylib";
+#[cfg(target_os = "windows")]
+const LIB_NAME: &str = "monero_libwallet2_api_c.dll";
+
 pub mod network {
     use std::os::raw::c_int;
     pub const MAINNET: c_int = 0;
@@ -27,17 +38,6 @@ pub struct WalletManager {
     ptr: NonNull<c_void>,
     library: Library,
 }
-
-#[cfg(target_os = "android")]
-const LIB_NAME: &str = "libmonero_libwallet2_api_c.so";
-#[cfg(target_os = "ios")]
-const LIB_NAME: &str = "MoneroWallet.framework/MoneroWallet";
-#[cfg(target_os = "linux")]
-const LIB_NAME: &str = "monero_libwallet2_api_c.so";
-#[cfg(target_os = "macos")]
-const LIB_NAME: &str = "monero_libwallet2_api_c.dylib";
-#[cfg(target_os = "windows")]
-const LIB_NAME: &str = "monero_libwallet2_api_c.dll";
 
 impl WalletManager {
     /// Creates a new `WalletManager`, loading the Monero wallet library (`wallet2_api_c`).
