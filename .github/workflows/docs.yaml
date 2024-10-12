@@ -4,7 +4,7 @@ on: [push]
 
 env:
   # Name of module and id separated by a slash
-  INSTANCE: docs/Writerside/in
+  INSTANCE: Writerside/in
   # Replace HI with the ID of the instance in capital letters
   ARTIFACT: webHelpIN2-all.zip
   # Docker image version
@@ -29,6 +29,7 @@ jobs:
       - name: Build Writerside docs using Docker
         uses: JetBrains/writerside-github-action@v4
         with:
+          location: "${{ github.workspace }}/docs"
           instance: ${{ env.INSTANCE }}
           artifact: ${{ env.ARTIFACT }}
           docker-version: ${{ env.DOCKER_VERSION }}
