@@ -50,40 +50,6 @@ case $ARCH-$OS in
         ;;
 esac
 
-#../prepare_moneroc.sh
-# See https://github.com/cypherstack/flutter_libmonero/blob/main/scripts/prepare_moneroc.sh
-# flutter_libmonero/scripts/prepare_moneroc.sh:
-
-if [[ ! -d "monero_c" ]];
-then
-    #rm -rf monero_c
-    git clone https://github.com/sneurlax/monero_c --branch rust
-fi
-cd monero_c
-#git checkout "6eb571ea498ed7b854934785f00fabfd0dadf75b"
-git reset --hard
-#git config submodule.libs/wownero.url https://git.cypherstack.com/Cypher_Stack/wownero
-#git config submodule.libs/wownero-seed.url https://git.cypherstack.com/Cypher_Stack/wownero-seed
-git submodule update --init --force --recursive
-./apply_patches.sh monero
-#./apply_patches.sh wownero
-
-if [[ ! -f "monero/.patch-applied" ]];
-then
-    ./apply_patches.sh monero
-fi
-
-#if [[ ! -f "wownero/.patch-applied" ]];
-#then
-#    ./apply_patches.sh wownero
-#fi
-
-# flutter_libmonero/scripts/linux/build_all.sh cont. ...
-
-pushd ../monero_c
-    ./build_single.sh monero "$TARGET_ARCH" -j$(nproc)
-    #./build_single.sh wownero "$TARGET_ARCH" -j$(nproc)
-popd
 
 unxz -f release/monero/${TARGET_ARCH}_libwallet2_api_c.so.xz
 #unxz -f release/wownero/${TARGET_ARCH}_libwallet2_api_c.so.xz
