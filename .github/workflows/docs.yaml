@@ -1,0 +1,47 @@
+name: Build documentation
+
+on: [push]
+
+env:
+  # Name of module and id separated by a slash
+  INSTANCE: docs/Writerside/in
+  # Replace HI with the ID of the instance in capital letters
+  ARTIFACT: webHelpIN2-all.zip
+  # Docker image version
+  DOCKER_VERSION: 242.21870
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '^1.23.2'
+      - uses: hecrj/setup-rust-action@v2
+        with:
+          rust-version: stable
+      - name: Update image
+        run: cd docs && ./update_screenshot.sh
+      - name: Build Writerside docs using Docker
+        uses: JetBrains/writerside-github-action@v4
+        with:
+          instance: ${{ env.INSTANCE }}
+          artifact: ${{ env.ARTIFACT }}
+          docker-version: ${{ env.DOCKER_VERSION }}
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact
+          path: artifacts/${{ env.ARTIFACT }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: release/gh/*
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
