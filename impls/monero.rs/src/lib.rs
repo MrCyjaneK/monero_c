@@ -25,16 +25,16 @@ pub struct WalletManager {
     library: Arc<Library>,
 }
 
-#[cfg(target_os = "windows")]
-const LIB_NAME: &str = "monero_libwallet2_api_c.dll";
-#[cfg(target_os = "macos")]
-const LIB_NAME: &str = "monero_libwallet2_api_c.dylib";
-#[cfg(target_os = "ios")]
-const LIB_NAME: &str = "MoneroWallet.framework/MoneroWallet";
 #[cfg(target_os = "android")]
+const LIB_NAME: &str = "libmonero_libwallet2_api_c.so";
+#[cfg(target_os = "ios")]
 const LIB_NAME: &str = "MoneroWallet.framework/MoneroWallet";
 #[cfg(target_os = "linux")]
 const LIB_NAME: &str = "monero_libwallet2_api_c.so";
+#[cfg(target_os = "macos")]
+const LIB_NAME: &str = "monero_libwallet2_api_c.dylib";
+#[cfg(target_os = "windows")]
+const LIB_NAME: &str = "monero_libwallet2_api_c.dll";
 
 impl WalletManager {
     /// Create a new WalletManager, optionally specifying the path to the shared library.
