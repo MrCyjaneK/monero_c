@@ -6,9 +6,12 @@ use std::sync::Arc;
 
 use libloading::{Library, Symbol};
 
-pub const NETWORK_TYPE_MAINNET: c_int = 0;
-pub const NETWORK_TYPE_TESTNET: c_int = 1;
-pub const NETWORK_TYPE_STAGENET: c_int = 2;
+pub mod network {
+    use std::os::raw::c_int;
+    pub const MAINNET: c_int = 0;
+    pub const TESTNET: c_int = 1;
+    pub const STAGENET: c_int = 2;
+}
 
 #[derive(Debug)]
 pub enum WalletError {
@@ -20,14 +23,9 @@ pub enum WalletError {
 
 pub type WalletResult<T> = Result<T, WalletError>;
 
-/// Manages the loading of the Monero wallet library and provides factory methods to create wallets.
-///
-/// The `WalletManager` is responsible for loading the Monero C library (`wallet2_api_c`) and
-/// provides methods to create and manage `Wallet` instances.
-#[derive(Clone)]
 pub struct WalletManager {
     ptr: NonNull<c_void>,
-    library: Arc<Library>,
+    library: Library,
 }
 
 #[cfg(target_os = "android")]
@@ -42,102 +40,23 @@ const LIB_NAME: &str = "monero_libwallet2_api_c.dylib";
 const LIB_NAME: &str = "monero_libwallet2_api_c.dll";
 
 impl WalletManager {
-    /// Creates a new `WalletManager`, loading the Monero wallet library.
-    ///
-    /// If `lib_path` is provided, the library will be loaded from that path.
-    /// Otherwise, it attempts to load the library from several default locations.
-    ///
-    /// # Errors
-    ///
-    /// Returns `WalletError::LibraryLoadError` if the library cannot be loaded.
-    pub fn new(lib_path: Option<&str>) -> WalletResult<Self> {
-        let library = if let Some(path) = lib_path {
-            // Load the library from the specified path.
-            unsafe { Library::new(path).map_err(|e| WalletError::LibraryLoadError(e.to_string()))? }
-        } else {
-            // Attempt to load the library from multiple candidate paths.
-            let exe_path = std::env::current_exe()
-                .map_err(|e| WalletError::LibraryLoadError(e.to_string()))?;
-            let exe_dir = exe_path.parent().ok_or_else(|| {
-                WalletError::LibraryLoadError("Failed to get executable directory".to_string())
-            })?;
+    /// Creates a new `WalletManager`, loading the Monero wallet library (`wallet2_api_c`).
+    pub fn new(lib_path: Option<&str>) -> WalletResult<Arc<Self>> {
+        let library = Self::load_library(lib_path)?;
 
-            // Prepare the list of candidate paths.
-            let mut candidates: Vec<PathBuf> = Vec::new();
-
-            // Candidate 1: ../../../../release/ relative to the executable.
-            if let Some(lib_dir) = exe_dir
-                .parent()
-                .and_then(|p| p.parent())
-                .and_then(|p| p.parent())
-                .and_then(|p| p.parent())
-            {
-                let lib_path = lib_dir.join("release").join(LIB_NAME);
-                candidates.push(lib_path);
-            }
-
-            // Candidate 2: ../../lib/ relative to the executable.
-            if let Some(lib_dir) = exe_dir.parent().and_then(|p| p.parent()) {
-                let lib_path = lib_dir.join("lib").join(LIB_NAME);
-                candidates.push(lib_path);
-            }
-
-            // Candidate 3: library in the same directory as the executable.
-            candidates.push(exe_dir.join(LIB_NAME));
-
-            // Candidate 4: Let the library loader search standard library paths.
-            candidates.push(PathBuf::from(LIB_NAME));
-
-            // Try to load the library from the candidate paths.
-            let mut library = None;
-            for candidate in &candidates {
-                match unsafe { Library::new(candidate) } {
-                    Ok(lib) => {
-                        library = Some(lib);
-                        break;
-                    }
-                    Err(err) => {
-                        eprintln!(
-                            "Failed to load library from {}: {}",
-                            candidate.display(),
-                            err
-                        );
-                        continue; // Try next candidate.
-                    }
-                }
-            }
-
-            // If none of the candidates worked, return an error.
-            library.ok_or_else(|| {
-                WalletError::LibraryLoadError(format!(
-                    "Failed to load {} from paths: {:?}",
-                    LIB_NAME, candidates
-                ))
-            })?
-        };
-
-        let library = Arc::new(library);
-
-        // Get the wallet manager pointer from the library.
         unsafe {
-            let func: Symbol<unsafe extern "C" fn() -> *mut c_void> =
-                library
-                    .get(b"MONERO_WalletManagerFactory_getWalletManager\0")
-                    .map_err(|e| WalletError::LibraryLoadError(e.to_string()))?;
-            let ptr = func();
-            NonNull::new(ptr)
-                .map(|nn_ptr| WalletManager { ptr: nn_ptr, library })
-                .ok_or(WalletError::NullPointer)
+            let func: Symbol<unsafe extern "C" fn() -> *mut c_void> = library
+                .get(b"MONERO_WalletManagerFactory_getWalletManager\0")
+                .map_err(|e| WalletError::LibraryLoadError(e.to_string()))?;
+
+            let ptr = NonNull::new(func()).ok_or(WalletError::NullPointer)?;
+
+            Ok(Arc::new(WalletManager { ptr, library }))
         }
     }
 
-    /// Creates a new `Wallet` using the specified parameters.
-    ///
-    /// # Errors
-    ///
-    /// Returns `WalletError::NullPointer` if the wallet creation fails.
     pub fn create_wallet(
-        &self,
+        self: &Arc<Self>,
         path: &str,
         password: &str,
         language: &str,
@@ -163,6 +82,7 @@ impl WalletManager {
                 .library
                 .get(b"MONERO_WalletManager_createWallet\0")
                 .map_err(|e| WalletError::LibraryLoadError(e.to_string()))?;
+
             let wallet_ptr = func(
                 self.ptr.as_ptr(),
                 c_path.as_ptr(),
@@ -174,32 +94,68 @@ impl WalletManager {
             NonNull::new(wallet_ptr)
                 .map(|ptr| Wallet {
                     ptr,
-                    manager: self.clone(),
+                    manager: Arc::clone(self),
                 })
                 .ok_or(WalletError::NullPointer)
         }
     }
+
+    fn load_library(lib_path: Option<&str>) -> WalletResult<Library> {
+        if let Some(path) = lib_path {
+            unsafe { Library::new(path).map_err(|e| WalletError::LibraryLoadError(e.to_string())) }
+        } else {
+            let exe_path = std::env::current_exe()
+                .map_err(|e| WalletError::LibraryLoadError(e.to_string()))?;
+            let exe_dir = exe_path.parent().ok_or_else(|| {
+                WalletError::LibraryLoadError("Failed to get executable directory".to_string())
+            })?;
+
+            let candidates = Self::get_library_candidates(exe_dir);
+
+            candidates
+                .into_iter()
+                .find_map(|path| unsafe { Library::new(&path).ok() })
+                .ok_or_else(|| {
+                    WalletError::LibraryLoadError(format!(
+                        "Failed to load {} from standard paths",
+                        LIB_NAME
+                    ))
+                })
+        }
+    }
+
+    fn get_library_candidates(exe_dir: &std::path::Path) -> Vec<PathBuf> {
+        let mut candidates = Vec::new();
+
+        // Candidate 1: ../../../../release/ relative to the executable.
+        if let Some(lib_dir) = exe_dir.ancestors().nth(4) {
+            candidates.push(lib_dir.join("release").join(LIB_NAME));
+        }
+
+        // Candidate 2: ../../lib/ relative to the executable.
+        if let Some(lib_dir) = exe_dir.ancestors().nth(2) {
+            candidates.push(lib_dir.join("lib").join(LIB_NAME));
+        }
+
+        // Candidate 3: Same directory as the executable.
+        candidates.push(exe_dir.join(LIB_NAME));
+        // TODO: This should probably be the first candidate for binary
+        // distribution purposes; it will likely be the first place the library
+        // will be found in a binary distribution.
+
+        // Candidate 4: Standard library paths.
+        candidates.push(PathBuf::from(LIB_NAME));
+
+        candidates
+    }
 }
 
-/// Represents a Monero wallet instance.
-///
-/// The `Wallet` struct provides methods to interact with a Monero wallet, such as retrieving
-/// the seed, getting addresses, and checking if the wallet is deterministic.
 pub struct Wallet {
     ptr: NonNull<c_void>,
-    manager: WalletManager,
+    manager: Arc<WalletManager>,
 }
 
 impl Wallet {
-    /// Retrieves the seed of the wallet.
-    ///
-    /// # Arguments
-    ///
-    /// * `seed_offset` - An optional seed offset.
-    ///
-    /// # Errors
-    ///
-    /// Returns `WalletError::FfiError` if the seed cannot be retrieved.
     pub fn get_seed(&self, seed_offset: &str) -> WalletResult<String> {
         let c_seed_offset = CString::new(seed_offset)
             .map_err(|_| WalletError::FfiError("Invalid seed_offset".to_string()))?;
@@ -210,6 +166,7 @@ impl Wallet {
                     .library
                     .get(b"MONERO_Wallet_seed\0")
                     .map_err(|e| WalletError::LibraryLoadError(e.to_string()))?;
+
             let seed_ptr = func(self.ptr.as_ptr(), c_seed_offset.as_ptr());
 
             if seed_ptr.is_null() {
@@ -227,16 +184,6 @@ impl Wallet {
         }
     }
 
-    /// Retrieves the address of the wallet for the given account and address indices.
-    ///
-    /// # Arguments
-    ///
-    /// * `account_index` - The account index.
-    /// * `address_index` - The address index.
-    ///
-    /// # Errors
-    ///
-    /// Returns `WalletError::FfiError` if the address cannot be retrieved.
     pub fn get_address(&self, account_index: u64, address_index: u64) -> WalletResult<String> {
         unsafe {
             let func: Symbol<unsafe extern "C" fn(*mut c_void, u64, u64) -> *const c_char> =
@@ -257,19 +204,17 @@ impl Wallet {
         }
     }
 
-    /// Checks if the wallet is deterministic.
-    pub fn is_deterministic(&self) -> bool {
+    pub fn is_deterministic(&self) -> WalletResult<bool> {
         unsafe {
             let func: Symbol<unsafe extern "C" fn(*mut c_void) -> bool> = self
                 .manager
                 .library
                 .get(b"MONERO_Wallet_isDeterministic\0")
-                .expect("Failed to load MONERO_Wallet_isDeterministic");
-            func(self.ptr.as_ptr())
+                .map_err(|e| WalletError::LibraryLoadError(e.to_string()))?;
+            Ok(func(self.ptr.as_ptr()))
         }
     }
 
-    /// Retrieves the last error from the wallet.
     fn get_last_error(&self) -> WalletError {
         unsafe {
             let error_func: Symbol<unsafe extern "C" fn(*mut c_void) -> *const c_char> = self
