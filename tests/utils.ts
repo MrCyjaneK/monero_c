@@ -90,10 +90,6 @@ export async function getMoneroC(version: MoneroCVersion) {
   const releaseDylibName = dylibName.slice("monero_".length);
 
   if (version === "next") {
-    // build current release
-    await $
-      .raw`bash ./build_single.sh monero ${triple} -j${navigator.hardwareConcurrency}`;
-
     await $.raw`xz -kd release/monero/${releaseDylibName}.xz`;
     await $`mkdir -p tests/libs/next`;
     await $`mv release/monero/${releaseDylibName} tests/libs/next/${endpointDylibName}`;
