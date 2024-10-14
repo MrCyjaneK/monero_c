@@ -1,0 +1,47 @@
+name: Check if any regressions have happened
+on: [push]
+permissions:
+  issues: write
+  pull-requests: write
+jobs:
+  regression_check:
+    strategy:
+      matrix:
+        coin: [monero]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686 wget xz-utils
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Patch sources
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@mrcyjanek.net"
+          git config --global user.name "CI mrcyjanek.net"
+          ./apply_patches.sh ${{ matrix.coin }}
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.coin }}
+      - name: Cache built
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ matrix.coin }}/contrib/depends/built/*
+          key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
+
+      - name: Run regression tests
+        run: deno test -A tests/

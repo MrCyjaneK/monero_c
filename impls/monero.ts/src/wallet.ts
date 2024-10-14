@@ -19,6 +19,10 @@ export class Wallet {
     this.sanitizer = sanitizer;
   }
 
+  getPointer(): WalletPtr {
+    return this.#walletPtr;
+  }
+
   async store(path = ""): Promise<boolean> {
     const bool = await dylib.symbols.MONERO_Wallet_store(this.#walletPtr, CString(path));
     await this.throwIfError();
