@@ -589,17 +589,12 @@ jobs:
   regression_check:
     strategy:
       matrix:
-        coin: [monero]
+        coin: [monero, wownero]
     needs: [
       lib_linux
     ]
     runs-on: ubuntu-24.04
     steps:
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686 wget xz-utils
-
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
@@ -611,11 +606,11 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: linux monero
-          path: release/monero
+          name: linux ${{ matrix.coin }}
+          path: release/${{ matrix.coin }}
 
       - name: Run regression tests
-        run: deno test -A tests/
+        run: COIN="${{ matrix.coin }}" deno test -A tests/
 
   comment_pr:
     name: comment on pr
