@@ -1,4 +1,4 @@
-use monero_c_rust::{WalletManager, network, WalletError, WalletResult};
+use monero_c_rust::{WalletManager, NetworkType, WalletError, WalletResult};
 use std::fs;
 use std::sync::Arc;
 use std::time::Instant;
@@ -88,7 +88,7 @@ fn test_wallet_manager_creation() {
     let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
-    let wallet_result = manager.create_wallet(wallet_str, "password123", "English", network::MAINNET);
+    let wallet_result = manager.create_wallet(wallet_str, "password123", "English", NetworkType::Mainnet);
     assert!(wallet_result.is_ok(), "WalletManager creation seems to have failed");
 
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -96,14 +96,12 @@ fn test_wallet_manager_creation() {
 
 #[test]
 fn test_wallet_creation() {
-    println!("Running test_wallet_creation");
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    // Construct the full path for the wallet within temp_dir.
-    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_path = temp_dir.path().join("wallet_name");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
-    let wallet = manager.create_wallet(wallet_str, "password123", "English", network::MAINNET);
+    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
     assert!(wallet.is_ok(), "Failed to create wallet");
     let wallet = wallet.unwrap();
     assert!(wallet.is_deterministic().is_ok(), "Wallet creation seems to have failed");
@@ -121,7 +119,7 @@ fn test_get_seed() {
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager
-        .create_wallet(wallet_str, "password123", "English", network::MAINNET)
+        .create_wallet(wallet_str, "password123", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
     println!("Attempting to get seed...");
     let start = Instant::now();
@@ -143,7 +141,7 @@ fn test_get_address() {
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager
-        .create_wallet(wallet_str, "password123", "English", network::MAINNET)
+        .create_wallet(wallet_str, "password123", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
     println!("Attempting to get address...");
     let start = Instant::now();
@@ -165,7 +163,7 @@ fn test_is_deterministic() {
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager
-        .create_wallet(wallet_str, "password123", "English", network::MAINNET)
+        .create_wallet(wallet_str, "password123", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
     println!("Checking if wallet is deterministic...");
     let start = Instant::now();
@@ -184,13 +182,13 @@ fn test_wallet_creation_with_different_networks() {
 
     // Define wallet names and corresponding network types.
     let wallets = vec![
-        ("mainnet_wallet", network::MAINNET),
-        ("testnet_wallet", network::TESTNET),
-        ("stagenet_wallet", network::STAGENET),
+        ("mainnet_wallet", NetworkType::Mainnet),
+        ("testnet_wallet", NetworkType::Testnet),
+        ("stagenet_wallet", NetworkType::Stagenet),
     ];
 
     for (name, net_type) in wallets {
-        println!("Creating wallet: {} on network type {}", name, net_type);
+        println!("Creating wallet: {} on network type {:?}", name, net_type);
 
         // Construct the full path for each wallet within temp_dir.
         let wallet_path = temp_dir.path().join(name);
@@ -213,7 +211,7 @@ fn test_multiple_address_generation() {
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager
-        .create_wallet(wallet_str, "password123", "English", network::MAINNET)
+        .create_wallet(wallet_str, "password123", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
 
     for i in 0..5 {
