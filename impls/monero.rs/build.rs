@@ -114,4 +114,23 @@ fn main() {
     bindings
         .write_to_file(out_path.clone())
         .expect("Couldn't write bindings!");
+
+    // Annotate the generated bindings to ignore certain warnings.
+    if out_path.exists() {
+        let contents = fs::read_to_string(out_path.clone()).expect("Failed to read bindings.rs");
+
+        let prepend_content = "#![allow(non_upper_case_globals)]\n#![allow(dead_code)]\n";
+
+        if !contents.contains("#![allow(non_upper_case_globals)]") {
+            let new_contents = format!("{}{}", prepend_content, contents);
+
+            let mut file = OpenOptions::new()
+                .write(true)
+                .truncate(true)
+                .open(out_path.clone())
+                .expect("Failed to open bindings.rs");
+
+            file.write_all(new_contents.as_bytes()).expect("Failed to write to bindings.rs");
+        }
+    }
 }
