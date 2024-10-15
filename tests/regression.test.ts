@@ -17,7 +17,7 @@ Deno.test(`Regression tests (${coin})`, async (t) => {
     const walletInfo = await createWalletViaCli(coin, "dog", "sobaka");
 
     for (const version of ["next", latestTag, "next"]) {
-      await $`deno run -A ./tests/compare.ts ${version} ${JSON.stringify(walletInfo)}`;
+      await $`deno run -A ./tests/compare.ts ${coin} ${version} ${JSON.stringify(walletInfo)}`;
     }
   });
 
@@ -28,7 +28,7 @@ Deno.test(`Regression tests (${coin})`, async (t) => {
 
     for (const version of tags.toReversed()) {
       if (version !== "next" && version !== tags[0]) await getMoneroC(coin, version);
-      await $`deno run -A ./tests/compare.ts ${version} ${JSON.stringify(walletInfo)}`;
+      await $`deno run -A ./tests/compare.ts ${coin} ${version} ${JSON.stringify(walletInfo)}`;
     }
 
     await Deno.remove("./tests/wallets", { recursive: true }).catch(() => {});
