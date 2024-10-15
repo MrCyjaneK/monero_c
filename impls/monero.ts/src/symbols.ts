@@ -418,6 +418,7 @@ export const moneroSymbols = {
     result: "bool",
   },
   "MONERO_PendingTransaction_commitUR": {
+    optional: true,
     nonblocking: true,
     // void* pendingTx_ptr, int max_fragment_length
     parameters: ["pointer", "i32"],
