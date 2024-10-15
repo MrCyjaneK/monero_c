@@ -1,5 +1,4 @@
-import { dylib } from "./bindings.ts";
-import { CString, readCString, type Sanitizer } from "./utils.ts";
+import { CString, getSymbol, readCString, type Sanitizer } from "./utils.ts";
 
 export type PendingTransactionPtr = Deno.PointerObject<"transactionInfo">;
 
@@ -13,13 +12,13 @@ export class PendingTransaction {
   }
 
   async status(): Promise<number> {
-    return await dylib.symbols.MONERO_PendingTransaction_status(this.#pendingTxPtr);
+    return await getSymbol("PendingTransaction_status")(this.#pendingTxPtr);
   }
 
   async errorString(): Promise<string | null> {
     if (!await this.status()) return null;
 
-    const error = await dylib.symbols.MONERO_PendingTransaction_errorString(this.#pendingTxPtr);
+    const error = await getSymbol("PendingTransaction_errorString")(this.#pendingTxPtr);
     if (!error) return null;
 
     return await readCString(error) || null;
@@ -34,7 +33,7 @@ export class PendingTransaction {
   }
 
   async commit(fileName: string, overwrite: boolean, sanitize = true): Promise<boolean> {
-    const bool = await dylib.symbols.MONERO_PendingTransaction_commit(
+    const bool = await getSymbol("PendingTransaction_commit")(
       this.#pendingTxPtr,
       CString(fileName),
       overwrite,
@@ -44,7 +43,7 @@ export class PendingTransaction {
   }
 
   async commitUR(maxFragmentLength: number): Promise<string | null> {
-    const result = await dylib.symbols.MONERO_PendingTransaction_commitUR(
+    const result = await getSymbol("PendingTransaction_commitUR")(
       this.#pendingTxPtr,
       maxFragmentLength,
     );
@@ -54,19 +53,19 @@ export class PendingTransaction {
   }
 
   async amount(): Promise<bigint> {
-    return await dylib.symbols.MONERO_PendingTransaction_amount(this.#pendingTxPtr);
+    return await getSymbol("PendingTransaction_amount")(this.#pendingTxPtr);
   }
 
   async dust(): Promise<bigint> {
-    return await dylib.symbols.MONERO_PendingTransaction_dust(this.#pendingTxPtr);
+    return await getSymbol("PendingTransaction_dust")(this.#pendingTxPtr);
   }
 
   async fee(): Promise<bigint> {
-    return await dylib.symbols.MONERO_PendingTransaction_fee(this.#pendingTxPtr);
+    return await getSymbol("PendingTransaction_fee")(this.#pendingTxPtr);
   }
 
   async txid(separator: string, sanitize = true): Promise<string | null> {
-    const result = await dylib.symbols.MONERO_PendingTransaction_txid(
+    const result = await getSymbol("PendingTransaction_txid")(
       this.#pendingTxPtr,
       CString(separator),
     );
@@ -76,6 +75,6 @@ export class PendingTransaction {
   }
 
   async txCount(): Promise<bigint> {
-    return await dylib.symbols.MONERO_PendingTransaction_txCount(this.#pendingTxPtr);
+    return await getSymbol("PendingTransaction_txCount")(this.#pendingTxPtr);
   }
 }

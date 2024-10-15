@@ -1,8 +1,8 @@
 import { dylib } from "./bindings.ts";
-import { CString, readCString, Sanitizer } from "./utils.ts";
+import { CString, getSymbol, readCString, Sanitizer } from "./utils.ts";
+
 import { WalletManager, type WalletManagerPtr } from "./wallet_manager.ts";
 import { TransactionHistory, TransactionHistoryPtr } from "./transaction_history.ts";
-
 import { PendingTransaction } from "./pending_transaction.ts";
 import { PendingTransactionPtr } from "./pending_transaction.ts";
 
@@ -24,39 +24,39 @@ export class Wallet {
   }
 
   async store(path = ""): Promise<boolean> {
-    const bool = await dylib.symbols.MONERO_Wallet_store(this.#walletPtr, CString(path));
+    const bool = await getSymbol("Wallet_store")(this.#walletPtr, CString(path));
     await this.throwIfError();
     return bool;
   }
 
-  async initWallet(): Promise<void> {
+  async initWallet(daemonAddress = "http://nodex.monerujo.io:18081"): Promise<void> {
     await this.init();
     await this.setTrustedDaemon(true);
-    await this.setDaemonAddress("http://nodex.monerujo.io:18081");
+    await this.setDaemonAddress(daemonAddress);
     await this.startRefresh();
     await this.refreshAsync();
     await this.throwIfError();
   }
 
   async setDaemonAddress(address: string): Promise<void> {
-    await dylib.symbols.MONERO_WalletManager_setDaemonAddress(
+    await getSymbol("WalletManager_setDaemonAddress")(
       this.#walletManagerPtr,
       CString(address),
     );
   }
 
   async startRefresh(): Promise<void> {
-    await dylib.symbols.MONERO_Wallet_startRefresh(this.#walletPtr);
+    await getSymbol("Wallet_startRefresh")(this.#walletPtr);
     await this.throwIfError();
   }
 
   async refreshAsync(): Promise<void> {
-    await dylib.symbols.MONERO_Wallet_refreshAsync(this.#walletPtr);
+    await getSymbol("Wallet_refreshAsync")(this.#walletPtr);
     await this.throwIfError();
   }
 
   async init(): Promise<boolean> {
-    const bool = await dylib.symbols.MONERO_Wallet_init(
+    const bool = await getSymbol("Wallet_init")(
       this.#walletPtr,
       CString("http://nodex.monerujo.io:18081"),
       0n,
@@ -71,7 +71,7 @@ export class Wallet {
   }
 
   async setTrustedDaemon(value: boolean): Promise<void> {
-    await dylib.symbols.MONERO_Wallet_setTrustedDaemon(this.#walletPtr, value);
+    await getSymbol("Wallet_setTrustedDaemon")(this.#walletPtr, value);
   }
 
   static async create(
@@ -83,7 +83,7 @@ export class Wallet {
     // We assign holder of the pointer in Wallet constructor
     const walletManagerPtr = walletManager.getPointer();
 
-    const walletPtr = await dylib.symbols.MONERO_WalletManager_createWallet(
+    const walletPtr = await getSymbol("WalletManager_createWallet")(
       walletManagerPtr,
       CString(path),
       CString(password),
@@ -107,7 +107,7 @@ export class Wallet {
     // We assign holder of the pointer in Wallet constructor
     const walletManagerPtr = walletManager.getPointer();
 
-    const walletPtr = await dylib.symbols.MONERO_WalletManager_openWallet(
+    const walletPtr = await getSymbol("WalletManager_openWallet")(
       walletManagerPtr,
       CString(path),
       CString(password),
@@ -133,7 +133,7 @@ export class Wallet {
     // We assign holder of the pointer in Wallet constructor
     const walletManagerPtr = walletManager.getPointer();
 
-    const walletPtr = await dylib.symbols.MONERO_WalletManager_recoveryWallet(
+    const walletPtr = await getSymbol("WalletManager_recoveryWallet")(
       walletManagerPtr,
       CString(path),
       CString(password),
@@ -152,7 +152,7 @@ export class Wallet {
   }
 
   async address(accountIndex = 0n, addressIndex = 0n): Promise<string> {
-    const address = await dylib.symbols.MONERO_Wallet_address(this.#walletPtr, accountIndex, addressIndex);
+    const address = await getSymbol("Wallet_address")(this.#walletPtr, accountIndex, addressIndex);
     if (!address) {
       const error = await this.errorString();
       throw new Error(`Failed getting address from a wallet: ${error ?? "<Error unknown>"}`);
@@ -161,21 +161,21 @@ export class Wallet {
   }
 
   async balance(accountIndex = 0): Promise<bigint> {
-    return await dylib.symbols.MONERO_Wallet_balance(this.#walletPtr, accountIndex);
+    return await getSymbol("Wallet_balance")(this.#walletPtr, accountIndex);
   }
 
   async unlockedBalance(accountIndex = 0): Promise<bigint> {
-    return await dylib.symbols.MONERO_Wallet_unlockedBalance(this.#walletPtr, accountIndex);
+    return await getSymbol("Wallet_unlockedBalance")(this.#walletPtr, accountIndex);
   }
 
   status(): Promise<number> {
-    return dylib.symbols.MONERO_Wallet_status(this.#walletPtr);
+    return getSymbol("Wallet_status")(this.#walletPtr);
   }
 
   async errorString(): Promise<string | null> {
     if (!await this.status()) return null;
 
-    const error = await dylib.symbols.MONERO_Wallet_errorString(this.#walletPtr);
+    const error = await getSymbol("Wallet_errorString")(this.#walletPtr);
     if (!error) return null;
 
     return await readCString(error) || null;
@@ -190,37 +190,37 @@ export class Wallet {
   }
 
   async synchronized(): Promise<boolean> {
-    const synchronized = await dylib.symbols.MONERO_Wallet_synchronized(this.#walletPtr);
+    const synchronized = await getSymbol("Wallet_synchronized")(this.#walletPtr);
     await this.throwIfError();
     return synchronized;
   }
 
   async blockChainHeight(): Promise<bigint> {
-    const height = await dylib.symbols.MONERO_Wallet_blockChainHeight(this.#walletPtr);
+    const height = await getSymbol("Wallet_blockChainHeight")(this.#walletPtr);
     await this.throwIfError();
     return height;
   }
 
   async daemonBlockChainHeight(): Promise<bigint> {
-    const height = await dylib.symbols.MONERO_Wallet_daemonBlockChainHeight(this.#walletPtr);
+    const height = await getSymbol("Wallet_daemonBlockChainHeight")(this.#walletPtr);
     await this.throwIfError();
     return height;
   }
 
   async managerBlockChainHeight(): Promise<bigint> {
-    const height = await dylib.symbols.MONERO_WalletManager_blockchainHeight(this.#walletManagerPtr);
+    const height = await getSymbol("WalletManager_blockchainHeight")(this.#walletManagerPtr);
     await this.throwIfError();
     return height;
   }
 
   async managerTargetBlockChainHeight(): Promise<bigint> {
-    const height = await dylib.symbols.MONERO_WalletManager_blockchainTargetHeight(this.#walletManagerPtr);
+    const height = await getSymbol("WalletManager_blockchainTargetHeight")(this.#walletManagerPtr);
     await this.throwIfError();
     return height;
   }
 
   async addSubaddressAccount(label: string): Promise<void> {
-    await dylib.symbols.MONERO_Wallet_addSubaddressAccount(
+    await getSymbol("Wallet_addSubaddressAccount")(
       this.#walletPtr,
       CString(label),
     );
@@ -228,13 +228,13 @@ export class Wallet {
   }
 
   async numSubaddressAccounts(): Promise<bigint> {
-    const accountsLen = await dylib.symbols.MONERO_Wallet_numSubaddressAccounts(this.#walletPtr);
+    const accountsLen = await getSymbol("Wallet_numSubaddressAccounts")(this.#walletPtr);
     await this.throwIfError();
     return accountsLen;
   }
 
   async addSubaddress(accountIndex: number, label: string): Promise<void> {
-    await dylib.symbols.MONERO_Wallet_addSubaddress(
+    await getSymbol("Wallet_addSubaddress")(
       this.#walletPtr,
       accountIndex,
       CString(label),
@@ -243,7 +243,7 @@ export class Wallet {
   }
 
   async numSubaddresses(accountIndex: number): Promise<bigint> {
-    const address = await dylib.symbols.MONERO_Wallet_numSubaddresses(
+    const address = await getSymbol("Wallet_numSubaddresses")(
       this.#walletPtr,
       accountIndex,
     );
@@ -252,7 +252,7 @@ export class Wallet {
   }
 
   async getSubaddressLabel(accountIndex: number, addressIndex: number): Promise<string> {
-    const label = await dylib.symbols.MONERO_Wallet_getSubaddressLabel(this.#walletPtr, accountIndex, addressIndex);
+    const label = await getSymbol("Wallet_getSubaddressLabel")(this.#walletPtr, accountIndex, addressIndex);
     if (!label) {
       const error = await this.errorString();
       throw new Error(`Failed getting subaddress label from a wallet: ${error ?? "<Error unknown>"}`);
@@ -261,7 +261,7 @@ export class Wallet {
   }
 
   async setSubaddressLabel(accountIndex: number, addressIndex: number, label: string): Promise<void> {
-    await dylib.symbols.MONERO_Wallet_setSubaddressLabel(
+    await getSymbol("Wallet_setSubaddressLabel")(
       this.#walletPtr,
       accountIndex,
       addressIndex,
@@ -271,7 +271,7 @@ export class Wallet {
   }
 
   async getHistory(): Promise<TransactionHistory> {
-    const transactionHistoryPointer = await dylib.symbols.MONERO_Wallet_history(this.#walletPtr);
+    const transactionHistoryPointer = await getSymbol("Wallet_history")(this.#walletPtr);
     await this.throwIfError();
     return new TransactionHistory(transactionHistoryPointer as TransactionHistoryPtr);
   }
@@ -287,7 +287,7 @@ export class Wallet {
     paymentId = "",
     separator = ",",
   ): Promise<PendingTransaction> {
-    const pendingTxPtr = await dylib.symbols.MONERO_Wallet_createTransaction(
+    const pendingTxPtr = await getSymbol("Wallet_createTransaction")(
       this.#walletPtr,
       CString(destinationAddress),
       CString(paymentId),
@@ -303,6 +303,6 @@ export class Wallet {
   }
 
   async amountFromString(amount: string): Promise<bigint> {
-    return await dylib.symbols.MONERO_Wallet_amountFromString(CString(amount));
+    return await getSymbol("Wallet_amountFromString")(CString(amount));
   }
 }
