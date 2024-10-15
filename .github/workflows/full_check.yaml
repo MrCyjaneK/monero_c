@@ -63,7 +63,7 @@ jobs:
     strategy:
       matrix:
         coin: [monero, wownero]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     # container:
     #   image: debian:bookworm
     steps:
