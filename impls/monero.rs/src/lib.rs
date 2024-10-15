@@ -27,6 +27,14 @@ pub struct WalletManager {
 
 impl WalletManager {
     /// Creates a new `WalletManager` using the statically linked `MONERO_WalletManagerFactory_getWalletManager`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use monero_c_rust::WalletManager;
+    /// let manager = WalletManager::new();
+    /// assert!(manager.is_ok());
+    /// ```
     pub fn new() -> WalletResult<Arc<Self>> {
         unsafe {
             let ptr = bindings::MONERO_WalletManagerFactory_getWalletManager();
@@ -36,6 +44,26 @@ impl WalletManager {
     }
 
     /// Creates a new wallet.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use monero_c_rust::{WalletManager, network};
+    /// use std::fs;
+    /// use std::path::Path;
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    /// let wallet = manager.create_wallet("wallet_name", "password", "English", network::MAINNET);
+    /// assert!(wallet.is_ok());
+    ///
+    /// // Cleanup: remove the wallet file and its corresponding keys file, if they exist.
+    /// if Path::new("wallet_name").exists() {
+    ///     fs::remove_file("wallet_name").expect("Failed to delete test wallet");
+    /// }
+    /// if Path::new("wallet_name.keys").exists() {
+    ///     fs::remove_file("wallet_name.keys").expect("Failed to delete test wallet keys");
+    /// }
+    /// ```
     pub fn create_wallet(
         self: &Arc<Self>,
         path: &str,
@@ -70,6 +98,31 @@ pub struct Wallet {
 
 impl Wallet {
     /// Retrieves the wallet's seed with an optional offset.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use monero_c_rust::{WalletManager, network};
+    /// use tempfile::TempDir;
+    /// use std::fs;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_str = wallet_path.to_str().unwrap();
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    /// let wallet_result = manager.create_wallet(wallet_str, "password", "English", network::MAINNET);
+    /// assert!(wallet_result.is_ok(), "Failed to create wallet: {:?}", wallet_result.err());
+    /// let wallet = wallet_result.unwrap();
+    /// let seed = wallet.get_seed("");
+    /// assert!(seed.is_ok(), "Failed to get seed: {:?}", seed.err());
+    /// let seed = seed.unwrap();
+    /// assert!(!seed.is_empty(), "Seed should not be empty");
+    ///
+    /// // Clean up wallet files.
+    /// fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    /// fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+    /// ```
     pub fn get_seed(&self, seed_offset: &str) -> WalletResult<String> {
         let c_seed_offset = CString::new(seed_offset)
             .map_err(|_| WalletError::FfiError("Invalid seed_offset".to_string()))?;
@@ -92,6 +145,27 @@ impl Wallet {
     }
 
     /// Retrieves the wallet's address for the given account and address index.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use monero_c_rust::{WalletManager, network};
+    /// use tempfile::TempDir;
+    /// use std::fs;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_str = wallet_path.to_str().unwrap();
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    /// let wallet = manager.create_wallet(wallet_str, "password", "English", network::MAINNET).unwrap();
+    /// let address = wallet.get_address(0, 0);
+    /// assert!(address.is_ok(), "Failed to get address: {:?}", address.err());
+    ///
+    /// // Clean up wallet files.
+    /// fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    /// fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+    /// ```
     pub fn get_address(&self, account_index: u64, address_index: u64) -> WalletResult<String> {
         unsafe {
             let address_ptr = bindings::MONERO_Wallet_address(self.ptr.as_ptr(), account_index, address_index);
@@ -107,6 +181,30 @@ impl Wallet {
     }
 
     /// Checks if the wallet is deterministic.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use monero_c_rust::{WalletManager, network};
+    /// use tempfile::TempDir;
+    /// use std::fs;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_str = wallet_path.to_str().unwrap();
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    /// let wallet_result = manager.create_wallet(wallet_str, "password", "English", network::MAINNET);
+    /// assert!(wallet_result.is_ok(), "Failed to create wallet: {:?}", wallet_result.err());
+    /// let wallet = wallet_result.unwrap();
+    /// let is_deterministic = wallet.is_deterministic();
+    /// assert!(is_deterministic.is_ok(), "Failed to check if wallet is deterministic: {:?}", is_deterministic.err());
+    /// assert!(is_deterministic.unwrap(), "Wallet should be deterministic");
+    ///
+    /// // Clean up wallet files.
+    /// fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    /// fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+    /// ```
     pub fn is_deterministic(&self) -> WalletResult<bool> {
         unsafe {
             let result = bindings::MONERO_Wallet_isDeterministic(self.ptr.as_ptr());
@@ -115,6 +213,21 @@ impl Wallet {
     }
 
     /// Retrieves the last error from the wallet.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use monero_c_rust::{WalletManager, network, WalletError};
+    /// let manager = WalletManager::new().unwrap();
+    /// // Intentionally pass an invalid wallet to force an error.
+    /// let invalid_wallet = manager.create_wallet("", "", "", network::MAINNET);
+    /// if let Err(err) = invalid_wallet {
+    ///     if let WalletError::WalletErrorCode(_, error_msg) = err {
+    ///         // Check that an error message was produced
+    ///         assert!(!error_msg.is_empty(), "Error message should not be empty");
+    ///     }
+    /// }
+    /// ```
     pub fn get_last_error(&self) -> WalletError {
         unsafe {
             let error_ptr = bindings::MONERO_Wallet_errorString(self.ptr.as_ptr());
