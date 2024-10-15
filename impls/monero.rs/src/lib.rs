@@ -144,3 +144,179 @@ impl Drop for Wallet {
         }
     }
 }
+
+#[cfg(test)]
+use tempfile::TempDir;
+#[cfg(test)]
+use std::fs;
+
+#[cfg(test)]
+fn check_and_delete_existing_wallets(temp_dir: &TempDir) -> std::io::Result<()> {
+    let test_wallet_names = &["wallet_name", "mainnet_wallet", "testnet_wallet", "stagenet_wallet"];
+
+    for name in test_wallet_names {
+        let wallet_file = temp_dir.path().join(name);
+        let keys_file = temp_dir.path().join(format!("{}.keys", name));
+
+        if wallet_file.exists() {
+            fs::remove_file(&wallet_file)?;
+        }
+        if keys_file.exists() {
+            fs::remove_file(&keys_file)?;
+        }
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+fn setup() -> WalletResult<(Arc<WalletManager>, TempDir)> {
+    let temp_dir = tempfile::tempdir().expect("Failed to create temporary directory");
+    check_and_delete_existing_wallets(&temp_dir).expect("Failed to clean up existing wallets");
+
+    let manager = WalletManager::new()?;
+    Ok((manager, temp_dir))
+}
+
+#[cfg(test)]
+fn teardown(temp_dir: &TempDir) -> std::io::Result<()> {
+    check_and_delete_existing_wallets(temp_dir)
+}
+
+#[test]
+fn test_wallet_manager_creation() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    let wallet_result = manager.create_wallet(wallet_str, "password", "English", network::MAINNET);
+    assert!(wallet_result.is_ok(), "WalletManager creation failed");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_wallet_creation() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    let wallet = manager.create_wallet(wallet_str, "password", "English", network::MAINNET);
+    assert!(wallet.is_ok(), "Failed to create wallet");
+    let wallet = wallet.unwrap();
+    assert!(wallet.is_deterministic().is_ok(), "Wallet creation seems to have failed");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_get_seed() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    let wallet = manager.create_wallet(wallet_str, "password", "English", network::MAINNET).expect("Failed to create wallet");
+    let result = wallet.get_seed("");
+    assert!(result.is_ok(), "Failed to get seed: {:?}", result.err());
+    assert!(!result.unwrap().is_empty(), "Seed is empty");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_get_address() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    let wallet = manager.create_wallet(wallet_str, "password", "English", network::MAINNET).expect("Failed to create wallet");
+    let result = wallet.get_address(0, 0);
+    assert!(result.is_ok(), "Failed to get address: {:?}", result.err());
+    assert!(!result.unwrap().is_empty(), "Address is empty");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_is_deterministic() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    let wallet = manager.create_wallet(wallet_str, "password", "English", network::MAINNET).expect("Failed to create wallet");
+    let result = wallet.is_deterministic();
+    assert!(result.is_ok(), "Failed to check if wallet is deterministic: {:?}", result.err());
+    assert!(result.unwrap(), "Wallet should be deterministic");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_wallet_creation_with_different_networks() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallets = vec![
+        ("mainnet_wallet", network::MAINNET),
+        ("testnet_wallet", network::TESTNET),
+        ("stagenet_wallet", network::STAGENET),
+    ];
+
+    for (name, net_type) in wallets {
+        let wallet_path = temp_dir.path().join(name);
+        let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+        let wallet = manager.create_wallet(wallet_str, "password", "English", net_type);
+        assert!(wallet.is_ok(), "Failed to create wallet: {}", name);
+    }
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_multiple_address_generation() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    let wallet = manager.create_wallet(wallet_str, "password", "English", network::MAINNET).expect("Failed to create wallet");
+
+    for i in 0..5 {
+        let result = wallet.get_address(0, i);
+        assert!(result.is_ok(), "Failed to get address {}: {:?}", i, result.err());
+        assert!(!result.unwrap().is_empty(), "Address {} is empty", i);
+    }
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_wallet_error_display() {
+    // Test WalletError::FfiError variant.
+    let error = WalletError::FfiError("Test error".to_string());
+    match error {
+        WalletError::FfiError(msg) => assert_eq!(msg, "Test error"),
+        _ => panic!("Expected FfiError variant"),
+    }
+
+    // Test WalletError::NullPointer variant.
+    let error = WalletError::NullPointer;
+    match error {
+        WalletError::NullPointer => assert!(true),
+        _ => panic!("Expected NullPointer variant"),
+    }
+
+    // Test WalletError::WalletErrorCode variant.
+    let error = WalletError::WalletErrorCode(2, "Sample wallet error".to_string());
+    match error {
+        WalletError::WalletErrorCode(code, msg) => {
+            assert_eq!(code, 2);
+            assert_eq!(msg, "Sample wallet error");
+        },
+        _ => panic!("Expected WalletErrorCode variant"),
+    }
+}
