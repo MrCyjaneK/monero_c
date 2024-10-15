@@ -1,5 +1,5 @@
 [package]
-name = "monero_rust"
+name = "monero_c_rust"
 version = "0.0.1"
 edition = "2021"
 description = "monero_c Rust bindings."
@@ -8,13 +8,11 @@ license = "MIT"
 build = "build.rs"
 
 [lib]
-name = "monero_rust"
+name = "monero_c_rust"
 path = "src/lib.rs"
 crate-type = ["lib", "cdylib"]
 
 [dependencies]
-libc = "0.2"
-libloading = "0.8.5"
 mockall = "0.13.0"
 tempfile = "3.13.0"
 

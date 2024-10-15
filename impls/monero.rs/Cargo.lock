@@ -185,12 +185,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "monero_rust"
+name = "monero_c_rust"
 version = "0.0.1"
 dependencies = [
  "bindgen",
- "libc",
- "libloading",
  "mockall",
  "tempfile",
 ]

@@ -1,4 +1,4 @@
-use monero_rust::{WalletManager, network, WalletError, WalletResult};
+use monero_c_rust::{WalletManager, network, WalletError, WalletResult};
 use std::fs;
 use std::sync::Arc;
 use std::time::Instant;
@@ -61,7 +61,7 @@ fn setup() -> WalletResult<(Arc<WalletManager>, TempDir)> {
 
     println!("Creating WalletManager...");
     let start = Instant::now();
-    let manager = WalletManager::new(None)?;
+    let manager = WalletManager::new()?;
     println!("WalletManager creation took {:?}", start.elapsed());
 
     Ok((manager, temp_dir))
@@ -254,12 +254,5 @@ fn test_wallet_error_display() {
             assert_eq!(msg, "Sample wallet error");
         },
         _ => panic!("Expected WalletErrorCode variant"),
-    }
-
-    // Test WalletError::LibraryLoadError variant.
-    let error = WalletError::LibraryLoadError("Failed to load library".to_string());
-    match error {
-        WalletError::LibraryLoadError(msg) => assert_eq!(msg, "Failed to load library"),
-        _ => panic!("Expected LibraryLoadError variant"),
     }
 }
