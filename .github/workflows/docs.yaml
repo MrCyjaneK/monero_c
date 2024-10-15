@@ -44,5 +44,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: release/gh/*
+          files: artifacts/${{ env.ARTIFACT }}
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
