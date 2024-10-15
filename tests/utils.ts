@@ -27,7 +27,7 @@ export async function downloadWowneroCli() {
 
   await $`wget ${WOWNERO_WALLET_CLI_URL}`;
   await $
-    .raw`tar -xvf ${WOWNERO_CLI_FILE_NAME}.tar.bz2 --one-top-level=monero-cli --strip-components=1 -C tests`;
+    .raw`tar -xvf ${WOWNERO_CLI_FILE_NAME}.tar.bz2 --one-top-level=wownero-cli --strip-components=1 -C tests`;
   await $.raw`rm ${WOWNERO_CLI_FILE_NAME}.tar.bz2`;
 }
 
