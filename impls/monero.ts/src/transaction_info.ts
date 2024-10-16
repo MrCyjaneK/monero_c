@@ -1,5 +1,5 @@
 import { dylib } from "./bindings.ts";
-import { readCString, Sanitizer } from "./utils.ts";
+import { getSymbol, readCString, Sanitizer } from "./utils.ts";
 
 export type TransactionInfoPtr = Deno.PointerObject<"transactionInfo">;
 
@@ -13,7 +13,7 @@ export class TransactionInfo {
   }
 
   async direction(): Promise<"in" | "out"> {
-    switch (await dylib.symbols.MONERO_TransactionInfo_direction(this.#txInfoPtr)) {
+    switch (await getSymbol("TransactionInfo_direction")(this.#txInfoPtr)) {
       case 0:
         return "in";
       case 1:
@@ -25,80 +25,80 @@ export class TransactionInfo {
   }
 
   async isPending(): Promise<boolean> {
-    return await dylib.symbols.MONERO_TransactionInfo_isPending(this.#txInfoPtr);
+    return await getSymbol("TransactionInfo_isPending")(this.#txInfoPtr);
   }
 
   async isFailed(): Promise<boolean> {
-    return await dylib.symbols.MONERO_TransactionInfo_isFailed(this.#txInfoPtr);
+    return await getSymbol("TransactionInfo_isFailed")(this.#txInfoPtr);
   }
 
   async isCoinbase(): Promise<boolean> {
-    return await dylib.symbols.MONERO_TransactionInfo_isCoinbase(this.#txInfoPtr);
+    return await getSymbol("TransactionInfo_isCoinbase")(this.#txInfoPtr);
   }
 
   async amount(): Promise<bigint> {
-    return await dylib.symbols.MONERO_TransactionInfo_amount(this.#txInfoPtr);
+    return await getSymbol("TransactionInfo_amount")(this.#txInfoPtr);
   }
 
   async fee(): Promise<bigint> {
-    return await dylib.symbols.MONERO_TransactionInfo_fee(this.#txInfoPtr);
+    return await getSymbol("TransactionInfo_fee")(this.#txInfoPtr);
   }
 
   async blockHeight(): Promise<bigint> {
-    return await dylib.symbols.MONERO_TransactionInfo_blockHeight(this.#txInfoPtr);
+    return await getSymbol("TransactionInfo_blockHeight")(this.#txInfoPtr);
   }
 
   async description(): Promise<string> {
-    const description = await dylib.symbols.MONERO_TransactionInfo_description(this.#txInfoPtr);
+    const description = await getSymbol("TransactionInfo_description")(this.#txInfoPtr);
     return await readCString(description) || "";
   }
 
   async subaddrIndex(): Promise<string> {
-    const subaddrIndex = await dylib.symbols.MONERO_TransactionInfo_subaddrIndex(this.#txInfoPtr);
+    const subaddrIndex = await getSymbol("TransactionInfo_subaddrIndex")(this.#txInfoPtr);
     return await readCString(subaddrIndex) || "";
   }
 
   async subaddrAccount(): Promise<number> {
-    return await dylib.symbols.MONERO_TransactionInfo_subaddrAccount(this.#txInfoPtr);
+    return await getSymbol("TransactionInfo_subaddrAccount")(this.#txInfoPtr);
   }
 
   async label(): Promise<string> {
-    const label = await dylib.symbols.MONERO_TransactionInfo_label(this.#txInfoPtr);
+    const label = await getSymbol("TransactionInfo_label")(this.#txInfoPtr);
     return await readCString(label) || "";
   }
 
   async confirmations(): Promise<bigint> {
-    return await dylib.symbols.MONERO_TransactionInfo_confirmations(this.#txInfoPtr);
+    return await getSymbol("TransactionInfo_confirmations")(this.#txInfoPtr);
   }
 
   async unlockTime(): Promise<bigint> {
-    return await dylib.symbols.MONERO_TransactionInfo_unlockTime(this.#txInfoPtr);
+    return await getSymbol("TransactionInfo_unlockTime")(this.#txInfoPtr);
   }
 
   async hash(): Promise<string> {
-    const hash = await dylib.symbols.MONERO_TransactionInfo_hash(this.#txInfoPtr);
+    const hash = await getSymbol("TransactionInfo_hash")(this.#txInfoPtr);
     return await readCString(hash) || "";
   }
 
   async timestamp(): Promise<bigint> {
-    return await dylib.symbols.MONERO_TransactionInfo_timestamp(this.#txInfoPtr);
+    return await getSymbol("TransactionInfo_timestamp")(this.#txInfoPtr);
   }
 
   async paymentId(): Promise<string> {
-    const paymentId = await dylib.symbols.MONERO_TransactionInfo_paymentId(this.#txInfoPtr);
+    const paymentId = await getSymbol("TransactionInfo_paymentId")(this.#txInfoPtr);
     return await readCString(paymentId) || "";
   }
 
   async transfersCount(): Promise<number> {
-    return await dylib.symbols.MONERO_TransactionInfo_transfers_count(this.#txInfoPtr);
+    return await getSymbol("TransactionInfo_transfers_count")(this.#txInfoPtr);
   }
 
   async transfersAmount(index: number): Promise<bigint> {
-    return await dylib.symbols.MONERO_TransactionInfo_transfers_amount(this.#txInfoPtr, index);
+    return await getSymbol("TransactionInfo_transfers_amount")(this.#txInfoPtr, index);
   }
 
   async transfersAddress(index: number): Promise<string> {
-    const transfersAddress = await dylib.symbols.MONERO_TransactionInfo_transfers_address(this.#txInfoPtr, index);
+    const transfersAddress = await getSymbol("TransactionInfo_transfers_address")(this.#txInfoPtr, index);
     return await readCString(transfersAddress) || "";
   }
 }
