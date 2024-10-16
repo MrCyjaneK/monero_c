@@ -32,6 +32,7 @@ if(${HOST_ABI} STREQUAL "x86_64-linux-android" OR
    ${HOST_ABI} STREQUAL "aarch64-linux-android" OR
    ${HOST_ABI} STREQUAL "armv7a-linux-androideabi")
     add_link_options(-stdlib=libc++ -static-libstdc++)
+    set(EXTRA_LIBS_ANDROID log)
 endif()
 
 add_library( wallet2_api_c
