@@ -1,2 +1,5 @@
 release/
 build/
+tests/monero-cli
+tests/libs
+tests/wallets

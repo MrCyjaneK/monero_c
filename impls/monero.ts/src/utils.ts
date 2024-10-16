@@ -1,10 +1,22 @@
 import { dylib } from "../mod.ts";
+import type { moneroSymbols, MoneroTsDylib, WowneroTsDylib } from "./symbols.ts";
 
 export type Sanitizer = () => void | PromiseLike<void>;
 
 const textEncoder = new TextEncoder();
 export function CString(string: string): Deno.PointerValue<string> {
   return Deno.UnsafePointer.of(textEncoder.encode(`${string}\x00`));
+}
+
+type SymbolWithoutPrefix = keyof typeof moneroSymbols extends `MONERO_${infer DylibSymbol}` ? DylibSymbol : never;
+export function getSymbol<S extends SymbolWithoutPrefix>(
+  symbol: S,
+): MoneroTsDylib["symbols"][`MONERO_${S}`] | WowneroTsDylib["symbols"][`WOWNERO_${S}`] {
+  if ("MONERO_free" in dylib.symbols) {
+    return dylib.symbols[`MONERO_${symbol}` as const];
+  } else {
+    return dylib.symbols[`WOWNERO_${symbol}` as const];
+  }
 }
 
 /**
@@ -19,7 +31,7 @@ export async function readCString(pointer: Deno.PointerValue, free = true): Prom
   if (!pointer) return null;
   const string = new Deno.UnsafePointerView(pointer).getCString();
   if (free) {
-    await dylib.symbols.MONERO_free(pointer);
+    await getSymbol("free")(pointer);
   }
   return string;
 }

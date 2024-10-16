@@ -391,7 +391,7 @@ jobs:
           key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: build
         run: |
-          ./build_single.sh ${{ matrix.coin }} aarch64-host-apple-darwin -j$(sysctl -n hw.logicalcpu) 
+          ./build_single.sh ${{ matrix.coin }} aarch64-host-apple-darwin -j$(sysctl -n hw.logicalcpu)
       - name: rename artifacts
         run: |
           mkdir release/gh/
@@ -448,7 +448,7 @@ jobs:
           key: depends-${{ github.job }}-${{ matrix.coin }}-${{ hashFiles('*/contrib/depends/packages/*.mk') }}
       - name: build
         run: |
-          ./build_single.sh ${{ matrix.coin }} host-apple-ios -j$(sysctl -n hw.logicalcpu) 
+          ./build_single.sh ${{ matrix.coin }} host-apple-ios -j$(sysctl -n hw.logicalcpu)
       - name: rename artifacts
         run: |
           mkdir release/gh/
@@ -585,6 +585,32 @@ jobs:
         run: |
           cd impls/monero.ts
           deno run --unstable-ffi --allow-ffi checksum.ts
+
+  regression_check:
+    strategy:
+      matrix:
+        coin: [monero, wownero]
+    needs: [
+      lib_linux
+    ]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux ${{ matrix.coin }}
+          path: release/${{ matrix.coin }}
+
+      - name: Run regression tests
+        run: COIN="${{ matrix.coin }}" deno test -A tests/
 
   comment_pr:
     name: comment on pr
