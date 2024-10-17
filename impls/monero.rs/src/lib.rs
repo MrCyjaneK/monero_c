@@ -94,6 +94,28 @@ impl WalletManager {
 
         unsafe {
             let status = bindings::MONERO_Wallet_status(wallet_ptr);
+
+            if status == bindings::WalletStatus_Ok {
+                Ok(())
+            } else {
+                let error_ptr = bindings::MONERO_Wallet_errorString(wallet_ptr);
+                let error_msg = if error_ptr.is_null() {
+                    "Unknown error".to_string()
+                } else {
+                    CStr::from_ptr(error_ptr).to_string_lossy().into_owned()
+                };
+                Err(WalletError::WalletErrorCode(status, error_msg))
+            }
+        }
+    }
+
+    pub fn throw_if_error(&self, wallet_ptr: *mut c_void) -> WalletResult<()> {
+        if wallet_ptr.is_null() {
+            return Err(WalletError::NullPointer);
+        }
+
+        unsafe {
+            let status = bindings::MONERO_Wallet_status(wallet_ptr);
             if status == bindings::WalletStatus_Ok {
                 Ok(())
             } else {
@@ -149,6 +171,7 @@ impl WalletManager {
                 network_type.to_c_int(),
             );
 
+            self.throw_if_error(wallet_ptr)?;
             if wallet_ptr.is_null() {
                 return Err(WalletError::NullPointer);
             }
@@ -206,6 +229,7 @@ impl WalletManager {
                 network_type.to_c_int(),
             );
 
+            self.throw_if_error(wallet_ptr)?;
             if wallet_ptr.is_null() {
                 Err(self.get_status(wallet_ptr).unwrap_err())
             } else {
@@ -263,6 +287,8 @@ impl Wallet {
 
         unsafe {
             let seed_ptr = bindings::MONERO_Wallet_seed(self.ptr.as_ptr(), c_seed_offset.as_ptr());
+
+            self.throw_if_error()?;
             if seed_ptr.is_null() {
                 return Err(self.get_last_error());
             }
@@ -301,6 +327,8 @@ impl Wallet {
     pub fn get_address(&self, account_index: u64, address_index: u64) -> WalletResult<String> {
         unsafe {
             let address_ptr = bindings::MONERO_Wallet_address(self.ptr.as_ptr(), account_index, address_index);
+
+            self.throw_if_error()?;
             if address_ptr.is_null() {
                 Err(self.get_last_error())
             } else {
@@ -340,6 +368,8 @@ impl Wallet {
     pub fn is_deterministic(&self) -> WalletResult<bool> {
         unsafe {
             let result = bindings::MONERO_Wallet_isDeterministic(self.ptr.as_ptr());
+
+            self.throw_if_error()?;
             Ok(result)
         }
     }
@@ -377,6 +407,19 @@ impl Wallet {
         }
     }
 
+    /// Checks for any errors by inspecting the wallet status and throws an error if found.
+    ///
+    /// # Returns
+    /// - `Ok(())` if no error is found.
+    /// - `Err(WalletError)` if an error is encountered.
+    pub fn throw_if_error(&self) -> WalletResult<()> {
+        let status_result = self.manager.get_status(self.ptr.as_ptr());
+        if status_result.is_err() {
+            return status_result;  // Return the error if the status is not OK
+        }
+        Ok(())
+    }
+
     /// Retrieves the balance and unlocked balance for the given account index.
     ///
     /// # Example
@@ -402,7 +445,11 @@ impl Wallet {
     pub fn get_balance(&self, account_index: u32) -> WalletResult<GetBalance> {
         unsafe {
             let balance = bindings::MONERO_Wallet_balance(self.ptr.as_ptr(), account_index);
+
+            self.throw_if_error()?;
             let unlocked_balance = bindings::MONERO_Wallet_unlockedBalance(self.ptr.as_ptr(), account_index);
+
+            self.throw_if_error()?;
             Ok(GetBalance { balance, unlocked_balance })
         }
     }
@@ -417,7 +464,7 @@ pub struct GetBalance {
 impl Drop for Wallet {
     fn drop(&mut self) {
         unsafe {
-            bindings::MONERO_WalletManager_closeWallet(
+            let _result = bindings::MONERO_WalletManager_closeWallet(
                 self.manager.ptr.as_ptr(),
                 self.ptr.as_ptr(),
                 false, // Don't save the wallet by default.
