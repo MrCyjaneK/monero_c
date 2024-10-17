@@ -58,6 +58,49 @@ impl WalletManager {
         }
     }
 
+    /// Check the status of a wallet to ensure it's in a valid state.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use monero_c_rust::{WalletManager, NetworkType};
+    /// use tempfile::TempDir;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_str = wallet_path.to_str().unwrap();
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    /// let wallet_result = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
+    /// assert!(wallet_result.is_ok(), "Failed to create wallet: {:?}", wallet_result.err());
+    /// let wallet = wallet_result.unwrap();
+    ///
+    /// // Check the status of the wallet, expecting OK
+    /// let status_result = manager.get_status(wallet.ptr.as_ptr());
+    /// assert!(status_result.is_ok(), "Failed to get status: {:?}", status_result.err());
+    /// assert_eq!(status_result.unwrap(), (), "Expected status to be OK");
+    ///
+    /// // Clean up wallet files.
+    /// std::fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    /// std::fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+    /// ```
+    pub fn get_status(&self, wallet_ptr: *mut c_void) -> WalletResult<()> {
+        unsafe {
+            let status = bindings::MONERO_Wallet_status(wallet_ptr);
+            if status == bindings::WalletStatus_Ok {
+                Ok(())
+            } else {
+                let error_ptr = bindings::MONERO_Wallet_errorString(wallet_ptr);
+                let error_msg = if error_ptr.is_null() {
+                    "Unknown error".to_string()
+                } else {
+                    CStr::from_ptr(error_ptr).to_string_lossy().into_owned()
+                };
+                Err(WalletError::WalletErrorCode(status, error_msg))
+            }
+        }
+    }
+
     /// Creates a new wallet.
     ///
     /// # Example
@@ -99,15 +142,17 @@ impl WalletManager {
                 network_type.to_c_int(),
             );
 
-            NonNull::new(wallet_ptr)
-                .map(|ptr| Wallet { ptr, manager: Arc::clone(self) })
-                .ok_or(WalletError::NullPointer)
+            if wallet_ptr.is_null() {
+                return Err(WalletError::NullPointer);
+            }
+
+            Ok(Wallet { ptr: NonNull::new(wallet_ptr).unwrap(), manager: Arc::clone(self) })
         }
     }
 }
 
 pub struct Wallet {
-    ptr: NonNull<c_void>,
+    pub ptr: NonNull<c_void>,
     manager: Arc<WalletManager>,
 }
 
@@ -153,17 +198,15 @@ impl Wallet {
         unsafe {
             let seed_ptr = bindings::MONERO_Wallet_seed(self.ptr.as_ptr(), c_seed_offset.as_ptr());
             if seed_ptr.is_null() {
-                Err(self.get_last_error())
-            } else {
-                let seed = CStr::from_ptr(seed_ptr)
-                    .to_string_lossy()
-                    .into_owned();
-                if seed.is_empty() {
-                    Err(WalletError::FfiError("Received empty seed".to_string()))
-                } else {
-                    Ok(seed)
-                }
+                return Err(self.get_last_error());
             }
+
+            let seed = CStr::from_ptr(seed_ptr).to_string_lossy().into_owned();
+            if seed.is_empty() {
+                return Err(WalletError::FfiError("Received empty seed".to_string()));
+            }
+
+            Ok(seed)
         }
     }
 
@@ -467,4 +510,23 @@ fn test_wallet_error_display() {
         },
         _ => panic!("Expected WalletErrorCode variant"),
     }
+}
+
+#[test]
+fn test_wallet_status() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create a wallet to use for status checking
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Check the status of the wallet, expecting it to be OK
+    let status_result = manager.get_status(wallet.ptr.as_ptr());
+    assert!(status_result.is_ok(), "Failed to get status: {:?}", status_result.err());
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
 }

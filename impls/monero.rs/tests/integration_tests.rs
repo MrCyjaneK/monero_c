@@ -264,3 +264,21 @@ fn test_wallet_error_display() {
         _ => panic!("Expected WalletErrorCode variant"),
     }
 }
+
+#[test]
+fn test_wallet_status_integration() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    // Create a wallet.
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Check the status of the wallet.
+    let status = manager.get_status(wallet.ptr.as_ptr());
+    assert!(status.is_ok(), "Expected status OK, got error: {:?}", status.err());
+
+    // Clean up.
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
