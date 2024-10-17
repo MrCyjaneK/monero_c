@@ -85,6 +85,10 @@ impl WalletManager {
     /// std::fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
     /// ```
     pub fn get_status(&self, wallet_ptr: *mut c_void) -> WalletResult<()> {
+        if wallet_ptr.is_null() {
+            return Err(WalletError::NullPointer);  // Ensure NullPointer is returned for null wallet
+        }
+
         unsafe {
             let status = bindings::MONERO_Wallet_status(wallet_ptr);
             if status == bindings::WalletStatus_Ok {
