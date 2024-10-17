@@ -121,12 +121,22 @@ fn test_get_seed() {
     let wallet = manager
         .create_wallet(wallet_str, "password123", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
-    println!("Attempting to get seed...");
+
+    // Test getting seed without offset.
+    println!("Attempting to get seed without offset...");
     let start = Instant::now();
-    let result = wallet.get_seed("");
-    println!("get_seed took {:?}", start.elapsed());
+    let result = wallet.get_seed(None);
+    println!("get_seed without offset took {:?}", start.elapsed());
     assert!(result.is_ok(), "Failed to get seed: {:?}", result.err());
     assert!(!result.unwrap().is_empty(), "Seed is empty");
+
+    // Test getting seed with an offset.
+    println!("Attempting to get seed with offset...");
+    let start = Instant::now();
+    let result_with_offset = wallet.get_seed(Some("example_offset"));
+    println!("get_seed with offset took {:?}", start.elapsed());
+    assert!(result_with_offset.is_ok(), "Failed to get seed with offset: {:?}", result_with_offset.err());
+    assert!(!result_with_offset.unwrap().is_empty(), "Seed with offset is empty");
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }

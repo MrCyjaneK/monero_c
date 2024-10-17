@@ -129,17 +129,25 @@ impl Wallet {
     /// let wallet_result = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
     /// assert!(wallet_result.is_ok(), "Failed to create wallet: {:?}", wallet_result.err());
     /// let wallet = wallet_result.unwrap();
-    /// let seed = wallet.get_seed("");
+    ///
+    /// // Get seed with no offset
+    /// let seed = wallet.get_seed(None);
     /// assert!(seed.is_ok(), "Failed to get seed: {:?}", seed.err());
     /// let seed = seed.unwrap();
     /// assert!(!seed.is_empty(), "Seed should not be empty");
+    ///
+    /// // Get seed with an offset
+    /// let seed_with_offset = wallet.get_seed(Some("offset"));
+    /// assert!(seed_with_offset.is_ok(), "Failed to get seed with offset: {:?}", seed_with_offset.err());
+    /// let seed_with_offset = seed_with_offset.unwrap();
+    /// assert!(!seed_with_offset.is_empty(), "Seed with offset should not be empty");
     ///
     /// // Clean up wallet files.
     /// fs::remove_file(wallet_str).expect("Failed to delete test wallet");
     /// fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
     /// ```
-    pub fn get_seed(&self, seed_offset: &str) -> WalletResult<String> {
-        let c_seed_offset = CString::new(seed_offset)
+    pub fn get_seed(&self, seed_offset: Option<&str>) -> WalletResult<String> {
+        let c_seed_offset = CString::new(seed_offset.unwrap_or(""))
             .map_err(|_| WalletError::FfiError("Invalid seed_offset".to_string()))?;
 
         unsafe {
@@ -332,7 +340,9 @@ fn test_wallet_creation() {
 
     let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
     assert!(wallet.is_ok(), "Failed to create wallet");
+
     let wallet = wallet.unwrap();
+
     assert!(wallet.is_deterministic().is_ok(), "Wallet creation seems to have failed");
 
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -345,10 +355,20 @@ fn test_get_seed() {
     let wallet_path = temp_dir.path().join("wallet_name");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
-    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).expect("Failed to create wallet");
-    let result = wallet.get_seed("");
-    assert!(result.is_ok(), "Failed to get seed: {:?}", result.err());
-    assert!(!result.unwrap().is_empty(), "Seed is empty");
+    // Create a new wallet.
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Test getting seed with no offset (None).
+    let result = wallet.get_seed(None);
+    assert!(result.is_ok(), "Failed to get seed without offset: {:?}", result.err());
+    assert!(!result.unwrap().is_empty(), "Seed without offset is empty");
+
+    // Test getting seed with a specific offset (Some("offset")).
+    let result_with_offset = wallet.get_seed(Some("offset"));
+    assert!(result_with_offset.is_ok(), "Failed to get seed with offset: {:?}", result_with_offset.err());
+    assert!(!result_with_offset.unwrap().is_empty(), "Seed with offset is empty");
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
