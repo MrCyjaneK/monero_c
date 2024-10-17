@@ -1,4 +1,4 @@
-use monero_c_rust::{WalletManager, NetworkType, WalletError, WalletResult};
+use monero_c_rust::{WalletManager, NetworkType, WalletError, WalletResult, WalletStatus_Ok};
 use std::fs;
 use std::sync::Arc;
 use std::time::Instant;
@@ -304,6 +304,57 @@ fn test_open_wallet_integration() {
 
     // Clean up.
     teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_open_wallet_invalid_password() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create a wallet with a valid password.
+    let wallet = manager.create_wallet(wallet_str, "correct_password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Drop the wallet
+    drop(wallet);
+
+    // Attempt to open the wallet with an incorrect password.
+    let open_result = manager.open_wallet(wallet_str, "wrong_password", NetworkType::Mainnet);
+    assert!(open_result.is_err(), "Expected an error when opening wallet with incorrect password");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_open_wallet_invalid_path() {
+    let (manager, _temp_dir) = setup().expect("Failed to set up test environment");
+
+    // Try to open a wallet at a non-existent path.
+    let invalid_path = "/invalid/path/to/non_existent_wallet";
+    let open_result = manager.open_wallet(invalid_path, "password", NetworkType::Mainnet);
+
+    // Check if the result is an error.
+    match open_result {
+        Err(e) => {
+            // Inspect the error to check the specific status and error message.
+            if let WalletError::WalletErrorCode(status, error_message) = e {
+                assert_ne!(
+                    status, WalletStatus_Ok,
+                    "Expected a non-OK status code, got OK instead."
+                );
+                assert!(
+                    error_message.contains("file not found") || error_message.contains("openWallet"),
+                    "Unexpected error message: {}",
+                    error_message
+                );
+            } else {
+                panic!("Expected WalletErrorCode, got {:?}", e);
+            }
+        }
+        Ok(_) => panic!("Expected an error when opening a non-existent wallet, but it succeeded."),
+    }
 }
 
 #[test]
