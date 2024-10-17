@@ -282,3 +282,26 @@ fn test_wallet_status_integration() {
     // Clean up.
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
+
+#[test]
+fn test_open_wallet_integration() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    // Create a wallet.
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Drop the wallet to simulate closing it.
+    drop(wallet);
+
+    // Try opening the wallet.
+    let open_result = manager.open_wallet(wallet_str, "password", NetworkType::Mainnet);
+    assert!(open_result.is_ok(), "Failed to open wallet: {:?}", open_result.err());
+
+    // Clean up.
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}

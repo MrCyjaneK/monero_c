@@ -3,7 +3,10 @@ use std::os::raw::{c_int, c_void};
 use std::ptr::NonNull;
 use std::sync::Arc;
 
-mod bindings;
+pub mod bindings;
+pub use bindings::WalletStatus_Ok;
+pub use bindings::WalletStatus_Error;
+pub use bindings::WalletStatus_Critical;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NetworkType {
@@ -151,6 +154,65 @@ impl WalletManager {
             }
 
             Ok(Wallet { ptr: NonNull::new(wallet_ptr).unwrap(), manager: Arc::clone(self) })
+        }
+    }
+
+    /// Opens an existing wallet with the provided path, password, and network type.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use monero_c_rust::{WalletManager, NetworkType};
+    /// use tempfile::TempDir;
+    /// use std::fs;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_str = wallet_path.to_str().unwrap();
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    ///
+    /// // First, create a wallet to open later.
+    /// let wallet_result = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
+    /// assert!(wallet_result.is_ok(), "Failed to create wallet: {:?}", wallet_result.err());
+    /// let wallet = wallet_result.unwrap();
+    ///
+    /// // Close the wallet by dropping it.
+    /// drop(wallet);
+    ///
+    /// // Now try to open the existing wallet.
+    /// let open_result = manager.open_wallet(wallet_str, "password", NetworkType::Mainnet);
+    /// assert!(open_result.is_ok(), "Failed to open wallet: {:?}", open_result.err());
+    /// let opened_wallet = open_result.unwrap();
+    ///
+    /// // Clean up wallet files.
+    /// fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    /// fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+    /// ```
+    pub fn open_wallet(
+        self: &Arc<Self>,
+        path: &str,
+        password: &str,
+        network_type: NetworkType,
+    ) -> WalletResult<Wallet> {
+        let c_path = CString::new(path).map_err(|_| WalletError::FfiError("Invalid path".to_string()))?;
+        let c_password = CString::new(password).map_err(|_| WalletError::FfiError("Invalid password".to_string()))?;
+
+        unsafe {
+            let wallet_ptr = bindings::MONERO_WalletManager_openWallet(
+                self.ptr.as_ptr(),
+                c_path.as_ptr(),
+                c_password.as_ptr(),
+                network_type.to_c_int(),
+            );
+
+            if wallet_ptr.is_null() {
+                Err(self.get_status(wallet_ptr).unwrap_err())
+            } else {
+                // Ensuring that we properly close the wallet when it's no longer needed
+                let wallet = Wallet { ptr: NonNull::new(wallet_ptr).unwrap(), manager: Arc::clone(self) };
+                Ok(wallet)
+            }
         }
     }
 }
@@ -531,6 +593,27 @@ fn test_wallet_status() {
     // Check the status of the wallet, expecting it to be OK
     let status_result = manager.get_status(wallet.ptr.as_ptr());
     assert!(status_result.is_ok(), "Failed to get status: {:?}", status_result.err());
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_open_wallet() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create a wallet to be opened later
+    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Drop the wallet so it can be opened later
+    drop(wallet);
+
+    // Try to open the wallet
+    let open_result = manager.open_wallet(wallet_str, "password", NetworkType::Mainnet);
+    assert!(open_result.is_ok(), "Failed to open wallet: {:?}", open_result.err());
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
