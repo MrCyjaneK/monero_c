@@ -88,7 +88,7 @@ fn test_wallet_manager_creation() {
     let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
-    let wallet_result = manager.create_wallet(wallet_str, "password123", "English", NetworkType::Mainnet);
+    let wallet_result = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
     assert!(wallet_result.is_ok(), "WalletManager creation seems to have failed");
 
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -119,7 +119,7 @@ fn test_get_seed() {
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager
-        .create_wallet(wallet_str, "password123", "English", NetworkType::Mainnet)
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
 
     // Test getting seed without offset.
@@ -151,7 +151,7 @@ fn test_get_address() {
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager
-        .create_wallet(wallet_str, "password123", "English", NetworkType::Mainnet)
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
     println!("Attempting to get address...");
     let start = Instant::now();
@@ -173,7 +173,7 @@ fn test_is_deterministic() {
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager
-        .create_wallet(wallet_str, "password123", "English", NetworkType::Mainnet)
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
     println!("Checking if wallet is deterministic...");
     let start = Instant::now();
@@ -221,7 +221,7 @@ fn test_multiple_address_generation() {
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager
-        .create_wallet(wallet_str, "password123", "English", NetworkType::Mainnet)
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
 
     for i in 0..5 {
@@ -303,5 +303,39 @@ fn test_open_wallet_integration() {
     assert!(open_result.is_ok(), "Failed to open wallet: {:?}", open_result.err());
 
     // Clean up.
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_get_balance_integration() {
+    println!("Running test_get_balance_integration");
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    // Construct the full path for the wallet within temp_dir.
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create the wallet.
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Fetch the balance.
+    println!("Fetching wallet balance...");
+    let start = Instant::now();
+    let balance_result = wallet.get_balance(0); // Account index 0
+    println!("Fetching balance took {:?}", start.elapsed());
+
+    assert!(balance_result.is_ok(), "Failed to fetch balance: {:?}", balance_result.err());
+
+    let balance = balance_result.unwrap();
+    println!("Balance: {:?}", balance);
+
+    // Ensure the balance values make sense.
+    // assert!(balance.balance >= 0, "Balance should be non-negative");
+    // assert!(balance.unlocked_balance >= 0, "Unlocked balance should be non-negative");
+    // These assertions are meaningless with the constraints of the type.
+    // TODO: Test with scanning integration.
+
     teardown(&temp_dir).expect("Failed to clean up after test");
 }

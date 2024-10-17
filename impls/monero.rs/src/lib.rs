@@ -376,6 +376,42 @@ impl Wallet {
             WalletError::WalletErrorCode(status, error_msg)
         }
     }
+
+    /// Retrieves the balance and unlocked balance for the given account index.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use monero_c_rust::{WalletManager, NetworkType, WalletResult};
+    /// use tempfile::TempDir;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_str = wallet_path.to_str().unwrap();
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    /// let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).unwrap();
+    ///
+    /// let balance = wallet.get_balance(0);
+    /// assert!(balance.is_ok(), "Failed to get balance: {:?}", balance.err());
+    ///
+    /// // Clean up wallet files.
+    /// std::fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    /// std::fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+    /// ```
+    pub fn get_balance(&self, account_index: u32) -> WalletResult<GetBalance> {
+        unsafe {
+            let balance = bindings::MONERO_Wallet_balance(self.ptr.as_ptr(), account_index);
+            let unlocked_balance = bindings::MONERO_Wallet_unlockedBalance(self.ptr.as_ptr(), account_index);
+            Ok(GetBalance { balance, unlocked_balance })
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct GetBalance {
+    pub balance: u64,
+    pub unlocked_balance: u64,
 }
 
 impl Drop for Wallet {
@@ -614,6 +650,26 @@ fn test_open_wallet() {
     // Try to open the wallet
     let open_result = manager.open_wallet(wallet_str, "password", NetworkType::Mainnet);
     assert!(open_result.is_ok(), "Failed to open wallet: {:?}", open_result.err());
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_get_balance() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).unwrap();
+
+    let balance_result = wallet.get_balance(0);
+    assert!(balance_result.is_ok(), "Failed to get balance: {:?}", balance_result.err());
+
+    let _balance = balance_result.unwrap();
+    // assert!(_balance.balance >= 0, "Balance should be non-negative");
+    // assert!(_balance.unlocked_balance >= 0, "Unlocked balance should be non-negative");
+    // These assertions are meaningless with the constraints of the type.
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
