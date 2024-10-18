@@ -39,6 +39,19 @@ pub enum WalletError {
 
 pub type WalletResult<T> = Result<T, WalletError>;
 
+#[derive(Debug)]
+pub struct Account {
+    pub index: u32,
+    pub label: String,
+    pub balance: u64,
+    pub unlocked_balance: u64,
+}
+
+#[derive(Debug)]
+pub struct GetAccounts {
+    pub accounts: Vec<Account>,
+}
+
 pub struct WalletManager {
     ptr: NonNull<c_void>,
 }
@@ -468,10 +481,27 @@ impl Wallet {
     ///
     /// ```
     /// use monero_c_rust::{WalletManager, NetworkType};
+    /// use tempfile::TempDir;
+    /// use std::fs;
+    ///
+    /// // Set up the test environment.
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_str = wallet_path.to_str().unwrap();
+    ///
+    /// // Initialize the wallet manager and create a wallet.
     /// let manager = WalletManager::new().unwrap();
-    /// let wallet = manager.create_wallet("wallet_name", "password", "English", NetworkType::Mainnet).unwrap();
+    /// let wallet_result = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
+    /// assert!(wallet_result.is_ok(), "Failed to create wallet: {:?}", wallet_result.err());
+    /// let wallet = wallet_result.unwrap();
+    ///
+    /// // Create a new account with a label.
     /// let result = wallet.create_account("New Account");
-    /// assert!(result.is_ok());
+    /// assert!(result.is_ok(), "Failed to create account: {:?}", result.err());
+    ///
+    /// // Clean up wallet files.
+    /// fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    /// fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
     /// ```
     pub fn create_account(&self, label: &str) -> WalletResult<()> {
         let c_label = CString::new(label).map_err(|_| WalletError::FfiError("Invalid label".to_string()))?;
@@ -479,6 +509,78 @@ impl Wallet {
         unsafe {
             bindings::MONERO_Wallet_addSubaddressAccount(self.ptr.as_ptr(), c_label.as_ptr());
             self.throw_if_error()
+        }
+    }
+
+    /// Retrieves all accounts, optionally filtered by a tag.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use monero_c_rust::{WalletManager, NetworkType};
+    /// use tempfile::TempDir;
+    /// use std::fs;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_str = wallet_path.to_str().unwrap();
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    /// let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).expect("Failed to create wallet");
+    ///
+    /// // Initially, there should be one account (the primary account).
+    /// let initial_accounts = wallet.get_accounts("").expect("Failed to retrieve accounts");
+    /// assert_eq!(initial_accounts.accounts.len(), 1, "Initial account count mismatch");
+    /// assert_eq!(initial_accounts.accounts[0].label, "Primary account", "Expected primary account label");
+    ///
+    /// // Create additional accounts.
+    /// wallet.create_account("Account 1").expect("Failed to create account 1");
+    /// wallet.create_account("Account 2").expect("Failed to create account 2");
+    ///
+    /// // Retrieve all accounts again; we should have three now.
+    /// let all_accounts = wallet.get_accounts("").expect("Failed to retrieve all accounts");
+    /// assert_eq!(all_accounts.accounts.len(), 3, "Expected 3 accounts after creation");
+    ///
+    /// // Verify the labels of the accounts.
+    /// assert_eq!(all_accounts.accounts[0].label, "Primary account", "First account should be the primary account");
+    /// assert_eq!(all_accounts.accounts[1].label, "Account 1", "Second account should be 'Account 1'");
+    /// assert_eq!(all_accounts.accounts[2].label, "Account 2", "Third account should be 'Account 2'");
+    ///
+    /// // TODO show filtering accounts with a tag that doesn't match any account.
+    ///
+    /// // Clean up wallet files.
+    /// fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    /// fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+    /// ```
+    pub fn get_accounts(&self, tag: &str) -> WalletResult<GetAccounts> {
+        let c_tag = CString::new(tag).map_err(|_| WalletError::FfiError("Invalid tag".to_string()))?;
+
+        unsafe {
+            let accounts_size = bindings::MONERO_Wallet_numSubaddressAccounts(self.ptr.as_ptr());
+            self.throw_if_error()?;
+
+            let mut accounts = Vec::new();
+
+            for i in 0..accounts_size as u32 {
+                let label_ptr = bindings::MONERO_Wallet_getSubaddressLabel(self.ptr.as_ptr(), i, 0);
+                let label = if label_ptr.is_null() {
+                    "Unnamed".to_string()
+                } else {
+                    CStr::from_ptr(label_ptr).to_string_lossy().into_owned()
+                };
+
+                let balance = bindings::MONERO_Wallet_balance(self.ptr.as_ptr(), i);
+                let unlocked_balance = bindings::MONERO_Wallet_unlockedBalance(self.ptr.as_ptr(), i);
+
+                accounts.push(Account {
+                    index: i,
+                    label,
+                    balance,
+                    unlocked_balance,
+                });
+            }
+
+            Ok(GetAccounts { accounts })
         }
     }
 }
@@ -764,6 +866,31 @@ fn test_create_account() {
     // Create a new account.
     let result = wallet.create_account("Test Account");
     assert!(result.is_ok(), "Failed to create account: {:?}", result.err());
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_get_accounts() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).expect("Failed to create wallet");
+
+    // Add two accounts for testing
+    wallet.create_account("Test Account 1").expect("Failed to create account 1");
+    wallet.create_account("Test Account 2").expect("Failed to create account 2");
+
+    // Retrieve all accounts
+    let accounts = wallet.get_accounts("").expect("Failed to retrieve accounts");
+    assert_eq!(accounts.accounts.len(), 3); // Including the primary account
+
+    // Check account names
+    assert_eq!(accounts.accounts[0].label, "Primary account");
+    assert_eq!(accounts.accounts[1].label, "Test Account 1");
+    assert_eq!(accounts.accounts[2].label, "Test Account 2");
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }

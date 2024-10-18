@@ -415,3 +415,27 @@ fn test_create_account_integration() {
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
+
+#[test]
+fn test_get_accounts_integration() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Add multiple accounts.
+    wallet.create_account("Integration Account 1").expect("Failed to create account");
+    wallet.create_account("Integration Account 2").expect("Failed to create account");
+
+    // Fetch accounts.
+    let accounts_result = wallet.get_accounts("");
+    assert!(accounts_result.is_ok(), "Failed to fetch accounts: {:?}", accounts_result.err());
+    let accounts = accounts_result.unwrap().accounts;
+    assert_eq!(accounts.len(), 3, "Expected 3 accounts");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
