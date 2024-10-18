@@ -453,6 +453,34 @@ impl Wallet {
             Ok(GetBalance { balance, unlocked_balance })
         }
     }
+
+    /// Creates a new subaddress account with the given label.
+    ///
+    /// # Arguments
+    ///
+    /// * `label` - A string representing the label for the new subaddress account.
+    ///
+    /// # Returns
+    ///
+    /// * `WalletResult<()>` - `Ok(())` if the account was successfully created, or a `WalletError` if an error occurred.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use monero_c_rust::{WalletManager, NetworkType};
+    /// let manager = WalletManager::new().unwrap();
+    /// let wallet = manager.create_wallet("wallet_name", "password", "English", NetworkType::Mainnet).unwrap();
+    /// let result = wallet.create_account("New Account");
+    /// assert!(result.is_ok());
+    /// ```
+    pub fn create_account(&self, label: &str) -> WalletResult<()> {
+        let c_label = CString::new(label).map_err(|_| WalletError::FfiError("Invalid label".to_string()))?;
+
+        unsafe {
+            bindings::MONERO_Wallet_addSubaddressAccount(self.ptr.as_ptr(), c_label.as_ptr());
+            self.throw_if_error()
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -717,6 +745,25 @@ fn test_get_balance() {
     // assert!(_balance.balance >= 0, "Balance should be non-negative");
     // assert!(_balance.unlocked_balance >= 0, "Unlocked balance should be non-negative");
     // These assertions are meaningless with the constraints of the type.
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_create_account() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create a wallet.
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Create a new account.
+    let result = wallet.create_account("Test Account");
+    assert!(result.is_ok(), "Failed to create account: {:?}", result.err());
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }

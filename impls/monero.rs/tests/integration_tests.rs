@@ -390,3 +390,28 @@ fn test_get_balance_integration() {
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
+
+#[test]
+fn test_create_account_integration() {
+    println!("Running test_create_account_integration");
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    // Construct the full path for the wallet within temp_dir.
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create the wallet.
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Create a new account with a label.
+    println!("Creating a new account...");
+    let start = Instant::now();
+    let result = wallet.create_account("Test Account Integration");
+    println!("create_account took {:?}", start.elapsed());
+
+    assert!(result.is_ok(), "Failed to create account: {:?}", result.err());
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
