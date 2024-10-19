@@ -474,3 +474,37 @@ fn test_close_wallet_integration() {
     // Clean up.
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
+
+#[test]
+fn test_get_height_integration() {
+    println!("Running test_get_height_integration");
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    // Construct the full path for the wallet within temp_dir.
+    let wallet_path = temp_dir.path().join("test_wallet_height");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create the wallet.
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Fetch the blockchain height.
+    println!("Fetching blockchain height...");
+    let start = Instant::now();
+    let height_result = manager.get_height();
+    let duration = start.elapsed();
+    println!("Blockchain height retrieval took {:?}", duration);
+
+    assert!(
+        height_result.is_ok(),
+        "Failed to fetch blockchain height: {:?}",
+        height_result.err()
+    );
+
+    let height = height_result.unwrap();
+    println!("Current blockchain height: {}", height);
+    assert!(height == 0, "Blockchain height should be equal to 0.");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}

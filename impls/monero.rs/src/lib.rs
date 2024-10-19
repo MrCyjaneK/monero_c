@@ -62,6 +62,8 @@ pub struct WalletManager {
     ptr: NonNull<c_void>,
 }
 
+pub type BlockHeight = u64;
+
 impl WalletManager {
     /// Creates a new `WalletManager` using the statically linked `MONERO_WalletManagerFactory_getWalletManager`.
     ///
@@ -266,6 +268,29 @@ impl WalletManager {
             }
         }
     }
+
+    /// Retrieves the current blockchain height.
+    ///
+    /// This method communicates with the connected daemon to obtain the latest
+    /// blockchain height. It returns a `BlockHeight` on success or a `WalletError` on failure.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use monero_c_rust::{WalletManager, NetworkType};
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    /// let height = manager.get_height().unwrap();
+    /// println!("Current blockchain height: {}", height);
+    /// ```
+    pub fn get_height(&self) -> WalletResult<BlockHeight> {
+        unsafe {
+            let height = bindings::MONERO_WalletManager_blockchainHeight(self.ptr.as_ptr());
+            // Assuming the FFI call does not set an error, directly return the height.
+            // If error handling is required, additional checks should be implemented here.
+            Ok(height)
+        }
+    }
 }
 
 impl Wallet {
@@ -455,9 +480,9 @@ impl Wallet {
     /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// let manager = WalletManager::new().unwrap();
-    /// let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).unwrap();
+    /// let _wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).unwrap();
     ///
-    /// let balance = wallet.get_balance(0);
+    /// let balance = _wallet.get_balance(0);
     /// assert!(balance.is_ok(), "Failed to get balance: {:?}", balance.err());
     ///
     /// // Clean up wallet files.
@@ -968,4 +993,18 @@ fn test_close_wallet() {
     assert!(close_again_result.is_ok(), "Failed to close wallet a second time: {:?}", close_again_result.err());
 
     teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_height_success() {
+        let manager = WalletManager::new().unwrap();
+        let height = manager.get_height().unwrap();
+        // assert!(height > 0, "Blockchain height should be greater than 0");
+        // The test should not assume network connectivity/any syncing progress, so:
+        assert!(height == 0, "Blockchain height should be equal to 0");
+    }
 }
