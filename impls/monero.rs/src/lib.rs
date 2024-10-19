@@ -90,6 +90,9 @@ impl Default for WalletConfig {
 
 pub type BlockHeight = u64;
 
+#[derive(Debug)]
+pub struct Refreshed;
+
 impl WalletManager {
     /// Creates a new `WalletManager` using the statically linked `MONERO_WalletManagerFactory_getWalletManager`.
     ///
@@ -758,6 +761,75 @@ impl Wallet {
             }
         }
     }
+
+    /// Refreshes the wallet's state by synchronizing it with the blockchain.
+    ///
+    /// This method communicates with the connected daemon to update the wallet's
+    /// balance, transaction history, and other relevant data. It ensures that the
+    /// wallet remains up-to-date with the latest blockchain state.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use monero_c_rust::{WalletManager, NetworkType, WalletConfig};
+    /// use std::fs;
+    /// use tempfile::TempDir;
+    ///
+    /// fn main() {
+    ///     // Create a temporary directory for testing purposes.
+    ///     let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    ///     let wallet_path = temp_dir.path().join("test_wallet");
+    ///     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    ///
+    ///     // Initialize the WalletManager.
+    ///     let manager = WalletManager::new().expect("Failed to create WalletManager");
+    ///
+    ///     // Create a new wallet.
+    ///     let wallet = manager
+    ///         .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+    ///         .expect("Failed to create wallet");
+    ///
+    ///     // Define the wallet initialization configuration.
+    ///     let config = WalletConfig {
+    ///         daemon_address: "http://localhost:18081".to_string(),
+    ///         upper_transaction_size_limit: 10000,
+    ///         daemon_username: "user".to_string(),
+    ///         daemon_password: "pass".to_string(),
+    ///         use_ssl: false,
+    ///         light_wallet: false,
+    ///         proxy_address: "".to_string(),
+    ///     };
+    ///
+    ///     // Initialize the wallet with the specified configuration.
+    ///     let init_result = wallet.init(config);
+    ///     assert!(init_result.is_ok(), "Failed to initialize wallet: {:?}", init_result.err());
+    ///
+    ///     // Perform a refresh operation after initialization.
+    ///     let refresh_result = wallet.refresh();
+    ///     assert!(refresh_result.is_ok(), "Failed to refresh wallet: {:?}", refresh_result.err());
+    ///
+    ///     // Optionally, you can verify the refresh by checking the blockchain height or other metrics.
+    ///     // For example:
+    ///     let height = manager.get_height().expect("Failed to get blockchain height");
+    ///     println!("Current blockchain height: {}", height);
+    ///
+    ///     // Clean up wallet files.
+    ///     fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    ///     fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+    /// }
+    /// ```
+    pub fn refresh(&self) -> WalletResult<Refreshed> {
+        unsafe {
+            let result = bindings::MONERO_Wallet_refresh(self.ptr.as_ptr());
+
+            if result {
+                Ok(Refreshed)
+            } else {
+                // Retrieve the last error from the wallet
+                Err(self.get_last_error())
+            }
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -1135,3 +1207,46 @@ fn test_init_success() {
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
 
+#[test]
+fn test_refresh_success() {
+    println!("Running test_refresh_success");
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    // Construct the full path for the wallet within temp_dir.
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create the wallet.
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+    println!("Wallet created successfully.");
+
+    // Define initialization configuration.
+    let config = WalletConfig {
+        daemon_address: "http://localhost:18081".to_string(),
+        upper_transaction_size_limit: 10000,
+        daemon_username: "user".to_string(),
+        daemon_password: "pass".to_string(),
+        use_ssl: false,
+        light_wallet: false,
+        proxy_address: "".to_string(),
+    };
+
+    // Perform the initialization.
+    println!("Initializing the wallet...");
+    let init_result = wallet.init(config);
+
+    assert!(init_result.is_ok(), "Failed to initialize wallet: {:?}", init_result.err());
+
+    // Perform a refresh operation after initialization.
+    println!("Refreshing the wallet...");
+    let refresh_result = wallet.refresh();
+    assert!(refresh_result.is_ok(), "Failed to refresh wallet: {:?}", refresh_result.err());
+
+    // Clean up wallet files.
+    fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}

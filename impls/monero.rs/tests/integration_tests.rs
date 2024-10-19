@@ -560,3 +560,49 @@ fn test_refresh_integration_success() {
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
 
+#[test]
+fn test_init_integration_success() {
+    println!("Running test_init_integration_success");
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    // Construct the full path for the wallet within temp_dir.
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create the wallet.
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+    println!("Wallet created successfully.");
+
+    // Define initialization configuration.
+    let config = WalletConfig {
+        daemon_address: "http://localhost:18081".to_string(),
+        upper_transaction_size_limit: 10000,
+        daemon_username: "user".to_string(),
+        daemon_password: "pass".to_string(),
+        use_ssl: false,
+        light_wallet: false,
+        proxy_address: "".to_string(),
+    };
+
+    // Perform the initialization.
+    println!("Initializing the wallet...");
+    let start = Instant::now();
+    let init_result = wallet.init(config);
+    let duration = start.elapsed();
+    println!("Initialization took {:?}", duration);
+
+    assert!(init_result.is_ok(), "Failed to initialize wallet: {:?}", init_result.err());
+
+    // Perform a refresh operation after initialization.
+    println!("Refreshing the wallet...");
+    let refresh_result = wallet.refresh();
+    assert!(refresh_result.is_ok(), "Failed to refresh wallet after initialization: {:?}", refresh_result.err());
+
+    // Clean up wallet files.
+    fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
