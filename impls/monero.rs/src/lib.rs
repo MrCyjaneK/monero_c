@@ -256,6 +256,98 @@ impl WalletManager {
         }
     }
 
+    /// Generates a wallet from provided keys.
+    ///
+    /// # Arguments
+    ///
+    /// * `filename` - The filename for the new wallet.
+    /// * `address` - The public address associated with the wallet.
+    /// * `spendkey` - The private spend key.
+    /// * `viewkey` - The private view key.
+    /// * `restore_height` - The blockchain height from which to start scanning.
+    /// * `password` - The password to secure the wallet.
+    /// * `language` - The language for the wallet's mnemonic seed.
+    /// * `network_type` - The network type (`Mainnet`, `Testnet`, or `Stagenet`).
+    /// * `autosave_current` - Whether to autosave the current wallet state.
+    /// * `kdf_rounds` - Number of KDF (Key Derivation Function) rounds. Typically set to 1.
+    ///
+    /// # Returns
+    ///
+    /// * `WalletResult<Wallet>` - Returns a `Wallet` instance on success, or a `WalletError` on failure.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use monero_c_rust::{WalletManager, NetworkType};
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    /// let result = manager.generate_from_keys(
+    ///     "new_wallet".to_string(),
+    ///     "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi".to_string(), // Replace with a valid address
+    ///     "29adefc8f67515b4b4bf48031780ab9d071d24f8a674b879ce7f245c37523807".to_string(),
+    ///     "3bc0b202cde92fe5719c3cc0a16aa94f88a5d19f8c515d4e35fae361f6f2120e".to_string(),
+    ///     0,
+    ///     "password".to_string(),
+    ///     "English".to_string(),
+    ///     NetworkType::Mainnet,
+    ///     true,
+    ///     1, // Default KDF rounds
+    /// );
+    /// assert!(result.is_ok(), "Failed to generate wallet from keys: {:?}", result.err());
+    /// ```
+    pub fn generate_from_keys(
+        self: &Arc<Self>,
+        filename: String,
+        address: String,
+        spendkey: String,
+        viewkey: String,
+        restore_height: u64,
+        password: String,
+        language: String,
+        network_type: NetworkType,
+        kdf_rounds: u64,
+    ) -> WalletResult<Wallet> {
+        let c_filename = CString::new(filename)
+            .map_err(|_| WalletError::FfiError("Invalid filename".to_string()))?;
+        let c_password = CString::new(password)
+            .map_err(|_| WalletError::FfiError("Invalid password".to_string()))?;
+        let c_language = CString::new(language)
+            .map_err(|_| WalletError::FfiError("Invalid language".to_string()))?;
+        let c_address = CString::new(address)
+            .map_err(|_| WalletError::FfiError("Invalid address".to_string()))?;
+        let c_spendkey = CString::new(spendkey)
+            .map_err(|_| WalletError::FfiError("Invalid spendkey".to_string()))?;
+        let c_viewkey = CString::new(viewkey)
+            .map_err(|_| WalletError::FfiError("Invalid viewkey".to_string()))?;
+
+        unsafe {
+            let wallet_ptr = bindings::MONERO_WalletManager_createWalletFromKeys(
+                self.ptr.as_ptr(),
+                c_filename.as_ptr(),
+                c_password.as_ptr(),
+                c_language.as_ptr(),
+                network_type.to_c_int(),
+                restore_height,
+                c_address.as_ptr(),
+                c_viewkey.as_ptr(),
+                c_spendkey.as_ptr(),
+                kdf_rounds,
+            );
+
+            if wallet_ptr.is_null() {
+                return Err(WalletError::NullPointer);
+            }
+
+            self.throw_if_error(wallet_ptr)?;
+
+            Ok(Wallet {
+                ptr: NonNull::new(wallet_ptr).unwrap(),
+                manager: Arc::clone(self),
+                is_closed: false,
+            })
+        }
+    }
+
     /// Opens an existing wallet with the provided path, password, and network type.
     ///
     /// # Example
@@ -1199,6 +1291,44 @@ fn test_wallet_creation_with_different_networks() {
         assert!(wallet.is_ok(), "Failed to create wallet: {}", name);
     }
 
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_generate_from_keys_unit() {
+    println!("Running unit test: test_generate_from_keys_unit");
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("generated_wallet_unit");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Test parameters.
+    //
+    // TODO add functions to get spend and view keys.
+    let address = "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi";
+    let spendkey = "29adefc8f67515b4b4bf48031780ab9d071d24f8a674b879ce7f245c37523807";
+    let viewkey = "3bc0b202cde92fe5719c3cc0a16aa94f88a5d19f8c515d4e35fae361f6f2120e";
+    let restore_height = 0;
+    let password = "password";
+    let language = "English";
+    let network_type = NetworkType::Mainnet;
+    let kdf_rounds = 1;
+
+    let result = manager.generate_from_keys(
+        wallet_str.to_string(),
+        address.to_string(),
+        spendkey.to_string(),
+        viewkey.to_string(),
+        restore_height,
+        password.to_string(),
+        language.to_string(),
+        network_type,
+        kdf_rounds,
+    );
+
+    assert!(result.is_ok(), "Failed to generate wallet from keys: {:?}", result.err());
+
+    // Clean up wallet files.
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
 

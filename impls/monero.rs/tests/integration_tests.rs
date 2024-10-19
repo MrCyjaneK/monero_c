@@ -110,6 +110,41 @@ fn test_wallet_creation() {
 }
 
 #[test]
+fn test_generate_from_keys_integration() {
+    println!("Running test_generate_from_keys_integration");
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet = manager.generate_from_keys(
+        "test_wallet".to_string(),
+        "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi".to_string(),
+        "29adefc8f67515b4b4bf48031780ab9d071d24f8a674b879ce7f245c37523807".to_string(),
+        "3bc0b202cde92fe5719c3cc0a16aa94f88a5d19f8c515d4e35fae361f6f2120e".to_string(),
+        0,
+        "password".to_string(),
+        "English".to_string(),
+        NetworkType::Mainnet,
+        1, // KDF rounds.
+    );
+
+    assert!(wallet.is_ok(), "Failed to generate wallet from keys: {:?}", wallet.err());
+
+    // Verify that the wallet was generated correctly.
+    let wallet = wallet.expect("Failed to create wallet");
+    let address_result = wallet.get_address(0, 0);
+    assert!(address_result.is_ok(), "Failed to get address: {:?}", address_result.err());
+
+    // Get the seed.  It should be "hemlock jubilee...".
+    let seed_result = wallet.get_seed(None);
+    assert!(seed_result.is_ok(), "Failed to get seed: {:?}",
+            seed_result.err());
+    let seed = seed_result.unwrap();
+    assert_eq!(seed, "hemlock jubilee eden hacksaw boil superior inroads epoxy exhale orders cavernous second brunt saved richly lower upgrade hitched launching deepest mostly playful layout lower eden");
+
+    // Clean up wallet files.
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
 fn test_get_seed() {
     println!("Running test_get_seed");
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
