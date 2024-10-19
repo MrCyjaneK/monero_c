@@ -54,12 +54,38 @@ pub struct GetAccounts {
 
 pub struct Wallet {
     pub ptr: NonNull<c_void>,
-    manager: Arc<WalletManager>,
-    is_closed: bool, // New field to track if the wallet is closed
+    pub manager: Arc<WalletManager>,
+    pub is_closed: bool, // New field to track if the wallet is closed
 }
 
 pub struct WalletManager {
     ptr: NonNull<c_void>,
+}
+
+/// Configuration parameters for initializing a wallet.
+#[derive(Debug, Clone)]
+pub struct WalletConfig {
+    pub daemon_address: String,
+    pub upper_transaction_size_limit: u64,
+    pub daemon_username: String,
+    pub daemon_password: String,
+    pub use_ssl: bool,
+    pub light_wallet: bool,
+    pub proxy_address: String,
+}
+
+impl Default for WalletConfig {
+    fn default() -> Self {
+        WalletConfig {
+            daemon_address: "localhost:18081".to_string(),
+            upper_transaction_size_limit: 10000, // TODO set sane value.
+            daemon_username: "".to_string(),
+            daemon_password: "".to_string(),
+            use_ssl: false,
+            light_wallet: false,
+            proxy_address: "".to_string(),
+        }
+    }
 }
 
 pub type BlockHeight = u64;
@@ -91,7 +117,7 @@ impl WalletManager {
     /// use tempfile::TempDir;
     ///
     /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
-    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
     /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// let manager = WalletManager::new().unwrap();
@@ -161,15 +187,15 @@ impl WalletManager {
     /// use std::path::Path;
     ///
     /// let manager = WalletManager::new().unwrap();
-    /// let wallet = manager.create_wallet("wallet_name", "password", "English", NetworkType::Mainnet);
+    /// let wallet = manager.create_wallet("test_wallet", "password", "English", NetworkType::Mainnet);
     /// assert!(wallet.is_ok());
     ///
     /// // Cleanup: remove the wallet file and its corresponding keys file, if they exist.
-    /// if Path::new("wallet_name").exists() {
-    ///     fs::remove_file("wallet_name").expect("Failed to delete test wallet");
+    /// if Path::new("test_wallet").exists() {
+    ///     fs::remove_file("test_wallet").expect("Failed to delete test wallet");
     /// }
-    /// if Path::new("wallet_name.keys").exists() {
-    ///     fs::remove_file("wallet_name.keys").expect("Failed to delete test wallet keys");
+    /// if Path::new("test_wallet.keys").exists() {
+    ///     fs::remove_file("test_wallet.keys").expect("Failed to delete test wallet keys");
     /// }
     /// ```
     pub fn create_wallet(
@@ -215,7 +241,7 @@ impl WalletManager {
     /// use std::fs;
     ///
     /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
-    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
     /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// let manager = WalletManager::new().unwrap();
@@ -304,7 +330,7 @@ impl Wallet {
     /// use std::fs;
     ///
     /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
-    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
     /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// let manager = WalletManager::new().unwrap();
@@ -359,7 +385,7 @@ impl Wallet {
     /// use std::fs;
     ///
     /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
-    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
     /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// let manager = WalletManager::new().unwrap();
@@ -397,7 +423,7 @@ impl Wallet {
     /// use std::fs;
     ///
     /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
-    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
     /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// let manager = WalletManager::new().unwrap();
@@ -462,7 +488,7 @@ impl Wallet {
     pub fn throw_if_error(&self) -> WalletResult<()> {
         let status_result = self.manager.get_status(self.ptr.as_ptr());
         if status_result.is_err() {
-            return status_result;  // Return the error if the status is not OK
+            return status_result;  // Return the error if the status is not OK.
         }
         Ok(())
     }
@@ -476,7 +502,7 @@ impl Wallet {
     /// use tempfile::TempDir;
     ///
     /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
-    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
     /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// let manager = WalletManager::new().unwrap();
@@ -520,7 +546,7 @@ impl Wallet {
     ///
     /// // Set up the test environment.
     /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
-    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
     /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// // Initialize the wallet manager and create a wallet.
@@ -556,7 +582,7 @@ impl Wallet {
     /// use std::fs;
     ///
     /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
-    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
     /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// let manager = WalletManager::new().unwrap();
@@ -631,7 +657,7 @@ impl Wallet {
     /// use std::fs;
     ///
     /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
-    /// let wallet_path = temp_dir.path().join("wallet_name");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
     /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// let manager = WalletManager::new().unwrap();
@@ -665,6 +691,73 @@ impl Wallet {
             }
         }
     }
+
+    /// Initializes the wallet with the provided daemon settings.
+    ///
+    /// This method must be called after creating or opening a wallet to synchronize it
+    /// with the daemon and prepare it for operations like refreshing.
+    ///
+    /// # Arguments
+    ///
+    /// * `config` - An `WalletConfig` struct containing daemon settings.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use monero_c_rust::{WalletManager, NetworkType, WalletConfig};
+    /// use tempfile::TempDir;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
+    /// let wallet_str = wallet_path.to_str().unwrap();
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    /// let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+    ///     .expect("Failed to create wallet");
+    ///
+    /// let config = WalletConfig {
+    ///     daemon_address: "http://localhost:18081".to_string(),
+    ///     upper_transaction_size_limit: 10000,
+    ///     daemon_username: "user".to_string(),
+    ///     daemon_password: "pass".to_string(),
+    ///     use_ssl: false,
+    ///     light_wallet: false,
+    ///     proxy_address: "".to_string(),
+    /// };
+    ///
+    /// let init_result = wallet.init(config);
+    /// assert!(init_result.is_ok(), "Failed to initialize wallet: {:?}", init_result.err());
+    /// ```
+    pub fn init(&self, config: WalletConfig) -> WalletResult<()> {
+        let c_daemon_address = CString::new(config.daemon_address)
+            .map_err(|_| WalletError::FfiError("Invalid daemon address".to_string()))?;
+        let c_daemon_username = CString::new(config.daemon_username)
+            .map_err(|_| WalletError::FfiError("Invalid daemon username".to_string()))?;
+        let c_daemon_password = CString::new(config.daemon_password)
+            .map_err(|_| WalletError::FfiError("Invalid daemon password".to_string()))?;
+        let c_proxy_address = CString::new(config.proxy_address)
+            .map_err(|_| WalletError::FfiError("Invalid proxy address".to_string()))?;
+
+        unsafe {
+            let result = bindings::MONERO_Wallet_init(
+                self.ptr.as_ptr(),
+                c_daemon_address.as_ptr(),
+                config.upper_transaction_size_limit,
+                c_daemon_username.as_ptr(),
+                c_daemon_password.as_ptr(),
+                config.use_ssl,
+                config.light_wallet,
+                c_proxy_address.as_ptr(),
+            );
+
+            if result {
+                Ok(())
+            } else {
+                // Retrieve the last error from the wallet
+                Err(self.get_last_error())
+            }
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -688,7 +781,7 @@ use std::fs;
 
 #[cfg(test)]
 fn check_and_delete_existing_wallets(temp_dir: &TempDir) -> std::io::Result<()> {
-    let test_wallet_names = &["wallet_name", "mainnet_wallet", "testnet_wallet", "stagenet_wallet"];
+    let test_wallet_names = &["test_wallet", "mainnet_wallet", "testnet_wallet", "stagenet_wallet"];
 
     for name in test_wallet_names {
         let wallet_file = temp_dir.path().join(name);
@@ -722,7 +815,7 @@ fn teardown(temp_dir: &TempDir) -> std::io::Result<()> {
 fn test_wallet_manager_creation() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet_result = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
@@ -735,7 +828,7 @@ fn test_wallet_manager_creation() {
 fn test_wallet_creation() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
@@ -752,7 +845,7 @@ fn test_wallet_creation() {
 fn test_get_seed() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     // Create a new wallet.
@@ -777,7 +870,7 @@ fn test_get_seed() {
 fn test_get_address() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).expect("Failed to create wallet");
@@ -792,7 +885,7 @@ fn test_get_address() {
 fn test_is_deterministic() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).expect("Failed to create wallet");
@@ -828,7 +921,7 @@ fn test_wallet_creation_with_different_networks() {
 fn test_multiple_address_generation() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).expect("Failed to create wallet");
@@ -873,7 +966,7 @@ fn test_wallet_error_display() {
 fn test_wallet_status() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     // Create a wallet to use for status checking
@@ -892,7 +985,7 @@ fn test_wallet_status() {
 fn test_open_wallet() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     // Create a wallet to be opened later
@@ -913,7 +1006,7 @@ fn test_open_wallet() {
 fn test_get_balance() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).unwrap();
@@ -933,7 +1026,7 @@ fn test_get_balance() {
 fn test_create_account() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     // Create a wallet.
@@ -952,7 +1045,7 @@ fn test_create_account() {
 fn test_get_accounts() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).expect("Failed to create wallet");
@@ -977,7 +1070,7 @@ fn test_get_accounts() {
 fn test_close_wallet() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     // Create a wallet.
@@ -1008,3 +1101,37 @@ mod tests {
         assert!(height == 0, "Blockchain height should be equal to 0");
     }
 }
+
+#[test]
+fn test_init_success() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create a wallet.
+    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Define initialization configuration.
+    let config = WalletConfig {
+        daemon_address: "http://localhost:18081".to_string(),
+        upper_transaction_size_limit: 10000,
+        daemon_username: "user".to_string(),
+        daemon_password: "pass".to_string(),
+        use_ssl: false,
+        light_wallet: false,
+        proxy_address: "".to_string(),
+    };
+
+    // Initialize the wallet.
+    let init_result = wallet.init(config);
+    assert!(init_result.is_ok(), "Failed to initialize wallet: {:?}", init_result.err());
+
+    // Clean up wallet files.
+    fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
