@@ -561,8 +561,8 @@ fn test_refresh_integration_success() {
 
     // Define initialization configuration.
     let config = WalletConfig {
-        daemon_address: "http://localhost:18081".to_string(), // Ensure a daemon is running at this address
-        upper_transaction_size_limit: 10000,
+        daemon_address: "http://localhost:18081".to_string(),
+        upper_transaction_size_limit: 10000, // TODO: use sane value.
         daemon_username: "user".to_string(),
         daemon_password: "pass".to_string(),
         use_ssl: false,
