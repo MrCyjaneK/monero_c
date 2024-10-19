@@ -432,10 +432,45 @@ fn test_get_accounts_integration() {
     wallet.create_account("Integration Account 2").expect("Failed to create account");
 
     // Fetch accounts.
-    let accounts_result = wallet.get_accounts("");
+    let accounts_result = wallet.get_accounts();
     assert!(accounts_result.is_ok(), "Failed to fetch accounts: {:?}", accounts_result.err());
     let accounts = accounts_result.unwrap().accounts;
     assert_eq!(accounts.len(), 3, "Expected 3 accounts");
 
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_close_wallet_integration() {
+    println!("Running test_close_wallet_integration");
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    // Construct the full path for the wallet within temp_dir.
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create the wallet.
+    let mut wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Use the wallet for operations...
+    println!("Using the wallet for operations...");
+
+    // Close the wallet.
+    println!("Closing the wallet...");
+    let start = Instant::now();
+    let close_result = wallet.close_wallet();
+    println!("close_wallet took {:?}", start.elapsed());
+    assert!(close_result.is_ok(), "Failed to close wallet: {:?}", close_result.err());
+
+    // Attempt to close the wallet again.
+    println!("Attempting to close the wallet again...");
+    let start = Instant::now();
+    let close_again_result = wallet.close_wallet();
+    println!("Second close_wallet call took {:?}", start.elapsed());
+    assert!(close_again_result.is_ok(), "Failed to close wallet a second time: {:?}", close_again_result.err());
+
+    // Clean up.
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
