@@ -93,6 +93,28 @@ pub type BlockHeight = u64;
 #[derive(Debug)]
 pub struct Refreshed;
 
+/// Represents a destination address and the amount to send.
+#[derive(Debug, Clone)]
+pub struct Destination {
+    /// The recipient's address.
+    pub address: String,
+    /// The amount to send to the recipient (in atomic units).
+    pub amount: u64,
+}
+
+/// Represents the result of a transfer operation.
+#[derive(Debug)]
+pub struct Transfer {
+    /// The transaction ID of the transfer.
+    pub txid: String,
+    /// The transaction key, if requested.
+    pub tx_key: Option<String>,
+    /// The total amount sent in the transfer.
+    pub amount: u64,
+    /// The fee associated with the transfer.
+    pub fee: u64,
+}
+
 impl WalletManager {
     /// Creates a new `WalletManager` using the statically linked `MONERO_WalletManagerFactory_getWalletManager`.
     ///
@@ -828,6 +850,114 @@ impl Wallet {
                 // Retrieve the last error from the wallet
                 Err(self.get_last_error())
             }
+        }
+    }
+
+    /// Initiates a transfer from the wallet to the specified destinations.
+    ///
+    /// # Arguments
+    ///
+    /// * `account_index` - The index of the account to send funds from.
+    /// * `destinations` - A vector of `Destination` specifying where to send funds and how much.
+    /// * `get_tx_key` - A boolean indicating whether to retrieve the transaction key.
+    ///
+    /// # Returns
+    ///
+    /// * `WalletResult<Transfer>` - On success, returns a `Transfer` struct containing transaction details.
+    ///   On failure, returns a `WalletError`.
+    pub fn transfer(&self, account_index: u32, destinations: Vec<Destination>, get_tx_key: bool) -> WalletResult<Transfer> {
+        // Define separators
+        let separator = ";";
+        let separator_c = CString::new(separator).map_err(|_| WalletError::FfiError("Invalid separator".to_string()))?;
+
+        // Concatenate destination addresses and amounts.
+        let addresses: Vec<String> = destinations.iter().map(|d| d.address.clone()).collect();
+        let address_list = addresses.join(separator);
+        let c_address_list = CString::new(address_list).map_err(|_| WalletError::FfiError("Invalid address list".to_string()))?;
+
+        let amounts: Vec<String> = destinations.iter().map(|d| d.amount.to_string()).collect();
+        let amount_list = amounts.join(separator);
+        let c_amount_list = CString::new(amount_list).map_err(|_| WalletError::FfiError("Invalid amount list".to_string()))?;
+
+        // TODO: Payment IDs.
+        let payment_id = CString::new("").map_err(|_| WalletError::FfiError("Invalid payment_id".to_string()))?;
+        let mixin_count = 16;
+
+        // Pending transaction priority - default to 0 (Default)
+        let pending_tx_priority = bindings::Priority_Default;
+
+        // Subaddress account
+        let subaddr_account = account_index;
+
+        // TODO: Preferred inputs.
+        let c_preferred_inputs = CString::new("").map_err(|_| WalletError::FfiError("Invalid preferred inputs".to_string()))?;
+
+        // Separator for preferred inputs
+        let preferred_inputs_separator = CString::new("").map_err(|_| WalletError::FfiError("Invalid preferred inputs separator".to_string()))?;
+
+        unsafe {
+            // Create the transaction with multiple destinations.
+            let tx_ptr = bindings::MONERO_Wallet_createTransactionMultDest(
+                self.ptr.as_ptr(),
+                c_address_list.as_ptr(),
+                separator_c.as_ptr(),
+                payment_id.as_ptr(),
+                false, // amount_sweep_all.
+                c_amount_list.as_ptr(),
+                separator_c.as_ptr(),
+                mixin_count,
+                pending_tx_priority,
+                subaddr_account,
+                c_preferred_inputs.as_ptr(),
+                preferred_inputs_separator.as_ptr(),
+            );
+
+            // Check for errors.
+            let ptr_as_mut_c_void = self.manager.ptr.as_ptr() as *mut c_void;
+            self.manager.throw_if_error(ptr_as_mut_c_void)?;
+            if tx_ptr.is_null() {
+                return Err(WalletError::NullPointer);
+            }
+
+            // Get the transaction ID.
+            let txid_ptr = bindings::MONERO_PendingTransaction_txid(tx_ptr, separator_c.as_ptr());
+            if txid_ptr.is_null() {
+                return Err(WalletError::FfiError("Failed to get transaction ID".to_string()));
+            }
+            let txid = CStr::from_ptr(txid_ptr).to_string_lossy().into_owned();
+
+            // Get the fee.
+            let fee = bindings::MONERO_PendingTransaction_fee(tx_ptr);
+
+            // Optionally get the transaction key.
+            let tx_key = if get_tx_key {
+                let c_txid = CString::new(txid.clone()).map_err(|_| WalletError::FfiError("Invalid txid".to_string()))?;
+                let tx_key_ptr = bindings::MONERO_Wallet_getTxKey(self.ptr.as_ptr(), c_txid.as_ptr());
+                if tx_key_ptr.is_null() {
+                    None
+                } else {
+                    Some(CStr::from_ptr(tx_key_ptr).to_string_lossy().into_owned())
+                }
+            } else {
+                None
+            };
+
+            // Submit the transaction.
+            let tx_ptr_as_i8 = tx_ptr as *const i8;
+            let submit_result = bindings::MONERO_Wallet_submitTransaction(
+                self.ptr.as_ptr(),
+                tx_ptr_as_i8,
+            );
+            if !submit_result {
+                return Err(WalletError::FfiError("Failed to submit transaction".to_string()));
+            }
+
+            Ok(Transfer {
+                txid,
+                tx_key,
+                amount: destinations.iter().map(|d| d.amount).sum(),
+                fee,
+            })
         }
     }
 }
