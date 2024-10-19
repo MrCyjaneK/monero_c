@@ -865,7 +865,7 @@ impl Wallet {
     ///
     /// * `WalletResult<Transfer>` - On success, returns a `Transfer` struct containing transaction details.
     ///   On failure, returns a `WalletError`.
-    pub fn transfer(&self, account_index: u32, destinations: Vec<Destination>, get_tx_key: bool) -> WalletResult<Transfer> {
+    pub fn transfer(&self, account_index: u32, destinations: Vec<Destination>, get_tx_key: bool, sweep_all: bool) -> WalletResult<Transfer> {
         // Define separators
         let separator = ";";
         let separator_c = CString::new(separator).map_err(|_| WalletError::FfiError("Invalid separator".to_string()))?;
@@ -902,7 +902,7 @@ impl Wallet {
                 c_address_list.as_ptr(),
                 separator_c.as_ptr(),
                 payment_id.as_ptr(),
-                false, // amount_sweep_all.
+                sweep_all,
                 c_amount_list.as_ptr(),
                 separator_c.as_ptr(),
                 mixin_count,
@@ -943,6 +943,8 @@ impl Wallet {
             };
 
             // Submit the transaction.
+            //
+            // TODO: Make submission optional.
             let tx_ptr_as_i8 = tx_ptr as *const i8;
             let submit_result = bindings::MONERO_Wallet_submitTransaction(
                 self.ptr.as_ptr(),
@@ -956,6 +958,87 @@ impl Wallet {
                 txid,
                 tx_key,
                 amount: destinations.iter().map(|d| d.amount).sum(),
+                fee,
+            })
+        }
+    }
+
+    // TODO docs.
+    pub fn sweep_all(&self, account_index: u32, destination: Destination, get_tx_key: bool) -> WalletResult<Transfer> {
+        // Convert the destination address to a CString.
+        let c_address = CString::new(destination.address.clone()).map_err(|_| WalletError::FfiError("Invalid address".to_string()))?;
+
+        // Placeholder values for fields not needed in sweep_all.
+        let empty_separator = CString::new("").map_err(|_| WalletError::FfiError("Invalid separator".to_string()))?;
+        let payment_id = CString::new("").map_err(|_| WalletError::FfiError("Invalid payment_id".to_string()))?;
+        let mixin_count = 16;
+        let pending_tx_priority = bindings::Priority_Default;
+        let c_preferred_inputs = CString::new("").map_err(|_| WalletError::FfiError("Invalid preferred inputs".to_string()))?;
+        let preferred_inputs_separator = CString::new("").map_err(|_| WalletError::FfiError("Invalid preferred inputs separator".to_string()))?;
+
+        unsafe {
+            // Create the sweep transaction.
+            let tx_ptr = bindings::MONERO_Wallet_createTransactionMultDest(
+                self.ptr.as_ptr(),
+                c_address.as_ptr(),
+                empty_separator.as_ptr(),
+                payment_id.as_ptr(),
+                true, // Sweep all funds.
+                empty_separator.as_ptr(),
+                empty_separator.as_ptr(),
+                mixin_count,
+                pending_tx_priority,
+                account_index,
+                c_preferred_inputs.as_ptr(),
+                preferred_inputs_separator.as_ptr(),
+            );
+
+            // Check for errors.
+            let ptr_as_mut_c_void = self.manager.ptr.as_ptr() as *mut c_void;
+            self.manager.throw_if_error(ptr_as_mut_c_void)?;
+            if tx_ptr.is_null() {
+                return Err(WalletError::NullPointer);
+            }
+
+            // Get the transaction ID.
+            let txid_ptr = bindings::MONERO_PendingTransaction_txid(tx_ptr, empty_separator.as_ptr());
+            if txid_ptr.is_null() {
+                return Err(WalletError::FfiError("Failed to get transaction ID".to_string()));
+            }
+            let txid = CStr::from_ptr(txid_ptr).to_string_lossy().into_owned();
+
+            // Get the fee.
+            let fee = bindings::MONERO_PendingTransaction_fee(tx_ptr);
+
+            // Optionally get the transaction key.
+            let tx_key = if get_tx_key {
+                let c_txid = CString::new(txid.clone()).map_err(|_| WalletError::FfiError("Invalid txid".to_string()))?;
+                let tx_key_ptr = bindings::MONERO_Wallet_getTxKey(self.ptr.as_ptr(), c_txid.as_ptr());
+                if tx_key_ptr.is_null() {
+                    None
+                } else {
+                    Some(CStr::from_ptr(tx_key_ptr).to_string_lossy().into_owned())
+                }
+            } else {
+                None
+            };
+
+            // Submit the transaction.
+            //
+            // TODO: Make submission optional.
+            let tx_ptr_as_i8 = tx_ptr as *const i8;
+            let submit_result = bindings::MONERO_Wallet_submitTransaction(
+                self.ptr.as_ptr(),
+                tx_ptr_as_i8,
+            );
+            if !submit_result {
+                return Err(WalletError::FfiError("Failed to submit sweep transaction".to_string()));
+            }
+
+            Ok(Transfer {
+                txid,
+                tx_key,
+                amount: 0, // Since it's sweeping all, amount is not predefined.
                 fee,
             })
         }
