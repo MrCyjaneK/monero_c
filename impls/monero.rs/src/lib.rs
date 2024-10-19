@@ -210,18 +210,19 @@ impl WalletManager {
     /// use monero_c_rust::{WalletManager, NetworkType};
     /// use std::fs;
     /// use std::path::Path;
+    /// use tempfile::TempDir;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
+    /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// let manager = WalletManager::new().unwrap();
-    /// let wallet = manager.create_wallet("test_wallet", "password", "English", NetworkType::Mainnet);
+    /// let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
     /// assert!(wallet.is_ok());
     ///
-    /// // Cleanup: remove the wallet file and its corresponding keys file, if they exist.
-    /// if Path::new("test_wallet").exists() {
-    ///     fs::remove_file("test_wallet").expect("Failed to delete test wallet");
-    /// }
-    /// if Path::new("test_wallet.keys").exists() {
-    ///     fs::remove_file("test_wallet.keys").expect("Failed to delete test wallet keys");
-    /// }
+    /// // Clean up wallet files.
+    /// std::fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    /// std::fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
     /// ```
     pub fn create_wallet(
         self: &Arc<Self>,
@@ -279,10 +280,17 @@ impl WalletManager {
     ///
     /// ```rust
     /// use monero_c_rust::{WalletManager, NetworkType};
+    /// use std::fs;
+    /// use std::path::Path;
+    /// use tempfile::TempDir;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
+    /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// let manager = WalletManager::new().unwrap();
     /// let result = manager.generate_from_keys(
-    ///     "new_wallet".to_string(),
+    ///     wallet_str.to_string(),
     ///     "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi".to_string(), // Replace with a valid address
     ///     "29adefc8f67515b4b4bf48031780ab9d071d24f8a674b879ce7f245c37523807".to_string(),
     ///     "3bc0b202cde92fe5719c3cc0a16aa94f88a5d19f8c515d4e35fae361f6f2120e".to_string(),
@@ -290,10 +298,13 @@ impl WalletManager {
     ///     "password".to_string(),
     ///     "English".to_string(),
     ///     NetworkType::Mainnet,
-    ///     true,
     ///     1, // Default KDF rounds
     /// );
     /// assert!(result.is_ok(), "Failed to generate wallet from keys: {:?}", result.err());
+    ///
+    /// // Clean up wallet files.
+    /// std::fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    /// std::fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
     /// ```
     pub fn generate_from_keys(
         self: &Arc<Self>,
@@ -1135,6 +1146,46 @@ impl Wallet {
             })
         }
     }
+
+    /// Sets the seed language for the wallet.
+    ///
+    /// Changing the seed language can be useful for wallets that support multiple languages.
+    ///
+    /// # Arguments
+    ///
+    /// * `language` - The new language to set for the wallet's seed.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use monero_c_rust::{WalletManager, NetworkType};
+    /// use tempfile::TempDir;
+    /// use std::fs;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
+    /// let wallet_str = wallet_path.to_str().unwrap();
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    /// let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).unwrap();
+    ///
+    /// // Change the seed language to Spanish
+    /// let result = wallet.set_seed_language("Spanish");
+    /// assert!(result.is_ok(), "Failed to set seed language: {:?}", result.err());
+    ///
+    /// // Clean up wallet files.
+    /// fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    /// fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+    /// ```
+    pub fn set_seed_language(&self, language: &str) -> WalletResult<()> {
+        let c_language = CString::new(language)
+            .map_err(|_| WalletError::FfiError("Invalid language string".to_string()))?;
+
+        unsafe {
+            bindings::MONERO_Wallet_setSeedLanguage(self.ptr.as_ptr(), c_language.as_ptr());
+            self.throw_if_error()
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -1590,6 +1641,29 @@ fn test_refresh_success() {
     // Clean up wallet files.
     fs::remove_file(wallet_str).expect("Failed to delete test wallet");
     fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_set_seed_language() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("test_wallet_set_seed_language");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create a new wallet.
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+
+    // Set the seed language to Spanish.
+    let result = wallet.set_seed_language("Spanish");
+    assert!(result.is_ok(), "Failed to set seed language: {:?}", result.err());
+
+    // Optionally, retrieve the seed language to verify it was set correctly.
+    // This requires implementing a corresponding `get_seed_language` method.
+    // For now, we'll assume that if no error was returned, the operation was successful.
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }

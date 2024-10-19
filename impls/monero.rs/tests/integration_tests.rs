@@ -98,7 +98,7 @@ fn test_wallet_manager_creation() {
 fn test_wallet_creation() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
@@ -114,8 +114,11 @@ fn test_generate_from_keys_integration() {
     println!("Running test_generate_from_keys_integration");
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
     let wallet = manager.generate_from_keys(
-        "test_wallet".to_string(),
+        wallet_str.to_string(),
         "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi".to_string(),
         "29adefc8f67515b4b4bf48031780ab9d071d24f8a674b879ce7f245c37523807".to_string(),
         "3bc0b202cde92fe5719c3cc0a16aa94f88a5d19f8c515d4e35fae361f6f2120e".to_string(),
@@ -130,8 +133,20 @@ fn test_generate_from_keys_integration() {
 
     // Verify that the wallet was generated correctly.
     let wallet = wallet.expect("Failed to create wallet");
+
+    // This is required even though "English" was passed as the seed language above.
+    let set_language_result = wallet.set_seed_language("English");
+    assert!(
+        set_language_result.is_ok(),
+        "Failed to set seed language: {:?}",
+        set_language_result.err()
+    );
+
+    // The address should be "45wsWad9...".
     let address_result = wallet.get_address(0, 0);
     assert!(address_result.is_ok(), "Failed to get address: {:?}", address_result.err());
+    let address = address_result.unwrap();
+    assert_eq!(address, "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi");
 
     // Get the seed.  It should be "hemlock jubilee...".
     let seed_result = wallet.get_seed(None);
@@ -345,7 +360,7 @@ fn test_open_wallet_integration() {
 fn test_open_wallet_invalid_password() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
-    let wallet_path = temp_dir.path().join("wallet_name");
+    let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
 
     // Create a wallet with a valid password.
@@ -634,6 +649,44 @@ fn test_init_integration_success() {
     println!("Refreshing the wallet...");
     let refresh_result = wallet.refresh();
     assert!(refresh_result.is_ok(), "Failed to refresh wallet after initialization: {:?}", refresh_result.err());
+
+    // Clean up wallet files.
+    fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
+fn test_set_seed_language_integration() {
+    println!("Running test_set_seed_language_integration");
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    // Construct the full path for the wallet within temp_dir.
+    let wallet_path = temp_dir.path().join("set_seed_language_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    // Create the wallet.
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
+    println!("Wallet created successfully.");
+
+    // Set the seed language to French.
+    println!("Setting seed language to French...");
+    let start = Instant::now();
+    let set_language_result = wallet.set_seed_language("French");
+    let duration = start.elapsed();
+    println!("set_seed_language took {:?}", duration);
+
+    assert!(
+        set_language_result.is_ok(),
+        "Failed to set seed language: {:?}",
+        set_language_result.err()
+    );
+
+    // Optionally, verify the seed language by retrieving it.
+    // This requires implementing a corresponding `get_seed_language` method.
 
     // Clean up wallet files.
     fs::remove_file(wallet_str).expect("Failed to delete test wallet");
