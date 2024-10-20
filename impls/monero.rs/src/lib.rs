@@ -55,7 +55,7 @@ pub struct GetAccounts {
 pub struct Wallet {
     pub ptr: NonNull<c_void>,
     pub manager: Arc<WalletManager>,
-    pub is_closed: bool, // New field to track if the wallet is closed
+    pub is_closed: bool,
 }
 
 pub struct WalletManager {
@@ -78,7 +78,7 @@ impl Default for WalletConfig {
     fn default() -> Self {
         WalletConfig {
             daemon_address: "localhost:18081".to_string(),
-            upper_transaction_size_limit: 10000, // TODO set sane value.
+            upper_transaction_size_limit: 10000, // TODO: set sane value.
             daemon_username: "".to_string(),
             daemon_password: "".to_string(),
             use_ssl: false,
@@ -116,7 +116,7 @@ pub struct Transfer {
 }
 
 impl WalletManager {
-    /// Creates a new `WalletManager` using the statically linked `MONERO_WalletManagerFactory_getWalletManager`.
+    /// Creates a new `WalletManager`.
     ///
     /// # Example
     ///
@@ -181,6 +181,31 @@ impl WalletManager {
         }
     }
 
+    /// Check the status of a wallet and throw an error if an issue is found.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use monero_c_rust::{WalletManager, NetworkType};
+    /// use tempfile::TempDir;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
+    /// let wallet_str = wallet_path.to_str().unwrap();
+    ///
+    /// let manager = WalletManager::new().unwrap();
+    /// let wallet_result = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
+    /// assert!(wallet_result.is_ok(), "Failed to create wallet: {:?}", wallet_result.err());
+    /// let wallet = wallet_result.unwrap();
+    ///
+    /// // Check the status of the wallet, expecting OK
+    /// let status_result = manager.throw_if_error(wallet.ptr.as_ptr());
+    /// assert!(status_result.is_ok(), "Failed to get status: {:?}", status_result.err());
+    ///
+    /// // Clean up wallet files.
+    /// std::fs::remove_file(wallet_str).expect("Failed to delete test wallet");
+    /// std::fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+    /// ```
     pub fn throw_if_error(&self, wallet_ptr: *mut c_void) -> WalletResult<()> {
         if wallet_ptr.is_null() {
             return Err(WalletError::NullPointer);
@@ -202,7 +227,10 @@ impl WalletManager {
         }
     }
 
-    /// Creates a new wallet.
+    /// Create a new wallet.
+    ///
+    /// Generates a new wallet with the provided path, password, language, and network type, with a
+    /// new mnemonic seed generated in the specified language.
     ///
     /// # Example
     ///
@@ -258,23 +286,6 @@ impl WalletManager {
     }
 
     /// Generates a wallet from provided keys.
-    ///
-    /// # Arguments
-    ///
-    /// * `filename` - The filename for the new wallet.
-    /// * `address` - The public address associated with the wallet.
-    /// * `spendkey` - The private spend key.
-    /// * `viewkey` - The private view key.
-    /// * `restore_height` - The blockchain height from which to start scanning.
-    /// * `password` - The password to secure the wallet.
-    /// * `language` - The language for the wallet's mnemonic seed.
-    /// * `network_type` - The network type (`Mainnet`, `Testnet`, or `Stagenet`).
-    /// * `autosave_current` - Whether to autosave the current wallet state.
-    /// * `kdf_rounds` - Number of KDF (Key Derivation Function) rounds. Typically set to 1.
-    ///
-    /// # Returns
-    ///
-    /// * `WalletResult<Wallet>` - Returns a `Wallet` instance on success, or a `WalletError` on failure.
     ///
     /// # Example
     ///
@@ -657,14 +668,6 @@ impl Wallet {
 
     /// Creates a new subaddress account with the given label.
     ///
-    /// # Arguments
-    ///
-    /// * `label` - A string representing the label for the new subaddress account.
-    ///
-    /// # Returns
-    ///
-    /// * `WalletResult<()>` - `Ok(())` if the account was successfully created, or a `WalletError` if an error occurred.
-    ///
     /// # Example
     ///
     /// ```
@@ -772,11 +775,6 @@ impl Wallet {
     ///
     /// After calling this method, the `Wallet` instance should no longer be used.
     ///
-    /// # Returns
-    ///
-    /// * `WalletResult<()>` - Returns `Ok(())` if the wallet was successfully closed,
-    ///   or a `WalletError` if an error occurred during closing.
-    ///
     /// # Example
     ///
     /// ```rust
@@ -824,10 +822,6 @@ impl Wallet {
     ///
     /// This method must be called after creating or opening a wallet to synchronize it
     /// with the daemon and prepare it for operations like refreshing.
-    ///
-    /// # Arguments
-    ///
-    /// * `config` - An `WalletConfig` struct containing daemon settings.
     ///
     /// # Example
     ///
@@ -888,10 +882,6 @@ impl Wallet {
     }
 
     /// Refreshes the wallet's state by synchronizing it with the blockchain.
-    ///
-    /// This method communicates with the connected daemon to update the wallet's
-    /// balance, transaction history, and other relevant data. It ensures that the
-    /// wallet remains up-to-date with the latest blockchain state.
     ///
     /// # Example
     ///
@@ -957,12 +947,6 @@ impl Wallet {
     }
 
     /// Initiates a transfer from the wallet to the specified destinations.
-    ///
-    /// # Arguments
-    ///
-    /// * `account_index` - The index of the account to send funds from.
-    /// * `destinations` - A vector of `Destination` specifying where to send funds and how much.
-    /// * `get_tx_key` - A boolean indicating whether to retrieve the transaction key.
     ///
     /// # Returns
     ///
@@ -1066,7 +1050,9 @@ impl Wallet {
         }
     }
 
-    // TODO docs.
+    /// Sweep all funds from the specific account to the specified destination.
+    ///
+    /// TODO: Example / docs-tests.
     pub fn sweep_all(&self, account_index: u32, destination: Destination, get_tx_key: bool) -> WalletResult<Transfer> {
         // Convert the destination address to a CString.
         let c_address = CString::new(destination.address.clone()).map_err(|_| WalletError::FfiError("Invalid address".to_string()))?;
@@ -1148,12 +1134,6 @@ impl Wallet {
     }
 
     /// Sets the seed language for the wallet.
-    ///
-    /// Changing the seed language can be useful for wallets that support multiple languages.
-    ///
-    /// # Arguments
-    ///
-    /// * `language` - The new language to set for the wallet's seed.
     ///
     /// # Example
     ///
