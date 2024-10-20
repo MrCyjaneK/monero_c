@@ -1244,6 +1244,17 @@ extern "C" {
     ) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
+    pub fn MONERO_Wallet_checkTxKey(
+        wallet_ptr: *mut ::std::os::raw::c_void,
+        txid: *const ::std::os::raw::c_char,
+        tx_key: *const ::std::os::raw::c_char,
+        address: *const ::std::os::raw::c_char,
+        received: *mut u64,
+        in_pool: *mut bool,
+        confirmations: *mut u64,
+    ) -> bool;
+}
+extern "C" {
     pub fn MONERO_Wallet_signMessage(
         wallet_ptr: *mut ::std::os::raw::c_void,
         message: *const ::std::os::raw::c_char,

@@ -115,6 +115,21 @@ pub struct Transfer {
     pub fee: u64,
 }
 
+/// Represents the result of checking a transaction key against a transaction ID and address.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CheckTxKey {
+    /// Indicates whether the transaction key is valid.
+    pub valid: bool,
+    /// The amount received in the transaction, if valid.
+    pub received: Option<u64>,
+    /// Whether the transaction is in the pool, if valid.
+    pub in_pool: Option<bool>,
+    /// The number of confirmations, if valid.
+    pub confirmations: Option<u64>,
+    /// An optional error message providing details if the verification fails.
+    pub error: Option<String>,
+}
+
 impl WalletManager {
     /// Creates a new `WalletManager`.
     ///
@@ -1164,6 +1179,94 @@ impl Wallet {
         unsafe {
             bindings::MONERO_Wallet_setSeedLanguage(self.ptr.as_ptr(), c_language.as_ptr());
             self.throw_if_error()
+        }
+    }
+
+    /// Checks the validity of a transaction key for a given transaction ID and address.
+    ///
+    /// This method verifies whether the provided transaction key (`tx_key`) is valid for the
+    /// specified transaction ID (`txid`) and address (`address`). If valid, it returns the
+    /// amount received, whether the transaction is in the pool, and the number of confirmations.
+    ///
+    /// TODO: Example / docs-tests.
+    pub fn check_tx_key(&self, txid: String, tx_key: String, address: String) -> CheckTxKey {
+        // Convert Rust strings to C strings.
+        let c_txid = match CString::new(txid) {
+            Ok(cstr) => cstr,
+            Err(_) => return CheckTxKey {
+                valid: false,
+                received: None,
+                in_pool: None,
+                confirmations: None,
+                error: Some("Invalid txid string".to_string()),
+            },
+        };
+        let c_tx_key = match CString::new(tx_key) {
+            Ok(cstr) => cstr,
+            Err(_) => return CheckTxKey {
+                valid: false,
+                received: None,
+                in_pool: None,
+                confirmations: None,
+                error: Some("Invalid tx_key string".to_string()),
+            },
+        };
+        let c_address = match CString::new(address) {
+            Ok(cstr) => cstr,
+            Err(_) => return CheckTxKey {
+                valid: false,
+                received: None,
+                in_pool: None,
+                confirmations: None,
+                error: Some("Invalid address string".to_string()),
+            },
+        };
+
+        // Prepare output variables.
+        let mut received: u64 = 0;
+        let mut in_pool: bool = false;
+        let mut confirmations: u64 = 0;
+
+        // Call the C function.
+        let result = unsafe {
+            bindings::MONERO_Wallet_checkTxKey(
+                self.ptr.as_ptr(),
+                c_txid.as_ptr(),
+                c_tx_key.as_ptr(),
+                c_address.as_ptr(),
+                &mut received as *mut u64,
+                &mut in_pool as *mut bool,
+                &mut confirmations as *mut u64,
+            )
+        };
+
+        if result {
+            CheckTxKey {
+                valid: true,
+                received: Some(received),
+                in_pool: Some(in_pool),
+                confirmations: Some(confirmations),
+                error: None,
+            }
+        } else {
+            // Retrieve the last error.
+            let error = self.get_last_error();
+            match error {
+                WalletError::WalletErrorCode(_, msg) => CheckTxKey {
+                    valid: false,
+                    received: None,
+                    in_pool: None,
+                    confirmations: None,
+                    error: Some(msg),
+                },
+                _ => CheckTxKey {
+                    valid: false,
+                    received: None,
+                    in_pool: None,
+                    confirmations: None,
+                    error: Some("Unknown error".to_string()),
+                },
+            }
         }
     }
 }
