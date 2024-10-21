@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="in"
+                 name="monero_c docs"
+                 start-page="about.md">
+
+    <toc-element topic="about.md"/>
+    <toc-element topic="Building.md">
+        <toc-element topic="Using-prebuilds.md"/>
+        <toc-element topic="Linux.md"/>
+        <toc-element topic="Android.md"/>
+        <toc-element topic="Windows.md"/>
+        <toc-element topic="macOS.md"/>
+    </toc-element>
+</instance-profile>

@@ -1,5 +1,4 @@
-import { dylib } from "./bindings.ts";
-import { Sanitizer } from "./utils.ts";
+import { getSymbol, Sanitizer } from "./utils.ts";
 
 export type WalletManagerPtr = Deno.PointerObject<"walletManager">;
 
@@ -17,7 +16,7 @@ export class WalletManager {
   }
 
   static async new(sanitizer?: Sanitizer) {
-    const ptr = await dylib.symbols.MONERO_WalletManagerFactory_getWalletManager();
+    const ptr = await getSymbol("WalletManagerFactory_getWalletManager")();
     if (!ptr) {
       sanitizer?.();
       throw new Error("Failed retrieving wallet manager");
