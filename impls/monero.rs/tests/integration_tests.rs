@@ -109,6 +109,49 @@ fn test_wallet_creation() {
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
 
+
+#[test]
+fn test_restore_mnemonic_integration() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
+
+    // Example mnemonic seed (ensure this is a valid seed for your context).
+    let mnemonic_seed = "hemlock jubilee eden hacksaw boil superior inroads epoxy exhale orders cavernous second brunt saved richly lower upgrade hitched launching deepest mostly playful layout lower eden".to_string();
+
+    let restored_wallet = manager.restore_mnemonic(
+        wallet_str.clone(),
+        "password".to_string(),
+        mnemonic_seed,
+        NetworkType::Mainnet,
+        0, // Restore from the beginning of the blockchain.
+        1, // Default KDF rounds.
+        "".to_string(), // No seed offset.
+    );
+
+    assert!(restored_wallet.is_ok(), "Failed to restore wallet: {:?}", restored_wallet.err());
+
+    // Check that the wallet is deterministic.
+    let wallet = restored_wallet.unwrap();
+    assert!(wallet.is_deterministic().is_ok(), "Restored wallet seems to have failed");
+    assert!(wallet.is_deterministic().unwrap(), "Restored wallet should be deterministic");
+
+    // Optionally, verify the address if applicable.
+    let address_result = wallet.get_address(0, 0);
+    assert!(address_result.is_ok(), "Failed to retrieve address: {:?}", address_result.err());
+    let address = address_result.unwrap();
+    assert_eq!(
+        address,
+        "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi",
+        "Address does not match expected value"
+    );
+
+    // Clean up wallet files.
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+// TODO: Test with offset.
+
 #[test]
 fn test_generate_from_keys_integration() {
     println!("Running test_generate_from_keys_integration");

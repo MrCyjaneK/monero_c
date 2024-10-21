@@ -300,6 +300,87 @@ impl WalletManager {
         }
     }
 
+    /// Restores a wallet from a mnemonic seed.
+    ///
+    /// This method restores a Monero wallet using the provided mnemonic seed, network type, and other
+    /// configuration parameters.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use monero_c_rust::{WalletManager, NetworkType};
+    /// use tempfile::TempDir;
+    /// use std::fs;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("restored_wallet");
+    /// let wallet_str = wallet_path.to_str().unwrap().to_string();
+    ///
+    /// let manager = WalletManager::new().expect("Failed to create WalletManager");
+    ///
+    /// let mnemonic = "hemlock jubilee eden hacksaw boil superior inroads epoxy exhale orders cavernous second brunt saved richly lower upgrade hitched launching deepest mostly playful layout lower eden".to_string();
+    /// let wallet = manager.restore_mnemonic(
+    ///     wallet_str,
+    ///     "strong_password".to_string(),
+    ///     mnemonic,
+    ///     NetworkType::Mainnet,
+    ///     0, // Restore from the beginning of the blockchain.
+    ///     1, // Default KDF rounds.
+    ///     "".to_string(), // No seed offset.
+    /// ).expect("Failed to restore wallet");
+    ///
+    /// // Use the wallet as needed...
+    ///
+    /// // Clean up wallet files.
+    /// fs::remove_file(&wallet_path).expect("Failed to delete restored wallet");
+    /// fs::remove_file(format!("{}.keys", wallet_path.display())).expect("Failed to delete restored wallet keys");
+    /// ```
+    pub fn restore_mnemonic(
+        self: &Arc<Self>,
+        path: String,
+        password: String,
+        seed: String,
+        network_type: NetworkType,
+        restore_height: u64,
+        kdf_rounds: u64,
+        seed_offset: String, // TODO: Make an Option.
+    ) -> WalletResult<Wallet> {
+        // Convert Rust strings to C-compatible strings.
+        let c_path = CString::new(path)
+            .map_err(|_| WalletError::FfiError("Invalid path string".to_string()))?;
+        let c_password = CString::new(password)
+            .map_err(|_| WalletError::FfiError("Invalid password string".to_string()))?;
+        let c_seed = CString::new(seed)
+            .map_err(|_| WalletError::FfiError("Invalid seed string".to_string()))?;
+        let c_seed_offset = CString::new(seed_offset)
+            .map_err(|_| WalletError::FfiError("Invalid seed_offset string".to_string()))?;
+
+        unsafe {
+            let wallet_ptr = bindings::MONERO_WalletManager_recoveryWallet(
+                self.ptr.as_ptr(),
+                c_path.as_ptr(),
+                c_password.as_ptr(),
+                c_seed.as_ptr(),
+                network_type.to_c_int(),
+                restore_height,
+                kdf_rounds,
+                c_seed_offset.as_ptr(),
+            );
+
+            // Check for errors using the returned wallet pointer.
+            self.throw_if_error(wallet_ptr)?;
+            if wallet_ptr.is_null() {
+                return Err(WalletError::NullPointer);
+            }
+
+            Ok(Wallet {
+                ptr: NonNull::new(wallet_ptr).unwrap(),
+                manager: Arc::clone(self),
+                is_closed: false,
+            })
+        }
+    }
+
     /// Generates a wallet from provided keys.
     ///
     /// # Example
@@ -315,7 +396,7 @@ impl WalletManager {
     /// let wallet_str = wallet_path.to_str().unwrap();
     ///
     /// let manager = WalletManager::new().unwrap();
-    /// let result = manager.generate_from_keys(
+    /// let wallet = manager.generate_from_keys(
     ///     wallet_str.to_string(),
     ///     "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi".to_string(), // Replace with a valid address
     ///     "29adefc8f67515b4b4bf48031780ab9d071d24f8a674b879ce7f245c37523807".to_string(),
@@ -326,7 +407,7 @@ impl WalletManager {
     ///     NetworkType::Mainnet,
     ///     1, // Default KDF rounds
     /// );
-    /// assert!(result.is_ok(), "Failed to generate wallet from keys: {:?}", result.err());
+    /// assert!(wallet.is_ok(), "Failed to generate wallet from keys: {:?}", wallet.err());
     ///
     /// // Clean up wallet files.
     /// std::fs::remove_file(wallet_str).expect("Failed to delete test wallet");
@@ -1429,6 +1510,33 @@ fn test_wallet_creation_with_different_networks() {
 }
 
 #[test]
+fn test_restore_mnemonic_success() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
+
+    // Example mnemonic seed (ensure this is a valid seed for your context).
+    let mnemonic_seed = "hemlock jubilee eden hacksaw boil superior inroads epoxy exhale orders cavernous second brunt saved richly lower upgrade hitched launching deepest mostly playful layout lower eden".to_string();
+
+    let wallet = manager.restore_mnemonic(
+        wallet_str.clone(),
+        "password".to_string(),
+        mnemonic_seed,
+        NetworkType::Mainnet,
+        0, // Restore from the beginning of the blockchain.
+        1, // Default KDF rounds.
+        "".to_string(), // No seed offset.
+    );
+
+    assert!(wallet.is_ok(), "Failed to restore wallet: {:?}", wallet.err());
+
+    // Clean up wallet files.
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+// TODO: Test with offset.
+
+#[test]
 fn test_generate_from_keys_unit() {
     println!("Running unit test: test_generate_from_keys_unit");
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
@@ -1461,6 +1569,17 @@ fn test_generate_from_keys_unit() {
     );
 
     assert!(result.is_ok(), "Failed to generate wallet from keys: {:?}", result.err());
+
+    // Set the seed language (even though it was set above).
+    let wallet = result.unwrap();
+    let _seed_language_result = wallet.set_seed_language("English");
+
+    // Make sure the seed is "hemlock jubilee...".
+    let seed_result = wallet.get_seed(None);
+    assert!(seed_result.is_ok(), "Failed to get seed: {:?}",
+        seed_result.err());
+    let seed = seed_result.unwrap();
+    assert_eq!(seed, "hemlock jubilee eden hacksaw boil superior inroads epoxy exhale orders cavernous second brunt saved richly lower upgrade hitched launching deepest mostly playful layout lower eden");
 
     // Clean up wallet files.
     teardown(&temp_dir).expect("Failed to clean up after test");
