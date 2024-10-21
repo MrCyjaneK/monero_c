@@ -1,7 +1,7 @@
-From 47c473f8680e0df31d3d8c3282b5f9fa51448d76 Mon Sep 17 00:00:00 2001
+From e28bd4b5afd73a07d086422a9bc264047e245a7b Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 09:42:37 +0100
-Subject: [PATCH 08/11] polyseed
+Subject: [PATCH 09/12] polyseed
 
 Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
 ---
@@ -15,8 +15,6 @@ Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
  contrib/epee/include/wipeable_string.h        |   7 +
  contrib/epee/src/wipeable_string.cpp          |  10 +
  external/CMakeLists.txt                       |   2 +
- external/polyseed                             |   1 +
- external/utf8proc                             |   1 +
  src/CMakeLists.txt                            |   1 +
  src/cryptonote_basic/CMakeLists.txt           |   1 +
  src/cryptonote_basic/account.cpp              |  23 ++-
@@ -34,11 +32,9 @@ Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
  src/wallet/api/wallet_manager.h               |  10 +
  src/wallet/wallet2.cpp                        | 100 ++++++++--
  src/wallet/wallet2.h                          |  30 ++-
- 29 files changed, 857 insertions(+), 24 deletions(-)
+ 27 files changed, 855 insertions(+), 24 deletions(-)
  create mode 100644 contrib/depends/packages/polyseed.mk
  create mode 100644 contrib/depends/patches/polyseed/force-static-mingw.patch
- create mode 160000 external/polyseed
- create mode 160000 external/utf8proc
  create mode 100644 src/polyseed/CMakeLists.txt
  create mode 100644 src/polyseed/pbkdf2.c
  create mode 100644 src/polyseed/pbkdf2.h
@@ -46,13 +42,13 @@ Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
  create mode 100644 src/polyseed/polyseed.hpp
 
 diff --git a/.gitmodules b/.gitmodules
-index d1896924a..36fa3058a 100644
+index 72af74d55..b838e84e0 100644
 --- a/.gitmodules
 +++ b/.gitmodules
-@@ -10,6 +10,12 @@
- [submodule "external/randomx"]
+@@ -11,6 +11,12 @@
  	path = external/randomx
- 	url = https://github.com/tevador/RandomX
+ 	url = https://github.com/MrCyjaneK/RandomX
+ 	branch = cyjan-fix-ios
 +[submodule "external/utf8proc"]
 +	path = external/utf8proc
 +	url = https://github.com/JuliaStrings/utf8proc.git
@@ -245,20 +241,6 @@ index f9ed6a69a..8fcf792d7 100644
 +add_subdirectory(utf8proc EXCLUDE_FROM_ALL)
  add_subdirectory(bc-ur)
  add_subdirectory(randomx EXCLUDE_FROM_ALL)
-diff --git a/external/polyseed b/external/polyseed
-new file mode 160000
-index 000000000..dfb05d8ed
---- /dev/null
-+++ b/external/polyseed
-@@ -0,0 +1 @@
-+Subproject commit dfb05d8edb682b0e8f743b1b70c9131712ff4157
-diff --git a/external/utf8proc b/external/utf8proc
-new file mode 160000
-index 000000000..3de4596fb
---- /dev/null
-+++ b/external/utf8proc
-@@ -0,0 +1 @@
-+Subproject commit 3de4596fbe28956855df2ecb3c11c0bbc3535838
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index 3335d3c21..06b708cf0 100644
 --- a/src/CMakeLists.txt

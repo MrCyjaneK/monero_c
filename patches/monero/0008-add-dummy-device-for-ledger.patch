@@ -1,7 +1,7 @@
-From 191cf0f700839d327eab24eaae4635818bb21bae Mon Sep 17 00:00:00 2001
+From 3cd9d0fddbd55dfef23c92bfb75b9b01a42d24c6 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
-Subject: [PATCH 07/11] add dummy device for ledger
+Subject: [PATCH 08/12] add dummy device for ledger
 
 ---
  CMakeLists.txt                 |   6 +-

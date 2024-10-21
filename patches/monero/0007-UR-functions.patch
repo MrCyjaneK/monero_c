@@ -1,7 +1,7 @@
-From a250a9695b3a374d46a2e93894fb0c0619a994b3 Mon Sep 17 00:00:00 2001
+From 99aeed52b018ae0ab056237abadf4ebd997306c4 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 10:09:50 +0100
-Subject: [PATCH 06/11] UR functions
+Subject: [PATCH 07/12] UR functions
 
 This commit adds UR functions for UR tasks,
 I believe that the right place to get
@@ -40,10 +40,10 @@ Things broken in the commit
  create mode 160000 external/bc-ur
 
 diff --git a/.gitmodules b/.gitmodules
-index 721cce3b4..d1896924a 100644
+index ffb73fe9a..72af74d55 100644
 --- a/.gitmodules
 +++ b/.gitmodules
-@@ -14,3 +14,7 @@
+@@ -15,3 +15,7 @@
  	path = external/supercop
  	url = https://github.com/monero-project/supercop
  	branch = monero

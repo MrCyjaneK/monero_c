@@ -1,7 +1,7 @@
-From 972d5165e1b09929e432146fbe4585046341b38f Mon Sep 17 00:00:00 2001
+From 6a3d0ad6fadae9b84c42565064e8acf558b26d2b Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 11:07:57 +0100
-Subject: [PATCH 09/11] coin control
+Subject: [PATCH 10/12] coin control
 
 ---
  src/simplewallet/simplewallet.cpp |   2 +-

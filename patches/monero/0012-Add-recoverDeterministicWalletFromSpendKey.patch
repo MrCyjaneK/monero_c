@@ -1,7 +1,7 @@
-From feaa18195d914163254add690d230137c4962e5b Mon Sep 17 00:00:00 2001
+From e848beaeb450fac2d7a24bb97c9ce6ddd16e7608 Mon Sep 17 00:00:00 2001
 From: Konstantin Ullrich <konstantinullrich12@gmail.com>
 Date: Wed, 11 Oct 2023 16:47:59 +0200
-Subject: [PATCH 11/11] Add recoverDeterministicWalletFromSpendKey
+Subject: [PATCH 12/12] Add recoverDeterministicWalletFromSpendKey
 
 This function is used by Cake Wallet to enable polyseed (dart implementation)
 support.

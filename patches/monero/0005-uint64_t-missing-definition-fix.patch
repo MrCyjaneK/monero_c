@@ -1,7 +1,7 @@
-From 371fb3ba0e0fdd9d84daad1b6dddf78e6e54a6cc Mon Sep 17 00:00:00 2001
+From 0c73eb15aa1fa4144a2c4ec5ed0e1cce518d1e92 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 2 Sep 2024 16:40:31 +0200
-Subject: [PATCH 04/11] uint64_t missing definition fix
+Subject: [PATCH 05/12] uint64_t missing definition fix
 
 ---
  contrib/epee/include/net/http_base.h | 2 +-

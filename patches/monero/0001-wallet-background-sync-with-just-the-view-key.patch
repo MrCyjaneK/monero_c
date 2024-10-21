@@ -1,7 +1,7 @@
-From 69edb14a59d5c1d77700c08c2828f767dc7de432 Mon Sep 17 00:00:00 2001
+From e0631b241c792b5558509ba219755ae6a46e3785 Mon Sep 17 00:00:00 2001
 From: j-berman <justinberman@protonmail.com>
 Date: Thu, 13 Oct 2022 18:33:33 -0700
-Subject: [PATCH 01/11] wallet: background sync with just the view key
+Subject: [PATCH 01/12] wallet: background sync with just the view key
 
 - When background syncing, the wallet wipes the spend key
 from memory and processes all new transactions. The wallet saves
