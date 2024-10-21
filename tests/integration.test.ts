@@ -3,7 +3,7 @@ import { loadMoneroDylib, loadWowneroDylib } from "../impls/monero.ts/src/bindin
 import { Wallet, WalletManager } from "../impls/monero.ts/mod.ts";
 import { readCString } from "../impls/monero.ts/src/utils.ts";
 import { assertEquals } from "jsr:@std/assert";
-import { getMoneroC } from "./utils.ts";
+import { downloadCli, getMoneroC } from "./utils.ts";
 import { getSymbol } from "../impls/monero.ts/src/utils.ts";
 
 interface WalletInfo {
@@ -20,6 +20,12 @@ interface WalletInfo {
   publicViewKey: string;
   secretViewKey: string;
 }
+
+async function getKey(wallet: Wallet, type: `${"secret" | "public"}${"Spend" | "View"}Key`): Promise<string | null> {
+  return await readCString(await getSymbol(`Wallet_${type}` as const)(wallet.getPointer()));
+}
+
+// await getMoneroC("monero", "next");
 
 Deno.test("0001-polyseed.patch", async (t) => {
   const WALLETS: WalletInfo[] = [
@@ -145,11 +151,6 @@ Deno.test("0001-polyseed.patch", async (t) => {
     //#endregion
   ];
 
-  // await getMoneroC("monero", "next");
-
-  const getKey = async (wallet: Wallet, type: `${"secret" | "public"}${"Spend" | "View"}Key`) =>
-    await readCString(await getSymbol(`Wallet_${type}` as const)(wallet.getPointer()));
-
   for (const walletInfo of WALLETS) {
     await t.step(walletInfo.name, async () => {
       let dylib: Dylib;
@@ -176,4 +177,52 @@ Deno.test("0001-polyseed.patch", async (t) => {
       dylib.close();
     });
   }
+});
+
+Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async (t) => {
+  await Deno.remove("tests/wallets/tmp", { recursive: true }).catch(() => {});
+  await Deno.mkdir("tests/wallets/tmp");
+
+  const dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
+  loadMoneroDylib(dylib);
+
+  await downloadCli("monero");
+
+  const walletManager = await WalletManager.new();
+  const wallet = await Wallet.create(walletManager, "tests/wallets/tmp/squirrel", "belka");
+
+  const walletInfo = {
+    address: await wallet.address(),
+    publicSpendKey: await getKey(wallet, "publicSpendKey"),
+    secretSpendKey: await getKey(wallet, "secretSpendKey"),
+    publicViewKey: await getKey(wallet, "publicViewKey"),
+    secretViewKey: await getKey(wallet, "secretViewKey"),
+  };
+
+  await wallet.setupBackgroundSync(2, "belka", "background-belka");
+  await wallet.startBackgroundSync();
+  await wallet.close(true);
+
+  const backgroundWallet = await Wallet.open(
+    walletManager,
+    "tests/wallets/tmp/squirrel.background",
+    "background-belka",
+  );
+  await backgroundWallet.close(true);
+
+  const reopenedWallet = await Wallet.open(walletManager, "tests/wallets/tmp/squirrel", "belka");
+
+  await reopenedWallet.throwIfError();
+  assertEquals(
+    walletInfo,
+    {
+      address: await reopenedWallet.address(),
+      publicSpendKey: await getKey(reopenedWallet, "publicSpendKey"),
+      secretSpendKey: await getKey(reopenedWallet, "secretSpendKey"),
+      publicViewKey: await getKey(reopenedWallet, "publicViewKey"),
+      secretViewKey: await getKey(reopenedWallet, "secretViewKey"),
+    },
+  );
+
+  dylib.close();
 });
