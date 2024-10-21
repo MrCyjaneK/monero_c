@@ -1,4 +1,4 @@
-From 75e5aaa8d7b741631dba2addb34ffac3be983804 Mon Sep 17 00:00:00 2001
+From 8ccefc307c8025881128a3ca908975270219d92e Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 24 Jun 2024 10:49:12 +0200
 Subject: [PATCH 06/12] use proper error handling in get_seed
@@ -67,5 +67,5 @@ index aa61fb298..5ffeda2ec 100644
  
    return true;
 -- 
-2.39.5 (Apple Git-154)
+2.43.0
 

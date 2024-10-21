@@ -1,4 +1,4 @@
-From d0861a0d2e162b44f01df0450ec4efcceb0b37b9 Mon Sep 17 00:00:00 2001
+From 92b9dcfa4cc36728fc8d5738ab8bb71931a3e30d Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 11 May 2024 16:25:10 +0200
 Subject: [PATCH 03/12] store crash fix
@@ -206,5 +206,5 @@ index b1dc4f716..a050286bc 100644
      i_wallet2_callback* m_callback;
      hw::device::device_type m_key_device_type;
 -- 
-2.39.5 (Apple Git-154)
+2.43.0
 

@@ -1,4 +1,4 @@
-From 6a3d0ad6fadae9b84c42565064e8acf558b26d2b Mon Sep 17 00:00:00 2001
+From 71fee81e40348ebf18995033fbf42e64d7522c6d Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 11:07:57 +0100
 Subject: [PATCH 10/12] coin control
@@ -975,5 +975,5 @@ index 91cf2a376..bc16d528c 100644
      void set_unspent(size_t idx);
      bool is_spent(const transfer_details &td, bool strict = true) const;
 -- 
-2.39.5 (Apple Git-154)
+2.43.0
 

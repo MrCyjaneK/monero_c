@@ -1,4 +1,4 @@
-From 3cd9d0fddbd55dfef23c92bfb75b9b01a42d24c6 Mon Sep 17 00:00:00 2001
+From 36bd3b42888710ac125a2450675102b77a772782 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
 Subject: [PATCH 08/12] add dummy device for ledger
@@ -575,5 +575,5 @@ index 764adbfbf..53ec4abfc 100644
  
  /**
 -- 
-2.39.5 (Apple Git-154)
+2.43.0
 

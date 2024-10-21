@@ -1,4 +1,4 @@
-From c1f006c9944136ba786e9877d44c5cd3188af10d Mon Sep 17 00:00:00 2001
+From 0893e2ca97d65bf64abd3efda3554f66948e073d Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 23 May 2024 08:02:49 +0200
 Subject: [PATCH 04/12] Update android ndk
@@ -149,5 +149,5 @@ index f118c754e..cc1d9b5c5 100644
    SET(CMAKE_C_COMPILER @CC@)
    SET(CMAKE_CXX_COMPILER @CXX@)
 -- 
-2.39.5 (Apple Git-154)
+2.43.0
 

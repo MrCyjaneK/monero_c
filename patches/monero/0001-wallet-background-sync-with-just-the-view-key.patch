@@ -1,4 +1,4 @@
-From e0631b241c792b5558509ba219755ae6a46e3785 Mon Sep 17 00:00:00 2001
+From 66e6b4d40e9d7a927b0697bb66d387d18ad9ef0a Mon Sep 17 00:00:00 2001
 From: j-berman <justinberman@protonmail.com>
 Date: Thu, 13 Oct 2022 18:33:33 -0700
 Subject: [PATCH 01/12] wallet: background sync with just the view key
@@ -4313,5 +4313,5 @@ index 1e10e1f86..bff33a561 100644
 +        }
 +        return self.rpc.send_json_rpc_request(stop_background_sync)
 -- 
-2.39.5 (Apple Git-154)
+2.43.0
 

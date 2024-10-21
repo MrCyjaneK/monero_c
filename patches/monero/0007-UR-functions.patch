@@ -1,4 +1,4 @@
-From 99aeed52b018ae0ab056237abadf4ebd997306c4 Mon Sep 17 00:00:00 2001
+From 06921411d75e372df8176dd307e146812fe397ba Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 10:09:50 +0100
 Subject: [PATCH 07/12] UR functions
@@ -1031,5 +1031,5 @@ index a050286bc..1d7e430b9 100644
      bool import_key_images(signed_tx_set & signed_tx, size_t offset=0, bool only_selected_transfers=false);
      crypto::public_key get_tx_pub_key_from_received_outs(const tools::wallet2::transfer_details &td) const;
 -- 
-2.39.5 (Apple Git-154)
+2.43.0
 

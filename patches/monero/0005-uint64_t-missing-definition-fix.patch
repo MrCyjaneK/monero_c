@@ -1,4 +1,4 @@
-From 0c73eb15aa1fa4144a2c4ec5ed0e1cce518d1e92 Mon Sep 17 00:00:00 2001
+From fc8b72e4da39cfe847a75213aab70365f3c2140d Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 2 Sep 2024 16:40:31 +0200
 Subject: [PATCH 05/12] uint64_t missing definition fix
@@ -21,5 +21,5 @@ index 4af4da790..ae4c0d05e 100644
  
  #include <string>
 -- 
-2.39.5 (Apple Git-154)
+2.43.0
 
