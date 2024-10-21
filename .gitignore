@@ -2,4 +2,5 @@ release/
 build/
 tests/monero-cli
 tests/libs
-tests/wallets
+tests/wallets/*
+!tests/wallets/monero
