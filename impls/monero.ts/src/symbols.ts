@@ -36,6 +36,15 @@ export const moneroSymbols = {
     // void*
     result: "pointer",
   },
+  "MONERO_WalletManager_createWalletFromPolyseed": {
+    nonblocking: true,
+    // void* wm_ptr, const char* path, const char* password, int nettype,
+    // const char* mnemonic, const char* passphrase, bool newWallet,
+    // uint64_t restore_height, uint64_t kdf_rounds
+    parameters: ["pointer", "pointer", "pointer", "i32", "pointer", "pointer", "bool", "u64", "u64"],
+    // void*
+    result: "pointer",
+  },
   "MONERO_WalletManager_blockchainHeight": {
     nonblocking: true,
     // void* wm_ptr

@@ -175,6 +175,58 @@ export class Wallet {
     return wallet;
   }
 
+  static async recoverFromPolyseed(
+    walletManager: WalletManager,
+    path: string,
+    password: string,
+    mnemonic: string,
+    restoreHeight: bigint,
+    passphrase = "",
+    sanitizeError = true,
+  ): Promise<Wallet> {
+    return await this.createFromPolyseed(
+      walletManager,
+      path,
+      password,
+      mnemonic,
+      restoreHeight,
+      passphrase,
+      sanitizeError,
+      false,
+    );
+  }
+
+  static async createFromPolyseed(
+    walletManager: WalletManager,
+    path: string,
+    password: string,
+    mnemonic: string,
+    restoreHeight: bigint,
+    passphrase = "",
+    sanitizeError = true,
+    newWallet = true,
+  ): Promise<Wallet> {
+    // We assign holder of the pointer in Wallet constructor
+    const walletManagerPtr = walletManager.getPointer();
+
+    const walletPtr = await getSymbol("WalletManager_createWalletFromPolyseed")(
+      walletManagerPtr,
+      CString(path),
+      CString(password),
+      0,
+      CString(mnemonic),
+      CString(passphrase),
+      newWallet,
+      restoreHeight,
+      1n,
+    );
+
+    const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
+    await wallet.throwIfError(sanitizeError);
+
+    return wallet;
+  }
+
   async close(store: boolean): Promise<void> {
     await getSymbol("WalletManager_closeWallet")(
       this.#walletManagerPtr,
