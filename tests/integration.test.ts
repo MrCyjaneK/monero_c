@@ -25,6 +25,9 @@ async function getKey(wallet: Wallet, type: `${"secret" | "public"}${"Spend" | "
   return await readCString(await getSymbol(`Wallet_${type}` as const)(wallet.getPointer()));
 }
 
+// TODO: Change for custom address on CI
+const NODE_URL = "https://nodes.hashvault.pro:18081";
+
 // await getMoneroC("monero", "next");
 
 Deno.test("0001-polyseed.patch", async (t) => {
@@ -165,6 +168,7 @@ Deno.test("0001-polyseed.patch", async (t) => {
       const walletManager = await WalletManager.new();
       const path = `tests/wallets/monero/${walletInfo.name}/${walletInfo.name}`;
       const wallet = await Wallet.open(walletManager, path, walletInfo.password);
+      await wallet.initWallet(NODE_URL);
 
       assertEquals(await wallet.address(), walletInfo.address);
 
@@ -179,7 +183,7 @@ Deno.test("0001-polyseed.patch", async (t) => {
   }
 });
 
-Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async (t) => {
+Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () => {
   await Deno.remove("tests/wallets/tmp", { recursive: true }).catch(() => {});
   await Deno.mkdir("tests/wallets/tmp");
 
@@ -190,6 +194,7 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async (t) 
 
   const walletManager = await WalletManager.new();
   const wallet = await Wallet.create(walletManager, "tests/wallets/tmp/squirrel", "belka");
+  await wallet.initWallet(NODE_URL);
 
   const walletInfo = {
     address: await wallet.address(),
@@ -208,11 +213,27 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async (t) 
     "tests/wallets/tmp/squirrel.background",
     "background-belka",
   );
+  await backgroundWallet.initWallet(NODE_URL);
+
+  const blockChainHeight = await new Promise((resolve) => {
+    const interval = setInterval(async () => {
+      const blockChainHeight = BigInt(await backgroundWallet.blockChainHeight());
+      const daemonBlockchainHeight = BigInt(await backgroundWallet.daemonBlockChainHeight());
+      console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight);
+      if (blockChainHeight === daemonBlockchainHeight) {
+        clearInterval(interval);
+        resolve(blockChainHeight);
+      }
+    }, 1000);
+  });
+
   await backgroundWallet.close(true);
 
   const reopenedWallet = await Wallet.open(walletManager, "tests/wallets/tmp/squirrel", "belka");
-
   await reopenedWallet.throwIfError();
+  await reopenedWallet.refreshAsync();
+
+  assertEquals(BigInt(await reopenedWallet.blockChainHeight()), blockChainHeight);
   assertEquals(
     walletInfo,
     {
