@@ -55,6 +55,33 @@ export class Wallet {
     await this.throwIfError();
   }
 
+  async setupBackgroundSync(
+    backgroundSyncType: number,
+    walletPassword: string,
+    backgroundCachePassword: string,
+  ): Promise<boolean> {
+    const bool = await getSymbol("Wallet_setupBackgroundSync")(
+      this.#walletPtr,
+      backgroundSyncType,
+      CString(walletPassword),
+      CString(backgroundCachePassword),
+    );
+    await this.throwIfError();
+    return bool;
+  }
+
+  async startBackgroundSync(): Promise<boolean> {
+    const bool = await getSymbol("Wallet_startBackgroundSync")(this.#walletPtr);
+    await this.throwIfError();
+    return bool;
+  }
+
+  async stopBackgroundSync(walletPassword: string): Promise<boolean> {
+    const bool = await getSymbol("Wallet_stopBackgroundSync")(this.#walletPtr, CString(walletPassword));
+    await this.throwIfError();
+    return bool;
+  }
+
   async init(): Promise<boolean> {
     const bool = await getSymbol("Wallet_init")(
       this.#walletPtr,
@@ -149,6 +176,14 @@ export class Wallet {
     await wallet.initWallet();
 
     return wallet;
+  }
+
+  async close(store: boolean): Promise<void> {
+    await getSymbol("WalletManager_closeWallet")(
+      this.#walletManagerPtr,
+      this.#walletPtr,
+      store,
+    );
   }
 
   async address(accountIndex = 0n, addressIndex = 0n): Promise<string> {

@@ -21,6 +21,13 @@ export const moneroSymbols = {
     // void*
     result: "pointer",
   },
+  "MONERO_WalletManager_closeWallet": {
+    nonblocking: true,
+    // void* wm_ptr, const char* wallet_ptr, bool store
+    "parameters": ["pointer", "pointer", "bool"],
+    // bool
+    result: "bool",
+  },
   "MONERO_WalletManager_recoveryWallet": {
     nonblocking: true,
     // void* wm_ptr, const char* path, const char* password, const char* mnemonic,
@@ -90,6 +97,27 @@ export const moneroSymbols = {
     parameters: ["pointer"],
     // void
     result: "void",
+  },
+  "MONERO_Wallet_setupBackgroundSync": {
+    nonblocking: true,
+    // void* wallet_ptr, int background_sync_type, const char* wallet_password, const char* background_cache_password
+    parameters: ["pointer", "i32", "pointer", "pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_startBackgroundSync": {
+    nonblocking: true,
+    // void* wallet_ptr
+    parameters: ["pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_stopBackgroundSync": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* wallet_password
+    parameters: ["pointer", "pointer"],
+    // bool
+    result: "bool",
   },
   "MONERO_Wallet_blockChainHeight": {
     nonblocking: true,
