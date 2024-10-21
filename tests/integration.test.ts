@@ -3,8 +3,22 @@ import { loadMoneroDylib, loadWowneroDylib } from "../impls/monero.ts/src/bindin
 import { Wallet, WalletManager } from "../impls/monero.ts/mod.ts";
 import { readCString } from "../impls/monero.ts/src/utils.ts";
 import { assertEquals } from "jsr:@std/assert";
-import { downloadCli, getMoneroC } from "./utils.ts";
+import { getMoneroC } from "./utils.ts";
 import { getSymbol } from "../impls/monero.ts/src/utils.ts";
+
+const coin = Deno.env.get("COIN");
+if (coin !== "monero" && coin !== "wownero") {
+  throw new Error("COIN env var invalid or missing");
+}
+
+async function getKey(wallet: Wallet, type: `${"secret" | "public"}${"Spend" | "View"}Key`): Promise<string | null> {
+  return await readCString(await getSymbol(`Wallet_${type}` as const)(wallet.getPointer()));
+}
+
+// TODO: Change for custom address on CI
+const NODE_URL = "https://nodes.hashvault.pro:18081";
+
+await getMoneroC(coin, "next");
 
 interface WalletInfo {
   coin: "monero" | "wownero";
@@ -20,15 +34,6 @@ interface WalletInfo {
   publicViewKey: string;
   secretViewKey: string;
 }
-
-async function getKey(wallet: Wallet, type: `${"secret" | "public"}${"Spend" | "View"}Key`): Promise<string | null> {
-  return await readCString(await getSymbol(`Wallet_${type}` as const)(wallet.getPointer()));
-}
-
-// TODO: Change for custom address on CI
-const NODE_URL = "https://nodes.hashvault.pro:18081";
-
-// await getMoneroC("monero", "next");
 
 Deno.test("0001-polyseed.patch", async (t) => {
   const WALLETS: WalletInfo[] = [
@@ -154,17 +159,19 @@ Deno.test("0001-polyseed.patch", async (t) => {
     //#endregion
   ];
 
-  for (const walletInfo of WALLETS) {
-    await t.step(walletInfo.name, async () => {
-      let dylib: Dylib;
-      if (walletInfo.coin === "monero") {
-        dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
-        loadMoneroDylib(dylib);
-      } else {
-        dylib = Deno.dlopen(`tests/libs/next/wownero_libwallet2_api_c.so`, wowneroSymbols);
-        loadWowneroDylib(dylib);
-      }
+  let dylib: Dylib;
+  if (coin === "monero") {
+    dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
+    loadMoneroDylib(dylib);
+  } else {
+    dylib = Deno.dlopen(`tests/libs/next/wownero_libwallet2_api_c.so`, wowneroSymbols);
+    loadWowneroDylib(dylib);
+  }
 
+  for (const walletInfo of WALLETS) {
+    if (walletInfo.coin !== coin) continue;
+
+    await t.step(walletInfo.name, async () => {
       const walletManager = await WalletManager.new();
       const path = `tests/wallets/monero/${walletInfo.name}/${walletInfo.name}`;
       const wallet = await Wallet.open(walletManager, path, walletInfo.password);
@@ -177,20 +184,24 @@ Deno.test("0001-polyseed.patch", async (t) => {
 
       assertEquals(await getKey(wallet, "publicViewKey"), walletInfo.publicViewKey);
       assertEquals(await getKey(wallet, "secretViewKey"), walletInfo.secretViewKey);
-
-      dylib.close();
     });
   }
+
+  dylib.close();
 });
 
 Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () => {
   await Deno.remove("tests/wallets/tmp", { recursive: true }).catch(() => {});
   await Deno.mkdir("tests/wallets/tmp");
 
-  const dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
-  loadMoneroDylib(dylib);
-
-  await downloadCli("monero");
+  let dylib: Dylib;
+  if (coin === "monero") {
+    dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
+    loadMoneroDylib(dylib);
+  } else {
+    dylib = Deno.dlopen(`tests/libs/next/wownero_libwallet2_api_c.so`, wowneroSymbols);
+    loadWowneroDylib(dylib);
+  }
 
   const walletManager = await WalletManager.new();
   const wallet = await Wallet.create(walletManager, "tests/wallets/tmp/squirrel", "belka");
@@ -220,6 +231,7 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
       const blockChainHeight = BigInt(await backgroundWallet.blockChainHeight());
       const daemonBlockchainHeight = BigInt(await backgroundWallet.daemonBlockChainHeight());
       console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight);
+
       if (blockChainHeight === daemonBlockchainHeight) {
         clearInterval(interval);
         resolve(blockChainHeight);
