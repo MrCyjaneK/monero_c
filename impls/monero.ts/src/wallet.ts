@@ -107,7 +107,6 @@ export class Wallet {
     password: string,
     sanitizeError = true,
   ): Promise<Wallet> {
-    // We assign holder of the pointer in Wallet constructor
     const walletManagerPtr = walletManager.getPointer();
 
     const walletPtr = await getSymbol("WalletManager_createWallet")(
@@ -130,7 +129,6 @@ export class Wallet {
     password: string,
     sanitizeError = true,
   ): Promise<Wallet> {
-    // We assign holder of the pointer in Wallet constructor
     const walletManagerPtr = walletManager.getPointer();
 
     const walletPtr = await getSymbol("WalletManager_openWallet")(
@@ -155,7 +153,6 @@ export class Wallet {
     seedOffset: string = "",
     sanitizeError = true,
   ): Promise<Wallet> {
-    // We assign holder of the pointer in Wallet constructor
     const walletManagerPtr = walletManager.getPointer();
 
     const walletPtr = await getSymbol("WalletManager_recoveryWallet")(
@@ -206,7 +203,6 @@ export class Wallet {
     sanitizeError = true,
     newWallet = true,
   ): Promise<Wallet> {
-    // We assign holder of the pointer in Wallet constructor
     const walletManagerPtr = walletManager.getPointer();
 
     const walletPtr = await getSymbol("WalletManager_createWalletFromPolyseed")(
