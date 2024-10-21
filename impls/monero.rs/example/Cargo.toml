@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 monero_rust = { path = ".." }
+# monero_rust = { git = "https://github.com/MrCyjaneK/monero_c" }
