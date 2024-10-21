@@ -29,8 +29,8 @@ export class Wallet {
     return bool;
   }
 
-  async initWallet(daemonAddress = "http://nodex.monerujo.io:18081"): Promise<void> {
-    await this.init();
+  async initWallet(daemonAddress: string): Promise<void> {
+    await this.init(daemonAddress);
     await this.setTrustedDaemon(true);
     await this.setDaemonAddress(daemonAddress);
     await this.startRefresh();
@@ -82,10 +82,10 @@ export class Wallet {
     return bool;
   }
 
-  async init(): Promise<boolean> {
+  async init(daemonAddress: string): Promise<boolean> {
     const bool = await getSymbol("Wallet_init")(
       this.#walletPtr,
-      CString("http://nodex.monerujo.io:18081"),
+      CString(daemonAddress),
       0n,
       CString(""),
       CString(""),
@@ -120,7 +120,6 @@ export class Wallet {
 
     const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
     await wallet.throwIfError(sanitizeError);
-    await wallet.initWallet();
 
     return wallet;
   }
@@ -143,7 +142,6 @@ export class Wallet {
 
     const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
     await wallet.throwIfError(sanitizeError);
-    await wallet.initWallet();
 
     return wallet;
   }
@@ -173,7 +171,6 @@ export class Wallet {
 
     const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
     await wallet.throwIfError(sanitizeError);
-    await wallet.initWallet();
 
     return wallet;
   }
