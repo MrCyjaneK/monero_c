@@ -504,7 +504,7 @@ fn test_get_balance_integration() {
     // Fetch the balance.
     println!("Fetching wallet balance...");
     let start = Instant::now();
-    let balance_result = wallet.get_balance(0); // Account index 0
+    let balance_result = wallet.get_balance(0); // Account index 0.
     println!("Fetching balance took {:?}", start.elapsed());
 
     assert!(balance_result.is_ok(), "Failed to fetch balance: {:?}", balance_result.err());
