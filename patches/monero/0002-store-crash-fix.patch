@@ -1,7 +1,7 @@
-From 238c847c153c74953b094d83bfe181a596771d37 Mon Sep 17 00:00:00 2001
+From a671dfe3e4d4723942f87a57a70a1a42f778cb4c Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 11 May 2024 16:25:10 +0200
-Subject: [PATCH 11/16] store crash fix
+Subject: [PATCH 02/11] store crash fix
 
 Monero wallet crashes (sometimes) when it is syncing,
 while the proper solution (that can be seen in feather)
@@ -43,10 +43,10 @@ the current state.
  4 files changed, 26 insertions(+), 15 deletions(-)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index ec4ae51ff..306c9b8ae 100644
+index e9f76f4cf..0d85cf359 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
-@@ -56,8 +56,8 @@ using namespace cryptonote;
+@@ -55,8 +55,8 @@ using namespace cryptonote;
  #define MONERO_DEFAULT_LOG_CATEGORY "WalletAPI"
  
  #define LOCK_REFRESH() \
@@ -57,7 +57,7 @@ index ec4ae51ff..306c9b8ae 100644
      m_wallet->stop(); \
      m_refreshCV.notify_one(); \
      boost::mutex::scoped_lock lock(m_refreshMutex); \
-@@ -467,7 +467,7 @@ WalletImpl::WalletImpl(NetworkType nettype, uint64_t kdf_rounds)
+@@ -466,7 +466,7 @@ WalletImpl::WalletImpl(NetworkType nettype, uint64_t kdf_rounds)
      m_wallet2Callback.reset(new Wallet2CallbackImpl(this));
      m_wallet->callback(m_wallet2Callback.get());
      m_refreshThreadDone = false;
@@ -65,8 +65,8 @@ index ec4ae51ff..306c9b8ae 100644
 +    m_wallet->set_refresh_enabled(false);
      m_addressBook.reset(new AddressBookImpl(this));
      m_subaddress.reset(new SubaddressImpl(this));
-     m_coins.reset(new CoinsImpl(this));
-@@ -1064,6 +1064,7 @@ void WalletImpl::stop()
+     m_subaddressAccount.reset(new SubaddressAccountImpl(this));
+@@ -962,6 +962,7 @@ void WalletImpl::stop()
  bool WalletImpl::store(const std::string &path)
  {
      clearStatus();
@@ -74,7 +74,7 @@ index ec4ae51ff..306c9b8ae 100644
      try {
          if (path.empty()) {
              m_wallet->store();
-@@ -2591,10 +2592,10 @@ void WalletImpl::refreshThreadFunc()
+@@ -2448,10 +2449,10 @@ void WalletImpl::refreshThreadFunc()
          }
  
          LOG_PRINT_L3(__FUNCTION__ << ": refresh lock acquired...");
@@ -87,7 +87,7 @@ index ec4ae51ff..306c9b8ae 100644
              LOG_PRINT_L3(__FUNCTION__ << ": refreshing...");
              doRefresh();
          }
-@@ -2624,12 +2625,12 @@ void WalletImpl::doRefresh()
+@@ -2481,12 +2482,12 @@ void WalletImpl::doRefresh()
              }
              m_wallet->find_and_save_rings(false);
          } else {
@@ -102,7 +102,7 @@ index ec4ae51ff..306c9b8ae 100644
  
      if (m_wallet2Callback->getListener()) {
          m_wallet2Callback->getListener()->refreshed();
-@@ -2639,9 +2640,9 @@ void WalletImpl::doRefresh()
+@@ -2496,9 +2497,9 @@ void WalletImpl::doRefresh()
  
  void WalletImpl::startRefresh()
  {
@@ -114,7 +114,7 @@ index ec4ae51ff..306c9b8ae 100644
          m_refreshCV.notify_one();
      }
  }
-@@ -2651,7 +2652,7 @@ void WalletImpl::startRefresh()
+@@ -2508,7 +2509,7 @@ void WalletImpl::startRefresh()
  void WalletImpl::stopRefresh()
  {
      if (!m_refreshThreadDone) {
@@ -123,7 +123,7 @@ index ec4ae51ff..306c9b8ae 100644
          m_refreshThreadDone = true;
          m_refreshCV.notify_one();
          m_refreshThread.join();
-@@ -2662,9 +2663,7 @@ void WalletImpl::pauseRefresh()
+@@ -2519,9 +2520,7 @@ void WalletImpl::pauseRefresh()
  {
      LOG_PRINT_L2(__FUNCTION__ << ": refresh paused...");
      // TODO synchronize access
@@ -135,10 +135,10 @@ index ec4ae51ff..306c9b8ae 100644
  
  
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index d0f443abc..2ad2b62a4 100644
+index 1f199a72c..ac7ce2f6a 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
-@@ -295,7 +295,6 @@ private:
+@@ -273,7 +273,6 @@ private:
      std::unique_ptr<SubaddressAccountImpl>  m_subaddressAccount;
  
      // multi-threaded refresh stuff
@@ -147,10 +147,10 @@ index d0f443abc..2ad2b62a4 100644
      std::atomic<int>  m_refreshIntervalMillis;
      std::atomic<bool> m_refreshShouldRescan;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 61601f70c..4de226a4a 100644
+index 8146014d6..aa61fb298 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -1203,6 +1203,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
+@@ -1192,6 +1192,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
    m_upper_transaction_weight_limit(0),
    m_run(true),
    m_callback(0),
@@ -158,7 +158,7 @@ index 61601f70c..4de226a4a 100644
    m_trusted_daemon(false),
    m_nettype(nettype),
    m_multisig_rounds_passed(0),
-@@ -1416,6 +1417,14 @@ bool wallet2::set_daemon(std::string daemon_address, boost::optional<epee::net_u
+@@ -1404,6 +1405,14 @@ bool wallet2::set_daemon(std::string daemon_address, boost::optional<epee::net_u
    return ret;
  }
  //----------------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ index 61601f70c..4de226a4a 100644
  bool wallet2::set_proxy(const std::string &address)
  {
    return m_http_client->set_proxy(address);
-@@ -4146,8 +4155,9 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
+@@ -4096,8 +4105,9 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
    // infer when we get an incoming output
  
    bool first = true, last = false;
@@ -185,10 +185,10 @@ index 61601f70c..4de226a4a 100644
      std::vector<cryptonote::block_complete_entry> next_blocks;
      std::vector<parsed_block> next_parsed_blocks;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index fdc1a6212..3ce710433 100644
+index b1dc4f716..a050286bc 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
-@@ -1086,6 +1086,8 @@ private:
+@@ -1071,6 +1071,8 @@ private:
        boost::optional<epee::net_utils::http::login> daemon_login = boost::none, bool trusted_daemon = true,
        epee::net_utils::ssl_options_t ssl_options = epee::net_utils::ssl_support_t::e_ssl_support_autodetect);
      bool set_proxy(const std::string &address);
@@ -197,7 +197,7 @@ index fdc1a6212..3ce710433 100644
  
      void stop() { m_run.store(false, std::memory_order_relaxed); m_message_store.stop(); }
  
-@@ -2012,6 +2014,7 @@ private:
+@@ -1981,6 +1983,7 @@ private:
  
      boost::recursive_mutex m_daemon_rpc_mutex;
  
@@ -206,5 +206,5 @@ index fdc1a6212..3ce710433 100644
      i_wallet2_callback* m_callback;
      hw::device::device_type m_key_device_type;
 -- 
-2.39.2
+2.39.5 (Apple Git-154)
 

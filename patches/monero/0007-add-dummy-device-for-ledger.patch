@@ -1,7 +1,7 @@
-From 6b40191d35df998280e1d6e19ff9bf4bce54d5bf Mon Sep 17 00:00:00 2001
+From b1aa9f60da16ea296e524a0b9966f1a5f794bf48 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
-Subject: [PATCH 16/16] add dummy device for ledger
+Subject: [PATCH 07/11] add dummy device for ledger
 
 ---
  CMakeLists.txt                 |   6 +-
@@ -20,10 +20,10 @@ Subject: [PATCH 16/16] add dummy device for ledger
  create mode 100644 src/device/device_io_dummy.hpp
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 6028c0961..e7fa90abb 100644
+index 63ee8252d..43ef6cd20 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -694,8 +694,12 @@ include_directories(${LMDB_INCLUDE})
+@@ -692,8 +692,12 @@ include_directories(${LMDB_INCLUDE})
  include_directories(${LIBUNWIND_INCLUDE})
  link_directories(${LIBUNWIND_LIBRARY_DIRS})
  
@@ -349,7 +349,7 @@ index 000000000..a1733616d
 +
 +#endif // HAVE_HIDAPI
 diff --git a/src/device/device_ledger.cpp b/src/device/device_ledger.cpp
-index 90675df11..136c6094b 100644
+index bb5b6f497..d405b86f2 100644
 --- a/src/device/device_ledger.cpp
 +++ b/src/device/device_ledger.cpp
 @@ -41,7 +41,7 @@ namespace hw {
@@ -370,7 +370,7 @@ index 90675df11..136c6094b 100644
        this->mode = NONE;
        this->has_view_key = false;
        this->tx_in_progress = false;
-@@ -532,7 +532,9 @@ namespace hw {
+@@ -533,7 +533,9 @@ namespace hw {
  
      bool device_ledger::connect(void) {
        this->disconnect();
@@ -414,10 +414,10 @@ index 03058c4f1..506f27c4a 100644
          unsigned char buffer_send[BUFFER_SEND_SIZE];
          unsigned int  length_recv;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index a307d35a7..3ead385ec 100644
+index 4fb5f7595..ec79482ac 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
-@@ -49,6 +49,9 @@
+@@ -48,6 +48,9 @@
  #include <boost/locale.hpp>
  #include <boost/filesystem.hpp>
  #include "bc-ur/src/bc-ur.hpp"
@@ -427,7 +427,7 @@ index a307d35a7..3ead385ec 100644
  
  using namespace std;
  using namespace cryptonote;
-@@ -3298,4 +3301,94 @@ uint64_t WalletImpl::getBytesSent()
+@@ -3178,4 +3181,94 @@ uint64_t WalletImpl::getBytesSent()
      return m_wallet->get_bytes_sent();
  }
  
@@ -523,10 +523,10 @@ index a307d35a7..3ead385ec 100644
 +
  } // namespace
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index febc93119..9e1fbb40b 100644
+index edf8bb8ce..4e9c21ecb 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
-@@ -321,6 +321,24 @@ private:
+@@ -301,6 +301,24 @@ private:
      // cache connection status to avoid unnecessary RPC calls
      mutable std::atomic<bool>   m_is_connected;
      boost::optional<epee::net_utils::http::login> m_daemon_login{};
@@ -552,10 +552,10 @@ index febc93119..9e1fbb40b 100644
  
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 2bbb32c8b..c8d6bb179 100644
+index 764adbfbf..53ec4abfc 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -1204,6 +1204,18 @@ struct Wallet
+@@ -1150,6 +1150,18 @@ struct Wallet
  
      //! get bytes sent
      virtual uint64_t getBytesSent() = 0;
@@ -575,5 +575,5 @@ index 2bbb32c8b..c8d6bb179 100644
  
  /**
 -- 
-2.39.2
+2.39.5 (Apple Git-154)
 
