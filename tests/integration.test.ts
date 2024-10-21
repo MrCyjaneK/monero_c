@@ -18,7 +18,7 @@ async function getKey(wallet: Wallet, type: `${"secret" | "public"}${"Spend" | "
 // TODO: Change for custom address on CI
 const NODE_URL = "https://nodes.hashvault.pro:18081";
 
-// await getMoneroC(coin, "next");
+await getMoneroC(coin, "next");
 
 interface WalletInfo {
   coin: "monero" | "wownero";
