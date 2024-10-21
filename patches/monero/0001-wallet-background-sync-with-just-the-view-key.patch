@@ -1,4 +1,4 @@
-From 958a56330836f5185a29d022a6696956ec78a8d6 Mon Sep 17 00:00:00 2001
+From 69edb14a59d5c1d77700c08c2828f767dc7de432 Mon Sep 17 00:00:00 2001
 From: j-berman <justinberman@protonmail.com>
 Date: Thu, 13 Oct 2022 18:33:33 -0700
 Subject: [PATCH 01/11] wallet: background sync with just the view key

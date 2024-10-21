@@ -1,4 +1,4 @@
-From e2526a2a08b96dd75f8c9effe475dd15156c743e Mon Sep 17 00:00:00 2001
+From 86f4d00f1c40a92c3ae2265f27be1568a8a54c81 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 23 May 2024 08:02:49 +0200
 Subject: [PATCH 03/11] Update android ndk

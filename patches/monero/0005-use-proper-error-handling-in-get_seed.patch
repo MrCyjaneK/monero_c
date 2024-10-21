@@ -1,4 +1,4 @@
-From 234d235ad83de3d11631dc317f74abd640b472c4 Mon Sep 17 00:00:00 2001
+From e5efe5789f2338cd6bcc49f25b6ab5aab0f0d657 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 24 Jun 2024 10:49:12 +0200
 Subject: [PATCH 05/11] use proper error handling in get_seed

@@ -1,4 +1,4 @@
-From b1aa9f60da16ea296e524a0b9966f1a5f794bf48 Mon Sep 17 00:00:00 2001
+From 191cf0f700839d327eab24eaae4635818bb21bae Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
 Subject: [PATCH 07/11] add dummy device for ledger
