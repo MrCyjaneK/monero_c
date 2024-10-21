@@ -109,15 +109,12 @@ fn test_wallet_creation() {
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
 
-
 #[test]
 fn test_restore_mnemonic_integration() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
     let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
-
-    // Example mnemonic seed (ensure this is a valid seed for your context).
     let mnemonic_seed = "hemlock jubilee eden hacksaw boil superior inroads epoxy exhale orders cavernous second brunt saved richly lower upgrade hitched launching deepest mostly playful layout lower eden".to_string();
 
     let restored_wallet = manager.restore_mnemonic(
@@ -151,6 +148,46 @@ fn test_restore_mnemonic_integration() {
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
 // TODO: Test with offset.
+
+#[test]
+fn test_restore_polyseed_integration() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
+    let mnemonic_seed = "capital chief route liar question fix clutch water outside pave hamster occur always learn license knife".to_string();
+
+    let restored_wallet = manager.restore_polyseed(
+        wallet_str.clone(),
+        "password".to_string(),
+        mnemonic_seed,
+        NetworkType::Mainnet,
+        0, // Restore from the beginning of the blockchain.
+        1, // Default KDF rounds.
+        "".to_string(), // No seed offset.
+        true, // Create a new wallet.
+    );
+
+    assert!(restored_wallet.is_ok(), "Failed to restore wallet: {:?}", restored_wallet.err());
+
+    // Check that the wallet is deterministic.
+    let wallet = restored_wallet.unwrap();
+    assert!(wallet.is_deterministic().is_ok(), "Restored wallet seems to have failed");
+    assert!(wallet.is_deterministic().unwrap(), "Restored wallet should be deterministic");
+
+    // Optionally, verify the address if applicable.
+    let address_result = wallet.get_address(0, 0);
+    assert!(address_result.is_ok(), "Failed to retrieve address: {:?}", address_result.err());
+    let address = address_result.unwrap();
+    assert_eq!(
+        address,
+        "465cUW8wTMSCV8oVVh7CuWWHs7yeB1oxhNPrsEM5FKSqadTXmobLqsNEtRnyGsbN1rbDuBtWdtxtXhTJda1Lm9vcH2ZdrD1",
+        "Address does not match expected value"
+    );
+
+    // Clean up wallet files.
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
 
 #[test]
 fn test_generate_from_keys_integration() {

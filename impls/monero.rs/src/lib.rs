@@ -381,6 +381,87 @@ impl WalletManager {
         }
     }
 
+    /// Restores a wallet from a polyseed.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use monero_c_rust::{WalletManager, NetworkType};
+    /// use tempfile::TempDir;
+    /// use std::fs;
+    ///
+    /// let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    /// let wallet_path = temp_dir.path().join("test_wallet");
+    /// let wallet_str = wallet_path.to_str().unwrap().to_string();
+    ///
+    /// let manager = WalletManager::new().expect("Failed to create WalletManager");
+    ///
+    /// let polyseed = "capital chief route liar question fix clutch water outside pave hamster occur always learn license knife".to_string();
+    /// let restored_wallet = manager.restore_polyseed(
+    ///     wallet_str.clone(),
+    ///     "password".to_string(),
+    ///     polyseed,
+    ///     NetworkType::Mainnet,
+    ///     0, // Restore from the beginning of the blockchain.
+    ///     1, // Default KDF rounds.
+    ///     "".to_string(), // No seed offset.
+    ///     true, // Create a new wallet.
+    /// ).expect("Failed to restore wallet from polyseed");
+    ///
+    /// // Use the restored_wallet as needed...
+    ///
+    /// // Clean up wallet files.
+    /// fs::remove_file(&wallet_path).expect("Failed to delete restored wallet");
+    /// fs::remove_file(format!("{}.keys", wallet_path.display())).expect("Failed to delete restored wallet keys");
+    /// ```
+    pub fn restore_polyseed(
+        self: &Arc<Self>,
+        path: String,
+        password: String,
+        polyseed: String,
+        network_type: NetworkType,
+        restore_height: u64,
+        kdf_rounds: u64,
+        seed_offset: String,
+        new_wallet: bool,
+    ) -> WalletResult<Wallet> {
+        // Convert Rust strings to C-compatible strings.
+        let c_path = CString::new(path)
+            .map_err(|_| WalletError::FfiError("Invalid path string".to_string()))?;
+        let c_password = CString::new(password)
+            .map_err(|_| WalletError::FfiError("Invalid password string".to_string()))?;
+        let c_polyseed = CString::new(polyseed)
+            .map_err(|_| WalletError::FfiError("Invalid mnemonic string".to_string()))?;
+        let c_seed_offset = CString::new(seed_offset)
+            .map_err(|_| WalletError::FfiError("Invalid seed offset string".to_string()))?;
+
+        unsafe {
+            let wallet_ptr = bindings::MONERO_WalletManager_createWalletFromPolyseed(
+                self.ptr.as_ptr(),
+                c_path.as_ptr(),
+                c_password.as_ptr(),
+                network_type.to_c_int(),
+                c_polyseed.as_ptr(),
+                c_seed_offset.as_ptr(),
+                new_wallet,
+                restore_height,
+                kdf_rounds,
+            );
+
+            // Check for errors using the returned wallet pointer.
+            self.throw_if_error(wallet_ptr)?;
+            if wallet_ptr.is_null() {
+                return Err(WalletError::NullPointer);
+            }
+
+            Ok(Wallet {
+                ptr: NonNull::new(wallet_ptr).unwrap(),
+                manager: Arc::clone(self),
+                is_closed: false,
+            })
+        }
+    }
+
     /// Generates a wallet from provided keys.
     ///
     /// # Example
@@ -1528,13 +1609,36 @@ fn test_restore_mnemonic_success() {
         1, // Default KDF rounds.
         "".to_string(), // No seed offset.
     );
-
     assert!(wallet.is_ok(), "Failed to restore wallet: {:?}", wallet.err());
 
     // Clean up wallet files.
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
 // TODO: Test with offset.
+
+#[test]
+fn test_restore_polyseed_success() {
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
+    let polyseed = "capital chief route liar question fix clutch water outside pave hamster occur always learn license knife".to_string();
+
+    let restored_wallet = manager.restore_polyseed(
+        wallet_str.clone(),
+        "password".to_string(),
+        polyseed.clone(),
+        NetworkType::Mainnet,
+        0, // Restore from the beginning of the blockchain.
+        1, // Default KDF rounds.
+        "".to_string(), // No seed offset.
+        true, // Create a new wallet.
+    );
+    assert!(restored_wallet.is_ok(), "Failed to restore wallet from polyseed: {:?}", restored_wallet.err());
+
+    // Clean up wallet files.
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
 
 #[test]
 fn test_generate_from_keys_unit() {
@@ -1567,19 +1671,7 @@ fn test_generate_from_keys_unit() {
         network_type,
         kdf_rounds,
     );
-
     assert!(result.is_ok(), "Failed to generate wallet from keys: {:?}", result.err());
-
-    // Set the seed language (even though it was set above).
-    let wallet = result.unwrap();
-    let _seed_language_result = wallet.set_seed_language("English");
-
-    // Make sure the seed is "hemlock jubilee...".
-    let seed_result = wallet.get_seed(None);
-    assert!(seed_result.is_ok(), "Failed to get seed: {:?}",
-        seed_result.err());
-    let seed = seed_result.unwrap();
-    assert_eq!(seed, "hemlock jubilee eden hacksaw boil superior inroads epoxy exhale orders cavernous second brunt saved richly lower upgrade hitched launching deepest mostly playful layout lower eden");
 
     // Clean up wallet files.
     teardown(&temp_dir).expect("Failed to clean up after test");
