@@ -528,6 +528,37 @@ export const moneroSymbols = {
   },
   //#endregion
 
+  //#region keys
+  "MONERO_Wallet_secretViewKey": {
+    nonblocking: true,
+    // void* wallet_ptr
+    parameters: ["pointer"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_Wallet_publicViewKey": {
+    nonblocking: true,
+    // void* wallet_ptr
+    parameters: ["pointer"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_Wallet_secretSpendKey": {
+    nonblocking: true,
+    // void* wallet_ptr
+    parameters: ["pointer"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_Wallet_publicSpendKey": {
+    nonblocking: true,
+    // void* wallet_ptr
+    parameters: ["pointer"],
+    // const char*
+    result: "pointer",
+  },
+  //#endregion
+
   "MONERO_free": {
     nonblocking: true,
     // void* ptr
