@@ -3,7 +3,7 @@ import { loadMoneroDylib, loadWowneroDylib } from "../impls/monero.ts/src/bindin
 import { Wallet, WalletManager } from "../impls/monero.ts/mod.ts";
 import { readCString } from "../impls/monero.ts/src/utils.ts";
 import { assertEquals } from "jsr:@std/assert";
-import { getMoneroC } from "./utils.ts";
+import { $, downloadCli, getMoneroC } from "./utils.ts";
 import { getSymbol } from "../impls/monero.ts/src/utils.ts";
 
 const coin = Deno.env.get("COIN");
@@ -285,7 +285,12 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
   dylib.close();
 });
 
-Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async (t) => {
+Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
+  await downloadCli(coin);
+
+  await Deno.remove("tests/wallets/", { recursive: true }).catch(() => {});
+  await Deno.mkdir("tests/wallets/");
+
   let dylib: Dylib;
   if (coin === "monero") {
     dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
@@ -295,5 +300,19 @@ Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async (t) => 
     loadWowneroDylib(dylib);
   }
 
-  await dylib.close();
+  const walletManager = await WalletManager.new();
+  const wallet = await Wallet.create(walletManager, "tests/wallets/stoat", "gornostay");
+  const moneroCSeed = await wallet.seed();
+  await wallet.close(true);
+
+  await Deno.remove("./tests/wallets/stoat");
+
+  const cliPath = `./tests/${coin}-cli/${coin}-wallet-cli`;
+  const moneroCliSeed = (await $.raw`${cliPath} --wallet-file ./tests/wallets/stoat --password gornostay --command seed`
+    .stdinText(`gornostay\n`)
+    .lines()).slice(-3).join(" ");
+
+  assertEquals(moneroCSeed, moneroCliSeed);
+
+  dylib.close();
 });
