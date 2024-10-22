@@ -12,10 +12,10 @@ Subject: [PATCH 08/12] add dummy device for ledger
  src/device/device_io_dummy.hpp |  74 ++++++++++++++++++
  src/device/device_ledger.cpp   |   6 +-
  src/device/device_ledger.hpp   |   7 +-
- src/wallet/api/wallet.cpp      |  93 +++++++++++++++++++++++
+ src/wallet/api/wallet.cpp      |  94 +++++++++++++++++++++++
  src/wallet/api/wallet.h        |  18 +++++
  src/wallet/api/wallet2_api.h   |  12 +++
- 11 files changed, 356 insertions(+), 21 deletions(-)
+ 11 files changed, 357 insertions(+), 21 deletions(-)
  create mode 100644 src/device/device_io_dummy.cpp
  create mode 100644 src/device/device_io_dummy.hpp
 
@@ -502,6 +502,7 @@ index 4fb5f7595..ec79482ac 100644
 +    return;
 +    #else
 +    hw::io::device_io_dummy::receivedFromDevice = static_cast<unsigned char *>(malloc(len));
++    hw::io::device_io_dummy::receivedFromDeviceLength = len;
 +    memset(hw::io::device_io_dummy::receivedFromDevice, 0, len);
 +    memcpy(hw::io::device_io_dummy::receivedFromDevice, data, len);
 +    hw::io::device_io_dummy::waitsForDeviceReceive = false;
@@ -576,4 +577,6 @@ index 764adbfbf..53ec4abfc 100644
  /**
 -- 
 2.43.0
+=======
+2.45.1.windows.1
 
