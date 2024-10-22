@@ -1,81 +1,69 @@
-From 8729f36a109b33a080f5ee117a9d2a53fb55a47a Mon Sep 17 00:00:00 2001
+From 047c1c7a0d26bb1972381813847729ac06e9efca Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 09:42:37 +0100
-Subject: [PATCH 02/14] polyseed
+Subject: [PATCH 09/13] polyseed
 
 Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
 ---
- .github/workflows/build.yml            |   4 +-
- .gitmodules                            |   6 +
- CMakeLists.txt                         |   4 +-
- contrib/epee/include/wipeable_string.h |   7 +
- contrib/epee/src/wipeable_string.cpp   |  10 ++
- external/CMakeLists.txt                |   2 +
- external/polyseed                      |   1 +
- external/utf8proc                      |   1 +
- src/CMakeLists.txt                     |   1 +
- src/cryptonote_basic/CMakeLists.txt    |   1 +
- src/cryptonote_basic/account.cpp       |  23 +++-
- src/cryptonote_basic/account.h         |   6 +
- src/cryptonote_config.h                |   2 +
- src/polyseed/CMakeLists.txt            |  25 ++++
- src/polyseed/pbkdf2.c                  |  85 ++++++++++++
- src/polyseed/pbkdf2.h                  |  46 +++++++
- src/polyseed/polyseed.cpp              | 182 +++++++++++++++++++++++++
- src/polyseed/polyseed.hpp              | 167 +++++++++++++++++++++++
- src/wallet/api/wallet.cpp              |  71 ++++++++++
- src/wallet/api/wallet.h                |  10 ++
- src/wallet/api/wallet2_api.h           |  25 ++++
- src/wallet/api/wallet_manager.cpp      |   9 ++
- src/wallet/api/wallet_manager.h        |  10 ++
- src/wallet/wallet2.cpp                 | 102 ++++++++++++--
- src/wallet/wallet2.h                   |  30 +++-
- 25 files changed, 809 insertions(+), 21 deletions(-)
- create mode 160000 external/polyseed
- create mode 160000 external/utf8proc
+ .gitmodules                                   |   6 +
+ CMakeLists.txt                                |   4 +-
+ contrib/depends/hosts/darwin.mk               |   2 +
+ contrib/depends/hosts/linux.mk                |   8 +-
+ contrib/depends/packages/packages.mk          |   2 +-
+ contrib/depends/packages/polyseed.mk          |  28 +++
+ contrib/depends/packages/sodium.mk            |   2 +-
+ .../polyseed/0001-disable-soname.patch        |  48 +++++
+ .../patches/polyseed/force-static-mingw.patch |  23 +++
+ contrib/epee/include/wipeable_string.h        |   7 +
+ contrib/epee/src/wipeable_string.cpp          |  10 +
+ external/CMakeLists.txt                       |   2 +
+ src/CMakeLists.txt                            |   1 +
+ src/cryptonote_basic/CMakeLists.txt           |   1 +
+ src/cryptonote_basic/account.cpp              |  23 ++-
+ src/cryptonote_basic/account.h                |   6 +
+ src/cryptonote_config.h                       |   2 +
+ src/polyseed/CMakeLists.txt                   |  25 +++
+ src/polyseed/pbkdf2.c                         |  85 ++++++++
+ src/polyseed/pbkdf2.h                         |  46 +++++
+ src/polyseed/polyseed.cpp                     | 182 ++++++++++++++++++
+ src/polyseed/polyseed.hpp                     | 167 ++++++++++++++++
+ src/wallet/api/wallet.cpp                     |  70 +++++++
+ src/wallet/api/wallet.h                       |  10 +
+ src/wallet/api/wallet2_api.h                  |  25 +++
+ src/wallet/api/wallet_manager.cpp             |   9 +
+ src/wallet/api/wallet_manager.h               |  10 +
+ src/wallet/wallet2.cpp                        |  99 ++++++++--
+ src/wallet/wallet2.h                          |  30 ++-
+ 29 files changed, 910 insertions(+), 23 deletions(-)
+ create mode 100644 contrib/depends/packages/polyseed.mk
+ create mode 100644 contrib/depends/patches/polyseed/0001-disable-soname.patch
+ create mode 100644 contrib/depends/patches/polyseed/force-static-mingw.patch
  create mode 100644 src/polyseed/CMakeLists.txt
  create mode 100644 src/polyseed/pbkdf2.c
  create mode 100644 src/polyseed/pbkdf2.h
  create mode 100644 src/polyseed/polyseed.cpp
  create mode 100644 src/polyseed/polyseed.hpp
 
-diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
-index 4c1e381c0..70bea03b3 100644
---- a/.github/workflows/build.yml
-+++ b/.github/workflows/build.yml
-@@ -124,8 +124,8 @@ jobs:
-     - name: build
-       run: |
-         ${{env.CCACHE_SETTINGS}}
--        cmake .
--        make wallet_api -j3
-+        cmake -S . -B build
-+        cmake --build build wallet_api -j3
- 
-   test-ubuntu:
-     needs: build-ubuntu
 diff --git a/.gitmodules b/.gitmodules
-index e40b7b4c7..bd30f0444 100644
+index b24855d9b..589676649 100644
 --- a/.gitmodules
 +++ b/.gitmodules
-@@ -8,6 +8,12 @@
- 	active = false
- 	path = external/trezor-common
- 	url = https://github.com/trezor/trezor-common.git
+@@ -20,3 +20,9 @@
+ 	path = external/bc-ur
+ 	url = https://github.com/MrCyjaneK/bc-ur
+ 	branch = misc
 +[submodule "external/utf8proc"]
 +	path = external/utf8proc
 +	url = https://github.com/JuliaStrings/utf8proc.git
 +[submodule "external/polyseed"]
 +	path = external/polyseed
 +	url = https://github.com/tevador/polyseed.git
- [submodule "external/supercop"]
- 	path = external/supercop
- 	url = https://github.com/monero-project/supercop
+\ No newline at end of file
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 20829bc30..2dd427d3d 100644
+index abe44eca5..85a62ef7b 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -370,6 +370,8 @@ if(NOT MANUAL_SUBMODULES)
+@@ -372,6 +372,8 @@ if(NOT MANUAL_SUBMODULES)
      #check_submodule(external/trezor-common)
      check_submodule(external/randomwow)
      check_submodule(external/supercop)
@@ -84,7 +72,7 @@ index 20829bc30..2dd427d3d 100644
    endif()
  endif()
  
-@@ -459,7 +461,7 @@ endif()
+@@ -461,7 +463,7 @@ endif()
  # elseif(CMAKE_SYSTEM_NAME MATCHES ".*BSDI.*")
  #   set(BSDI TRUE)
  
@@ -93,6 +81,183 @@ index 20829bc30..2dd427d3d 100644
  
  if(APPLE)
    cmake_policy(SET CMP0042 NEW)
+diff --git a/contrib/depends/hosts/darwin.mk b/contrib/depends/hosts/darwin.mk
+index 83d83036b..b14ee5c5b 100644
+--- a/contrib/depends/hosts/darwin.mk
++++ b/contrib/depends/hosts/darwin.mk
+@@ -8,6 +8,8 @@ endif
+ darwin_CC=clang -target $(CC_target) -mmacosx-version-min=$(OSX_MIN_VERSION) --sysroot $(host_prefix)/native/SDK/ -mlinker-version=$(LD64_VERSION) -B$(host_prefix)/native/bin/$(host)-
+ darwin_CXX=clang++ -target $(CC_target) -mmacosx-version-min=$(OSX_MIN_VERSION) --sysroot $(host_prefix)/native/SDK/ -mlinker-version=$(LD64_VERSION) -stdlib=libc++ -B$(host_prefix)/native/bin/$(host)-
+ 
++darwin_RANLIB=$(host_prefix)/native/bin/$(host)-ranlib
++
+ darwin_CFLAGS=-pipe
+ darwin_CXXFLAGS=$(darwin_CFLAGS)
+ darwin_ARFLAGS=cr
+diff --git a/contrib/depends/hosts/linux.mk b/contrib/depends/hosts/linux.mk
+index 912fdb03c..b79799f30 100644
+--- a/contrib/depends/hosts/linux.mk
++++ b/contrib/depends/hosts/linux.mk
+@@ -11,15 +11,15 @@ linux_debug_CXXFLAGS=$(linux_debug_CFLAGS)
+ linux_debug_CPPFLAGS=-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+ 
+ ifeq (86,$(findstring 86,$(build_arch)))
+-i686_linux_CC=gcc -m32
+-i686_linux_CXX=g++ -m32
++i686_linux_CC=i686-linux-gnu-gcc
++i686_linux_CXX=i686-linux-gnu-g++
+ i686_linux_AR=ar
+ i686_linux_RANLIB=ranlib
+ i686_linux_NM=nm
+ i686_linux_STRIP=strip
+ 
+-x86_64_linux_CC=gcc -m64
+-x86_64_linux_CXX=g++ -m64
++x86_64_linux_CC=x86_64-linux-gnu-gcc
++x86_64_linux_CXX=x86_64-linux-gnu-g++
+ x86_64_linux_AR=ar
+ x86_64_linux_RANLIB=ranlib
+ x86_64_linux_NM=nm
+diff --git a/contrib/depends/packages/packages.mk b/contrib/depends/packages/packages.mk
+index d2d1eca85..8783d4955 100644
+--- a/contrib/depends/packages/packages.mk
++++ b/contrib/depends/packages/packages.mk
+@@ -1,4 +1,4 @@
+-packages:=boost openssl zeromq libiconv expat unbound
++packages:=boost openssl zeromq libiconv expat unbound polyseed
+ 
+ # ccache is useless in gitian builds
+ ifneq ($(GITIAN),1)
+diff --git a/contrib/depends/packages/polyseed.mk b/contrib/depends/packages/polyseed.mk
+new file mode 100644
+index 000000000..0071b20f3
+--- /dev/null
++++ b/contrib/depends/packages/polyseed.mk
+@@ -0,0 +1,28 @@
++package=polyseed
++$(package)_version=2.0.0
++$(package)_download_path=https://github.com/tevador/$(package)/archive/refs/tags/
++$(package)_download_file=v$($(package)_version).tar.gz
++$(package)_file_name=$(package)-$($(package)_version).tar.gz
++$(package)_sha256_hash=f36282fcbcd68d32461b8230c89e1a40661bd46b91109681cec637433004135a
++$(package)_patches=force-static-mingw.patch 0001-disable-soname.patch
++
++define $(package)_preprocess_cmds
++    patch -p1 < $($(package)_patch_dir)/force-static-mingw.patch &&\
++    patch -p1 < $($(package)_patch_dir)/0001-disable-soname.patch
++endef
++
++define $(package)_config_cmds
++    CC="$($(package)_cc)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" .
++endef
++
++define $(package)_set_vars
++  $(package)_build_opts=CC="$($(package)_cc)"
++endef
++
++define $(package)_build_cmds
++    CC="$($(package)_cc)" $(MAKE)
++endef
++
++define $(package)_stage_cmds
++    $(MAKE) DESTDIR=$($(package)_staging_dir) install
++endef
+diff --git a/contrib/depends/packages/sodium.mk b/contrib/depends/packages/sodium.mk
+index 87b34599e..68a5b48ba 100644
+--- a/contrib/depends/packages/sodium.mk
++++ b/contrib/depends/packages/sodium.mk
+@@ -6,7 +6,7 @@ $(package)_sha256_hash=6f504490b342a4f8a4c4a02fc9b866cbef8622d5df4e5452b46be121e
+ $(package)_patches=disable-glibc-getrandom-getentropy.patch fix-whitespace.patch
+ 
+ define $(package)_set_vars
+-$(package)_config_opts=--enable-static --disable-shared
++$(package)_config_opts=--enable-static --disable-shared --with-pic
+ $(package)_config_opts+=--prefix=$(host_prefix)
+ endef
+ 
+diff --git a/contrib/depends/patches/polyseed/0001-disable-soname.patch b/contrib/depends/patches/polyseed/0001-disable-soname.patch
+new file mode 100644
+index 000000000..bd97dd394
+--- /dev/null
++++ b/contrib/depends/patches/polyseed/0001-disable-soname.patch
+@@ -0,0 +1,48 @@
++From aabafcfc0572651436d024a635483c49042fad7f Mon Sep 17 00:00:00 2001
++From: Czarek Nakamoto <cyjan@mrcyjanek.net>
++Date: Thu, 28 Mar 2024 00:32:51 +0100
++Subject: [PATCH] disable soname
++
++---
++ CMakeLists.txt | 16 +++++++++-------
++ 1 file changed, 9 insertions(+), 7 deletions(-)
++
++diff --git a/CMakeLists.txt b/CMakeLists.txt
++index 8a8e7c2..5301353 100644
++--- a/CMakeLists.txt
+++++ b/CMakeLists.txt
++@@ -36,6 +36,7 @@ include_directories(polyseed
++ target_compile_definitions(polyseed PRIVATE POLYSEED_SHARED)
++ set_target_properties(polyseed PROPERTIES VERSION 2.0.0
++                                           SOVERSION 2
+++                                          NO_SONAME 1
++                                           C_STANDARD 11
++                                           C_STANDARD_REQUIRED ON)
++
++@@ -45,16 +46,17 @@ include_directories(polyseed_static
++   include/)
++ target_compile_definitions(polyseed_static PRIVATE POLYSEED_STATIC)
++ set_target_properties(polyseed_static PROPERTIES OUTPUT_NAME polyseed
+++                                                 NO_SONAME 1
++                                                  C_STANDARD 11
++                                                  C_STANDARD_REQUIRED ON)
++
++-add_executable(polyseed-tests
++-  tests/tests.c)
++-include_directories(polyseed-tests
++-  include/)
++-target_compile_definitions(polyseed-tests PRIVATE POLYSEED_STATIC)
++-target_link_libraries(polyseed-tests
++-  PRIVATE polyseed_static)
+++# add_executable(polyseed-tests
+++#   tests/tests.c)
+++# include_directories(polyseed-tests
+++#   include/)
+++# target_compile_definitions(polyseed-tests PRIVATE POLYSEED_STATIC)
+++# target_link_libraries(polyseed-tests
+++#   PRIVATE polyseed_static)
++
++ include(GNUInstallDirs)
++ install(TARGETS polyseed polyseed_static
++--
++2.39.2
+diff --git a/contrib/depends/patches/polyseed/force-static-mingw.patch b/contrib/depends/patches/polyseed/force-static-mingw.patch
+new file mode 100644
+index 000000000..f05cb2b6a
+--- /dev/null
++++ b/contrib/depends/patches/polyseed/force-static-mingw.patch
+@@ -0,0 +1,23 @@
++--- a/include/polyseed.h
+++++ b/include/polyseed.h
++@@ -93,13 +93,13 @@ Shared/static library definitions
++     - define POLYSEED_STATIC when linking to the static library
++ */
++ #if defined(_WIN32) || defined(__CYGWIN__)
++-    #ifdef POLYSEED_SHARED
++-        #define POLYSEED_API __declspec(dllexport)
++-    #elif !defined(POLYSEED_STATIC)
++-        #define POLYSEED_API __declspec(dllimport)
++-    #else
++-        #define POLYSEED_API
++-    #endif
+++//    #ifdef POLYSEED_SHARED
+++//        #define POLYSEED_API __declspec(dllexport)
+++//    #elif !defined(POLYSEED_STATIC)
+++//        #define POLYSEED_API __declspec(dllimport)
+++//    #else
+++          #define POLYSEED_API
+++//    #endif
++     #define POLYSEED_PRIVATE
++ #else
++     #ifdef POLYSEED_SHARED
 diff --git a/contrib/epee/include/wipeable_string.h b/contrib/epee/include/wipeable_string.h
 index 65977cd97..594e15de4 100644
 --- a/contrib/epee/include/wipeable_string.h
@@ -138,29 +303,30 @@ index b016f2f48..f2f365b1b 100644
 +
  }
 diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
-index 29aed0cc6..04910a4fc 100644
+index 88a7bb0b5..f8f4b3c0f 100644
 --- a/external/CMakeLists.txt
 +++ b/external/CMakeLists.txt
-@@ -70,3 +70,5 @@ add_subdirectory(db_drivers)
+@@ -73,4 +73,6 @@ add_subdirectory(db_drivers)
  add_subdirectory(easylogging++)
  add_subdirectory(qrcodegen)
- add_subdirectory(randomwow EXCLUDE_FROM_ALL)
+ add_subdirectory(bc-ur)
 +add_subdirectory(polyseed EXCLUDE_FROM_ALL)
 +add_subdirectory(utf8proc EXCLUDE_FROM_ALL)
+ add_subdirectory(randomwow EXCLUDE_FROM_ALL)
 diff --git a/external/polyseed b/external/polyseed
 new file mode 160000
-index 000000000..9d4f1a032
+index 000000000..dfb05d8ed
 --- /dev/null
 +++ b/external/polyseed
 @@ -0,0 +1 @@
-+Subproject commit 9d4f1a032585656e1a642ee70cdf929001badba6
++Subproject commit dfb05d8edb682b0e8f743b1b70c9131712ff4157
 diff --git a/external/utf8proc b/external/utf8proc
 new file mode 160000
-index 000000000..1cb28a66c
+index 000000000..3de4596fb
 --- /dev/null
 +++ b/external/utf8proc
 @@ -0,0 +1 @@
-+Subproject commit 1cb28a66ca79a0845e99433fd1056257456cef8b
++Subproject commit 3de4596fbe28956855df2ecb3c11c0bbc3535838
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index 9216bcaa5..c043ba150 100644
 --- a/src/CMakeLists.txt
@@ -186,7 +352,7 @@ index 1414be1b2..414936a05 100644
      ${Boost_PROGRAM_OPTIONS_LIBRARY}
      ${Boost_SERIALIZATION_LIBRARY}
 diff --git a/src/cryptonote_basic/account.cpp b/src/cryptonote_basic/account.cpp
-index 2ac455fda..4931c3740 100644
+index 4e87d4477..2d556f285 100644
 --- a/src/cryptonote_basic/account.cpp
 +++ b/src/cryptonote_basic/account.cpp
 @@ -87,12 +87,16 @@ DISABLE_VS_WARNINGS(4244 4345)
@@ -215,8 +381,8 @@ index 2ac455fda..4931c3740 100644
 +    m_keys.m_passphrase.wipe();
    }
    //-----------------------------------------------------------------
-   crypto::secret_key account_base::generate(const crypto::secret_key& recovery_key, bool recover, bool two_random)
-@@ -244,6 +250,21 @@ DISABLE_VS_WARNINGS(4244 4345)
+   void account_base::set_spend_key(const crypto::secret_key& spend_secret_key)
+@@ -255,6 +261,21 @@ DISABLE_VS_WARNINGS(4244 4345)
      create_from_keys(address, fake, viewkey);
    }
    //-----------------------------------------------------------------
@@ -239,7 +405,7 @@ index 2ac455fda..4931c3740 100644
    {
      m_keys.m_account_address.m_spend_public_key = spend_public_key;
 diff --git a/src/cryptonote_basic/account.h b/src/cryptonote_basic/account.h
-index 2ee9545d4..0099ebfe7 100644
+index 93d1d28f0..1f76febce 100644
 --- a/src/cryptonote_basic/account.h
 +++ b/src/cryptonote_basic/account.h
 @@ -33,6 +33,7 @@
@@ -277,7 +443,7 @@ index 2ee9545d4..0099ebfe7 100644
      const account_keys& get_keys() const;
      std::string get_public_address_str(network_type nettype) const;
 diff --git a/src/cryptonote_config.h b/src/cryptonote_config.h
-index 8c0d3ce20..5b36c70de 100644
+index 8b5091a46..a192bd64d 100644
 --- a/src/cryptonote_config.h
 +++ b/src/cryptonote_config.h
 @@ -219,6 +219,8 @@
@@ -828,10 +994,10 @@ index 000000000..2c8c777a7
 +#endif //POLYSEED_HPP
 \ No newline at end of file
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index d81ddec93..db9c2b5d9 100644
+index 375edb4f1..0d785360a 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
-@@ -683,6 +683,28 @@ bool WalletImpl::recoverFromDevice(const std::string &path, const std::string &p
+@@ -728,6 +728,28 @@ bool WalletImpl::recoverFromDevice(const std::string &path, const std::string &p
      return true;
  }
  
@@ -860,35 +1026,35 @@ index d81ddec93..db9c2b5d9 100644
  Wallet::Device WalletImpl::getDeviceType() const
  {
      return static_cast<Wallet::Device>(m_wallet->get_device_type());
-@@ -820,6 +842,55 @@ std::string WalletImpl::seed(const std::string& seed_offset) const
-     return std::string(seed.data(), seed.size()); // TODO
+@@ -845,6 +867,54 @@ std::string WalletImpl::seed(const std::string& seed_offset) const
+     }
  }
  
 +bool WalletImpl::getPolyseed(std::string &seed_words, std::string &passphrase) const
 +{
-+    epee::wipeable_string seed_words_epee(seed_words.c_str(), seed_words.size());
-+    epee::wipeable_string passphrase_epee(passphrase.c_str(), passphrase.size());
-+    clearStatus();
++  epee::wipeable_string seed_words_epee(seed_words.c_str(), seed_words.size());
++  epee::wipeable_string passphrase_epee(passphrase.c_str(), passphrase.size());
++  clearStatus();
 +
-+    if (!m_wallet) {
-+        return false;
-+    }
++  if (!m_wallet) {
++    return false;
++  }
 +
-+    bool result = m_wallet->get_polyseed(seed_words_epee, passphrase_epee);
++  bool result = m_wallet->get_polyseed(seed_words_epee, passphrase_epee);
 +
-+    seed_words.assign(seed_words_epee.data(), seed_words_epee.size());
-+    passphrase.assign(passphrase_epee.data(), passphrase_epee.size());
++  seed_words.assign(seed_words_epee.data(), seed_words_epee.size());
++  passphrase.assign(passphrase_epee.data(), passphrase_epee.size());
 +
-+    return result;
++  return result;
 +}
 +
 +std::vector<std::pair<std::string, std::string>> Wallet::getPolyseedLanguages()
-+{
++  {
 +    std::vector<std::pair<std::string, std::string>> languages;
 +
 +    auto langs = polyseed::get_langs();
 +    for (const auto &lang : langs) {
-+        languages.emplace_back(std::pair<std::string, std::string>(lang.name_en(), lang.name()));
++      languages.emplace_back(std::pair<std::string, std::string>(lang.name_en(), lang.name()));
 +    }
 +
 +    return languages;
@@ -896,31 +1062,30 @@ index d81ddec93..db9c2b5d9 100644
 +
 +bool Wallet::createPolyseed(std::string &seed_words, std::string &err, const std::string &language)
 +{
-+    epee::wipeable_string seed_words_epee(seed_words.c_str(), seed_words.size());
++  epee::wipeable_string seed_words_epee(seed_words.c_str(), seed_words.size());
 +
-+    try {
-+        polyseed::data polyseed(POLYSEED_COIN);
-+        polyseed.create(0);
-+        polyseed.encode(polyseed::get_lang_by_name(language), seed_words_epee);
++  try {
++    polyseed::data polyseed(POLYSEED_COIN);
++    polyseed.create(0);
++    polyseed.encode(polyseed::get_lang_by_name(language), seed_words_epee);
 +
-+        seed_words.assign(seed_words_epee.data(), seed_words_epee.size());
-+    }
-+    catch (const std::exception &e) {
-+        err = e.what();
-+        return false;
-+    }
++    seed_words.assign(seed_words_epee.data(), seed_words_epee.size());
++  }
++  catch (const std::exception &e) {
++    err = e.what();
++    return false;
++  }
 +
-+    return true;
++  return true;
 +}
-+
  std::string WalletImpl::getSeedLanguage() const
  {
      return m_wallet->get_seed_language();
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 03b5a98e9..28135c82a 100644
+index 4e9c21ecb..32e12284b 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
-@@ -86,9 +86,19 @@ public:
+@@ -79,9 +79,19 @@ public:
      bool recoverFromDevice(const std::string &path,
                             const std::string &password,
                             const std::string &device_name);
@@ -941,10 +1106,10 @@ index 03b5a98e9..28135c82a 100644
      void setSeedLanguage(const std::string &arg) override;
      // void setListener(Listener *) {}
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 6df661dc2..a0ed60a39 100644
+index 53ec4abfc..be1c3704e 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -800,6 +800,10 @@ struct Wallet
+@@ -709,6 +709,10 @@ struct Wallet
      static void warning(const std::string &category, const std::string &str);
      static void error(const std::string &category, const std::string &str);
  
@@ -955,7 +1120,7 @@ index 6df661dc2..a0ed60a39 100644
     /**
      * @brief StartRefresh - Start/resume refresh thread (refresh every 10 seconds)
      */
-@@ -1432,6 +1436,27 @@ struct WalletManager
+@@ -1320,6 +1324,27 @@ struct WalletManager
                                              uint64_t kdf_rounds = 1,
                                              WalletListener * listener = nullptr) = 0;
  
@@ -984,10 +1149,10 @@ index 6df661dc2..a0ed60a39 100644
       * \brief Closes wallet. In case operation succeeded, wallet object deleted. in case operation failed, wallet object not deleted
       * \param wallet        previously opened / created wallet instance
 diff --git a/src/wallet/api/wallet_manager.cpp b/src/wallet/api/wallet_manager.cpp
-index b166d8ac7..f88bd9e64 100644
+index e81b8f83a..c79fe25d6 100644
 --- a/src/wallet/api/wallet_manager.cpp
 +++ b/src/wallet/api/wallet_manager.cpp
-@@ -172,6 +172,15 @@ Wallet *WalletManagerImpl::createWalletFromDevice(const std::string &path,
+@@ -156,6 +156,15 @@ Wallet *WalletManagerImpl::createWalletFromDevice(const std::string &path,
      return wallet;
  }
  
@@ -1004,10 +1169,10 @@ index b166d8ac7..f88bd9e64 100644
  {
      WalletImpl * wallet_ = dynamic_cast<WalletImpl*>(wallet);
 diff --git a/src/wallet/api/wallet_manager.h b/src/wallet/api/wallet_manager.h
-index 206aedc14..e3149300c 100644
+index a223e1df9..28fcd36c9 100644
 --- a/src/wallet/api/wallet_manager.h
 +++ b/src/wallet/api/wallet_manager.h
-@@ -82,6 +82,16 @@ public:
+@@ -75,6 +75,16 @@ public:
                                              const std::string &subaddressLookahead = "",
                                              uint64_t kdf_rounds = 1,
                                              WalletListener * listener = nullptr) override;
@@ -1025,7 +1190,7 @@ index 206aedc14..e3149300c 100644
      bool walletExists(const std::string &path) override;
      bool verifyWalletPassword(const std::string &keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const override;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index e586d67f7..dfcc206a0 100644
+index 671fa5298..3e49c21f8 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -92,6 +92,7 @@ using namespace epee;
@@ -1036,7 +1201,7 @@ index e586d67f7..dfcc206a0 100644
  
  extern "C"
  {
-@@ -1272,7 +1273,8 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
+@@ -1278,7 +1279,8 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
    m_enable_multisig(false),
    m_pool_info_query_time(0),
    m_has_ever_refreshed_from_node(false),
@@ -1046,63 +1211,56 @@ index e586d67f7..dfcc206a0 100644
  {
    set_rpc_client_secret_key(rct::rct2sk(rct::skGen()));
  }
-@@ -1450,10 +1452,25 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
-     key = cryptonote::encrypt_key(key, passphrase);
-   if (!crypto::ElectrumWords::bytes_to_words(key, electrum_words, seed_language))
-   {
--    std::cout << "Failed to create seed from key for language: " << seed_language << std::endl;
-+    std::cout << "Failed to create seed from key for language: " << seed_language << ", falling back to English." << std::endl;
-+    crypto::ElectrumWords::bytes_to_words(key, electrum_words, "English");
-+  }
-+
-+  return true;
-+}
-+//----------------------------------------------------------------------------------------------------
-+bool wallet2::get_polyseed(epee::wipeable_string& polyseed, epee::wipeable_string& passphrase) const
-+{
-+  if (!m_polyseed) {
-     return false;
-   }
- 
-+  polyseed::data data(POLYSEED_COIN);
-+  data.load(get_account().get_keys().m_polyseed);
-+  data.encode(polyseed::get_lang_by_name(seed_language), polyseed);
-+
-+  passphrase = get_account().get_keys().m_passphrase;
-+
+@@ -1474,6 +1476,20 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
    return true;
  }
  //----------------------------------------------------------------------------------------------------
-@@ -4712,6 +4729,9 @@ boost::optional<wallet2::keys_file_data> wallet2::get_keys_file_data(const epee:
++
++bool wallet2::get_polyseed(epee::wipeable_string& polyseed, epee::wipeable_string& passphrase) const
++{
++  if (!m_polyseed) {
++    return false;
++  }
++
++  polyseed::data data(POLYSEED_COIN);
++  data.load(get_account().get_keys().m_polyseed);
++  data.encode(polyseed::get_lang_by_name(seed_language), polyseed);
++  passphrase = get_account().get_keys().m_passphrase;
++  return true;
++}
++//----------------------------------------------------------------------------------------------------
+ bool wallet2::get_multisig_seed(epee::wipeable_string& seed, const epee::wipeable_string &passphrase) const
+ {
+   bool ready;
+@@ -4792,6 +4808,9 @@ boost::optional<wallet2::keys_file_data> wallet2::get_keys_file_data(const crypt
    value2.SetInt(m_enable_multisig ? 1 : 0);
    json.AddMember("enable_multisig", value2, json.GetAllocator());
  
 +  value2.SetInt(m_polyseed ? 1 : 0);
 +  json.AddMember("polyseed", value2, json.GetAllocator());
 +
-   // Serialize the JSON object
-   rapidjson::StringBuffer buffer;
-   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-@@ -4859,7 +4879,8 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
-     m_auto_mine_for_rpc_payment_threshold = -1.0f;
-     m_credits_target = 0;
+   if (m_background_sync_type == BackgroundSyncCustomPassword && !background_keys_file && m_custom_background_key)
+   {
+     value.SetString(reinterpret_cast<const char*>(m_custom_background_key.get().data()), m_custom_background_key.get().size());
+@@ -5031,6 +5050,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
      m_enable_multisig = false;
--    m_allow_mismatched_daemon_version = true;
-+    m_allow_mismatched_daemon_version = false;
+     m_allow_mismatched_daemon_version = true;
+     m_custom_background_key = boost::none;
 +    m_polyseed = false;
    }
    else if(json.IsObject())
    {
-@@ -5098,6 +5119,8 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
-     m_credits_target = field_credits_target;
-     GET_FIELD_FROM_JSON_RETURN_ON_ERROR(json, enable_multisig, int, Int, false, false);
-     m_enable_multisig = field_enable_multisig;
+@@ -5271,6 +5291,9 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
+     GET_FIELD_FROM_JSON_RETURN_ON_ERROR(json, background_sync_type, BackgroundSyncType, Int, false, BackgroundSyncOff);
+     m_background_sync_type = field_background_sync_type;
+ 
 +    GET_FIELD_FROM_JSON_RETURN_ON_ERROR(json, polyseed, int, Int, false, false);
 +    m_polyseed = field_polyseed;
-   }
-   else
-   {
-@@ -5370,6 +5393,48 @@ void wallet2::init_type(hw::device::device_type device_type)
++
+     // Load encryption key used to encrypt background cache
+     crypto::chacha_key custom_background_key;
+     m_custom_background_key = boost::none;
+@@ -5590,6 +5613,48 @@ void wallet2::init_type(hw::device::device_type device_type)
    m_key_device_type = device_type;
  }
  
@@ -1151,7 +1309,7 @@ index e586d67f7..dfcc206a0 100644
  /*!
   * \brief  Generates a wallet or restores one. Assumes the multisig setup
   *         has already completed for the provided multisig info.
-@@ -5497,7 +5562,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
+@@ -5717,7 +5782,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
    return retval;
  }
  
@@ -1160,7 +1318,7 @@ index e586d67f7..dfcc206a0 100644
   {
     // -1 month for fluctuations in block time and machine date/time setup.
     // avg seconds per block
-@@ -5521,7 +5586,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
+@@ -5741,7 +5806,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
     // the daemon is currently syncing.
     // If we use the approximate height we subtract one month as
     // a safety margin.
@@ -1169,7 +1327,7 @@ index e586d67f7..dfcc206a0 100644
     uint64_t target_height = get_daemon_blockchain_target_height(err);
     if (err.empty()) {
       if (target_height < height)
-@@ -13546,7 +13611,7 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
+@@ -13634,9 +13699,10 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
    return target_height;
  }
  
@@ -1177,8 +1335,11 @@ index e586d67f7..dfcc206a0 100644
 +uint64_t wallet2::get_approximate_blockchain_height(uint64_t t) const
  {
    uint64_t approx_blockchain_height = m_nettype == TESTNET ? 0 : (time(NULL) - 1522624244)/307;
++  // uint64_t approx_blockchain_height = fork_block + ((t > 0 ? t : time(NULL)) - fork_time)/seconds_per_block;
    LOG_PRINT_L2("Calculated blockchain height: " << approx_blockchain_height);
-@@ -15262,15 +15327,6 @@ bool wallet2::parse_uri(const std::string &uri, std::string &address, std::strin
+   return approx_blockchain_height;
+ }
+@@ -15771,15 +15837,6 @@ bool wallet2::parse_uri(const std::string &uri, std::string &address, std::strin
  //----------------------------------------------------------------------------------------------------
  uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, uint8_t day)
  {
@@ -1194,7 +1355,7 @@ index e586d67f7..dfcc206a0 100644
    std::tm date = { 0, 0, 0, 0, 0, 0, 0, 0 };
    date.tm_year = year - 1900;
    date.tm_mon  = month - 1;
-@@ -15279,7 +15335,23 @@ uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, ui
+@@ -15788,7 +15845,23 @@ uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, ui
    {
      throw std::runtime_error("month or day out of range");
    }
@@ -1219,7 +1380,7 @@ index e586d67f7..dfcc206a0 100644
    uint64_t height_min = 0;
    uint64_t height_max = get_daemon_blockchain_height(err) - 1;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index df34f9abf..db5c1feb3 100644
+index 80ff0698d..c26349ce3 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -72,6 +72,7 @@
@@ -1230,7 +1391,7 @@ index df34f9abf..db5c1feb3 100644
  
  #undef MONERO_DEFAULT_LOG_CATEGORY
  #define MONERO_DEFAULT_LOG_CATEGORY "wallet.wallet2"
-@@ -854,6 +855,20 @@ private:
+@@ -921,6 +922,20 @@ private:
      void generate(const std::string& wallet_, const epee::wipeable_string& password,
        const epee::wipeable_string& multisig_data, bool create_address_file = false);
  
@@ -1251,7 +1412,7 @@ index df34f9abf..db5c1feb3 100644
      /*!
       * \brief Generates a wallet or restores one.
       * \param  wallet_              Name of wallet file
-@@ -1018,6 +1033,15 @@ private:
+@@ -1088,6 +1103,15 @@ private:
      bool is_deterministic() const;
      bool get_seed(epee::wipeable_string& electrum_words, const epee::wipeable_string &passphrase = epee::wipeable_string()) const;
  
@@ -1267,7 +1428,7 @@ index df34f9abf..db5c1feb3 100644
      /*!
      * \brief Checks if light wallet. A light wallet sends view key to a server where the blockchain is scanned.
      */
-@@ -1469,8 +1493,8 @@ private:
+@@ -1555,8 +1579,8 @@ private:
     /*!
      * \brief Calculates the approximate blockchain height from current date/time.
      */
@@ -1278,7 +1439,7 @@ index df34f9abf..db5c1feb3 100644
      std::vector<size_t> select_available_outputs_from_histogram(uint64_t count, bool atleast, bool unlocked, bool allow_rct);
      std::vector<size_t> select_available_outputs(const std::function<bool(const transfer_details &td)> &f);
      std::vector<size_t> select_available_unmixable_outputs();
-@@ -1563,6 +1587,7 @@ private:
+@@ -1650,6 +1674,7 @@ private:
      bool parse_uri(const std::string &uri, std::string &address, std::string &payment_id, uint64_t &amount, std::string &tx_description, std::string &recipient_name, std::vector<std::string> &unknown_parameters, std::string &error);
  
      uint64_t get_blockchain_height_by_date(uint16_t year, uint8_t month, uint8_t day);    // 1<=month<=12, 1<=day<=31
@@ -1286,7 +1447,7 @@ index df34f9abf..db5c1feb3 100644
  
      bool is_synced();
  
-@@ -1900,6 +1925,7 @@ private:
+@@ -1995,6 +2020,7 @@ private:
      std::string seed_language; /*!< Language of the mnemonics (seed). */
      bool is_old_file_format; /*!< Whether the wallet file is of an old file format */
      bool m_watch_only; /*!< no spend key */
@@ -1295,5 +1456,5 @@ index df34f9abf..db5c1feb3 100644
      uint32_t m_multisig_threshold;
      std::vector<crypto::public_key> m_multisig_signers;
 -- 
-2.45.2
+2.43.0
 

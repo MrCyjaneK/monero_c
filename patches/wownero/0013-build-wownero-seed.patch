@@ -1,35 +1,36 @@
-From 6b220ce6f3bb9f57375d6bf06b70f82f043856c8 Mon Sep 17 00:00:00 2001
+From f5cba5478e7a83cdd207881eb643f7a0f81c065b Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 25 Apr 2024 10:06:04 +0200
-Subject: [PATCH 10/14] build wownero-seed
+Subject: [PATCH 13/13] build wownero-seed
 
 ---
- contrib/depends/hosts/android.mk              |   3 +-
+ contrib/depends/hosts/android.mk              |   4 +-
  contrib/depends/hosts/darwin.mk               |   1 +
  contrib/depends/hosts/mingw32.mk              |   3 +
  contrib/depends/packages/packages.mk          |   2 +-
  contrib/depends/packages/wownero_seed.mk      |  35 ++
  .../0001-fix-duplicate-symbol-error.patch     | 497 ++++++++++++++++++
- 6 files changed, 539 insertions(+), 2 deletions(-)
+ 6 files changed, 539 insertions(+), 3 deletions(-)
  create mode 100644 contrib/depends/packages/wownero_seed.mk
  create mode 100644 contrib/depends/patches/wownero_seed/0001-fix-duplicate-symbol-error.patch
 
 diff --git a/contrib/depends/hosts/android.mk b/contrib/depends/hosts/android.mk
-index d6f8b99dd..5b2309972 100644
+index 827103c36..8aad7ec65 100644
 --- a/contrib/depends/hosts/android.mk
 +++ b/contrib/depends/hosts/android.mk
-@@ -6,7 +6,8 @@ endif
+@@ -15,8 +15,8 @@ endif
  
  android_CC=$(host_toolchain)clang
  android_CXX=$(host_toolchain)clang++
--android_RANLIB=:
+-android_RANLIB=llvm-ranlib
+-android_AR=llvm-ar
 +android_RANLIB=$(host_toolchain)ranlib
 +android_AR=$(host_toolchain)ar
  
  android_CFLAGS=-pipe
  android_CXXFLAGS=$(android_CFLAGS)
 diff --git a/contrib/depends/hosts/darwin.mk b/contrib/depends/hosts/darwin.mk
-index cbe795081..ce2f5669d 100644
+index b14ee5c5b..2168702aa 100644
 --- a/contrib/depends/hosts/darwin.mk
 +++ b/contrib/depends/hosts/darwin.mk
 @@ -9,6 +9,7 @@ darwin_CC=clang -target $(CC_target) -mmacosx-version-min=$(OSX_MIN_VERSION) --s
@@ -609,5 +610,5 @@ index 000000000..a8f8fe059
 +--
 +2.39.2
 -- 
-2.45.2
+2.43.0
 

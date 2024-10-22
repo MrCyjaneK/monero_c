@@ -362,7 +362,6 @@ endif()
 
 if (${MONERO_FLAVOR} STREQUAL "monero")
     target_compile_definitions(wallet2_api_c PRIVATE FLAVOR_MONERO)
-    set(BCUR_ENABLED bc-ur)
 elseif(${MONERO_FLAVOR} STREQUAL "wownero")
     target_compile_definitions(wallet2_api_c PRIVATE FLAVOR_WOWNERO)
 endif()
@@ -428,7 +427,7 @@ target_link_libraries(  wallet2_api_c
                         ${EXTRA_LIBS_WOWNEROSEED}
                         utf8proc
 
-                        ${BCUR_ENABLED}
+                        bc-ur
 
                         ssl
                         crypto

@@ -4,7 +4,7 @@
 	branch = release-v0.18
 [submodule "wownero"]
 	path = wownero
-	url = https://github.com/wownero-mirror/wownero
+	url = https://codeberg.org/wownero/wownero
 [submodule "external/polyseed"]
 	path = external/polyseed
 	url = https://github.com/tevador/polyseed
