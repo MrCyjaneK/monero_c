@@ -387,6 +387,16 @@ export class Wallet {
   }
 
   async seed(seedOffset = ""): Promise<string | null> {
-    return await readCString(await getSymbol("Wallet_seed")(this.#walletPtr, CString(seedOffset)));
+    const seed = await readCString(await getSymbol("Wallet_seed")(this.#walletPtr, CString(seedOffset)));
+    await this.throwIfError();
+    return seed;
+  }
+
+  async isOffline(): Promise<boolean> {
+    return await getSymbol("Wallet_isOffline")(this.#walletPtr);
+  }
+
+  async setOffline(offline: boolean): Promise<void> {
+    await getSymbol("Wallet_setOffline")(this.#walletPtr, offline);
   }
 }

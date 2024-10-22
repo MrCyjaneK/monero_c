@@ -128,6 +128,20 @@ export const moneroSymbols = {
     // bool
     result: "bool",
   },
+  "MONERO_Wallet_isOffline": {
+    nonblocking: true,
+    // void* wallet_ptr, bool offline
+    parameters: ["pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_setOffline": {
+    nonblocking: true,
+    // void* wallet_ptr, bool offline
+    parameters: ["pointer", "bool"],
+    // void
+    result: "void",
+  },
   "MONERO_Wallet_blockChainHeight": {
     nonblocking: true,
     // void* wallet_ptr
