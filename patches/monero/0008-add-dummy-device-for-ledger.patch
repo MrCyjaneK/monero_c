@@ -1,4 +1,4 @@
-From 36bd3b42888710ac125a2450675102b77a772782 Mon Sep 17 00:00:00 2001
+From 30ee30d8f0d5e9c301b782db53c92a8982c5bb46 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
 Subject: [PATCH 08/12] add dummy device for ledger
@@ -414,7 +414,7 @@ index 03058c4f1..506f27c4a 100644
          unsigned char buffer_send[BUFFER_SEND_SIZE];
          unsigned int  length_recv;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 4fb5f7595..ec79482ac 100644
+index 4fb5f7595..4a3a7be75 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -48,6 +48,9 @@
@@ -427,7 +427,7 @@ index 4fb5f7595..ec79482ac 100644
  
  using namespace std;
  using namespace cryptonote;
-@@ -3178,4 +3181,94 @@ uint64_t WalletImpl::getBytesSent()
+@@ -3178,4 +3181,95 @@ uint64_t WalletImpl::getBytesSent()
      return m_wallet->get_bytes_sent();
  }
  
@@ -577,6 +577,4 @@ index 764adbfbf..53ec4abfc 100644
  /**
 -- 
 2.43.0
-=======
-2.45.1.windows.1
 
