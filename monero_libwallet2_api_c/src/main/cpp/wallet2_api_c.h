@@ -780,7 +780,7 @@ extern ADDAPI const char* MONERO_Wallet_getUserNote(void* wallet_ptr, const char
 //     virtual std::string getTxKey(const std::string &txid) const = 0;
 extern ADDAPI const char* MONERO_Wallet_getTxKey(void* wallet_ptr, const char* txid);
 //     virtual bool checkTxKey(const std::string &txid, std::string tx_key, const std::string &address, uint64_t &received, bool &in_pool, uint64_t &confirmations) = 0;
-extern ADDAPI bool MONERO_Wallet_checkTxKey(void* wallet_ptr, const char* txid, const char* tx_key, const char* address, uint64_t* received, bool* in_pool, uint64_t* confirmations);
+extern ADDAPI bool MONERO_Wallet_checkTxKey(void* wallet_ptr, const char* txid, const char* tx_key, const char* address, uint64_t received, bool in_pool, uint64_t confirmations);
 //     virtual std::string getTxProof(const std::string &txid, const std::string &address, const std::string &message) const = 0;
 //     virtual bool checkTxProof(const std::string &txid, const std::string &address, const std::string &message, const std::string &signature, bool &good, uint64_t &received, bool &in_pool, uint64_t &confirmations) = 0;
 //     virtual std::string getSpendProof(const std::string &txid, const std::string &message) const = 0;
