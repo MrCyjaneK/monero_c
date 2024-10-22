@@ -29,8 +29,8 @@ export class Wallet {
     return bool;
   }
 
-  async initWallet(daemonAddress = "http://nodex.monerujo.io:18081"): Promise<void> {
-    await this.init();
+  async initWallet(daemonAddress: string): Promise<void> {
+    await this.init(daemonAddress);
     await this.setTrustedDaemon(true);
     await this.setDaemonAddress(daemonAddress);
     await this.startRefresh();
@@ -55,10 +55,37 @@ export class Wallet {
     await this.throwIfError();
   }
 
-  async init(): Promise<boolean> {
+  async setupBackgroundSync(
+    backgroundSyncType: number,
+    walletPassword: string,
+    backgroundCachePassword: string,
+  ): Promise<boolean> {
+    const bool = await getSymbol("Wallet_setupBackgroundSync")(
+      this.#walletPtr,
+      backgroundSyncType,
+      CString(walletPassword),
+      CString(backgroundCachePassword),
+    );
+    await this.throwIfError();
+    return bool;
+  }
+
+  async startBackgroundSync(): Promise<boolean> {
+    const bool = await getSymbol("Wallet_startBackgroundSync")(this.#walletPtr);
+    await this.throwIfError();
+    return bool;
+  }
+
+  async stopBackgroundSync(walletPassword: string): Promise<boolean> {
+    const bool = await getSymbol("Wallet_stopBackgroundSync")(this.#walletPtr, CString(walletPassword));
+    await this.throwIfError();
+    return bool;
+  }
+
+  async init(daemonAddress: string): Promise<boolean> {
     const bool = await getSymbol("Wallet_init")(
       this.#walletPtr,
-      CString("http://nodex.monerujo.io:18081"),
+      CString(daemonAddress),
       0n,
       CString(""),
       CString(""),
@@ -80,7 +107,6 @@ export class Wallet {
     password: string,
     sanitizeError = true,
   ): Promise<Wallet> {
-    // We assign holder of the pointer in Wallet constructor
     const walletManagerPtr = walletManager.getPointer();
 
     const walletPtr = await getSymbol("WalletManager_createWallet")(
@@ -93,7 +119,6 @@ export class Wallet {
 
     const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
     await wallet.throwIfError(sanitizeError);
-    await wallet.initWallet();
 
     return wallet;
   }
@@ -104,7 +129,6 @@ export class Wallet {
     password: string,
     sanitizeError = true,
   ): Promise<Wallet> {
-    // We assign holder of the pointer in Wallet constructor
     const walletManagerPtr = walletManager.getPointer();
 
     const walletPtr = await getSymbol("WalletManager_openWallet")(
@@ -116,7 +140,6 @@ export class Wallet {
 
     const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
     await wallet.throwIfError(sanitizeError);
-    await wallet.initWallet();
 
     return wallet;
   }
@@ -130,7 +153,6 @@ export class Wallet {
     seedOffset: string = "",
     sanitizeError = true,
   ): Promise<Wallet> {
-    // We assign holder of the pointer in Wallet constructor
     const walletManagerPtr = walletManager.getPointer();
 
     const walletPtr = await getSymbol("WalletManager_recoveryWallet")(
@@ -146,9 +168,67 @@ export class Wallet {
 
     const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
     await wallet.throwIfError(sanitizeError);
-    await wallet.initWallet();
 
     return wallet;
+  }
+
+  static async recoverFromPolyseed(
+    walletManager: WalletManager,
+    path: string,
+    password: string,
+    mnemonic: string,
+    restoreHeight: bigint,
+    passphrase = "",
+    sanitizeError = true,
+  ): Promise<Wallet> {
+    return await this.createFromPolyseed(
+      walletManager,
+      path,
+      password,
+      mnemonic,
+      restoreHeight,
+      passphrase,
+      sanitizeError,
+      false,
+    );
+  }
+
+  static async createFromPolyseed(
+    walletManager: WalletManager,
+    path: string,
+    password: string,
+    mnemonic: string,
+    restoreHeight: bigint,
+    passphrase = "",
+    sanitizeError = true,
+    newWallet = true,
+  ): Promise<Wallet> {
+    const walletManagerPtr = walletManager.getPointer();
+
+    const walletPtr = await getSymbol("WalletManager_createWalletFromPolyseed")(
+      walletManagerPtr,
+      CString(path),
+      CString(password),
+      0,
+      CString(mnemonic),
+      CString(passphrase),
+      newWallet,
+      restoreHeight,
+      1n,
+    );
+
+    const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
+    await wallet.throwIfError(sanitizeError);
+
+    return wallet;
+  }
+
+  async close(store: boolean): Promise<void> {
+    await getSymbol("WalletManager_closeWallet")(
+      this.#walletManagerPtr,
+      this.#walletPtr,
+      store,
+    );
   }
 
   async address(accountIndex = 0n, addressIndex = 0n): Promise<string> {
@@ -304,5 +384,19 @@ export class Wallet {
 
   async amountFromString(amount: string): Promise<bigint> {
     return await getSymbol("Wallet_amountFromString")(CString(amount));
+  }
+
+  async seed(seedOffset = ""): Promise<string | null> {
+    const seed = await readCString(await getSymbol("Wallet_seed")(this.#walletPtr, CString(seedOffset)));
+    await this.throwIfError();
+    return seed;
+  }
+
+  async isOffline(): Promise<boolean> {
+    return await getSymbol("Wallet_isOffline")(this.#walletPtr);
+  }
+
+  async setOffline(offline: boolean): Promise<void> {
+    await getSymbol("Wallet_setOffline")(this.#walletPtr, offline);
   }
 }

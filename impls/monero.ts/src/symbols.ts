@@ -21,11 +21,27 @@ export const moneroSymbols = {
     // void*
     result: "pointer",
   },
+  "MONERO_WalletManager_closeWallet": {
+    nonblocking: true,
+    // void* wm_ptr, const char* wallet_ptr, bool store
+    "parameters": ["pointer", "pointer", "bool"],
+    // bool
+    result: "bool",
+  },
   "MONERO_WalletManager_recoveryWallet": {
     nonblocking: true,
     // void* wm_ptr, const char* path, const char* password, const char* mnemonic,
     // int networkType, uint64_t restoreHeight, uint64_t kdfRounds, const char* seedOffset
     parameters: ["pointer", "pointer", "pointer", "pointer", "i32", "u64", "u64", "pointer"],
+    // void*
+    result: "pointer",
+  },
+  "MONERO_WalletManager_createWalletFromPolyseed": {
+    nonblocking: true,
+    // void* wm_ptr, const char* path, const char* password, int nettype,
+    // const char* mnemonic, const char* passphrase, bool newWallet,
+    // uint64_t restore_height, uint64_t kdf_rounds
+    parameters: ["pointer", "pointer", "pointer", "i32", "pointer", "pointer", "bool", "u64", "u64"],
     // void*
     result: "pointer",
   },
@@ -88,6 +104,41 @@ export const moneroSymbols = {
     nonblocking: true,
     // void* wallet_ptr
     parameters: ["pointer"],
+    // void
+    result: "void",
+  },
+  "MONERO_Wallet_setupBackgroundSync": {
+    nonblocking: true,
+    // void* wallet_ptr, int background_sync_type, const char* wallet_password, const char* background_cache_password
+    parameters: ["pointer", "i32", "pointer", "pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_startBackgroundSync": {
+    nonblocking: true,
+    // void* wallet_ptr
+    parameters: ["pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_stopBackgroundSync": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* wallet_password
+    parameters: ["pointer", "pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_isOffline": {
+    nonblocking: true,
+    // void* wallet_ptr, bool offline
+    parameters: ["pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_setOffline": {
+    nonblocking: true,
+    // void* wallet_ptr, bool offline
+    parameters: ["pointer", "bool"],
     // void
     result: "void",
   },
@@ -218,6 +269,13 @@ export const moneroSymbols = {
     parameters: ["pointer"],
     // uint64_t
     result: "u64",
+  },
+  "MONERO_Wallet_seed": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* seed_offset
+    parameters: ["pointer", "pointer"],
+    // const char*
+    result: "pointer",
   },
   //#endregion
 
@@ -523,6 +581,37 @@ export const moneroSymbols = {
     optional: true,
     nonblocking: true,
     parameters: [],
+    // const char*
+    result: "pointer",
+  },
+  //#endregion
+
+  //#region keys
+  "MONERO_Wallet_secretViewKey": {
+    nonblocking: true,
+    // void* wallet_ptr
+    parameters: ["pointer"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_Wallet_publicViewKey": {
+    nonblocking: true,
+    // void* wallet_ptr
+    parameters: ["pointer"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_Wallet_secretSpendKey": {
+    nonblocking: true,
+    // void* wallet_ptr
+    parameters: ["pointer"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_Wallet_publicSpendKey": {
+    nonblocking: true,
+    // void* wallet_ptr
+    parameters: ["pointer"],
     // const char*
     result: "pointer",
   },
