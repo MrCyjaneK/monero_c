@@ -312,3 +312,69 @@ Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
 
   dylib.close();
 });
+
+Deno.test("0012-WIP-UR-functions.patch", async (t) => {
+  const dylib = loadDylib();
+
+  await t.step("view only", async () => {
+    await clearWallets();
+
+    const walletManager = await WalletManager.new();
+    const wallet = await Wallet.create(walletManager, "tests/wallets/sable", "sobol");
+    await wallet.initWallet(NODE_URL);
+
+    await wallet.setupBackgroundSync(2, "sobol", "background-sobol");
+    await wallet.startBackgroundSync();
+    await wallet.close(true);
+
+    const backgroundWallet = await Wallet.open(
+      walletManager,
+      "tests/wallets/sable.background",
+      "background-sobol",
+    );
+    await backgroundWallet.initWallet(NODE_URL);
+
+    const transaction = await backgroundWallet.createTransaction(
+      "89BoVWjqdGVe68wdxbYurXR8sXaEb96eWKYRPxdT6wSCfZYK6XSHoj5ZRXQLtd7GzL2B2PD7Lb7GSKupkXMWjQVFAEb1CK8",
+      11111111n,
+      0,
+      0,
+    );
+
+    assertEquals(await transaction.errorString(), "Background wallets cannot create transactions");
+    assertEquals(await transaction.status(), 1);
+
+    await backgroundWallet.close(true);
+  });
+
+  await t.step("offline", async () => {
+    await clearWallets();
+
+    const walletManager = await WalletManager.new();
+    const wallet = await Wallet.create(walletManager, "tests/wallets/mouse", "mysh");
+    await wallet.initWallet(NODE_URL);
+    await wallet.setOffline(true);
+    await wallet.refreshAsync();
+
+    assertEquals(await wallet.isOffline(), true);
+
+    try {
+      const transaction = await wallet.createTransaction(
+        "89BoVWjqdGVe68wdxbYurXR8sXaEb96eWKYRPxdT6wSCfZYK6XSHoj5ZRXQLtd7GzL2B2PD7Lb7GSKupkXMWjQVFAEb1CK8",
+        11111111n,
+        0,
+        0,
+      );
+
+      assertEquals(await transaction.status(), 1);
+      assertEquals(await transaction.errorString(), "no connection to daemon");
+    } catch {
+      assertEquals(await wallet.status(), 1);
+      assertEquals(await wallet.errorString(), "internal error: Failed to get earliest fork height");
+    }
+
+    await wallet.close(true);
+  });
+
+  dylib.close();
+});
