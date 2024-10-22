@@ -36,6 +36,23 @@ interface WalletInfo {
   secretViewKey: string;
 }
 
+async function clearWallets() {
+  await Deno.remove("tests/wallets/", { recursive: true }).catch(() => {});
+  await Deno.mkdir("tests/wallets/");
+}
+
+function loadDylib() {
+  let dylib: Dylib;
+  if (coin === "monero") {
+    dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
+    loadMoneroDylib(dylib);
+  } else {
+    dylib = Deno.dlopen(`tests/libs/next/wownero_libwallet2_api_c.so`, wowneroSymbols);
+    loadWowneroDylib(dylib);
+  }
+  return dylib;
+}
+
 Deno.test("0001-polyseed.patch", async (t) => {
   const WALLETS: WalletInfo[] = [
     //#region Cake wallet, no offset
@@ -170,17 +187,9 @@ Deno.test("0001-polyseed.patch", async (t) => {
     //#endregion
   ];
 
-  let dylib: Dylib;
-  if (coin === "monero") {
-    dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
-    loadMoneroDylib(dylib);
-  } else {
-    dylib = Deno.dlopen(`tests/libs/next/wownero_libwallet2_api_c.so`, wowneroSymbols);
-    loadWowneroDylib(dylib);
-  }
+  const dylib = loadDylib();
 
-  await Deno.remove("tests/wallets/", { recursive: true }).catch(() => {});
-  await Deno.mkdir("tests/wallets/");
+  await clearWallets();
 
   for (const walletInfo of WALLETS) {
     if (walletInfo.coin !== coin) continue;
@@ -208,7 +217,7 @@ Deno.test("0001-polyseed.patch", async (t) => {
       assertEquals(await getKey(wallet, "publicViewKey"), walletInfo.publicViewKey);
       assertEquals(await getKey(wallet, "secretViewKey"), walletInfo.secretViewKey);
 
-      await wallet.store();
+      await wallet.close(true);
     });
   }
 
@@ -216,17 +225,9 @@ Deno.test("0001-polyseed.patch", async (t) => {
 });
 
 Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () => {
-  await Deno.remove("tests/wallets/", { recursive: true }).catch(() => {});
-  await Deno.mkdir("tests/wallets/");
+  await clearWallets();
 
-  let dylib: Dylib;
-  if (coin === "monero") {
-    dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
-    loadMoneroDylib(dylib);
-  } else {
-    dylib = Deno.dlopen(`tests/libs/next/wownero_libwallet2_api_c.so`, wowneroSymbols);
-    loadWowneroDylib(dylib);
-  }
+  const dylib = loadDylib();
 
   const walletManager = await WalletManager.new();
   const wallet = await Wallet.create(walletManager, "tests/wallets/squirrel", "belka");
@@ -282,23 +283,18 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
     },
   );
 
+  await reopenedWallet.close(true);
+
   dylib.close();
 });
 
 Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
-  await downloadCli(coin);
+  await Promise.all([
+    downloadCli(coin),
+    clearWallets(),
+  ]);
 
-  await Deno.remove("tests/wallets/", { recursive: true }).catch(() => {});
-  await Deno.mkdir("tests/wallets/");
-
-  let dylib: Dylib;
-  if (coin === "monero") {
-    dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
-    loadMoneroDylib(dylib);
-  } else {
-    dylib = Deno.dlopen(`tests/libs/next/wownero_libwallet2_api_c.so`, wowneroSymbols);
-    loadWowneroDylib(dylib);
-  }
+  const dylib = loadDylib();
 
   const walletManager = await WalletManager.new();
   const wallet = await Wallet.create(walletManager, "tests/wallets/stoat", "gornostay");
