@@ -385,4 +385,8 @@ export class Wallet {
   async amountFromString(amount: string): Promise<bigint> {
     return await getSymbol("Wallet_amountFromString")(CString(amount));
   }
+
+  async seed(seedOffset = ""): Promise<string | null> {
+    return await readCString(await getSymbol("Wallet_seed")(this.#walletPtr, CString(seedOffset)));
+  }
 }

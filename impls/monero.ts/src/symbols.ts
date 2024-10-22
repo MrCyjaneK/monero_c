@@ -256,6 +256,13 @@ export const moneroSymbols = {
     // uint64_t
     result: "u64",
   },
+  "MONERO_Wallet_seed": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* seed_offset
+    parameters: ["pointer", "pointer"],
+    // const char*
+    result: "pointer",
+  },
   //#endregion
 
   //#region TransactionHistory
