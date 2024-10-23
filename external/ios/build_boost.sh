@@ -26,6 +26,7 @@ cd $BOOST_DIR_PATH
 	--min-ios-version ${MIN_IOS_VERSION} \
 	--boost-libs "${BOOST_LIBS}" \
 	--boost-version ${BOOST_VERSION} \
+        --ios-sdk 17.5 \
 	--no-framework
 
 mv -f ${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}/ios/release/prefix/include/*  $EXTERNAL_IOS_INCLUDE_DIR
