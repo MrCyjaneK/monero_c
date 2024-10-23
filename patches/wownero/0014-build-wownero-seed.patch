@@ -1,7 +1,7 @@
-From f5cba5478e7a83cdd207881eb643f7a0f81c065b Mon Sep 17 00:00:00 2001
+From 942d3f9053779f7673e327d1d22faa3f52a936a6 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 25 Apr 2024 10:06:04 +0200
-Subject: [PATCH 13/13] build wownero-seed
+Subject: [PATCH 14/14] build wownero-seed
 
 ---
  contrib/depends/hosts/android.mk              |   4 +-
@@ -15,7 +15,7 @@ Subject: [PATCH 13/13] build wownero-seed
  create mode 100644 contrib/depends/patches/wownero_seed/0001-fix-duplicate-symbol-error.patch
 
 diff --git a/contrib/depends/hosts/android.mk b/contrib/depends/hosts/android.mk
-index 827103c36..8aad7ec65 100644
+index 827103c..8aad7ec 100644
 --- a/contrib/depends/hosts/android.mk
 +++ b/contrib/depends/hosts/android.mk
 @@ -15,8 +15,8 @@ endif
@@ -30,7 +30,7 @@ index 827103c36..8aad7ec65 100644
  android_CFLAGS=-pipe
  android_CXXFLAGS=$(android_CFLAGS)
 diff --git a/contrib/depends/hosts/darwin.mk b/contrib/depends/hosts/darwin.mk
-index b14ee5c5b..2168702aa 100644
+index b14ee5c..2168702 100644
 --- a/contrib/depends/hosts/darwin.mk
 +++ b/contrib/depends/hosts/darwin.mk
 @@ -9,6 +9,7 @@ darwin_CC=clang -target $(CC_target) -mmacosx-version-min=$(OSX_MIN_VERSION) --s
@@ -42,7 +42,7 @@ index b14ee5c5b..2168702aa 100644
  darwin_CFLAGS=-pipe
  darwin_CXXFLAGS=$(darwin_CFLAGS)
 diff --git a/contrib/depends/hosts/mingw32.mk b/contrib/depends/hosts/mingw32.mk
-index ccc4c5082..4677694a6 100644
+index ccc4c50..4677694 100644
 --- a/contrib/depends/hosts/mingw32.mk
 +++ b/contrib/depends/hosts/mingw32.mk
 @@ -2,6 +2,9 @@ mingw32_CFLAGS=-pipe
@@ -56,7 +56,7 @@ index ccc4c5082..4677694a6 100644
  mingw32_release_CXXFLAGS=$(mingw32_release_CFLAGS)
  
 diff --git a/contrib/depends/packages/packages.mk b/contrib/depends/packages/packages.mk
-index 8783d4955..3d513c5a2 100644
+index 8783d49..3d513c5 100644
 --- a/contrib/depends/packages/packages.mk
 +++ b/contrib/depends/packages/packages.mk
 @@ -1,4 +1,4 @@
@@ -67,7 +67,7 @@ index 8783d4955..3d513c5a2 100644
  ifneq ($(GITIAN),1)
 diff --git a/contrib/depends/packages/wownero_seed.mk b/contrib/depends/packages/wownero_seed.mk
 new file mode 100644
-index 000000000..b376f80c5
+index 0000000..b376f80
 --- /dev/null
 +++ b/contrib/depends/packages/wownero_seed.mk
 @@ -0,0 +1,35 @@
@@ -108,7 +108,7 @@ index 000000000..b376f80c5
 +endef
 diff --git a/contrib/depends/patches/wownero_seed/0001-fix-duplicate-symbol-error.patch b/contrib/depends/patches/wownero_seed/0001-fix-duplicate-symbol-error.patch
 new file mode 100644
-index 000000000..a8f8fe059
+index 0000000..a8f8fe0
 --- /dev/null
 +++ b/contrib/depends/patches/wownero_seed/0001-fix-duplicate-symbol-error.patch
 @@ -0,0 +1,497 @@
@@ -610,5 +610,5 @@ index 000000000..a8f8fe059
 +--
 +2.39.2
 -- 
-2.43.0
+2.39.5 (Apple Git-154)
 

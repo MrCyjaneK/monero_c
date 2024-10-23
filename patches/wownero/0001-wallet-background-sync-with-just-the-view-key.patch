@@ -1,7 +1,7 @@
-From e70a2627ce34ce974f26c946801aaf7d9d794bd0 Mon Sep 17 00:00:00 2001
+From 561c17511802188e7de3d37b696adab2cd1c63fe Mon Sep 17 00:00:00 2001
 From: j-berman <justinberman@protonmail.com>
 Date: Thu, 13 Oct 2022 18:33:33 -0700
-Subject: [PATCH 01/13] wallet: background sync with just the view key
+Subject: [PATCH 01/14] wallet: background sync with just the view key
 
 - When background syncing, the wallet wipes the spend key
 from memory and processes all new transactions. The wallet saves
@@ -50,7 +50,7 @@ cache.
  20 files changed, 2337 insertions(+), 130 deletions(-)
 
 diff --git a/src/cryptonote_basic/account.cpp b/src/cryptonote_basic/account.cpp
-index 2ac455fda..4e87d4477 100644
+index 2ac455f..4e87d44 100644
 --- a/src/cryptonote_basic/account.cpp
 +++ b/src/cryptonote_basic/account.cpp
 @@ -152,6 +152,17 @@ DISABLE_VS_WARNINGS(4244 4345)
@@ -72,7 +72,7 @@ index 2ac455fda..4e87d4477 100644
    {
      crypto::secret_key first = generate_keys(m_keys.m_account_address.m_spend_public_key, m_keys.m_spend_secret_key, recovery_key, recover);
 diff --git a/src/cryptonote_basic/account.h b/src/cryptonote_basic/account.h
-index 2ee9545d4..93d1d28f0 100644
+index 2ee9545..93d1d28 100644
 --- a/src/cryptonote_basic/account.h
 +++ b/src/cryptonote_basic/account.h
 @@ -95,6 +95,7 @@ namespace cryptonote
@@ -84,7 +84,7 @@ index 2ee9545d4..93d1d28f0 100644
  
      void encrypt_keys(const crypto::chacha_key &key) { m_keys.encrypt(key); }
 diff --git a/src/cryptonote_config.h b/src/cryptonote_config.h
-index 8c0d3ce20..8b5091a46 100644
+index 8c0d3ce..8b5091a 100644
 --- a/src/cryptonote_config.h
 +++ b/src/cryptonote_config.h
 @@ -253,6 +253,8 @@ namespace config
@@ -97,7 +97,7 @@ index 8c0d3ce20..8b5091a46 100644
    const unsigned char HASH_KEY_MEMORY = 'k';
    const unsigned char HASH_KEY_MULTISIG[] = {'M', 'u', 'l', 't' , 'i', 's', 'i', 'g', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 diff --git a/src/simplewallet/simplewallet.cpp b/src/simplewallet/simplewallet.cpp
-index 462c06f0e..8c5122097 100644
+index 462c06f..8c51220 100644
 --- a/src/simplewallet/simplewallet.cpp
 +++ b/src/simplewallet/simplewallet.cpp
 @@ -155,6 +155,17 @@ typedef cryptonote::simple_wallet sw;
@@ -722,7 +722,7 @@ index 462c06f0e..8c5122097 100644
    {
      PRINT_USAGE(USAGE_IMPORT_OUTPUTS);
 diff --git a/src/simplewallet/simplewallet.h b/src/simplewallet/simplewallet.h
-index d641dca1b..b98a40713 100644
+index d641dca..b98a407 100644
 --- a/src/simplewallet/simplewallet.h
 +++ b/src/simplewallet/simplewallet.h
 @@ -147,6 +147,7 @@ namespace cryptonote
@@ -734,7 +734,7 @@ index d641dca1b..b98a40713 100644
      bool set_inactivity_lock_timeout(const std::vector<std::string> &args = std::vector<std::string>());
      bool set_setup_background_mining(const std::vector<std::string> &args = std::vector<std::string>());
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index e81265ad3..e868fa039 100644
+index e81265a..e868fa0 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -54,6 +54,40 @@ using namespace cryptonote;
@@ -1199,7 +1199,7 @@ index e81265ad3..e868fa039 100644
      setStatusError(tr("Rescan spent can only be used with a trusted daemon"));
      return false;
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index ec2d7e9b3..1f199a72c 100644
+index ec2d7e9..1f199a7 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -171,6 +171,13 @@ public:
@@ -1236,7 +1236,7 @@ index ec2d7e9b3..1f199a72c 100644
      std::unique_ptr<TransactionHistoryImpl> m_history;
      std::unique_ptr<Wallet2CallbackImpl> m_wallet2Callback;
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 71991df0d..e349df176 100644
+index 71991df..e349df1 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -445,6 +445,12 @@ struct Wallet
@@ -1296,7 +1296,7 @@ index 71991df0d..e349df176 100644
      virtual AddressBook * addressBook() = 0;
      virtual Subaddress * subaddress() = 0;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 30b3502dc..8ce515c57 100644
+index 30b3502..8ce515c 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -157,6 +157,8 @@ static const std::string MULTISIG_SIGNATURE_MAGIC = "SigMultisigPkV1";
@@ -2740,7 +2740,7 @@ index 30b3502dc..8ce515c57 100644
  {
    payment_container payments;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 75137237b..295976b53 100644
+index 7513723..295976b 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -256,6 +256,20 @@ private:
@@ -3050,7 +3050,7 @@ index 75137237b..295976b53 100644
  }
  
 diff --git a/src/wallet/wallet_errors.h b/src/wallet/wallet_errors.h
-index c077313d4..c54cd3499 100644
+index c077313..c54cd34 100644
 --- a/src/wallet/wallet_errors.h
 +++ b/src/wallet/wallet_errors.h
 @@ -63,6 +63,7 @@ namespace tools
@@ -3121,7 +3121,7 @@ index c077313d4..c54cd3499 100644
  #if !defined(_MSC_VER)
  
 diff --git a/src/wallet/wallet_rpc_server.cpp b/src/wallet/wallet_rpc_server.cpp
-index 6fc996299..3cc6b278f 100644
+index 6fc9962..3cc6b27 100644
 --- a/src/wallet/wallet_rpc_server.cpp
 +++ b/src/wallet/wallet_rpc_server.cpp
 @@ -73,6 +73,54 @@ using namespace epee;
@@ -3567,7 +3567,7 @@ index 6fc996299..3cc6b278f 100644
      try
      {
 diff --git a/src/wallet/wallet_rpc_server.h b/src/wallet/wallet_rpc_server.h
-index 3308d1751..c2329aafe 100644
+index 3308d17..c2329aa 100644
 --- a/src/wallet/wallet_rpc_server.h
 +++ b/src/wallet/wallet_rpc_server.h
 @@ -160,6 +160,9 @@ namespace tools
@@ -3591,7 +3591,7 @@ index 3308d1751..c2329aafe 100644
        //json rpc v2
        bool on_query_key(const wallet_rpc::COMMAND_RPC_QUERY_KEY::request& req, wallet_rpc::COMMAND_RPC_QUERY_KEY::response& res, epee::json_rpc::error& er, const connection_context *ctx = NULL);
 diff --git a/src/wallet/wallet_rpc_server_commands_defs.h b/src/wallet/wallet_rpc_server_commands_defs.h
-index b6098d95c..a44b56ed6 100644
+index b6098d9..a44b56e 100644
 --- a/src/wallet/wallet_rpc_server_commands_defs.h
 +++ b/src/wallet/wallet_rpc_server_commands_defs.h
 @@ -2696,5 +2696,69 @@ namespace wallet_rpc
@@ -3665,7 +3665,7 @@ index b6098d95c..a44b56ed6 100644
  }
  }
 diff --git a/src/wallet/wallet_rpc_server_error_codes.h b/src/wallet/wallet_rpc_server_error_codes.h
-index 541d29f86..4756c191c 100644
+index 541d29f..4756c19 100644
 --- a/src/wallet/wallet_rpc_server_error_codes.h
 +++ b/src/wallet/wallet_rpc_server_error_codes.h
 @@ -81,3 +81,5 @@
@@ -3675,7 +3675,7 @@ index 541d29f86..4756c191c 100644
 +#define WALLET_RPC_ERROR_CODE_IS_BACKGROUND_WALLET   -51
 +#define WALLET_RPC_ERROR_CODE_IS_BACKGROUND_SYNCING  -52
 diff --git a/tests/functional_tests/transfer.py b/tests/functional_tests/transfer.py
-index 4063911f4..60eb09a10 100755
+index 4063911..60eb09a 100755
 --- a/tests/functional_tests/transfer.py
 +++ b/tests/functional_tests/transfer.py
 @@ -30,6 +30,7 @@
@@ -4113,7 +4113,7 @@ index 4063911f4..60eb09a10 100755
  if __name__ == '__main__':
      TransferTest().run_test()
 diff --git a/tests/functional_tests/util_resources.py b/tests/functional_tests/util_resources.py
-index e030312da..3ca6fdb86 100755
+index e030312..3ca6fdb 100755
 --- a/tests/functional_tests/util_resources.py
 +++ b/tests/functional_tests/util_resources.py
 @@ -37,6 +37,8 @@
@@ -4153,7 +4153,7 @@ index e030312da..3ca6fdb86 100755
 +    assert WALLET_DIRECTORY != ''
 +    return os.path.isfile(WALLET_DIRECTORY + '/' + name)
 diff --git a/tests/functional_tests/wallet.py b/tests/functional_tests/wallet.py
-index 1ad05c98f..8182cecb2 100755
+index 1ad05c9..8182cec 100755
 --- a/tests/functional_tests/wallet.py
 +++ b/tests/functional_tests/wallet.py
 @@ -34,8 +34,7 @@
@@ -4244,7 +4244,7 @@ index 1ad05c98f..8182cecb2 100755
  
  if __name__ == '__main__':
 diff --git a/tests/unit_tests/wipeable_string.cpp b/tests/unit_tests/wipeable_string.cpp
-index ef6964f9e..25121a02e 100644
+index ef6964f..25121a0 100644
 --- a/tests/unit_tests/wipeable_string.cpp
 +++ b/tests/unit_tests/wipeable_string.cpp
 @@ -211,3 +211,15 @@ TEST(wipeable_string, to_hex)
@@ -4264,7 +4264,7 @@ index ef6964f9e..25121a02e 100644
 +  ASSERT_TRUE(str == std::string("foo"));
 +}
 diff --git a/utils/python-rpc/framework/wallet.py b/utils/python-rpc/framework/wallet.py
-index 1e10e1f86..bff33a561 100644
+index 1e10e1f..bff33a5 100644
 --- a/utils/python-rpc/framework/wallet.py
 +++ b/utils/python-rpc/framework/wallet.py
 @@ -1138,3 +1138,45 @@ class Wallet(object):
@@ -4314,5 +4314,5 @@ index 1e10e1f86..bff33a561 100644
 +        }
 +        return self.rpc.send_json_rpc_request(stop_background_sync)
 -- 
-2.43.0
+2.39.5 (Apple Git-154)
 

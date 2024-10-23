@@ -1,7 +1,7 @@
-From c902907822edad0b2b681c386919c68ed1d3d268 Mon Sep 17 00:00:00 2001
+From 9c4df0e534ec8c04d95620ab7032771edb6f981e Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 10:09:50 +0100
-Subject: [PATCH 07/13] UR functions
+Subject: [PATCH 08/14] UR functions
 
 This commit adds UR functions for UR tasks,
 I believe that the right place to get
@@ -40,7 +40,7 @@ Things broken in the commit
  create mode 160000 external/bc-ur
 
 diff --git a/.gitmodules b/.gitmodules
-index 991071fbe..b24855d9b 100644
+index 991071f..b24855d 100644
 --- a/.gitmodules
 +++ b/.gitmodules
 @@ -16,4 +16,7 @@
@@ -53,7 +53,7 @@ index 991071fbe..b24855d9b 100644
 +	url = https://github.com/MrCyjaneK/bc-ur
 +	branch = misc
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index e387ffb1b..8b81c7ab7 100644
+index e387ffb..8b81c7a 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -96,7 +96,8 @@ enable_language(C ASM)
@@ -75,7 +75,7 @@ index e387ffb1b..8b81c7ab7 100644
      check_submodule(external/rapidjson)
      #check_submodule(external/trezor-common)
 diff --git a/contrib/depends/hosts/darwin.mk b/contrib/depends/hosts/darwin.mk
-index 79d449054..83d83036b 100644
+index 79d4490..83d8303 100644
 --- a/contrib/depends/hosts/darwin.mk
 +++ b/contrib/depends/hosts/darwin.mk
 @@ -1,4 +1,4 @@
@@ -85,7 +85,7 @@ index 79d449054..83d83036b 100644
  ifeq (aarch64, $(host_arch))
  CC_target=arm64-apple-$(host_os)
 diff --git a/contrib/depends/toolchain.cmake.in b/contrib/depends/toolchain.cmake.in
-index cc1d9b5c5..48a6f947e 100644
+index cc1d9b5..48a6f94 100644
 --- a/contrib/depends/toolchain.cmake.in
 +++ b/contrib/depends/toolchain.cmake.in
 @@ -94,7 +94,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -98,7 +98,7 @@ index cc1d9b5c5..48a6f947e 100644
    SET(LLVM_ENABLE_PIC OFF)
    SET(LLVM_ENABLE_PIE OFF)
 diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
-index 3184ae5a1..88a7bb0b5 100644
+index 3184ae5..88a7bb0 100644
 --- a/external/CMakeLists.txt
 +++ b/external/CMakeLists.txt
 @@ -72,4 +72,5 @@ endif()
@@ -109,13 +109,13 @@ index 3184ae5a1..88a7bb0b5 100644
  add_subdirectory(randomwow EXCLUDE_FROM_ALL)
 diff --git a/external/bc-ur b/external/bc-ur
 new file mode 160000
-index 000000000..d82e7c753
+index 0000000..d82e7c7
 --- /dev/null
 +++ b/external/bc-ur
 @@ -0,0 +1 @@
 +Subproject commit d82e7c753e710b8000706dc3383b498438795208
 diff --git a/src/device/device_ledger.cpp b/src/device/device_ledger.cpp
-index 9961d13e7..8403d76e8 100644
+index 9961d13..8403d76 100644
 --- a/src/device/device_ledger.cpp
 +++ b/src/device/device_ledger.cpp
 @@ -313,12 +313,13 @@ namespace hw {
@@ -135,7 +135,7 @@ index 9961d13e7..8403d76e8 100644
        boost::lock_guard<boost::recursive_mutex> lock1(device_locker, boost::adopt_lock); \
        boost::lock_guard<boost::mutex> lock2(command_locker, boost::adopt_lock)
 diff --git a/src/wallet/CMakeLists.txt b/src/wallet/CMakeLists.txt
-index fdf3f2f5d..66384fe31 100644
+index fdf3f2f..66384fe 100644
 --- a/src/wallet/CMakeLists.txt
 +++ b/src/wallet/CMakeLists.txt
 @@ -50,6 +50,7 @@ monero_add_library(wallet
@@ -147,7 +147,7 @@ index fdf3f2f5d..66384fe31 100644
      common
      cryptonote_core
 diff --git a/src/wallet/api/pending_transaction.cpp b/src/wallet/api/pending_transaction.cpp
-index 70a702796..9c3c26ee5 100644
+index 70a7027..9c3c26e 100644
 --- a/src/wallet/api/pending_transaction.cpp
 +++ b/src/wallet/api/pending_transaction.cpp
 @@ -42,6 +42,8 @@
@@ -198,7 +198,7 @@ index 70a702796..9c3c26ee5 100644
  {
      uint64_t result = 0;
 diff --git a/src/wallet/api/pending_transaction.h b/src/wallet/api/pending_transaction.h
-index 0a9779c07..403bfe281 100644
+index 0a9779c..403bfe2 100644
 --- a/src/wallet/api/pending_transaction.h
 +++ b/src/wallet/api/pending_transaction.h
 @@ -46,6 +46,7 @@ public:
@@ -210,7 +210,7 @@ index 0a9779c07..403bfe281 100644
      uint64_t dust() const override;
      uint64_t fee() const override;
 diff --git a/src/wallet/api/unsigned_transaction.cpp b/src/wallet/api/unsigned_transaction.cpp
-index 6165a2240..fd03e959d 100644
+index 6165a22..fd03e95 100644
 --- a/src/wallet/api/unsigned_transaction.cpp
 +++ b/src/wallet/api/unsigned_transaction.cpp
 @@ -40,6 +40,8 @@
@@ -270,7 +270,7 @@ index 6165a2240..fd03e959d 100644
  bool UnsignedTransactionImpl::checkLoadedTx(const std::function<size_t()> get_num_txes, const std::function<const tools::wallet2::tx_construction_data&(size_t)> &get_tx, const std::string &extra_message)
  {
 diff --git a/src/wallet/api/unsigned_transaction.h b/src/wallet/api/unsigned_transaction.h
-index 30065a7fa..a94b23f75 100644
+index 30065a7..a94b23f 100644
 --- a/src/wallet/api/unsigned_transaction.h
 +++ b/src/wallet/api/unsigned_transaction.h
 @@ -53,6 +53,7 @@ public:
@@ -282,7 +282,7 @@ index 30065a7fa..a94b23f75 100644
      uint64_t minMixinCount() const override;
  
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index e16d8f83f..ee000e7ab 100644
+index e16d8f8..ee000e7 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -47,6 +47,7 @@
@@ -658,7 +658,7 @@ index e16d8f83f..ee000e7ab 100644
  {
      if (checkBackgroundSync("cannot scan transactions"))
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index ac7ce2f6a..edf8bb8ce 100644
+index ac7ce2f..edf8bb8 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -112,6 +112,7 @@ public:
@@ -689,7 +689,7 @@ index ac7ce2f6a..edf8bb8ce 100644
  
      bool setupBackgroundSync(const BackgroundSyncType background_sync_type, const std::string &wallet_password, const optional<std::string> &background_cache_password = optional<std::string>()) override;
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index e349df176..764adbfbf 100644
+index e349df1..764adbf 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -91,6 +91,7 @@ struct PendingTransaction
@@ -780,7 +780,7 @@ index e349df176..764adbfbf 100644
      /*!
       * \brief scanTransactions - scan a list of transaction ids, this operation may reveal the txids to the remote node and affect your privacy
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 1e527cf97..671fa5298 100644
+index 1e527cf..671fa52 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -948,6 +948,16 @@ uint32_t get_subaddress_clamped_sum(uint32_t idx, uint32_t extra)
@@ -1008,7 +1008,7 @@ index 1e527cf97..671fa5298 100644
      ski.push_back(std::make_pair(key_image, signature));
    }
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index c07a47c11..80ff0698d 100644
+index c07a47c..80ff069 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -1150,6 +1150,7 @@ private:
@@ -1032,5 +1032,5 @@ index c07a47c11..80ff0698d 100644
      bool import_key_images(signed_tx_set & signed_tx, size_t offset=0, bool only_selected_transfers=false);
      crypto::public_key get_tx_pub_key_from_received_outs(const tools::wallet2::transfer_details &td) const;
 -- 
-2.43.0
+2.39.5 (Apple Git-154)
 

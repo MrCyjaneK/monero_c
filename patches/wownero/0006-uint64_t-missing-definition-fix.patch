@@ -1,14 +1,14 @@
-From 07b87922ba378d14b45ac78c4a9ca39b1cac636d Mon Sep 17 00:00:00 2001
+From 2db1ea14b07823eed4bdfa872f7b1f40019e4bef Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 2 Sep 2024 16:40:31 +0200
-Subject: [PATCH 05/13] uint64_t missing definition fix
+Subject: [PATCH 06/14] uint64_t missing definition fix
 
 ---
  contrib/epee/include/net/http_base.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/contrib/epee/include/net/http_base.h b/contrib/epee/include/net/http_base.h
-index 4af4da790..ae4c0d05e 100644
+index 4af4da7..ae4c0d0 100644
 --- a/contrib/epee/include/net/http_base.h
 +++ b/contrib/epee/include/net/http_base.h
 @@ -28,7 +28,7 @@
@@ -21,5 +21,5 @@ index 4af4da790..ae4c0d05e 100644
  
  #include <string>
 -- 
-2.43.0
+2.39.5 (Apple Git-154)
 
