@@ -2,36 +2,52 @@
 	path = monero
 	url = https://github.com/monero-project/monero
 	branch = release-v0.18
+	shallow = true
 [submodule "wownero"]
 	path = wownero
 	url = https://codeberg.org/wownero/wownero
+	shallow = true
 [submodule "external/polyseed"]
 	path = external/polyseed
 	url = https://github.com/tevador/polyseed
+	shallow = true
 [submodule "external/ios-cmake"]
 	path = external/ios-cmake
 	url = https://github.com/leetal/ios-cmake
+	shallow = true
 [submodule "external/wownero-seed"]
 	path = external/wownero-seed
 	url = https://github.com/wownero-mirror/wownero-seed
+	shallow = true
 [submodule "external/Apple-Boost-BuildScript"]
 	path = external/Apple-Boost-BuildScript
 	url = https://github.com/cake-tech/Apple-Boost-BuildScript.git
 	branch = build
+	shallow = true
 [submodule "external/OpenSSL-for-iPhone"]
 	path = external/OpenSSL-for-iPhone
 	url = https://github.com/MrCyjaneK/OpenSSL-for-iPhone.git
+	shallow = true
 [submodule "external/libsodium"]
 	path = external/libsodium
 	url = https://github.com/jedisct1/libsodium.git
 	branch = stable
+	shallow = true
 [submodule "external/unbound"]
 	path = external/unbound
 	url = https://github.com/NLnetLabs/unbound.git
 	branch = release-1.16.2
+	shallow = true
 [submodule "external/libzmq"]
 	path = external/libzmq
 	url = https://github.com/zeromq/libzmq
+	shallow = true
 [submodule "external/libexpat"]
 	path = external/libexpat
 	url = https://github.com/libexpat/libexpat.git
+	shallow = true
+[submodule "external/icu4c-ios"]
+	path = external/icu4c-ios
+	url = https://github.com/MrCyjaneK/icu4c-ios.git
+	branch = master
+	shallow = true
