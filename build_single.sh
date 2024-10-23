@@ -271,7 +271,7 @@ pushd $repo/contrib/depends
             export IOS_PREFIX="$(realpath "${PWD}/../../../external/ios/build/ios")"
             verbose_copy "${IOS_PREFIX}/lib/libunbound.a" ${IOS_LIBS_DIR}/lib/libunbound.a
             verbose_copy "${IOS_PREFIX}/lib/libboost_chrono.a" ${IOS_LIBS_DIR}/lib/libboost_chrono.a
-            verbose_copy "${IOS_PREFIX}/lib/libboost_locale.a" ${IOS_LIBS_DIR}/lib/libboost_locale.a
+            # verbose_copy "${IOS_PREFIX}/lib/libboost_locale.a" ${IOS_LIBS_DIR}/lib/libboost_locale.a
             verbose_copy "${IOS_PREFIX}/lib/libboost_date_time.a" ${IOS_LIBS_DIR}/lib/libboost_date_time.a
             verbose_copy "${IOS_PREFIX}/lib/libboost_filesystem.a" ${IOS_LIBS_DIR}/lib/libboost_filesystem.a
             verbose_copy "${IOS_PREFIX}/lib/libboost_program_options.a" ${IOS_LIBS_DIR}/lib/libboost_program_options.a

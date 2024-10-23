@@ -46,8 +46,3 @@
 	path = external/libexpat
 	url = https://github.com/libexpat/libexpat.git
 	shallow = true
-[submodule "external/icu4c-ios"]
-	path = external/icu4c-ios
-	url = https://github.com/MrCyjaneK/icu4c-ios.git
-	branch = master
-	shallow = true
