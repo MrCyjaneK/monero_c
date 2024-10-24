@@ -1,4 +1,4 @@
-FROM ghcr.io/cirruslabs/flutter:3.24.3
+FROM ghcr.io/cirruslabs/flutter:3.24.4
 # FROM debian:bookworm
 
 # Install dependencies
