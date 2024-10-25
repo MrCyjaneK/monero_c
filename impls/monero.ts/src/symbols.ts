@@ -294,6 +294,13 @@ export const moneroSymbols = {
     // const char*
     result: "pointer",
   },
+  "MONERO_CoinsInfo_keyImage": {
+    nonblocking: true,
+    // void* coinsInfo_ptr
+    parameters: ["pointer"],
+    // const char*
+    result: "pointer",
+  },
   "MONERO_CoinsInfo_blockHeight": {
     nonblocking: true,
     // void* coinsInfo_ptr

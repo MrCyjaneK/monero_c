@@ -32,6 +32,7 @@ export class Wallet {
 
   async initWallet(daemonAddress: string): Promise<void> {
     await this.init(daemonAddress);
+    // await this.init3(); - enable logging to console
     await this.setTrustedDaemon(true);
     await this.setDaemonAddress(daemonAddress);
     await this.startRefresh();
@@ -96,6 +97,18 @@ export class Wallet {
     );
     await this.throwIfError();
     return bool;
+  }
+
+  async init3(): Promise<void> {
+      // void* wallet_ptr, const char* argv0, const char* default_log_base_name,
+    //  const char* log_path, bool console
+    const bool = await getSymbol("Wallet_init3")(
+      this.#walletPtr,
+      CString(""),
+      CString(""),
+      CString(""),
+      true,
+   );
   }
 
   async setTrustedDaemon(value: boolean): Promise<void> {

@@ -15,6 +15,10 @@ export class CoinsInfo {
     return await readCString(await getSymbol("CoinsInfo_hash")(this.#coinsInfoPtr));
   }
 
+  async keyImage(): Promise<string | null> {
+    return await readCString(await getSymbol("CoinsInfo_keyImage")(this.#coinsInfoPtr));
+  }
+
   async blockHeight(): Promise<bigint> {
     return await getSymbol("CoinsInfo_blockHeight")(this.#coinsInfoPtr);
   }

@@ -220,7 +220,7 @@ Deno.test("0001-polyseed.patch", async (t) => {
         walletInfo.offset,
       );
 
-      await wallet.initWallet(NODE_URL);
+      await wallet.initWallet(""); // empty string for offline test
 
       assertEquals(await wallet.address(), walletInfo.address);
 
@@ -269,7 +269,7 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
     const interval = setInterval(async () => {
       const blockChainHeight = BigInt(await backgroundWallet.blockChainHeight());
       const daemonBlockchainHeight = BigInt(await backgroundWallet.daemonBlockChainHeight());
-      console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight);
+      console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight, "Remains:", daemonBlockchainHeight-blockChainHeight);
 
       if (blockChainHeight === daemonBlockchainHeight) {
         clearInterval(interval);
@@ -328,7 +328,7 @@ Deno.test("0004-coin-control.patch", {
     const interval = setInterval(async () => {
       const blockChainHeight = BigInt(await wallet.blockChainHeight());
       const daemonBlockchainHeight = BigInt(await wallet.daemonBlockChainHeight());
-      console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight);
+      console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight, "Remains:", daemonBlockchainHeight-blockChainHeight);
 
       if (blockChainHeight === daemonBlockchainHeight) {
         clearInterval(interval);
@@ -355,7 +355,7 @@ Deno.test("0004-coin-control.patch", {
     const availableCoinsData: Record<string, {
       index: number;
       coin: CoinsInfo;
-      hash: string | null;
+      keyImage: string | null;
       amount: bigint;
     }[]> = {
       ["0.001"]: [],
@@ -401,7 +401,7 @@ Deno.test("0004-coin-control.patch", {
       availableCoinsData[humanReadableAmount].push({
         index: i,
         coin,
-        hash: await coin.hash(),
+        keyImage: await coin.keyImage(),
         amount,
       });
 
@@ -422,7 +422,7 @@ Deno.test("0004-coin-control.patch", {
         0,
         0,
         false,
-        availableCoinsData["0.001"][0].hash!,
+        availableCoinsData["0.001"][0].keyImage!,
       );
       assertEquals(await transaction.status(), 1);
     });
@@ -443,15 +443,16 @@ Deno.test("0004-coin-control.patch", {
       await freezeAll();
       await coins.thaw(availableCoinsData["0.001"][0].index);
       await coins.thaw(availableCoinsData["0.001"][1].index);
-
+      console.log("a");
       const transaction = await wallet.createTransaction(
         DESTINATION_ADDRESS,
         2n * BILLION,
         0,
         0,
         false,
-        availableCoinsData["0.001"][0].hash!,
+        availableCoinsData["0.001"][0].keyImage!,
       );
+      console.log("b");
 
       assertEquals(await transaction.status(), 1);
       assertEquals(
