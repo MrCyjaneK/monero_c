@@ -2,9 +2,10 @@ import { type Dylib, moneroSymbols, wowneroSymbols } from "../impls/monero.ts/sr
 import { loadMoneroDylib, loadWowneroDylib } from "../impls/monero.ts/src/bindings.ts";
 import { Wallet, WalletManager } from "../impls/monero.ts/mod.ts";
 import { readCString } from "../impls/monero.ts/src/utils.ts";
-import { assertEquals } from "jsr:@std/assert";
+import { assert, assertEquals } from "jsr:@std/assert";
 import { $, downloadCli, getMoneroC } from "./utils.ts";
 import { getSymbol } from "../impls/monero.ts/src/utils.ts";
+import type { CoinsInfo } from "../impls/monero.ts/src/coinsInfo.ts";
 
 const coin = Deno.env.get("COIN");
 if (coin !== "monero" && coin !== "wownero") {
@@ -20,6 +21,12 @@ async function getKey(wallet: Wallet, type: `${"secret" | "public"}${"Spend" | "
 const WOWNERO_NODE_URL = "https://node3.monerodevs.org:34568";
 const MONERO_NODE_URL = "https://nodes.hashvault.pro:18081";
 const NODE_URL = coin === "monero" ? MONERO_NODE_URL : WOWNERO_NODE_URL;
+
+const WOWNERO_DESTINATION_ADDRESS =
+  "WW3Zetw4Gg5Rk88ViCm8H8Ft8BqgAQ5DbTLZC1whv8GNFJPSoGfLViW3dAAb4Bcqpz2M1y31pZykd4ZKd8GH1UyF1fwEFg5mS";
+const MONERO_DESTINATION_ADDRESS =
+  "89BoVWjqdGVe68wdxbYurXR8sXaEb96eWKYRPxdT6wSCfZYK6XSHoj5ZRXQLtd7GzL2B2PD7Lb7GSKupkXMWjQVFAEb1CK8";
+const DESTINATION_ADDRESS = coin === "monero" ? MONERO_DESTINATION_ADDRESS : WOWNERO_DESTINATION_ADDRESS;
 
 await getMoneroC(coin, "next");
 
@@ -191,6 +198,7 @@ Deno.test("0001-polyseed.patch", async (t) => {
         publicViewKey: "ea7a909bc832037db14c6a537357bbf2eedee84b7d00e9a2b1d718d92fe52693",
         secretViewKey: "96e03a70a4956656be6cc1fa2252f159ae0b2d2fdc21f761fc7e8d0316931708",
       },
+      // TODO: Add other localized wallets for Wownero
     ],
   };
 
@@ -293,6 +301,184 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
   dylib.close();
 });
 
+Deno.test("0004-coin-control.patch", {
+  ignore: !(
+    Deno.env.get("SECRET_WALLET_PASSWORD") &&
+    Deno.env.get("SECRET_WALLET_MNEMONIC") &&
+    Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")
+  ),
+}, async (t) => {
+  await clearWallets();
+
+  const dylib = loadDylib();
+
+  const walletManager = await WalletManager.new();
+  const wallet = await Wallet.recoverFromPolyseed(
+    walletManager,
+    "tests/wallets/secret-wallet",
+    Deno.env.get("SECRET_WALLET_PASSWORD")!,
+    Deno.env.get("SECRET_WALLET_MNEMONIC")!,
+    BigInt(Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")!),
+  );
+  await wallet.initWallet(NODE_URL);
+  await wallet.refreshAsync();
+
+  // Wait for blockchain to sync
+  await new Promise((resolve) => {
+    const interval = setInterval(async () => {
+      const blockChainHeight = BigInt(await wallet.blockChainHeight());
+      const daemonBlockchainHeight = BigInt(await wallet.daemonBlockChainHeight());
+      console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight);
+
+      if (blockChainHeight === daemonBlockchainHeight) {
+        clearInterval(interval);
+        resolve(blockChainHeight);
+      }
+    }, 1000);
+  });
+
+  await wallet.refreshAsync();
+  await wallet.store();
+  await wallet.refreshAsync();
+
+  const coins = (await wallet.coins())!;
+  await coins.refresh();
+
+  // COINS:
+  // 5x 0.001XMR 1x 0.005XMR (in no particular order)
+
+  await t.step("preffered_inputs", async (t) => {
+    const coinsCount = await coins.count();
+
+    const BILLION = 10n ** 9n;
+
+    const availableCoinsData: Record<string, {
+      index: number;
+      coin: CoinsInfo;
+      hash: string | null;
+      amount: bigint;
+    }[]> = {
+      ["0.001"]: [],
+      ["0.005"]: [],
+    };
+
+    const freezeAll = async () => {
+      for (const [_, coinsData] of Object.entries(availableCoinsData)) {
+        for (const coinData of coinsData) {
+          await coins.setFrozen(coinData.index);
+        }
+      }
+      await coins.refresh();
+    };
+
+    const thawAll = async () => {
+      for (const [_, coinsData] of Object.entries(availableCoinsData)) {
+        for (const coinData of coinsData) {
+          await coins.thaw(coinData.index);
+        }
+      }
+      await coins.refresh();
+    };
+
+    let availableCoinsCount = 0;
+    let totalAvailableAmount = 0n;
+    for (let i = 0; i < coinsCount; ++i) {
+      const coin = (await coins.coin(i))!;
+      if (await coin.spent()) {
+        continue;
+      }
+
+      const amount = BigInt(await coin.amount());
+      let humanReadableAmount: string;
+      if (amount === BILLION) {
+        humanReadableAmount = "0.001";
+      } else if (amount === 5n * BILLION) {
+        humanReadableAmount = "0.005";
+      } else {
+        throw new Error("Invalid coin amount! Only 5x0.01XMR coins and 1x0.05XMR coin should be available");
+      }
+
+      availableCoinsData[humanReadableAmount].push({
+        index: i,
+        coin,
+        hash: await coin.hash(),
+        amount,
+      });
+
+      totalAvailableAmount += amount;
+      availableCoinsCount += 1;
+
+      await coins.thaw(i);
+      await coins.refresh();
+      assertEquals(await coin.frozen(), false);
+    }
+    assertEquals(availableCoinsCount, 6);
+    assertEquals(totalAvailableAmount, 10n * BILLION);
+
+    await t.step("Try to spend 0.002XMR by using only one 0.001XMR coin", async () => {
+      const transaction = await wallet.createTransaction(
+        DESTINATION_ADDRESS,
+        2n * BILLION,
+        0,
+        0,
+        false,
+        availableCoinsData["0.001"][0].hash!,
+      );
+      assertEquals(await transaction.status(), 1);
+    });
+
+    await t.step("Try to spend 0.002XMR with only 0.001XMR unlocked balance", async () => {
+      await freezeAll();
+      await coins.thaw(availableCoinsData["0.001"][0].index);
+
+      const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, 2n * BILLION, 0, 0, false);
+
+      assertEquals(await transaction.status(), 1);
+      assert((await transaction.errorString())?.includes("not enough money to transfer"));
+
+      await thawAll();
+    });
+
+    await t.step("Try to spend 0.002XMR + fee with only 0.002XMR unlocked balance", async () => {
+      await freezeAll();
+      await coins.thaw(availableCoinsData["0.001"][0].index);
+      await coins.thaw(availableCoinsData["0.001"][1].index);
+
+      const transaction = await wallet.createTransaction(
+        DESTINATION_ADDRESS,
+        2n * BILLION,
+        0,
+        0,
+        false,
+        availableCoinsData["0.001"][0].hash!,
+      );
+
+      assertEquals(await transaction.status(), 1);
+      assertEquals(
+        await transaction.errorString(),
+        "not enough money to transfer, overall balance only 0.002000000000, sent amount 0.002000000000",
+      );
+
+      await thawAll();
+    });
+  });
+
+  await t.step("spend more than unfrozen balance", async () => {
+    const unlockedBalance = await wallet.unlockedBalance();
+    const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, BigInt(unlockedBalance) + 1n, 0, 0);
+
+    assertEquals(await transaction.status(), 1);
+    assert(
+      await transaction.errorString(),
+      "not enough money to transfer, overall balance only 0.001000000000, sent amount 0.001000000001",
+    );
+  });
+
+  await wallet.close(true);
+
+  dylib.close();
+});
+
 Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
   await Promise.all([
     downloadCli(coin),
@@ -340,12 +526,7 @@ Deno.test("0012-WIP-UR-functions.patch", async (t) => {
     await backgroundWallet.initWallet(NODE_URL);
 
     try {
-      const transaction = await backgroundWallet.createTransaction(
-        "89BoVWjqdGVe68wdxbYurXR8sXaEb96eWKYRPxdT6wSCfZYK6XSHoj5ZRXQLtd7GzL2B2PD7Lb7GSKupkXMWjQVFAEb1CK8",
-        11111111n,
-        0,
-        0,
-      );
+      const transaction = await backgroundWallet.createTransaction(DESTINATION_ADDRESS, 11111111n, 0, 0);
 
       assertEquals(await transaction.errorString(), "Background wallets cannot create transactions");
       assertEquals(await transaction.status(), 1);
@@ -367,13 +548,7 @@ Deno.test("0012-WIP-UR-functions.patch", async (t) => {
     assertEquals(await wallet.isOffline(), true);
 
     try {
-      const transaction = await wallet.createTransaction(
-        "89BoVWjqdGVe68wdxbYurXR8sXaEb96eWKYRPxdT6wSCfZYK6XSHoj5ZRXQLtd7GzL2B2PD7Lb7GSKupkXMWjQVFAEb1CK8",
-        11111111n,
-        0,
-        0,
-      );
-
+      const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, 11111111n, 0, 0);
       assertEquals(await transaction.status(), 1);
     } catch {
       assertEquals(await wallet.status(), 1);
