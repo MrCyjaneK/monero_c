@@ -556,5 +556,5 @@ Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
 //     await wallet.close(true);
 //   });
 
-  dylib.close();
-});
+//   dylib.close();
+// });
