@@ -14,4 +14,7 @@
         <toc-element topic="Windows.md"/>
         <toc-element topic="macOS.md"/>
     </toc-element>
+    <toc-element topic="Features.md">
+        <toc-element topic="airgap.md"/>
+    </toc-element>
 </instance-profile>
