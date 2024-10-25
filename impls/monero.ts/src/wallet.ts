@@ -5,6 +5,7 @@ import { WalletManager, type WalletManagerPtr } from "./wallet_manager.ts";
 import { TransactionHistory, TransactionHistoryPtr } from "./transaction_history.ts";
 import { PendingTransaction } from "./pending_transaction.ts";
 import { PendingTransactionPtr } from "./pending_transaction.ts";
+import { Coins, type CoinsPtr } from "./coins.ts";
 
 export type WalletPtr = Deno.PointerObject<"walletManager">;
 
@@ -398,5 +399,12 @@ export class Wallet {
 
   async setOffline(offline: boolean): Promise<void> {
     await getSymbol("Wallet_setOffline")(this.#walletPtr, offline);
+  }
+
+  async coins(): Promise<Coins | null> {
+    const coinsPtr = await getSymbol("Wallet_coins")(this.#walletPtr);
+    if (!coinsPtr) return null;
+
+    return new Coins(coinsPtr as CoinsPtr, this.sanitizer);
   }
 }

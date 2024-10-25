@@ -1,4 +1,3 @@
-import { dylib } from "./bindings.ts";
 import { getSymbol, readCString, Sanitizer } from "./utils.ts";
 
 export type TransactionInfoPtr = Deno.PointerObject<"transactionInfo">;

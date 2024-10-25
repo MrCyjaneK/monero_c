@@ -277,6 +277,117 @@ export const moneroSymbols = {
     // const char*
     result: "pointer",
   },
+  "MONERO_Wallet_coins": {
+    nonblocking: true,
+    // void* wallet_ptr
+    parameters: ["pointer"],
+    // void*
+    result: "pointer",
+  },
+  //#endregion
+
+  //#region CoinsInfo
+  "MONERO_CoinsInfo_hash": {
+    nonblocking: true,
+    // void* coinsInfo_ptr
+    parameters: ["pointer"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_CoinsInfo_blockHeight": {
+    nonblocking: true,
+    // void* coinsInfo_ptr
+    parameters: ["pointer"],
+    // uint64_t
+    result: "u64",
+  },
+  "MONERO_CoinsInfo_amount": {
+    nonblocking: true,
+    // void* coinsInfo_ptr
+    parameters: ["pointer"],
+    // uint64_t
+    result: "u64",
+  },
+  "MONERO_CoinsInfo_spent": {
+    nonblocking: true,
+    // void* coinsInfo_ptr
+    parameters: ["pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_CoinsInfo_spentHeight": {
+    nonblocking: true,
+    // void* coinsInfo_ptr
+    parameters: ["pointer"],
+    // uint64_t
+    result: "u64",
+  },
+  "MONERO_CoinsInfo_frozen": {
+    nonblocking: true,
+    // void* coinsInfo_ptr
+    parameters: ["pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_CoinsInfo_unlocked": {
+    nonblocking: true,
+    // void* coinsInfo_ptr
+    parameters: ["pointer"],
+    // bool
+    result: "bool",
+  },
+  //#endregion
+
+  //#region Coins
+  "MONERO_Coins_refresh": {
+    nonblocking: true,
+    // void* coins_ptr
+    parameters: ["pointer"],
+    // void
+    result: "void",
+  },
+  "MONERO_Coins_count": {
+    nonblocking: true,
+    // void* coins_ptr
+    parameters: ["pointer"],
+    // int
+    result: "i32",
+  },
+  "MONERO_Coins_coin": {
+    nonblocking: true,
+    // void* coins_ptr, int index
+    parameters: ["pointer", "i32"],
+    // void*
+    result: "pointer",
+  },
+  "MONERO_Coins_getAll_size": {
+    nonblocking: true,
+    // void* coins_ptr
+    parameters: ["pointer"],
+    // int
+    result: "i32",
+  },
+  "MONERO_Coins_getAll_byIndex": {
+    nonblocking: true,
+    // void* coins_ptr, int index
+    parameters: ["pointer", "i32"],
+    // void*
+    result: "pointer",
+  },
+  "MONERO_Coins_setFrozen": {
+    nonblocking: true,
+    // void* coinsInfo_ptr, int index
+    parameters: ["pointer", "i32"],
+    // void
+    result: "void",
+  },
+  "MONERO_Coins_thaw": {
+    nonblocking: true,
+    // void* coinsInfo_ptr, int index
+    parameters: ["pointer", "i32"],
+    // void
+    result: "void",
+  },
   //#endregion
 
   //#region TransactionHistory
