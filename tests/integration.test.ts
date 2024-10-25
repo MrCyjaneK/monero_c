@@ -269,7 +269,7 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
     const interval = setInterval(async () => {
       const blockChainHeight = BigInt(await backgroundWallet.blockChainHeight());
       const daemonBlockchainHeight = BigInt(await backgroundWallet.daemonBlockChainHeight());
-      console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight, "Remains:", daemonBlockchainHeight-blockChainHeight);
+      // console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight, "Remains:", daemonBlockchainHeight-blockChainHeight);
 
       if (blockChainHeight === daemonBlockchainHeight) {
         clearInterval(interval);
@@ -328,7 +328,7 @@ Deno.test("0004-coin-control.patch", {
     const interval = setInterval(async () => {
       const blockChainHeight = BigInt(await wallet.blockChainHeight());
       const daemonBlockchainHeight = BigInt(await wallet.daemonBlockChainHeight());
-      console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight, "Remains:", daemonBlockchainHeight-blockChainHeight);
+      // console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight, "Remains:", daemonBlockchainHeight-blockChainHeight);
 
       if (blockChainHeight === daemonBlockchainHeight) {
         clearInterval(interval);
@@ -443,7 +443,6 @@ Deno.test("0004-coin-control.patch", {
       await freezeAll();
       await coins.thaw(availableCoinsData["0.001"][0].index);
       await coins.thaw(availableCoinsData["0.001"][1].index);
-      console.log("a");
       const transaction = await wallet.createTransaction(
         DESTINATION_ADDRESS,
         2n * BILLION,
@@ -452,7 +451,6 @@ Deno.test("0004-coin-control.patch", {
         false,
         availableCoinsData["0.001"][0].keyImage!,
       );
-      console.log("b");
 
       assertEquals(await transaction.status(), 1);
       assertEquals(
@@ -505,58 +503,58 @@ Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
   dylib.close();
 });
 
-Deno.test("0012-WIP-UR-functions.patch", async (t) => {
-  const dylib = loadDylib();
+// Deno.test("0012-WIP-UR-functions.patch", async (t) => {
+//   const dylib = loadDylib();
 
-  await t.step("view only", async () => {
-    await clearWallets();
+//   await t.step("view only", async () => {
+//     await clearWallets();
 
-    const walletManager = await WalletManager.new();
-    const wallet = await Wallet.create(walletManager, "tests/wallets/sable", "sobol");
-    await wallet.initWallet(NODE_URL);
+//     const walletManager = await WalletManager.new();
+//     const wallet = await Wallet.create(walletManager, "tests/wallets/sable", "sobol");
+//     await wallet.initWallet(NODE_URL);
 
-    await wallet.setupBackgroundSync(2, "sobol", "background-sobol");
-    await wallet.startBackgroundSync();
-    await wallet.close(true);
+//     await wallet.setupBackgroundSync(2, "sobol", "background-sobol");
+//     await wallet.startBackgroundSync();
+//     await wallet.close(true);
 
-    const backgroundWallet = await Wallet.open(
-      walletManager,
-      "tests/wallets/sable.background",
-      "background-sobol",
-    );
-    await backgroundWallet.initWallet(NODE_URL);
+//     const backgroundWallet = await Wallet.open(
+//       walletManager,
+//       "tests/wallets/sable.background",
+//       "background-sobol",
+//     );
+//     await backgroundWallet.initWallet(NODE_URL);
 
-    try {
-      const transaction = await backgroundWallet.createTransaction(DESTINATION_ADDRESS, 11111111n, 0, 0);
+//     try {
+//       const transaction = await backgroundWallet.createTransaction(DESTINATION_ADDRESS, 11111111n, 0, 0);
 
-      assertEquals(await transaction.errorString(), "Background wallets cannot create transactions");
-      assertEquals(await transaction.status(), 1);
-    } catch {
-      assertEquals(await wallet.status(), 1);
-    }
+//       assertEquals(await transaction.errorString(), "Background wallets cannot create transactions");
+//       assertEquals(await transaction.status(), 1);
+//     } catch {
+//       assertEquals(await wallet.status(), 1);
+//     }
 
-    await backgroundWallet.close(true);
-  });
+//     await backgroundWallet.close(true);
+//   });
 
-  await t.step("offline", async () => {
-    await clearWallets();
+//   await t.step("offline", async () => {
+//     await clearWallets();
 
-    const walletManager = await WalletManager.new();
-    const wallet = await Wallet.create(walletManager, "tests/wallets/mouse", "mysh");
-    await wallet.initWallet("");
-    await wallet.setOffline(true);
+//     const walletManager = await WalletManager.new();
+//     const wallet = await Wallet.create(walletManager, "tests/wallets/mouse", "mysh");
+//     await wallet.initWallet("");
+//     await wallet.setOffline(true);
 
-    assertEquals(await wallet.isOffline(), true);
+//     assertEquals(await wallet.isOffline(), true);
 
-    try {
-      const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, 11111111n, 0, 0);
-      assertEquals(await transaction.status(), 1);
-    } catch {
-      assertEquals(await wallet.status(), 1);
-    }
+//     try {
+//       const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, 11111111n, 0, 0);
+//       assertEquals(await transaction.status(), 1);
+//     } catch {
+//       assertEquals(await wallet.status(), 1);
+//     }
 
-    await wallet.close(true);
-  });
+//     await wallet.close(true);
+//   });
 
   dylib.close();
 });

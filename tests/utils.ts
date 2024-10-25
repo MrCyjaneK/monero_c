@@ -14,9 +14,9 @@ export async function downloadMoneroCli() {
   const MONERO_CLI_FILE_NAME = "monero-linux-x64-v0.18.3.4";
   const MONERO_WALLET_CLI_URL = `https://downloads.getmonero.org/cli/${MONERO_CLI_FILE_NAME}.tar.bz2`;
 
-  await $`wget ${MONERO_WALLET_CLI_URL}`;
+  await $`wget -q -o /dev/null ${MONERO_WALLET_CLI_URL}`;
   await $
-    .raw`tar -xvf ${MONERO_CLI_FILE_NAME}.tar.bz2 --one-top-level=monero-cli --strip-components=1 -C tests`;
+    .raw`tar -xf ${MONERO_CLI_FILE_NAME}.tar.bz2 --one-top-level=monero-cli --strip-components=1 -C tests`;
   await $.raw`rm ${MONERO_CLI_FILE_NAME}.tar.bz2`;
 }
 
@@ -25,9 +25,9 @@ export async function downloadWowneroCli() {
   const WOWNERO_WALLET_CLI_URL =
     `https://codeberg.org/wownero/wownero/releases/download/v0.11.2.0/wownero-x86_64-linux-gnu-59db3fe8d.tar.bz2`;
 
-  await $`wget ${WOWNERO_WALLET_CLI_URL}`;
+  await $`wget -q -o /dev/null ${WOWNERO_WALLET_CLI_URL}`;
   await $
-    .raw`tar -xvf ${WOWNERO_CLI_FILE_NAME}.tar.bz2 --one-top-level=wownero-cli --strip-components=1 -C tests`;
+    .raw`tar -xf ${WOWNERO_CLI_FILE_NAME}.tar.bz2 --one-top-level=wownero-cli --strip-components=1 -C tests`;
   await $.raw`rm ${WOWNERO_CLI_FILE_NAME}.tar.bz2`;
 }
 
