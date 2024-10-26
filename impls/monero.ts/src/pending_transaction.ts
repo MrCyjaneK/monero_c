@@ -44,19 +44,11 @@ export class PendingTransaction {
 
   async commitUR(maxFragmentLength: number): Promise<string | null> {
     const commitUR = getSymbol("PendingTransaction_commitUR");
+    if (!commitUR) return null;
 
-    if (!commitUR) {
-      return null;
-    }
+    const result = await commitUR(this.#pendingTxPtr, maxFragmentLength);
 
-    const result = await commitUR(
-      this.#pendingTxPtr,
-      maxFragmentLength,
-    );
-
-    if (!result) return null;
-    await this.throwIfError();
-    return await readCString(result) || null;
+    return await readCString(result);
   }
 
   async amount(): Promise<bigint> {

@@ -45,6 +45,15 @@ export const moneroSymbols = {
     // void*
     result: "pointer",
   },
+  "MONERO_WalletManager_createWalletFromKeys": {
+    nonblocking: true,
+    // void* wm_ptr, const char* path, const char* password, const char* language,
+    // int nettype, uint64_t restoreHeight, const char* addressString,
+    // const char* viewKeyString, const char* spendKeyString, uint64_t kdf_rounds
+    parameters: ["pointer", "pointer", "pointer", "pointer", "i32", "u64", "pointer", "pointer", "pointer", "u64"],
+    // void*
+    result: "pointer",
+  },
   "MONERO_WalletManager_blockchainHeight": {
     nonblocking: true,
     // void* wm_ptr
@@ -281,6 +290,76 @@ export const moneroSymbols = {
     nonblocking: true,
     // void* wallet_ptr
     parameters: ["pointer"],
+    // void*
+    result: "pointer",
+  },
+  "MONERO_Wallet_exportOutputs": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* filename, bool all
+    parameters: ["pointer", "pointer", "bool"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_exportOutputsUR": {
+    nonblocking: true,
+    // void* wallet_ptr, size_t max_fragment_length, bool all
+    parameters: ["pointer", "usize", "bool"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_Wallet_importOutputs": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* filename
+    parameters: ["pointer", "pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_importOutputsUR": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* input
+    parameters: ["pointer", "pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_exportKeyImages": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* filename, bool all
+    parameters: ["pointer", "pointer", "bool"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_exportKeyImagesUR": {
+    nonblocking: true,
+    // void* wallet_ptr, size_t max_fragment_length, bool all
+    parameters: ["pointer", "usize", "bool"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_Wallet_importKeyImages": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* filename
+    parameters: ["pointer", "pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_importKeyImagesUR": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* input
+    parameters: ["pointer", "pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_Wallet_loadUnsignedTx": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* filename
+    parameters: ["pointer", "pointer"],
+    // void*
+    result: "pointer",
+  },
+  "MONERO_Wallet_loadUnsignedTxUR": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* input
+    parameters: ["pointer", "pointer"],
     // void*
     result: "pointer",
   },
@@ -675,6 +754,65 @@ export const moneroSymbols = {
     nonblocking: true,
     // void* pendingTx_ptr, const char* separator
     parameters: ["pointer", "pointer"],
+    // const char*
+    result: "pointer",
+  },
+  //#endregion
+
+  //#region UnsignedTransaction
+  "MONERO_UnsignedTransaction_status": {
+    nonblocking: true,
+    // void* unsignedTx_ptr
+    parameters: ["pointer"],
+    // int
+    result: "i32",
+  },
+  "MONERO_UnsignedTransaction_errorString": {
+    nonblocking: true,
+    // void* unsignedTx_ptr
+    parameters: ["pointer"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_UnsignedTransaction_amount": {
+    nonblocking: true,
+    // void* unsignedTx_ptr, const char* separator
+    parameters: ["pointer", "pointer"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_UnsignedTransaction_fee": {
+    nonblocking: true,
+    // void* unsignedTx_ptr, const char* separator
+    parameters: ["pointer", "pointer"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_UnsignedTransaction_txCount": {
+    nonblocking: true,
+    // void* unsignedTx_ptr
+    parameters: ["pointer"],
+    // uint64_t
+    result: "u64",
+  },
+  "MONERO_UnsignedTransaction_recipientAddress": {
+    nonblocking: true,
+    // void* unsignedTx_ptr, const char* separator
+    parameters: ["pointer", "pointer"],
+    // const char*
+    result: "pointer",
+  },
+  "MONERO_UnsignedTransaction_sign": {
+    nonblocking: true,
+    // void* unsignedTx_ptr, const char* signedFileName
+    parameters: ["pointer", "pointer"],
+    // bool
+    result: "bool",
+  },
+  "MONERO_UnsignedTransaction_signUR": {
+    nonblocking: true,
+    // void* unsignedTx_ptr, int maxFragmentLength
+    parameters: ["pointer", "i32"],
     // const char*
     result: "pointer",
   },

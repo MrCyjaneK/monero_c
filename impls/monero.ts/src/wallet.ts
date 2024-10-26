@@ -1,4 +1,3 @@
-import { dylib } from "./bindings.ts";
 import { CString, getSymbol, readCString, Sanitizer } from "./utils.ts";
 
 import { WalletManager, type WalletManagerPtr } from "./wallet_manager.ts";
@@ -6,6 +5,7 @@ import { TransactionHistory, TransactionHistoryPtr } from "./transaction_history
 import { PendingTransaction } from "./pending_transaction.ts";
 import { PendingTransactionPtr } from "./pending_transaction.ts";
 import { Coins, type CoinsPtr } from "./coins.ts";
+import { UnsignedTransaction, type UnsignedTransactionPtr } from "./unsigned_transaction.ts";
 
 export type WalletPtr = Deno.PointerObject<"walletManager">;
 
@@ -100,7 +100,7 @@ export class Wallet {
   }
 
   async init3(): Promise<void> {
-      // void* wallet_ptr, const char* argv0, const char* default_log_base_name,
+    // void* wallet_ptr, const char* argv0, const char* default_log_base_name,
     //  const char* log_path, bool console
     const bool = await getSymbol("Wallet_init3")(
       this.#walletPtr,
@@ -108,7 +108,7 @@ export class Wallet {
       CString(""),
       CString(""),
       true,
-   );
+    );
   }
 
   async setTrustedDaemon(value: boolean): Promise<void> {
@@ -229,6 +229,37 @@ export class Wallet {
       newWallet,
       restoreHeight,
       1n,
+    );
+
+    const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
+    await wallet.throwIfError(sanitizeError);
+
+    return wallet;
+  }
+
+  static async recoverFromKeys(
+    walletManager: WalletManager,
+    path: string,
+    password: string,
+    restoreHeight: bigint,
+    address: string,
+    viewKey: string,
+    spendKey: string,
+    sanitizeError = true,
+  ): Promise<Wallet> {
+    const walletManagerPtr = walletManager.getPointer();
+
+    const walletPtr = await getSymbol("WalletManager_createWalletFromKeys")(
+      walletManagerPtr,
+      CString(path),
+      CString(password),
+      CString("English"),
+      0,
+      restoreHeight,
+      CString(address),
+      CString(viewKey),
+      CString(spendKey),
+      0n,
     );
 
     const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
@@ -419,5 +450,95 @@ export class Wallet {
     if (!coinsPtr) return null;
 
     return new Coins(coinsPtr as CoinsPtr, this.sanitizer);
+  }
+
+  async publicViewKey(): Promise<string | null> {
+    const publicViewKey = readCString(await getSymbol("Wallet_publicViewKey")(this.#walletPtr));
+    await this.throwIfError();
+    return publicViewKey;
+  }
+
+  async secretViewKey(): Promise<string | null> {
+    const secretViewKey = readCString(await getSymbol("Wallet_secretViewKey")(this.#walletPtr));
+    await this.throwIfError();
+    return secretViewKey;
+  }
+
+  async publicSpendKey(): Promise<string | null> {
+    const publicSpendKey = readCString(await getSymbol("Wallet_publicSpendKey")(this.#walletPtr));
+    await this.throwIfError();
+    return publicSpendKey;
+  }
+
+  async secretSpendKey(): Promise<string | null> {
+    const secretSpendKey = readCString(await getSymbol("Wallet_secretSpendKey")(this.#walletPtr));
+    await this.throwIfError();
+    return secretSpendKey;
+  }
+
+  async exportOutputs(fileName: string, all: boolean): Promise<boolean> {
+    const bool = await getSymbol("Wallet_exportOutputs")(this.#walletPtr, CString(fileName), all);
+    await this.throwIfError();
+    return bool;
+  }
+
+  async exportOutputsUR(maxFragmentLength: bigint, all: boolean): Promise<string | null> {
+    const string = await readCString(
+      await getSymbol("Wallet_exportOutputsUR")(this.#walletPtr, maxFragmentLength, all),
+    );
+    await this.throwIfError();
+    return string;
+  }
+
+  async importOutputs(fileName: string): Promise<boolean> {
+    const bool = await getSymbol("Wallet_importOutputs")(this.#walletPtr, CString(fileName));
+    await this.throwIfError();
+    return bool;
+  }
+
+  async importOutputsUR(input: string): Promise<boolean> {
+    const bool = await getSymbol("Wallet_importOutputsUR")(this.#walletPtr, CString(input));
+    await this.throwIfError();
+    return bool;
+  }
+
+  async exportKeyImages(fileName: string, all: boolean): Promise<boolean> {
+    const bool = await getSymbol("Wallet_exportKeyImages")(this.#walletPtr, CString(fileName), all);
+    await this.throwIfError();
+    return bool;
+  }
+
+  async exportKeyImagesUR(maxFragmentLength: bigint, all: boolean): Promise<string | null> {
+    const string = await readCString(
+      await getSymbol("Wallet_exportKeyImagesUR")(this.#walletPtr, maxFragmentLength, all),
+    );
+    await this.throwIfError();
+    return string;
+  }
+
+  async importKeyImages(fileName: string): Promise<boolean> {
+    const bool = await getSymbol("Wallet_importKeyImages")(this.#walletPtr, CString(fileName));
+    await this.throwIfError();
+    return bool;
+  }
+
+  async importKeyImagesUR(input: string): Promise<boolean> {
+    const bool = await getSymbol("Wallet_importKeyImagesUR")(this.#walletPtr, CString(input));
+    await this.throwIfError();
+    return bool;
+  }
+
+  async loadUnsignedTx(fileName: string): Promise<UnsignedTransaction> {
+    const pendingTxPtr = await getSymbol("Wallet_loadUnsignedTx")(this.#walletPtr, CString(fileName));
+    await this.throwIfError();
+    const pendingTx = new UnsignedTransaction(pendingTxPtr as UnsignedTransactionPtr);
+    return pendingTx;
+  }
+
+  async loadUnsignedTxUR(input: string): Promise<UnsignedTransaction> {
+    const pendingTxPtr = await getSymbol("Wallet_loadUnsignedTxUR")(this.#walletPtr, CString(input));
+    await this.throwIfError();
+    const pendingTx = new UnsignedTransaction(pendingTxPtr as UnsignedTransactionPtr);
+    return pendingTx;
   }
 }
