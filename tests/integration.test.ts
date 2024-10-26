@@ -16,8 +16,28 @@ async function getKey(wallet: Wallet, type: `${"secret" | "public"}${"Spend" | "
   return await readCString(await getSymbol(`Wallet_${type}` as const)(wallet.getPointer()));
 }
 
-// TODO: Change for custom address on CI
+async function syncBlockchain(wallet: Wallet): Promise<bigint> {
+  // Wait for blockchain to sync
+  return await new Promise((resolve) => {
+    let timeout: number;
 
+    const poll = async () => {
+      const blockChainHeight = await wallet.blockChainHeight();
+      const daemonBlockchainHeight = await wallet.daemonBlockChainHeight();
+      // console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight, "Remains:", daemonBlockchainHeight - blockChainHeight);
+      if (blockChainHeight === daemonBlockchainHeight) {
+        clearTimeout(timeout);
+        resolve(blockChainHeight);
+      } else {
+        setTimeout(poll, 500);
+      }
+    };
+
+    poll();
+  });
+}
+
+// TODO: Change for custom address on CI
 const WOWNERO_NODE_URL = "https://node3.monerodevs.org:34568";
 const MONERO_NODE_URL = "https://nodes.hashvault.pro:18081";
 const NODE_URL = coin === "monero" ? MONERO_NODE_URL : WOWNERO_NODE_URL;
@@ -27,6 +47,8 @@ const WOWNERO_DESTINATION_ADDRESS =
 const MONERO_DESTINATION_ADDRESS =
   "89BoVWjqdGVe68wdxbYurXR8sXaEb96eWKYRPxdT6wSCfZYK6XSHoj5ZRXQLtd7GzL2B2PD7Lb7GSKupkXMWjQVFAEb1CK8";
 const DESTINATION_ADDRESS = coin === "monero" ? MONERO_DESTINATION_ADDRESS : WOWNERO_DESTINATION_ADDRESS;
+
+const BILLION = 10n ** 9n;
 
 await getMoneroC(coin, "next");
 
@@ -224,11 +246,11 @@ Deno.test("0001-polyseed.patch", async (t) => {
 
       assertEquals(await wallet.address(), walletInfo.address);
 
-      assertEquals(await getKey(wallet, "publicSpendKey"), walletInfo.publicSpendKey);
-      assertEquals(await getKey(wallet, "secretSpendKey"), walletInfo.secretSpendKey);
+      assertEquals(await wallet.publicSpendKey(), walletInfo.publicSpendKey);
+      assertEquals(await wallet.secretSpendKey(), walletInfo.secretSpendKey);
 
-      assertEquals(await getKey(wallet, "publicViewKey"), walletInfo.publicViewKey);
-      assertEquals(await getKey(wallet, "secretViewKey"), walletInfo.secretViewKey);
+      assertEquals(await wallet.publicViewKey(), walletInfo.publicViewKey);
+      assertEquals(await wallet.secretViewKey(), walletInfo.secretViewKey);
 
       await wallet.close(true);
     });
@@ -265,18 +287,7 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
   );
   await backgroundWallet.initWallet(NODE_URL);
 
-  const blockChainHeight = await new Promise((resolve) => {
-    const interval = setInterval(async () => {
-      const blockChainHeight = BigInt(await backgroundWallet.blockChainHeight());
-      const daemonBlockchainHeight = BigInt(await backgroundWallet.daemonBlockChainHeight());
-      // console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight, "Remains:", daemonBlockchainHeight-blockChainHeight);
-
-      if (blockChainHeight === daemonBlockchainHeight) {
-        clearInterval(interval);
-        resolve(blockChainHeight);
-      }
-    }, 1000);
-  });
+  const blockChainHeight = await syncBlockchain(backgroundWallet);
 
   await backgroundWallet.close(true);
 
@@ -324,18 +335,7 @@ Deno.test("0004-coin-control.patch", {
   await wallet.refreshAsync();
 
   // Wait for blockchain to sync
-  await new Promise((resolve) => {
-    const interval = setInterval(async () => {
-      const blockChainHeight = BigInt(await wallet.blockChainHeight());
-      const daemonBlockchainHeight = BigInt(await wallet.daemonBlockChainHeight());
-      // console.log("Blockchain height:", blockChainHeight, "Daemon blockchain height:", daemonBlockchainHeight, "Remains:", daemonBlockchainHeight-blockChainHeight);
-
-      if (blockChainHeight === daemonBlockchainHeight) {
-        clearInterval(interval);
-        resolve(blockChainHeight);
-      }
-    }, 1000);
-  });
+  await syncBlockchain(wallet);
 
   await wallet.refreshAsync();
   await wallet.store();
@@ -349,8 +349,6 @@ Deno.test("0004-coin-control.patch", {
 
   await t.step("preffered_inputs", async (t) => {
     const coinsCount = await coins.count();
-
-    const BILLION = 10n ** 9n;
 
     const availableCoinsData: Record<string, {
       index: number;
@@ -457,9 +455,9 @@ Deno.test("0004-coin-control.patch", {
         await transaction.errorString(),
         "not enough money to transfer, overall balance only 0.002000000000, sent amount 0.002000000000",
       );
-
-      await thawAll();
     });
+
+    await thawAll();
   });
 
   await t.step("spend more than unfrozen balance", async () => {
@@ -503,58 +501,114 @@ Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
   dylib.close();
 });
 
-// Deno.test("0012-WIP-UR-functions.patch", async (t) => {
-//   const dylib = loadDylib();
+Deno.test("0012-WIP-UR-functions.patch", {
+  ignore: !(
+    Deno.env.get("SECRET_WALLET_PASSWORD") &&
+    Deno.env.get("SECRET_WALLET_MNEMONIC") &&
+    Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")
+  ),
+}, async (t) => {
+  const dylib = loadDylib();
 
-//   await t.step("view only", async () => {
-//     await clearWallets();
+  for (const method of ["UR", "file"] as const) {
+    await clearWallets();
 
-//     const walletManager = await WalletManager.new();
-//     const wallet = await Wallet.create(walletManager, "tests/wallets/sable", "sobol");
-//     await wallet.initWallet(NODE_URL);
+    const walletManager = await WalletManager.new();
 
-//     await wallet.setupBackgroundSync(2, "sobol", "background-sobol");
-//     await wallet.startBackgroundSync();
-//     await wallet.close(true);
+    const airgap = await Wallet.recoverFromPolyseed(
+      walletManager,
+      "tests/wallets/secret-wallet",
+      Deno.env.get("SECRET_WALLET_PASSWORD")!,
+      Deno.env.get("SECRET_WALLET_MNEMONIC")!,
+      BigInt(Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")!),
+    );
+    await airgap.initWallet("");
 
-//     const backgroundWallet = await Wallet.open(
-//       walletManager,
-//       "tests/wallets/sable.background",
-//       "background-sobol",
-//     );
-//     await backgroundWallet.initWallet(NODE_URL);
+    const online = await Wallet.recoverFromKeys(
+      walletManager,
+      "tests/wallets/horse-online",
+      "loshad-online",
+      BigInt(Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")!),
+      await airgap.address(),
+      (await airgap.secretViewKey())!,
+      "",
+    );
+    await online.initWallet(NODE_URL);
+    await online.refreshAsync();
 
-//     try {
-//       const transaction = await backgroundWallet.createTransaction(DESTINATION_ADDRESS, 11111111n, 0, 0);
+    await syncBlockchain(online);
 
-//       assertEquals(await transaction.errorString(), "Background wallets cannot create transactions");
-//       assertEquals(await transaction.status(), 1);
-//     } catch {
-//       assertEquals(await wallet.status(), 1);
-//     }
+    await online.refreshAsync();
+    await online.store();
+    await online.refreshAsync();
 
-//     await backgroundWallet.close(true);
-//   });
+    const coins = (await online.coins())!;
+    await coins.refresh();
 
-//   await t.step("offline", async () => {
-//     await clearWallets();
+    if (method === "UR") {
+      await t.step("Sync wallets (UR)", async () => {
+        try {
+          const outputs = await online.exportOutputsUR(130n, false);
+          await airgap.importOutputsUR(outputs!);
 
-//     const walletManager = await WalletManager.new();
-//     const wallet = await Wallet.create(walletManager, "tests/wallets/mouse", "mysh");
-//     await wallet.initWallet("");
-//     await wallet.setOffline(true);
+          const keyImages = await airgap.exportKeyImagesUR(130n, false);
+          await online.importKeyImagesUR(keyImages!);
+        } catch {
+          const outputs = await online.exportOutputsUR(130n, true);
+          await airgap.importOutputsUR(outputs!);
 
-//     assertEquals(await wallet.isOffline(), true);
+          const keyImages = await airgap.exportKeyImagesUR(130n, true);
+          await online.importKeyImagesUR(keyImages!);
+        }
 
-//     try {
-//       const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, 11111111n, 0, 0);
-//       assertEquals(await transaction.status(), 1);
-//     } catch {
-//       assertEquals(await wallet.status(), 1);
-//     }
+        assertEquals(await online.balance(), 10n * BILLION, "ONLINE != 0.01XMR");
+      });
 
-//     await wallet.close(true);
-//   });
+      await t.step("Transaction (UR)", async () => {
+        const transaction = await online.createTransaction(DESTINATION_ADDRESS, 1n * BILLION, 0, 0, false);
+        const input = await transaction.commitUR(130);
+        const unsignedTx = await airgap.loadUnsignedTxUR(input!);
+        assertEquals(await unsignedTx.status(), 0);
+        assertEquals(await unsignedTx.amount(), "1000000000");
+        assertEquals(await unsignedTx.recipientAddress(), DESTINATION_ADDRESS);
+        assert(!isNaN(Number(await unsignedTx.fee())));
 
-//   dylib.close();
-// });
+        await unsignedTx.signUR(130);
+        assertEquals(await unsignedTx.status(), 0);
+      });
+    } else {
+      await t.step("Sync wallets (File)", async () => {
+        try {
+          await online.exportOutputs("tests/wallets/outputs", false);
+          await airgap.importOutputs("tests/wallets/outputs");
+
+          await airgap.exportKeyImages("tests/wallets/keyImages", false);
+          await online.importKeyImages("tests/wallets/keyImages");
+        } catch {
+          await online.exportOutputs("tests/wallets/outputs", true);
+          await airgap.importOutputs("tests/wallets/outputs");
+
+          await airgap.exportKeyImages("tests/wallets/keyImages", true);
+          await online.importKeyImages("tests/wallets/keyImages");
+        }
+
+        assertEquals(await online.balance(), 10n * (10n ** 9n), "ONLINE != 0.01XMR");
+      });
+
+      await t.step("Transaction (File)", async () => {
+        const transaction = await online.createTransaction(DESTINATION_ADDRESS, 1n * BILLION, 0, 0, false);
+        await transaction.commit("tests/wallets/transaction", false);
+        const unsignedTx = await airgap.loadUnsignedTx("tests/wallets/transaction");
+        assertEquals(await unsignedTx.status(), 0);
+        assertEquals(await unsignedTx.amount(), "1000000000");
+        assertEquals(await unsignedTx.recipientAddress(), DESTINATION_ADDRESS);
+        assert(!isNaN(Number(await unsignedTx.fee())));
+
+        await unsignedTx.sign("tests/wallets/signed-transaction");
+        assertEquals(await unsignedTx.status(), 0);
+      });
+    }
+  }
+
+  dylib.close();
+});
