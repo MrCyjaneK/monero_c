@@ -1,6 +1,6 @@
 import { CString, getSymbol, readCString, type Sanitizer } from "./utils.ts";
 
-export type PendingTransactionPtr = Deno.PointerObject<"transactionInfo">;
+export type PendingTransactionPtr = Deno.PointerObject<"pendingTransaction">;
 
 export class PendingTransaction {
   #pendingTxPtr: PendingTransactionPtr;
