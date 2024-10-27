@@ -61,10 +61,10 @@ export class UnsignedTransaction {
   }
 
   async signUR(maxFragmentLength: number): Promise<string | null> {
-    const output = await getSymbol("UnsignedTransaction_signUR")(
-      this.#unsignedTxPtr,
-      maxFragmentLength,
-    );
+    const signUR = getSymbol("UnsignedTransaction_signUR");
+    if (!signUR) return null;
+
+    const output = await signUR(this.#unsignedTxPtr, maxFragmentLength);
     await this.throwIfError();
     return await readCString(output);
   }

@@ -301,6 +301,7 @@ export const moneroSymbols = {
     result: "bool",
   },
   "MONERO_Wallet_exportOutputsUR": {
+    optional: true,
     nonblocking: true,
     // void* wallet_ptr, size_t max_fragment_length, bool all
     parameters: ["pointer", "usize", "bool"],
@@ -315,6 +316,7 @@ export const moneroSymbols = {
     result: "bool",
   },
   "MONERO_Wallet_importOutputsUR": {
+    optional: true,
     nonblocking: true,
     // void* wallet_ptr, const char* input
     parameters: ["pointer", "pointer"],
@@ -329,6 +331,7 @@ export const moneroSymbols = {
     result: "bool",
   },
   "MONERO_Wallet_exportKeyImagesUR": {
+    optional: true,
     nonblocking: true,
     // void* wallet_ptr, size_t max_fragment_length, bool all
     parameters: ["pointer", "usize", "bool"],
@@ -343,6 +346,7 @@ export const moneroSymbols = {
     result: "bool",
   },
   "MONERO_Wallet_importKeyImagesUR": {
+    optional: true,
     nonblocking: true,
     // void* wallet_ptr, const char* input
     parameters: ["pointer", "pointer"],
@@ -357,6 +361,7 @@ export const moneroSymbols = {
     result: "pointer",
   },
   "MONERO_Wallet_loadUnsignedTxUR": {
+    optional: true,
     nonblocking: true,
     // void* wallet_ptr, const char* input
     parameters: ["pointer", "pointer"],
@@ -810,6 +815,7 @@ export const moneroSymbols = {
     result: "bool",
   },
   "MONERO_UnsignedTransaction_signUR": {
+    optional: true,
     nonblocking: true,
     // void* unsignedTx_ptr, int maxFragmentLength
     parameters: ["pointer", "i32"],

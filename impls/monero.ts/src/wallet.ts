@@ -483,11 +483,12 @@ export class Wallet {
   }
 
   async exportOutputsUR(maxFragmentLength: bigint, all: boolean): Promise<string | null> {
-    const string = await readCString(
-      await getSymbol("Wallet_exportOutputsUR")(this.#walletPtr, maxFragmentLength, all),
-    );
+    const exportOutputsUR = getSymbol("Wallet_exportOutputsUR");
+    if (!exportOutputsUR) return null;
+
+    const outputs = await exportOutputsUR(this.#walletPtr, maxFragmentLength, all);
     await this.throwIfError();
-    return string;
+    return await readCString(outputs);
   }
 
   async importOutputs(fileName: string): Promise<boolean> {
@@ -496,8 +497,11 @@ export class Wallet {
     return bool;
   }
 
-  async importOutputsUR(input: string): Promise<boolean> {
-    const bool = await getSymbol("Wallet_importOutputsUR")(this.#walletPtr, CString(input));
+  async importOutputsUR(input: string): Promise<boolean | null> {
+    const importOutputsUR = getSymbol("Wallet_importOutputsUR");
+    if (!importOutputsUR) return null;
+
+    const bool = await importOutputsUR(this.#walletPtr, CString(input));
     await this.throwIfError();
     return bool;
   }
@@ -509,11 +513,12 @@ export class Wallet {
   }
 
   async exportKeyImagesUR(maxFragmentLength: bigint, all: boolean): Promise<string | null> {
-    const string = await readCString(
-      await getSymbol("Wallet_exportKeyImagesUR")(this.#walletPtr, maxFragmentLength, all),
-    );
+    const exportKeyImagesUR = getSymbol("Wallet_exportKeyImagesUR");
+    if (!exportKeyImagesUR) return null;
+
+    const keyImages = await exportKeyImagesUR(this.#walletPtr, maxFragmentLength, all);
     await this.throwIfError();
-    return string;
+    return await readCString(keyImages);
   }
 
   async importKeyImages(fileName: string): Promise<boolean> {
@@ -522,8 +527,11 @@ export class Wallet {
     return bool;
   }
 
-  async importKeyImagesUR(input: string): Promise<boolean> {
-    const bool = await getSymbol("Wallet_importKeyImagesUR")(this.#walletPtr, CString(input));
+  async importKeyImagesUR(input: string): Promise<boolean | null> {
+    const importKeyImagesUR = getSymbol("Wallet_importKeyImagesUR");
+    if (!importKeyImagesUR) return null;
+
+    const bool = await importKeyImagesUR(this.#walletPtr, CString(input));
     await this.throwIfError();
     return bool;
   }
@@ -535,8 +543,11 @@ export class Wallet {
     return pendingTx;
   }
 
-  async loadUnsignedTxUR(input: string): Promise<UnsignedTransaction> {
-    const pendingTxPtr = await getSymbol("Wallet_loadUnsignedTxUR")(this.#walletPtr, CString(input));
+  async loadUnsignedTxUR(input: string): Promise<UnsignedTransaction | null> {
+    const loadUnsignedTxUR = getSymbol("Wallet_loadUnsignedTxUR");
+    if (!loadUnsignedTxUR) return null;
+
+    const pendingTxPtr = await loadUnsignedTxUR(this.#walletPtr, CString(input));
     await this.throwIfError();
     const pendingTx = new UnsignedTransaction(pendingTxPtr as UnsignedTransactionPtr);
     return pendingTx;

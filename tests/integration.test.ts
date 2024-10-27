@@ -546,35 +546,43 @@ Deno.test("0012-WIP-UR-functions.patch", {
     await coins.refresh();
 
     if (method === "UR") {
-      await t.step("Sync wallets (UR)", async () => {
-        try {
-          const outputs = await online.exportOutputsUR(130n, false);
-          await airgap.importOutputsUR(outputs!);
+      await t.step({
+        name: "Sync wallets (UR)",
+        ignore: coin === "wownero", // Wownero doesn't have UR methods
+        fn: async () => {
+          try {
+            const outputs = await online.exportOutputsUR(130n, false);
+            await airgap.importOutputsUR(outputs!);
 
-          const keyImages = await airgap.exportKeyImagesUR(130n, false);
-          await online.importKeyImagesUR(keyImages!);
-        } catch {
-          const outputs = await online.exportOutputsUR(130n, true);
-          await airgap.importOutputsUR(outputs!);
+            const keyImages = await airgap.exportKeyImagesUR(130n, false);
+            await online.importKeyImagesUR(keyImages!);
+          } catch {
+            const outputs = await online.exportOutputsUR(130n, true);
+            await airgap.importOutputsUR(outputs!);
 
-          const keyImages = await airgap.exportKeyImagesUR(130n, true);
-          await online.importKeyImagesUR(keyImages!);
-        }
+            const keyImages = await airgap.exportKeyImagesUR(130n, true);
+            await online.importKeyImagesUR(keyImages!);
+          }
 
-        assertEquals(await online.balance(), 10n * BILLION, "ONLINE != 0.01XMR");
+          assertEquals(await online.balance(), 10n * BILLION, "ONLINE != 0.01XMR");
+        },
       });
 
-      await t.step("Transaction (UR)", async () => {
-        const transaction = await online.createTransaction(DESTINATION_ADDRESS, 1n * BILLION, 0, 0, false);
-        const input = await transaction.commitUR(130);
-        const unsignedTx = await airgap.loadUnsignedTxUR(input!);
-        assertEquals(await unsignedTx.status(), 0);
-        assertEquals(await unsignedTx.amount(), "1000000000");
-        assertEquals(await unsignedTx.recipientAddress(), DESTINATION_ADDRESS);
-        assert(!isNaN(Number(await unsignedTx.fee())));
+      await t.step({
+        name: "Transaction (UR)",
+        ignore: coin === "wownero",
+        fn: async () => {
+          const transaction = await online.createTransaction(DESTINATION_ADDRESS, 1n * BILLION, 0, 0, false);
+          const input = await transaction.commitUR(130);
+          const unsignedTx = (await airgap.loadUnsignedTxUR(input!))!;
+          assertEquals(await unsignedTx.status(), 0);
+          assertEquals(await unsignedTx.amount(), "1000000000");
+          assertEquals(await unsignedTx.recipientAddress(), DESTINATION_ADDRESS);
+          assert(!isNaN(Number(await unsignedTx.fee())));
 
-        await unsignedTx.signUR(130);
-        assertEquals(await unsignedTx.status(), 0);
+          await unsignedTx.signUR(130);
+          assertEquals(await unsignedTx.status(), 0);
+        },
       });
     } else {
       await t.step("Sync wallets (File)", async () => {
