@@ -288,6 +288,8 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
   await backgroundWallet.initWallet(NODE_URL);
 
   const blockChainHeight = await syncBlockchain(backgroundWallet);
+  await new Promise((r) => setTimeout(r, 1500)); // wait for it to sync
+  await backgroundWallet.refreshAsync();
 
   await backgroundWallet.close(true);
 
