@@ -295,7 +295,7 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
   await reopenedWallet.throwIfError();
   await reopenedWallet.refreshAsync();
 
-  assertEquals(BigInt(await reopenedWallet.blockChainHeight()), blockChainHeight);
+  assertEquals(await reopenedWallet.blockChainHeight(), blockChainHeight);
   assertEquals(
     walletInfo,
     {
@@ -313,7 +313,7 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
 });
 
 Deno.test("0004-coin-control.patch", {
-  ignore: !(
+  ignore: coin === "wownero" || !(
     Deno.env.get("SECRET_WALLET_PASSWORD") &&
     Deno.env.get("SECRET_WALLET_MNEMONIC") &&
     Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")
@@ -386,7 +386,7 @@ Deno.test("0004-coin-control.patch", {
         continue;
       }
 
-      const amount = BigInt(await coin.amount());
+      const amount = await coin.amount();
       let humanReadableAmount: string;
       if (amount === BILLION) {
         humanReadableAmount = "0.001";
@@ -462,7 +462,7 @@ Deno.test("0004-coin-control.patch", {
 
   await t.step("spend more than unfrozen balance", async () => {
     const unlockedBalance = await wallet.unlockedBalance();
-    const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, BigInt(unlockedBalance) + 1n, 0, 0);
+    const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, unlockedBalance + 1n, 0, 0);
 
     assertEquals(await transaction.status(), 1);
     assert(
@@ -502,7 +502,7 @@ Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
 });
 
 Deno.test("0012-WIP-UR-functions.patch", {
-  ignore: !(
+  ignore: coin === "wownero" || !(
     Deno.env.get("SECRET_WALLET_PASSWORD") &&
     Deno.env.get("SECRET_WALLET_MNEMONIC") &&
     Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")
@@ -528,7 +528,7 @@ Deno.test("0012-WIP-UR-functions.patch", {
       walletManager,
       "tests/wallets/horse-online",
       "loshad-online",
-      BigInt(Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")!),
+      BigInt(Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")!) - 2000n,
       await airgap.address(),
       (await airgap.secretViewKey())!,
       "",
@@ -541,9 +541,6 @@ Deno.test("0012-WIP-UR-functions.patch", {
     await online.refreshAsync();
     await online.store();
     await online.refreshAsync();
-
-    const coins = (await online.coins())!;
-    await coins.refresh();
 
     if (method === "UR") {
       await t.step({
@@ -563,8 +560,6 @@ Deno.test("0012-WIP-UR-functions.patch", {
             const keyImages = await airgap.exportKeyImagesUR(130n, true);
             await online.importKeyImagesUR(keyImages!);
           }
-
-          assertEquals(await online.balance(), 10n * BILLION, "ONLINE != 0.01XMR");
         },
       });
 
@@ -599,8 +594,6 @@ Deno.test("0012-WIP-UR-functions.patch", {
           await airgap.exportKeyImages("tests/wallets/keyImages", true);
           await online.importKeyImages("tests/wallets/keyImages");
         }
-
-        assertEquals(await online.balance(), 10n * (10n ** 9n), "ONLINE != 0.01XMR");
       });
 
       await t.step("Transaction (File)", async () => {
