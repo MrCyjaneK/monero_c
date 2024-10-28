@@ -637,6 +637,10 @@ jobs:
 
       - name: Run integration tests
         run: COIN="${{ matrix.coin }}" deno test -A tests/integration.test.ts
+        env:
+          SECRET_WALLET_PASSWORD: ${{ secrets.SECRET_WALLET_PASSWORD }}
+          SECRET_WALLET_MNEMONIC: ${{ secrets.SECRET_WALLET_MNEMONIC }}
+          SECRET_WALLET_RESTORE_HEIGHT: ${{ secrets.SECRET_WALLET_RESTORE_HEIGHT }}
 
 
   comment_pr:
