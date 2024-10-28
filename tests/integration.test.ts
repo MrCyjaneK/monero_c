@@ -422,8 +422,8 @@ Deno.test("0004-coin-control.patch", {
       } else {
         throw new Error("Invalid coin amount! Only 5x0.01XMR coins and 1x0.05XMR coin should be available");
       }
-      console.log("rest", i);
 
+      console.log("keyImage", i);
       availableCoinsData[humanReadableAmount].push({
         index: i,
         coin,
@@ -434,8 +434,11 @@ Deno.test("0004-coin-control.patch", {
       totalAvailableAmount += amount;
       availableCoinsCount += 1;
 
+      console.log("thaw", i);
       await coins.thaw(i);
+      console.log("refresh", i);
       await coins.refresh();
+      console.log("isFrozen", i);
       assertEquals(await coin.frozen(), false);
     }
     assertEquals(availableCoinsCount, 6);
