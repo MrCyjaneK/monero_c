@@ -333,6 +333,7 @@ Deno.test("0004-coin-control.patch", {
     Deno.env.get("SECRET_WALLET_MNEMONIC")!,
     BigInt(Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")!),
   );
+  await wallet.init3();
   await wallet.initWallet(NODE_URL);
   await wallet.refreshAsync();
 
