@@ -18,7 +18,7 @@ async function getKey(wallet: Wallet, type: `${"secret" | "public"}${"Spend" | "
 
 async function syncBlockchain(wallet: Wallet): Promise<bigint> {
   // Wait for blockchain to sync
-  return await new Promise((resolve) => {
+  const blockHeight = await new Promise<bigint>((resolve) => {
     let timeout: number;
 
     const poll = async () => {
@@ -35,6 +35,8 @@ async function syncBlockchain(wallet: Wallet): Promise<bigint> {
 
     poll();
   });
+  await new Promise((r) => setTimeout(r, 1500)); // wait for it to sync
+  return blockHeight;
 }
 
 // TODO: Change for custom address on CI
@@ -288,7 +290,6 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
   await backgroundWallet.initWallet(NODE_URL);
 
   const blockChainHeight = await syncBlockchain(backgroundWallet);
-  await new Promise((r) => setTimeout(r, 1500)); // wait for it to sync
   await backgroundWallet.refreshAsync();
 
   await backgroundWallet.close(true);
