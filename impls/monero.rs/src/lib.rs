@@ -120,12 +120,6 @@ pub struct Transfer {
 pub struct CheckTxKey {
     /// Indicates whether the transaction key is valid.
     pub valid: bool,
-    /// The amount received in the transaction, if valid.
-    pub received: Option<u64>,
-    /// Whether the transaction is in the pool, if valid.
-    pub in_pool: Option<bool>,
-    /// The number of confirmations, if valid.
-    pub confirmations: Option<u64>,
     /// An optional error message providing details if the verification fails.
     pub error: Option<String>,
 }
@@ -1351,43 +1345,27 @@ impl Wallet {
     /// amount received, whether the transaction is in the pool, and the number of confirmations.
     ///
     /// TODO: Example / docs-tests.
-    pub fn check_tx_key(&self, txid: String, tx_key: String, address: String) -> CheckTxKey {
-        // Convert Rust strings to C strings.
-        let c_txid = match CString::new(txid) {
-            Ok(cstr) => cstr,
-            Err(_) => return CheckTxKey {
-                valid: false,
-                received: None,
-                in_pool: None,
-                confirmations: None,
-                error: Some("Invalid txid string".to_string()),
-            },
-        };
-        let c_tx_key = match CString::new(tx_key) {
-            Ok(cstr) => cstr,
-            Err(_) => return CheckTxKey {
-                valid: false,
-                received: None,
-                in_pool: None,
-                confirmations: None,
-                error: Some("Invalid tx_key string".to_string()),
-            },
-        };
-        let c_address = match CString::new(address) {
-            Ok(cstr) => cstr,
-            Err(_) => return CheckTxKey {
-                valid: false,
-                received: None,
-                in_pool: None,
-                confirmations: None,
-                error: Some("Invalid address string".to_string()),
-            },
-        };
+    pub fn check_tx_key(
+        &self,
+        txid: String,
+        tx_key: String,
+        address: String,
+        received: Option<u64>,
+        in_pool: Option<bool>,
+        confirmations: Option<u64>,
+    ) -> WalletResult<CheckTxKey> {
+        // Convert Rust strings to C-compatible strings.
+        let c_txid = CString::new(txid)
+            .map_err(|_| WalletError::FfiError("Invalid txid string".to_string()))?;
+        let c_tx_key = CString::new(tx_key)
+            .map_err(|_| WalletError::FfiError("Invalid tx_key string".to_string()))?;
+        let c_address = CString::new(address)
+            .map_err(|_| WalletError::FfiError("Invalid address string".to_string()))?;
 
-        // Prepare output variables.
-        let mut received: u64 = 0;
-        let mut in_pool: bool = false;
-        let mut confirmations: u64 = 0;
+        // Assign default values if optional parameters are not provided.
+        let received_val = received.unwrap_or(0);
+        let in_pool_val = in_pool.unwrap_or(false);
+        let confirmations_val = confirmations.unwrap_or(0);
 
         // Call the C function.
         let result = unsafe {
@@ -1396,39 +1374,20 @@ impl Wallet {
                 c_txid.as_ptr(),
                 c_tx_key.as_ptr(),
                 c_address.as_ptr(),
-                &mut received as *mut u64,
-                &mut in_pool as *mut bool,
-                &mut confirmations as *mut u64,
+                received_val,
+                in_pool_val,
+                confirmations_val,
             )
         };
 
         if result {
-            CheckTxKey {
+            Ok(CheckTxKey {
                 valid: true,
-                received: Some(received),
-                in_pool: Some(in_pool),
-                confirmations: Some(confirmations),
                 error: None,
-            }
+            })
         } else {
             // Retrieve the last error.
-            let error = self.get_last_error();
-            match error {
-                WalletError::WalletErrorCode(_, msg) => CheckTxKey {
-                    valid: false,
-                    received: None,
-                    in_pool: None,
-                    confirmations: None,
-                    error: Some(msg),
-                },
-                _ => CheckTxKey {
-                    valid: false,
-                    received: None,
-                    in_pool: None,
-                    confirmations: None,
-                    error: Some("Unknown error".to_string()),
-                },
-            }
+            Err(WalletError::FfiError("Transaction key is invalid.".to_string()))
         }
     }
 }
@@ -1960,4 +1919,121 @@ fn test_set_seed_language() {
     // For now, we'll assume that if no error was returned, the operation was successful.
 
     teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+
+#[test]
+fn test_check_tx_key() {
+    let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
+
+    let mnemonic_seed = "capital chief route liar question fix clutch water outside pave hamster occur always learn license knife".to_string();
+    let passphrase = "".to_string();
+
+    // Restore the wallet using polyseed.
+    let wallet = WalletManager::new()
+        .expect("Failed to create WalletManager")
+        .restore_polyseed(
+            wallet_str.clone(),
+            "password".to_string(),
+            mnemonic_seed.clone(),
+            NetworkType::Mainnet,
+            0,
+            1,
+            passphrase.clone(),
+            true
+        )
+        .expect("Failed to restore wallet from polyseed");
+
+    // Print the primary address.
+    println!("Primary address: {}", wallet.get_address(0, 0).expect("Failed to get address"));
+
+    // Valid transaction details.
+    let valid_txid = "b3f1b71f5127f9d655e58f7a2b324a64bfbc5a3ea1ce8846a0f4c51cbcb87ea6".to_string();
+    let valid_tx_key = "48ef9d8b772c4f5097e29a4ba413605497d978c74e879fda67545dddff312b0a".to_string();
+    let valid_address = "465cUW8wTMSCV8oVVh7CuWWHs7yeB1oxhNPrsEM5FKSqadTXmobLqsNEtRnyGsbN1rbDuBtWdtxtXhTJda1Lm9vcH2ZdrD1".to_string();
+
+    // Check the transaction key.
+    let valid_check = wallet.check_tx_key(
+        valid_txid.clone(),
+        valid_tx_key.clone(),
+        valid_address.clone(),
+        Some(1),
+        Some(false),
+        Some(10),
+    );
+
+    match valid_check {
+        Ok(check) => {
+            assert!(check.valid, "Valid transaction key should be valid.");
+            assert!(check.error.is_none(), "There should be no error for valid transaction key.");
+            println!("Valid transaction key check passed.");
+        },
+        Err(e) => {
+            panic!("Error checking valid transaction key: {:?}", e);
+        },
+    }
+
+    // Clean up wallet files.
+    fs::remove_file(&wallet_path).expect("Failed to delete test wallet");
+    fs::remove_file(format!("{}.keys", wallet_path.display())).expect("Failed to delete test wallet keys");
+}
+
+#[test]
+fn test_invalid_check_tx_key() {
+    let temp_dir = TempDir::new().expect("Failed to create temporary directory");
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
+
+    let mnemonic_seed = "capital chief route liar question fix clutch water outside pave hamster occur always learn license knife".to_string();
+    let passphrase = "".to_string();
+
+    // Restore the wallet using polyseed.
+    let wallet = WalletManager::new()
+        .expect("Failed to create WalletManager")
+        .restore_polyseed(
+            wallet_str.clone(),
+            "password".to_string(),
+            mnemonic_seed.clone(),
+            NetworkType::Mainnet,
+            0,
+            1,
+            passphrase.clone(),
+            true
+        )
+        .expect("Failed to restore wallet from polyseed");
+
+    // Print the primary address.
+    println!("Primary address: {}", wallet.get_address(0, 0).expect("Failed to get address"));
+
+    // Invalid transaction details.
+    let invalid_txid = "invalid_tx_id".to_string();
+    let invalid_tx_key = "invalid_tx_key".to_string();
+    let invalid_address = "invalid_address".to_string();
+
+    // Check the invalid transaction key.
+    let invalid_check = wallet.check_tx_key(
+        invalid_txid.clone(),
+        invalid_tx_key.clone(),
+        invalid_address.clone(),
+        Some(1),
+        Some(false),
+        Some(10),
+    );
+
+    match invalid_check {
+        Ok(check) => {
+            assert!(!check.valid, "Invalid transaction key should be invalid.");
+            assert!(check.error.is_some(), "There should be an error message for invalid transaction key.");
+            println!("Invalid transaction key check correctly identified as invalid.");
+        },
+        Err(e) => {
+            println!("Expected error for invalid transaction key: {:?}", e);
+        },
+    }
+
+    // Clean up wallet files.
+    fs::remove_file(&wallet_path).expect("Failed to delete test wallet");
+    fs::remove_file(format!("{}.keys", wallet_path.display())).expect("Failed to delete test wallet keys");
 }
