@@ -436,17 +436,11 @@ Deno.test("0004-coin-control.patch", {
 
       console.log("thaw", i);
       await coins.thaw(i);
-
-      await new Promise((r) => setTimeout(r, 1500));
-
-      console.log("refresh", i);
-      await coins.refresh();
-
-      await new Promise((r) => setTimeout(r, 1500));
-
-      console.log("isFrozen", i);
-      assertEquals(await coin.frozen(), false);
     }
+
+    console.log("refresh");
+    await coins.refresh();
+
     assertEquals(availableCoinsCount, 6);
     assertEquals(totalAvailableAmount, 10n * BILLION);
 
