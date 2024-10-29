@@ -441,6 +441,9 @@ Deno.test("0004-coin-control.patch", {
 
       console.log("refresh", i);
       await coins.refresh();
+
+      await new Promise((r) => setTimeout(r, 1500));
+
       console.log("isFrozen", i);
       assertEquals(await coin.frozen(), false);
     }
