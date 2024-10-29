@@ -340,33 +340,22 @@ Deno.test("0004-coin-control.patch", {
     "434dZdLzhymcoNyGSBUJAqhDCLtBECN6698CGRMYByuEAYtpxXdbiibQb3t4qX3SiZi9vDWkxeiEF8kmDGmEoEZ4VMG8Nvh",
   );
 
-  console.log(1);
   await wallet.initWallet(NODE_URL);
-  console.log(2);
   await wallet.refreshAsync();
 
   // Wait for blockchain to sync
-  console.log(3);
   await syncBlockchain(wallet);
 
-  console.log(4);
   await wallet.refreshAsync();
-
-  console.log(5);
   await wallet.store();
-
-  console.log(6);
   await wallet.refreshAsync();
 
-  console.log(7);
   const coins = (await wallet.coins())!;
-  console.log(8);
   await coins.refresh();
 
   // COINS:
   // 5x 0.001XMR 1x 0.005XMR (in no particular order)
   await t.step("preffered_inputs", async (t) => {
-    console.log(9);
     const coinsCount = await coins.count();
 
     const availableCoinsData: Record<string, {
@@ -380,8 +369,6 @@ Deno.test("0004-coin-control.patch", {
     };
 
     const freezeAll = async () => {
-      console.log("Freeze all");
-
       for (const [_, coinsData] of Object.entries(availableCoinsData)) {
         for (const coinData of coinsData) {
           await coins.setFrozen(coinData.index);
@@ -391,8 +378,6 @@ Deno.test("0004-coin-control.patch", {
     };
 
     const thawAll = async () => {
-      console.log("Thaw all");
-
       for (const [_, coinsData] of Object.entries(availableCoinsData)) {
         for (const coinData of coinsData) {
           await coins.thaw(coinData.index);
@@ -401,18 +386,14 @@ Deno.test("0004-coin-control.patch", {
       await coins.refresh();
     };
 
-    console.log(10);
     let availableCoinsCount = 0;
     let totalAvailableAmount = 0n;
     for (let i = 0; i < coinsCount; ++i) {
-      console.log("coin", i);
       const coin = (await coins.coin(i))!;
-      console.log("isspent", i);
       if (await coin.spent()) {
         continue;
       }
 
-      console.log("amount", i);
       const amount = await coin.amount();
       let humanReadableAmount: string;
       if (amount === BILLION) {
@@ -423,7 +404,6 @@ Deno.test("0004-coin-control.patch", {
         throw new Error("Invalid coin amount! Only 5x0.01XMR coins and 1x0.05XMR coin should be available");
       }
 
-      console.log("keyImage", i);
       availableCoinsData[humanReadableAmount].push({
         index: i,
         coin,
@@ -434,18 +414,15 @@ Deno.test("0004-coin-control.patch", {
       totalAvailableAmount += amount;
       availableCoinsCount += 1;
 
-      console.log("thaw", i);
       await coins.thaw(i);
     }
 
-    console.log("refresh");
     await coins.refresh();
 
     assertEquals(availableCoinsCount, 6);
     assertEquals(totalAvailableAmount, 10n * BILLION);
 
     await t.step("Try to spend 0.002XMR by using only one 0.001XMR coin", async () => {
-      console.log(11);
       const transaction = await wallet.createTransaction(
         DESTINATION_ADDRESS,
         2n * BILLION,
@@ -454,22 +431,16 @@ Deno.test("0004-coin-control.patch", {
         false,
         availableCoinsData["0.001"][0].keyImage!,
       );
-      console.log(12);
       assertEquals(await transaction.status(), 1);
     });
 
     await t.step("Try to spend 0.002XMR with only 0.001XMR unlocked balance", async () => {
-      console.log(13);
       await freezeAll();
-      console.log(14);
       await coins.thaw(availableCoinsData["0.001"][0].index);
 
-      console.log(15);
       const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, 2n * BILLION, 0, 0, false);
 
-      console.log(16);
       assertEquals(await transaction.status(), 1);
-      console.log(17);
       assert((await transaction.errorString())?.includes("not enough money to transfer"));
 
       await thawAll();
@@ -477,11 +448,8 @@ Deno.test("0004-coin-control.patch", {
 
     await t.step("Try to spend 0.002XMR + fee with only 0.002XMR unlocked balance", async () => {
       await freezeAll();
-      console.log(18);
       await coins.thaw(availableCoinsData["0.001"][0].index);
-      console.log(19);
       await coins.thaw(availableCoinsData["0.001"][1].index);
-      console.log(20);
       const transaction = await wallet.createTransaction(
         DESTINATION_ADDRESS,
         2n * BILLION,
@@ -491,9 +459,7 @@ Deno.test("0004-coin-control.patch", {
         availableCoinsData["0.001"][0].keyImage!,
       );
 
-      console.log(21);
       assertEquals(await transaction.status(), 1);
-      console.log(22);
       assertEquals(
         await transaction.errorString(),
         "not enough money to transfer, overall balance only 0.002000000000, sent amount 0.002000000000",
@@ -504,24 +470,18 @@ Deno.test("0004-coin-control.patch", {
   });
 
   await t.step("spend more than unfrozen balance", async () => {
-    console.log(23);
     const unlockedBalance = await wallet.unlockedBalance();
-    console.log(24);
     const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, unlockedBalance + 1n, 0, 0);
 
-    console.log(25);
     assertEquals(await transaction.status(), 1);
-    console.log(26);
     assert(
       await transaction.errorString(),
       "not enough money to transfer, overall balance only 0.001000000000, sent amount 0.001000000001",
     );
   });
 
-  console.log(27);
   await wallet.close(true);
 
-  console.log(28);
   dylib.close();
 });
 
