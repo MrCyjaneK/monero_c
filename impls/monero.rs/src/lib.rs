@@ -473,14 +473,14 @@ impl WalletManager {
     /// let manager = WalletManager::new().unwrap();
     /// let wallet = manager.generate_from_keys(
     ///     wallet_str.to_string(),
-    ///     "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi".to_string(), // Replace with a valid address
-    ///     "29adefc8f67515b4b4bf48031780ab9d071d24f8a674b879ce7f245c37523807".to_string(),
+    ///     "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi".to_string(),
+    ///     "".to_string(), // Spend key optional: you can pass either the spend key or the view key.
     ///     "3bc0b202cde92fe5719c3cc0a16aa94f88a5d19f8c515d4e35fae361f6f2120e".to_string(),
-    ///     0,
+    ///     0, // Restore from the beginning of the blockchain.
     ///     "password".to_string(),
     ///     "English".to_string(),
     ///     NetworkType::Mainnet,
-    ///     1, // Default KDF rounds
+    ///     1, // Default KDF rounds.
     /// );
     /// assert!(wallet.is_ok(), "Failed to generate wallet from keys: {:?}", wallet.err());
     ///

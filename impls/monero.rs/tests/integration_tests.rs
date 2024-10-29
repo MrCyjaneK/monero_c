@@ -240,6 +240,58 @@ fn test_generate_from_keys_integration() {
 }
 
 #[test]
+fn test_generate_view_only_from_keys_integration() {
+    println!("Running test_generate_from_keys_integration");
+    let (manager, temp_dir) = setup().expect("Failed to set up test environment");
+
+    let wallet_path = temp_dir.path().join("test_wallet");
+    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+
+    let wallet = manager.generate_from_keys(
+        wallet_str.to_string(),
+        "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi".to_string(),
+        "".to_string(),
+        "3bc0b202cde92fe5719c3cc0a16aa94f88a5d19f8c515d4e35fae361f6f2120e".to_string(),
+        0,
+        "password".to_string(),
+        "English".to_string(),
+        NetworkType::Mainnet,
+        1, // KDF rounds.
+    );
+
+    assert!(wallet.is_ok(), "Failed to generate wallet from keys: {:?}", wallet.err());
+
+    // Verify that the wallet was generated correctly.
+    let wallet = wallet.expect("Failed to create wallet");
+
+    // This is required even though "English" was passed as the seed language above.
+    let set_language_result = wallet.set_seed_language("English");
+    assert!(
+        set_language_result.is_ok(),
+        "Failed to set seed language: {:?}",
+        set_language_result.err()
+    );
+
+    // The address should be "45wsWad9...".
+    let address_result = wallet.get_address(0, 0);
+    assert!(address_result.is_ok(), "Failed to get address: {:?}", address_result.err());
+    let address = address_result.unwrap();
+    assert_eq!(address, "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi");
+
+    // The wallet should not be deterministic.
+    let is_deterministic_result = wallet.is_deterministic();
+    assert!(
+        is_deterministic_result.is_ok(),
+        "Failed to check if wallet is deterministic: {:?}",
+        is_deterministic_result.err()
+    );
+    assert!(!is_deterministic_result.unwrap(), "Wallet should not be deterministic");
+
+    // Clean up wallet files.
+    teardown(&temp_dir).expect("Failed to clean up after test");
+}
+
+#[test]
 fn test_get_seed() {
     println!("Running test_get_seed");
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
