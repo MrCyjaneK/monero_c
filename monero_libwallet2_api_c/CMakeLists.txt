@@ -60,7 +60,7 @@ set_target_properties(sodium PROPERTIES IMPORTED_LOCATION
 
 add_library(crypto STATIC IMPORTED)
 set_target_properties(crypto PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/lib/libcrypto.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libcrypto.a)
 
 add_library(ssl STATIC IMPORTED)
 set_target_properties(ssl PROPERTIES IMPORTED_LOCATION
@@ -74,8 +74,12 @@ if(${HOST_ABI} STREQUAL "x86_64-linux-android" OR ${HOST_ABI} STREQUAL "aarch64-
     set(CMAKE_LINKER ${HOST_ABI}-ld)
     set(BOOST_WTF "-mt-s")
     set(BOOST_WTF_PART "")
+elseif(${HOST_ABI} STREQUAL "aarch64-linux-gnu")
+    set(BOOST_WTF "-mt-a64")
+    set(BOOST_WTF_DATE_TIME "-mt-s-a64")
+    set(BOOST_WTF_PART "")
 elseif(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-mingw32")
-    set(BOOST_WTF "-mt-s")
+    set(BOOST_WTF "-mt-sa64")
     set(BOOST_WTF_PART "_win32")
 elseif(${HOST_ABI} STREQUAL "host-apple-ios")
     set(BOOST_WTF "")
@@ -85,6 +89,9 @@ else()
     set(BOOST_WTF_PART "")
 endif()
 
+if (${BOOST_WTF_DATE_TIME} STREQUAL "")
+    set(BOOST_WTF_DATE_TIME ${BOOST_WTF})
+endif()
 
 add_library(boost_chrono STATIC IMPORTED)
 set_target_properties(boost_chrono PROPERTIES IMPORTED_LOCATION
@@ -102,23 +109,23 @@ set_target_properties(iconv-win PROPERTIES IMPORTED_LOCATION
 
 add_library(boost_date_time STATIC IMPORTED)
 set_target_properties(boost_date_time PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_date_time${BOOST_WTF}.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_date_time${BOOST_WTF_DATE_TIME}.a)
 
 add_library(boost_filesystem STATIC IMPORTED)
 set_target_properties(boost_filesystem PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_filesystem${BOOST_WTF}.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_filesystem${BOOST_WTF_DATE_TIME}.a)
 
 add_library(boost_program_options STATIC IMPORTED)
 set_target_properties(boost_program_options PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_program_options${BOOST_WTF}.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_program_options${BOOST_WTF_DATE_TIME}.a)
 
 add_library(boost_regex STATIC IMPORTED)
 set_target_properties(boost_regex PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_regex${BOOST_WTF}.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_regex${BOOST_WTF_DATE_TIME}.a)
 
 add_library(boost_serialization STATIC IMPORTED)
 set_target_properties(boost_serialization PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_serialization${BOOST_WTF}.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_serialization${BOOST_WTF_DATE_TIME}.a)
 
 add_library(boost_system STATIC IMPORTED)
 set_target_properties(boost_system PROPERTIES IMPORTED_LOCATION
@@ -130,7 +137,7 @@ set_target_properties(boost_thread PROPERTIES IMPORTED_LOCATION
 
 add_library(boost_wserialization STATIC IMPORTED)
 set_target_properties(boost_wserialization PROPERTIES IMPORTED_LOCATION
-    ${EXTERNAL_LIBS_DIR}/lib/libboost_wserialization${BOOST_WTF}.a)
+    ${EXTERNAL_LIBS_DIR}/lib/libboost_wserialization${BOOST_WTF_DATE_TIME}.a)
 
 #############
 # Polyseed
@@ -200,8 +207,13 @@ set_target_properties(wallet_api PROPERTIES IMPORTED_LOCATION
     ${MONERO_DIR}/build/${HOST_ABI}/lib/libwallet_api.a)
 
 add_library(wallet STATIC IMPORTED)
-set_target_properties(wallet PROPERTIES IMPORTED_LOCATION
-    ${MONERO_DIR}/build/${HOST_ABI}/lib/libwallet.a)
+if (${MONERO_FLAVOR} STREQUAL "zano")
+    set_target_properties(wallet PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/src/libwallet.a)
+else()
+    set_target_properties(wallet PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/lib/libwallet.a)
+endif()
 
 add_library(cryptonote_core STATIC IMPORTED)
 set_target_properties(cryptonote_core PROPERTIES IMPORTED_LOCATION
@@ -216,8 +228,13 @@ set_target_properties(mnemonics PROPERTIES IMPORTED_LOCATION
     ${MONERO_DIR}/build/${HOST_ABI}/src/mnemonics/libmnemonics.a)
 
 add_library(common STATIC IMPORTED)
-set_target_properties(common PROPERTIES IMPORTED_LOCATION
-    ${MONERO_DIR}/build/${HOST_ABI}/src/common/libcommon.a)
+if (${MONERO_FLAVOR} STREQUAL "zano")
+    set_target_properties(common PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/src/libcommon.a)
+else()
+    set_target_properties(common PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/src/common/libcommon.a)
+endif()
 
 add_library(cncrypto STATIC IMPORTED)
 set_target_properties(cncrypto PROPERTIES IMPORTED_LOCATION
@@ -236,8 +253,14 @@ set_target_properties(blockchain_db PROPERTIES IMPORTED_LOCATION
     ${MONERO_DIR}/build/${HOST_ABI}/src/blockchain_db/libblockchain_db.a)
 
 add_library(lmdb STATIC IMPORTED)
-set_target_properties(lmdb PROPERTIES IMPORTED_LOCATION
-    ${MONERO_DIR}/build/${HOST_ABI}/external/db_drivers/liblmdb/liblmdb.a)
+if (${MONERO_FLAVOR} STREQUAL "zano")
+    set_target_properties(lmdb PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/contrib/db/liblmdb/liblmdb.a)
+else()
+    set_target_properties(lmdb PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/external/db_drivers/liblmdb/liblmdb.a)
+endif()
+
 
 add_library(easylogging STATIC IMPORTED)
 set_target_properties(easylogging PROPERTIES IMPORTED_LOCATION
@@ -311,6 +334,50 @@ set_target_properties(hidapi PROPERTIES IMPORTED_LOCATION
     ${EXTERNAL_LIBS_DIR}/lib/libhidapi.a)
 
 #############
+# Zano
+#############
+
+add_library(z STATIC IMPORTED)
+set_target_properties(z PROPERTIES IMPORTED_LOCATION
+    ${MONERO_DIR}/build/${HOST_ABI}/contrib/zlib/libz.a)
+
+add_library(miniupnpc STATIC IMPORTED)
+set_target_properties(miniupnpc PROPERTIES IMPORTED_LOCATION
+    ${MONERO_DIR}/build/${HOST_ABI}/contrib/miniupnp/miniupnpc/libminiupnpc.a)
+
+add_library(tor-connect STATIC IMPORTED)
+set_target_properties(tor-connect PROPERTIES IMPORTED_LOCATION
+    ${MONERO_DIR}/build/${HOST_ABI}/contrib/tor-connect/libtor-connect.a)
+
+add_library(mdbx STATIC IMPORTED)
+set_target_properties(mdbx PROPERTIES IMPORTED_LOCATION
+    ${MONERO_DIR}/build/${HOST_ABI}/contrib/db/libmdbx/libmdbx.a)
+
+add_library(ethash STATIC IMPORTED)
+set_target_properties(ethash PROPERTIES IMPORTED_LOCATION
+    ${MONERO_DIR}/build/${HOST_ABI}/contrib/ethereum/libethash/libethash.a)
+
+add_library(stratum STATIC IMPORTED)
+set_target_properties(stratum PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/src/libstratum.a)
+
+add_library(currency_core STATIC IMPORTED)
+set_target_properties(currency_core PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/src/libcurrency_core.a)
+
+add_library(rpc STATIC IMPORTED)
+set_target_properties(rpc PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/src/librpc.a)
+
+add_library(crypto-zano STATIC IMPORTED)
+set_target_properties(crypto-zano PROPERTIES IMPORTED_LOCATION
+    ${MONERO_DIR}/build/${HOST_ABI}/src/libcrypto.a)
+
+add_library(charset STATIC IMPORTED)
+set_target_properties(charset PROPERTIES IMPORTED_LOCATION
+    ${EXTERNAL_LIBS_DIR}/lib/libcharset.a)
+
+#############
 # System
 #############
 
@@ -382,33 +449,64 @@ if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64
     set_target_properties(${TARGET} PROPERTIES LINK_DEPENDS ${EXPORTED_SYMBOLS_FILE})
 endif()
 
+if (${MONERO_FLAVOR} STREQUAL "zano")
+    set(API_IMPORTS
+        wallet
+        common
+        lmdb
+        unbound
+        z
+        miniupnpc
+        tor-connect
+        mdbx
+        ethash
+        stratum
+        currency_core
+        rpc
+        crypto-zano
+        iconv-win
+        ssl
+        charset
+    )
+else()
+    set(API_IMPORTS
+        wallet_api
+        wallet
+        cryptonote_core
+        cryptonote_basic
+        cryptonote_format_utils_basic
+        mnemonics
+        ringct
+        ringct_basic
+        net
+        common
+        cncrypto
+        blockchain_db
+        lmdb
+        easylogging
+        unbound
+        crypto
+        epee
+        blocks
+        checkpoints
+        device
+        device_trezor
+        multisig
+        version
+        randomx
+        hardforks
+        rpc_base
+
+        polyseed
+        polyseed-wrapper
+        utf8proc
+    )
+endif()
+
 target_link_libraries(  wallet2_api_c
 
-                        wallet_api
-                        wallet
-                        cryptonote_core
-                        cryptonote_basic
-                        cryptonote_format_utils_basic
-                        mnemonics
-                        ringct
-                        ringct_basic
-                        net
-                        common
-                        cncrypto
-                        blockchain_db
-                        lmdb
-                        easylogging
-                        unbound
-                        epee
-                        blocks
-                        checkpoints
-                        device
-                        device_trezor
-                        multisig
-                        version
-                        randomx
-                        hardforks
-                        rpc_base
+                        ${API_IMPORTS}
+                        
                         ${EXTRA_LIBS}
 
                         boost_chrono
@@ -422,15 +520,12 @@ target_link_libraries(  wallet2_api_c
                         boost_thread
                         boost_wserialization
 
-                        polyseed
-                        polyseed-wrapper
+                        
                         ${EXTRA_LIBS_POLYSEED}
                         ${EXTRA_LIBS_WOWNEROSEED}
-                        utf8proc
+                        
 
                         ${BCUR_ENABLED}
-
-                        ssl
                         crypto
 
                         sodium

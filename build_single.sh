@@ -24,10 +24,11 @@ then
     exit 1
 fi
 
-if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" ]];
+if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" && "x$repo" != "xzano" ]];
 then
     echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
     echo "Invalid target given, only monero and wownero are supported targets"
+    exit 1
 fi
 
 if [[ ! -d "$repo" ]]
@@ -363,7 +364,12 @@ pushd $repo/build/${HOST_ABI}
             exit 1
         ;;
     esac
-    CC=gcc CXX=g++ make wallet_api $NPROC
+    if [[ "$repo" == "zano" ]];
+    then
+        CC=gcc CXX=g++ make version common crypto currency_core ethash libminiupnpc-static lmdb mdbx rpc stratum tor-connect wallet zlibstatic $NPROC
+    else
+        CC=gcc CXX=g++ make wallet_api $NPROC
+    fi
 popd
 
 # Special treatment for apple

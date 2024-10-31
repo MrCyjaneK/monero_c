@@ -7,7 +7,7 @@ jobs:
   lib_mingw:
     strategy:
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
@@ -62,7 +62,7 @@ jobs:
   lib_android:
     strategy:
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     runs-on: ubuntu-22.04
     # container:
     #   image: debian:bookworm
@@ -134,7 +134,7 @@ jobs:
   lib_linux:
     strategy:
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     runs-on: ubuntu-latest
     container:
       image: debian:bullseye
@@ -191,7 +191,7 @@ jobs:
   lib_sailfishos_aarch64:
     strategy:
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     runs-on: buildjet-2vcpu-ubuntu-2204-arm
     steps:
       - name: Set up QEMU
@@ -246,7 +246,7 @@ jobs:
   lib_sailfishos_i486:
     strategy:
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -294,7 +294,7 @@ jobs:
   lib_darwin:
     strategy:
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
@@ -356,7 +356,7 @@ jobs:
   lib_macos:
     strategy:
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     name: macos build
     runs-on: macos-14
     steps:
@@ -413,7 +413,7 @@ jobs:
   lib_ios:
     strategy:
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     name: ios build
     runs-on: macos-14
     steps:
@@ -588,7 +588,7 @@ jobs:
   regression_check:
     strategy:
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     needs: [
       lib_linux
     ]

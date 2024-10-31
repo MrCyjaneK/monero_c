@@ -35,3 +35,6 @@
 [submodule "external/libexpat"]
 	path = external/libexpat
 	url = https://github.com/libexpat/libexpat.git
+[submodule "zano"]
+	path = zano
+	url = https://github.com/hyle-team/zano
