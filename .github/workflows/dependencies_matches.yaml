@@ -19,6 +19,7 @@ jobs:
           git config --global user.name "CI mrcyjanek.net"
           ./apply_patches.sh monero
           ./apply_patches.sh wownero
+          ./apply_patches.sh zano
       - name: obtain hashes
         run: |
           set -x
