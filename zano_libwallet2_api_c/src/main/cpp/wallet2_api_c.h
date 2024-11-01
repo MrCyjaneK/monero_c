@@ -11,7 +11,6 @@
 #include <stddef.h>
 #include <unistd.h>
 #include "zano_checksum.h"
-#include "../../../../zano/src/wallet/plain_wallet_api.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -56,6 +55,8 @@ extern ADDAPI bool ZANO_PlainWallet_isWalletExist(const char* path);
 extern ADDAPI const char* ZANO_PlainWallet_getWalletInfo(int64_t h);
 extern ADDAPI const char* ZANO_PlainWallet_resetWalletPassword(int64_t h, const char* password);
 extern ADDAPI uint64_t ZANO_PlainWallet_getCurrentTxFee(uint64_t priority);
+
+extern ADDAPI void ZANO_free(void* ptr);
 
 extern ADDAPI const char* ZANO_checksum_wallet2_api_c_h();
 extern ADDAPI const char* ZANO_checksum_wallet2_api_c_cpp();

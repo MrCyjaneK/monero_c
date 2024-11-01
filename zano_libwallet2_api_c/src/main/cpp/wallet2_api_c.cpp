@@ -4,6 +4,7 @@
 #include <cstring>
 #include <thread>
 #include "zano_checksum.h"
+#include "../../../../zano/src/wallet/plain_wallet_api.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -242,6 +243,10 @@ uint64_t ZANO_PlainWallet_getCurrentTxFee(uint64_t priority) {
     return plain_wallet::get_current_tx_fee(priority);
 }
 // }
+
+void ZANO_free(void* ptr) {
+    free(ptr);
+}
 
 const char* ZANO_checksum_wallet2_api_c_h() {
     return ZANO_wallet2_api_c_h_sha256;

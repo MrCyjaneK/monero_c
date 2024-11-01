@@ -27,7 +27,7 @@ if (${HOST_ABI} STREQUAL "host-apple-darwin" OR
     endif()
 endif()
 
-if(${HOST_ABI} STREQUAL "x86_64-linux-android" OR
+if(${HOST_ABI} STREQUAL "" OR
    ${HOST_ABI} STREQUAL "i686-linux-android" OR
    ${HOST_ABI} STREQUAL "aarch64-linux-android" OR
    ${HOST_ABI} STREQUAL "armv7a-linux-androideabi")
@@ -80,12 +80,16 @@ elseif(${HOST_ABI} STREQUAL "aarch64-linux-gnu")
     set(BOOST_WTF_DATE_TIME "-mt-s-a64")
     set(BOOST_WTF_PART "")
 elseif(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-mingw32")
-    set(BOOST_WTF "-mt-sa64")
+    set(BOOST_WTF "-mt-s")
     set(BOOST_WTF_DATE_TIME "${BOOST_WTF}")
     set(BOOST_WTF_PART "_win32")
 elseif(${HOST_ABI} STREQUAL "host-apple-ios")
     set(BOOST_WTF "")
     set(BOOST_WTF_DATE_TIME "${BOOST_WTF}")
+    set(BOOST_WTF_PART "")
+elseif(${HOST_ABI} STREQUAL "x86_64-linux-gnu" AND ${MONERO_FLAVOR} STREQUAL "zano")
+    set(BOOST_WTF "-mt-x64")
+    set(BOOST_WTF_DATE_TIME "-mt-s-x64")
     set(BOOST_WTF_PART "")
 else()
     set(BOOST_WTF "-mt")
@@ -470,6 +474,9 @@ if (${MONERO_FLAVOR} STREQUAL "zano")
     )
 else()
     set(API_IMPORTS
+
+        ${EXTRA_LIBS}
+
         wallet_api
         wallet
         cryptonote_core
@@ -486,6 +493,7 @@ else()
         easylogging
         unbound
         crypto
+        ssl
         epee
         blocks
         checkpoints
@@ -500,14 +508,13 @@ else()
         polyseed
         polyseed-wrapper
         utf8proc
+
     )
 endif()
 
 target_link_libraries(  wallet2_api_c
 
                         ${API_IMPORTS}
-                        
-                        ${EXTRA_LIBS}
 
                         boost_chrono
                         boost_locale
