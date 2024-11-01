@@ -76,8 +76,8 @@ if(${HOST_ABI} STREQUAL "x86_64-linux-android" OR ${HOST_ABI} STREQUAL "aarch64-
     set(BOOST_WTF_DATE_TIME "${BOOST_WTF}")
     set(BOOST_WTF_PART "")
 elseif(${HOST_ABI} STREQUAL "aarch64-linux-gnu")
-    set(BOOST_WTF "-mt-a64")
-    set(BOOST_WTF_DATE_TIME "-mt-s-a64")
+    set(BOOST_WTF "-mt")
+    set(BOOST_WTF_DATE_TIME "${BOOST_WTF}")
     set(BOOST_WTF_PART "")
 elseif(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-mingw32")
     set(BOOST_WTF "-mt-s")
@@ -456,6 +456,7 @@ endif()
 if (${MONERO_FLAVOR} STREQUAL "zano")
     set(API_IMPORTS
         wallet
+        crypto
         common
         lmdb
         unbound
@@ -486,6 +487,7 @@ else()
         ringct
         ringct_basic
         net
+        crypto
         common
         cncrypto
         blockchain_db
@@ -533,7 +535,6 @@ target_link_libraries(  wallet2_api_c
                         
 
                         ${BCUR_ENABLED}
-                        crypto
 
                         sodium
 
