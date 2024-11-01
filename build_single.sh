@@ -20,14 +20,14 @@ set -e
 repo=$1
 if [[ "x$repo" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
+    echo "Usage: $0 monero/wownero/zano $(gcc -dumpmachine) -j$proccount"
     exit 1
 fi
 
 if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" && "x$repo" != "xzano" ]];
 then
-    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
-    echo "Invalid target given, only monero and wownero are supported targets"
+    echo "Usage: $0 monero/wownero/zano $(gcc -dumpmachine) -j$proccount"
+    echo "Invalid target given"
     exit 1
 fi
 
