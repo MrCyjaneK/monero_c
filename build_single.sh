@@ -124,8 +124,8 @@ case "$HOST_ABI" in
         export CXX=armv7a-linux-androideabi21-clang++
     ;;
     "i686-w64-mingw32")
-        update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
-        update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+        $SUDO update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
+        $SUDO update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
         export CC=i686-w64-mingw32-gcc-posix
         export CXX=i686-w64-mingw32-g++-posix
     ;;
@@ -366,7 +366,12 @@ pushd $repo/build/${HOST_ABI}
     esac
     if [[ "$repo" == "zano" ]];
     then
-        CC=gcc CXX=g++ make version common crypto currency_core ethash libminiupnpc-static lmdb mdbx rpc stratum tor-connect wallet zlibstatic $NPROC
+        if [[ $HOST_ABI == *android* ]];
+        then
+            CC=gcc CXX=g++ make $NPROC
+        else
+            CC=gcc CXX=g++ make version common crypto currency_core ethash lmdb mdbx rpc stratum tor-connect wallet zlibstatic $NPROC
+        fi
     else
         CC=gcc CXX=g++ make wallet_api $NPROC
     fi

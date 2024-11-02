@@ -3,6 +3,7 @@ project(wallet2_api_c)
 message(STATUS ABI_INFO  = ${HOST_ABI})
 
 set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32")
     set(CMAKE_SYSTEM_NAME Windows)
@@ -454,20 +455,25 @@ if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64
 endif()
 
 if (${MONERO_FLAVOR} STREQUAL "zano")
+    if(${HOST_ABI} STREQUAL "" OR
+       ${HOST_ABI} STREQUAL "i686-linux-android" OR
+       ${HOST_ABI} STREQUAL "aarch64-linux-android" OR
+       ${HOST_ABI} STREQUAL "armv7a-linux-androideabi")
+        set(EXTRA_LIBS_ANDROID_ZANO lmdb mdbx stratum miniupnpc rpc)
+    endif()
     set(API_IMPORTS
         wallet
         crypto
         common
-        lmdb
+        ${EXTRA_LIBS_ANDROID_ZANO}
         unbound
         z
-        miniupnpc
         tor-connect
-        mdbx
+        
         ethash
-        stratum
+        
         currency_core
-        rpc
+        
         crypto-zano
         iconv-win
         ssl
