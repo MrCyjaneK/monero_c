@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.4.1)
 project(wallet2_api_c)
 message(STATUS ABI_INFO  = ${HOST_ABI})
 
-set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-lto")
 
 if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32")
     set(CMAKE_SYSTEM_NAME Windows)
@@ -83,7 +85,7 @@ elseif(${HOST_ABI} STREQUAL "aarch64-linux-gnu")
 elseif(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-mingw32")
     set(BOOST_WTF "")
     set(BOOST_WTF_DATE_TIME "${BOOST_WTF}")
-    set(BOOST_WTF_PART "_win32")
+    set(BOOST_WTF_PART "")
 elseif(${HOST_ABI} STREQUAL "host-apple-ios")
     set(BOOST_WTF "")
     set(BOOST_WTF_DATE_TIME "${BOOST_WTF}")
@@ -343,8 +345,14 @@ set_target_properties(hidapi PROPERTIES IMPORTED_LOCATION
 #############
 
 add_library(z STATIC IMPORTED)
-set_target_properties(z PROPERTIES IMPORTED_LOCATION
-    ${MONERO_DIR}/build/${HOST_ABI}/contrib/zlib/libz.a)
+
+if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-mingw32")
+    set_target_properties(z PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/contrib/zlib/libzlibstatic.a)
+else()
+    set_target_properties(z PROPERTIES IMPORTED_LOCATION
+        ${MONERO_DIR}/build/${HOST_ABI}/contrib/zlib/libz.a)
+endif()
 
 add_library(miniupnpc STATIC IMPORTED)
 set_target_properties(miniupnpc PROPERTIES IMPORTED_LOCATION
@@ -455,10 +463,12 @@ if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64
 endif()
 
 if (${MONERO_FLAVOR} STREQUAL "zano")
-    if(${HOST_ABI} STREQUAL "" OR
+    if(${HOST_ABI} STREQUAL "x86_64-linux-android" OR
        ${HOST_ABI} STREQUAL "i686-linux-android" OR
        ${HOST_ABI} STREQUAL "aarch64-linux-android" OR
        ${HOST_ABI} STREQUAL "armv7a-linux-androideabi")
+        set(EXTRA_LIBS_ANDROID_ZANO)
+    else()
         set(EXTRA_LIBS_ANDROID_ZANO lmdb mdbx stratum miniupnpc rpc)
     endif()
     set(API_IMPORTS
@@ -517,11 +527,14 @@ else()
         polyseed-wrapper
         utf8proc
 
+        ${EXTRA_LIBS_POLYSEED}
+
     )
 endif()
 
 target_link_libraries(  wallet2_api_c
-
+                        
+                        
                         ${API_IMPORTS}
 
                         boost_chrono
@@ -536,7 +549,6 @@ target_link_libraries(  wallet2_api_c
                         boost_wserialization
 
                         
-                        ${EXTRA_LIBS_POLYSEED}
                         ${EXTRA_LIBS_WOWNEROSEED}
                         
 

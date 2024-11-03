@@ -294,7 +294,7 @@ jobs:
   lib_darwin:
     strategy:
       matrix:
-        coin: [monero, wownero, zano]
+        coin: [monero, wownero]
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
@@ -357,7 +357,7 @@ jobs:
   lib_macos:
     strategy:
       matrix:
-        coin: [monero, wownero, zano]
+        coin: [monero, wownero]
     name: macos build
     runs-on: macos-14
     steps:
@@ -589,7 +589,7 @@ jobs:
   regression_check:
     strategy:
       matrix:
-        coin: [monero, wownero, zano]
+        coin: [monero, wownero]
     needs: [
       lib_linux
     ]

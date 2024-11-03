@@ -370,7 +370,7 @@ pushd $repo/build/${HOST_ABI}
         then
             CC=gcc CXX=g++ make $NPROC
         else
-            CC=gcc CXX=g++ make version common crypto currency_core ethash lmdb mdbx rpc stratum tor-connect wallet zlibstatic $NPROC
+            CC=gcc CXX=g++ make libminiupnpc-static version common crypto currency_core ethash lmdb mdbx rpc stratum tor-connect wallet zlibstatic $NPROC
         fi
     else
         CC=gcc CXX=g++ make wallet_api $NPROC
