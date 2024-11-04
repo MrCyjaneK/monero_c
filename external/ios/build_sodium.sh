@@ -24,5 +24,5 @@ fi
 cd "$SODIUM_PATH"
 ../../../../libsodium_apple-ios.sh
 
-cp -r "${SODIUM_PATH}"/libsodium-apple/ios/include/* "$EXTERNAL_IOS_INCLUDE_DIR"
-cp -r "${SODIUM_PATH}"/libsodium-apple/ios/lib/* "$EXTERNAL_IOS_LIB_DIR"
+cp -r "${SODIUM_PATH}"/libsodium-apple/ios/include/* "$EXTERNAL_IOS_INCLUDE_DIR/"
+cp -r "${SODIUM_PATH}"/libsodium-apple/ios/lib/* "$EXTERNAL_IOS_LIB_DIR/"

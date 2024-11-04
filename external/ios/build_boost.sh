@@ -28,5 +28,5 @@ cd "$BOOST_DIR_PATH"
 	--boost-version ${BOOST_VERSION} \
 	--no-framework
 
-cp -r "${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}/ios/release/prefix/include/*"  "$EXTERNAL_IOS_INCLUDE_DIR"
-cp -r "${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}/ios/release/prefix/lib/*"  "$EXTERNAL_IOS_LIB_DIR"
+cp -r "${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}"/ios/release/prefix/include/boost  "$EXTERNAL_IOS_INCLUDE_DIR/boost"
+cp -r "${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}"/ios/release/prefix/lib/*  "$EXTERNAL_IOS_LIB_DIR/"
