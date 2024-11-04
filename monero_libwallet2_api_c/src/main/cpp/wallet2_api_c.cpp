@@ -1767,10 +1767,15 @@ bool MONERO_WalletManager_verifyWalletPassword(void* wm_ptr, const char* keys_fi
     Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
     return wm->verifyWalletPassword(std::string(keys_file_name), std::string(password), no_spend_key, kdf_rounds);
 }
+
 //     virtual bool queryWalletDevice(Wallet::Device& device_type, const std::string &keys_file_name, const std::string &password, uint64_t kdf_rounds = 1) const = 0;
-// bool MONERO_WalletManager_queryWalletDevice(int device_type, const char* keys_file_name, const char* password, uint64_t kdf_rounds) {
-//     return Monero::WalletManagerFactory::getWalletManager()->queryWalletDevice(device_type, std::string(keys_file_name), std::string(password), kdf_rounds);
-//}
+int MONERO_WalletManager_queryWalletDevice(void* wm_ptr, const char* keys_file_name, const char* password, uint64_t kdf_rounds) {
+    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
+    Monero::Wallet::Device device_type;
+    wm->queryWalletDevice(device_type, std::string(keys_file_name), std::string(password), kdf_rounds);
+    return device_type;
+}
+
 //     virtual std::vector<std::string> findWallets(const std::string &path) = 0;
 const char* MONERO_WalletManager_findWallets(void* wm_ptr, const char* path, const char* separator) {
     Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
