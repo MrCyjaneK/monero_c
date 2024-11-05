@@ -85,7 +85,7 @@ elseif(${HOST_ABI} STREQUAL "aarch64-linux-gnu")
 elseif(${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR ${HOST_ABI} STREQUAL "i686-w64-mingw32")
     set(BOOST_WTF "")
     set(BOOST_WTF_DATE_TIME "${BOOST_WTF}")
-    set(BOOST_WTF_PART "")
+    set(BOOST_WTF_PART "_win32")
 elseif(${HOST_ABI} STREQUAL "host-apple-ios")
     set(BOOST_WTF "")
     set(BOOST_WTF_DATE_TIME "${BOOST_WTF}")
@@ -479,7 +479,6 @@ if (${MONERO_FLAVOR} STREQUAL "zano")
     endif()
     set(API_IMPORTS
         wallet
-        crypto
         common
         ${EXTRA_LIBS_ANDROID_ZANO}
         unbound
@@ -492,6 +491,7 @@ if (${MONERO_FLAVOR} STREQUAL "zano")
         
         crypto-zano
         ssl
+        crypto
     )
 else()
     set(API_IMPORTS
@@ -507,7 +507,6 @@ else()
         ringct
         ringct_basic
         net
-        crypto
         common
         cncrypto
         blockchain_db
@@ -515,6 +514,7 @@ else()
         easylogging
         unbound
         ssl
+        crypto
         epee
         blocks
         checkpoints
