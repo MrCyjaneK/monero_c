@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coin: [monero, wownero, zano]
+        coin: [monero, wownero]
     runs-on: ubuntu-latest
     container:
       image: debian:bookworm
@@ -198,8 +198,8 @@ jobs:
         coin: [monero, wownero, zano]
     runs-on: buildjet-2vcpu-ubuntu-2204-arm
     steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      #- name: Set up QEMU
+      #  uses: docker/setup-qemu-action@v3
       - uses: thejerrybao/setup-swap-space@v1
         with:
           swap-space-path: /swapfile
