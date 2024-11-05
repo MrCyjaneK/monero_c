@@ -445,6 +445,8 @@ if (${MONERO_FLAVOR} STREQUAL "monero")
     set(BCUR_ENABLED bc-ur)
 elseif(${MONERO_FLAVOR} STREQUAL "wownero")
     target_compile_definitions(wallet2_api_c PRIVATE FLAVOR_WOWNERO)
+elseif(${MONERO_FLAVOR} STREQUAL "zano")
+    target_compile_definitions(wallet2_api_c PRIVATE FLAVOR_ZANO)
 endif()
 
 if(NOT ${HOST_ABI} STREQUAL "x86_64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "host-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin" AND NOT  ${HOST_ABI} STREQUAL "host-apple-ios")
@@ -456,6 +458,8 @@ if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64
         set(EXPORTED_SYMBOLS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/monero_libwallet2_api_c.exp)
     elseif(${MONERO_FLAVOR} STREQUAL "wownero")
         set(EXPORTED_SYMBOLS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/wownero_libwallet2_api_c.exp)
+    elseif(${MONERO_FLAVOR} STREQUAL "zano")
+        set(EXPORTED_SYMBOLS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/zano_libwallet2_api_c.exp)
     endif()
 
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -exported_symbols_list ${EXPORTED_SYMBOLS_FILE}")
@@ -467,9 +471,11 @@ if (${MONERO_FLAVOR} STREQUAL "zano")
        ${HOST_ABI} STREQUAL "i686-linux-android" OR
        ${HOST_ABI} STREQUAL "aarch64-linux-android" OR
        ${HOST_ABI} STREQUAL "armv7a-linux-androideabi")
+        set(EXTRA_LIBS_ANDROID_ZANO charset iconv-win)
+    elseif(${HOST_ABI} STREQUAL "host-apple-ios")
         set(EXTRA_LIBS_ANDROID_ZANO)
     else()
-        set(EXTRA_LIBS_ANDROID_ZANO lmdb mdbx stratum miniupnpc rpc)
+        set(EXTRA_LIBS_ANDROID_ZANO charset iconv-win lmdb mdbx stratum miniupnpc rpc)
     endif()
     set(API_IMPORTS
         wallet
@@ -485,9 +491,7 @@ if (${MONERO_FLAVOR} STREQUAL "zano")
         currency_core
         
         crypto-zano
-        iconv-win
         ssl
-        charset
     )
 else()
     set(API_IMPORTS
@@ -560,3 +564,4 @@ target_link_libraries(  wallet2_api_c
                         ${EXTRA_LIBS_APPLE}
                         ${EXTRA_LIBS_ANDROID}
                        )
+

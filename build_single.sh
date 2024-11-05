@@ -233,18 +233,18 @@ pushd $repo/contrib/depends
             echo "=                                  ="
             echo "===================================="
             pwd
-            pushd ../../../external/ios
-                ./install_missing_headers.sh
-                ./build_openssl.sh
-                ./build_boost.sh
-                ./build_sodium.sh
-                ./build_zmq.sh
-                ./build_unbound.sh
-                if [[ "$repo" == "wownero" ]];
-                then
-                    ./build_wownero_seed.sh
-                fi
-            popd
+            #pushd ../../../external/ios
+            #    ./install_missing_headers.sh
+            #    ./build_openssl.sh
+            #    ./build_boost.sh
+            #    ./build_sodium.sh
+            #    ./build_zmq.sh
+            #    ./build_unbound.sh
+            #    if [[ "$repo" == "wownero" ]];
+            #    then
+            #        ./build_wownero_seed.sh
+            #    fi
+            #popd
             POLYSEED_DIR=../../../external/polyseed/build/${HOST_ABI}
             rm -rf ${POLYSEED_DIR}
             mkdir -p ${POLYSEED_DIR}
@@ -354,10 +354,14 @@ pushd $repo/build/${HOST_ABI}
             PREFIX="$(realpath "${PWD}/../../../external/ios/build/ios")"
             # echo $PREFIX
             # exit 1
+            if [[ "$repo" == "zano" ]];
+            then
+                BUILD_EXTRA_CONFIG="-DCMAKE_SYSTEM_NAME=iOS -DOPENSSL_INCLUDE_DIR=${PREFIX}/include -DOPENSSL_CRYPTO_LIBRARY=${PREFIX}/lib/libcrypto.a -DOPENSSL_SSL_LIBRARY=${PREFIX}/lib/libssl.a -DBoost_INCLUDE_DIRS=${PREFIX}/include -DBoost_LIBRARY_DIRS=${PREFIX}/lib"
+            fi
             env \
                 CMAKE_INCLUDE_PATH="${PREFIX}/include" \
                 CMAKE_LIBRARY_PATH="${PREFIX}/lib" \
-                CC="${IOS_CC}" CXX="${IOS_CXX}" cmake -DHIDAPI_DUMMY=ON -D IOS=ON -D ARCH=arm64 -D CMAKE_BUILD_DYPE=$buildType -D STATIC=ON -D BUILD_GUI_DEPS=1 -D UNBOUND_INCLUDE_DIR="${PREFIX}/lib" ../..
+                CC="${IOS_CC}" CXX="${IOS_CXX}" cmake -DHIDAPI_DUMMY=ON -D IOS=ON -D ARCH=arm64 -D CMAKE_BUILD_TYPE=$buildType -D STATIC=ON -D BUILD_GUI_DEPS=1 -D UNBOUND_INCLUDE_DIR="${PREFIX}/lib" $BUILD_EXTRA_CONFIG ../..
         ;;
         *)
             echo "we don't know how to compile monero for '$HOST_ABI'"
@@ -369,6 +373,9 @@ pushd $repo/build/${HOST_ABI}
         if [[ $HOST_ABI == *android* ]];
         then
             CC=gcc CXX=g++ make $NPROC
+        elif [[ $HOST_ABI == *ios* ]];
+        then
+            make version common crypto currency_core ethash tor-connect wallet zlibstatic $NPROC
         else
             CC=gcc CXX=g++ make libminiupnpc-static version common crypto currency_core ethash lmdb mdbx rpc stratum tor-connect wallet zlibstatic $NPROC
         fi

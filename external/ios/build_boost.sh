@@ -7,7 +7,7 @@ set -e
 MIN_IOS_VERSION=10.0
 BOOST_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/Apple-Boost-BuildScript"
 BOOST_VERSION=1.84.0
-BOOST_LIBS="random regex graph random chrono thread filesystem system date_time locale serialization program_options"
+BOOST_LIBS="random regex graph random chrono thread filesystem system date_time locale serialization program_options timer atomic log"
 
 echo "============================ Boost ============================"
 
