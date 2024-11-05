@@ -233,18 +233,18 @@ pushd $repo/contrib/depends
             echo "=                                  ="
             echo "===================================="
             pwd
-            #pushd ../../../external/ios
-            #    ./install_missing_headers.sh
-            #    ./build_openssl.sh
-            #    ./build_boost.sh
-            #    ./build_sodium.sh
-            #    ./build_zmq.sh
-            #    ./build_unbound.sh
-            #    if [[ "$repo" == "wownero" ]];
-            #    then
-            #        ./build_wownero_seed.sh
-            #    fi
-            #popd
+            pushd ../../../external/ios
+                ./install_missing_headers.sh
+                ./build_openssl.sh
+                ./build_boost.sh
+                ./build_sodium.sh
+                ./build_zmq.sh
+                ./build_unbound.sh
+                if [[ "$repo" == "wownero" ]];
+                then
+                    ./build_wownero_seed.sh
+                fi
+            popd
             POLYSEED_DIR=../../../external/polyseed/build/${HOST_ABI}
             rm -rf ${POLYSEED_DIR}
             mkdir -p ${POLYSEED_DIR}
