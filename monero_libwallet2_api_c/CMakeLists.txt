@@ -514,7 +514,6 @@ else()
         lmdb
         easylogging
         unbound
-        crypto
         ssl
         epee
         blocks
