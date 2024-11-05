@@ -6,6 +6,7 @@ permissions:
 jobs:
   lib_mingw:
     strategy:
+      fail-fast: false
       matrix:
         coin: [monero, wownero, zano]
     runs-on: ubuntu-latest
@@ -61,6 +62,7 @@ jobs:
           path: release/${{ matrix.coin }}
   lib_android:
     strategy:
+      fail-fast: false
       matrix:
         coin: [monero, wownero, zano]
     runs-on: ubuntu-22.04
@@ -133,6 +135,7 @@ jobs:
           rm -rf ${{ matrix.coin }}/contrib/depends/sources/android-ndk-r26d-linux.zip
   lib_linux:
     strategy:
+      fail-fast: false
       matrix:
         coin: [monero, wownero, zano]
     runs-on: ubuntu-latest
@@ -190,6 +193,7 @@ jobs:
           path: release/${{ matrix.coin }}
   lib_sailfishos_aarch64:
     strategy:
+      fail-fast: false
       matrix:
         coin: [monero, wownero, zano]
     runs-on: buildjet-2vcpu-ubuntu-2204-arm
@@ -245,6 +249,7 @@ jobs:
           path: release/${{ matrix.coin }}
   lib_sailfishos_i486:
     strategy:
+      fail-fast: false
       matrix:
         coin: [monero, wownero, zano]
     runs-on: ubuntu-latest
@@ -293,6 +298,7 @@ jobs:
           path: release/${{ matrix.coin }}
   lib_darwin:
     strategy:
+      fail-fast: false
       matrix:
         coin: [monero, wownero]
     runs-on: ubuntu-latest
@@ -356,6 +362,7 @@ jobs:
           rm -rf ${{ matrix.coin }}/contrib/depends/sources/MacOSX*sdk.tar.xz
   lib_macos:
     strategy:
+      fail-fast: false
       matrix:
         coin: [monero, wownero]
     name: macos build
@@ -413,6 +420,7 @@ jobs:
           path: release/${{ matrix.coin }}
   lib_ios:
     strategy:
+      fail-fast: false
       matrix:
         coin: [monero, wownero, zano]
     name: ios build
@@ -588,6 +596,7 @@ jobs:
 
   regression_check:
     strategy:
+      fail-fast: false
       matrix:
         coin: [monero, wownero]
     needs: [

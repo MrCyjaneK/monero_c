@@ -40,7 +40,7 @@ then
 fi
 if [[ "$repo" == "zano" ]];
 then
-    pushd external/tor-connect
+    pushd contrib/tor-connect
          git remote set-url origin https://github.com/mrcyjanek/tor-connect.git
     popd
 fi
