@@ -207,16 +207,16 @@ pushd $repo/contrib/depends
             # NOTE: we can use unbound from brew but app store rejects the app because of nghttp2 symbols being included
             # verbose_copy "${HOMEBREW_PREFIX}/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
             verbose_copy "../../../external/macos/build/MACOS/lib/libunbound.a" ${MACOS_LIBS_DIR}/lib/libunbound.a
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_chrono-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_chrono-mt.a
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_locale-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_locale-mt.a
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_date_time-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_date_time-mt.a
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_filesystem-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_filesystem-mt.a
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_program_options-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_program_options-mt.a
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_regex-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_regex-mt.a
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_serialization-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_serialization-mt.a
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_system-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_system-mt.a
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_thread-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_thread-mt.a
-            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_wserialization-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_wserialization-mt.a
+            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_chrono-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_chrono.a
+            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_locale-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_locale.a
+            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_date_time-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_date_time.a
+            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_filesystem-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_filesystem.a
+            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_program_options-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_program_options.a
+            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_regex-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_regex.a
+            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_serialization-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_serialization.a
+            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_system-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_system.a
+            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_thread-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_thread.a
+            verbose_copy "${HOMEBREW_PREFIX}/lib/libboost_wserialization-mt.a" ${MACOS_LIBS_DIR}/lib/libboost_wserialization.a
             verbose_copy "${POLYSEED_DIR}/libpolyseed.a" ${MACOS_LIBS_DIR}/lib/libpolyseed.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libssl.a" ${MACOS_LIBS_DIR}/lib/libssl.a
             verbose_copy "${HOMEBREW_PREFIX}/lib/libcrypto.a" ${MACOS_LIBS_DIR}/lib/libcrypto.a
