@@ -38,6 +38,12 @@ then
         git remote set-url origin https://github.com/mrcyjanek/randomwow.git
     popd
 fi
+if [[ "$repo" == "zano" ]];
+then
+    pushd external/tor-connect
+         git remote set-url origin https://github.com/mrcyjanek/tor-connect.git
+    popd
+fi
 git submodule init
 git submodule update --init --recursive --force
 touch .patch-applied

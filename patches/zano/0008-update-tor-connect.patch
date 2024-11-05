@@ -1,0 +1,33 @@
+From 5a1fb3c7bf043971e019c371132a35f66d8af19b Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Tue, 5 Nov 2024 10:35:03 -0500
+Subject: [PATCH] update tor-connect
+
+---
+ .gitmodules         | 2 +-
+ contrib/tor-connect | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/.gitmodules b/.gitmodules
+index 97a855bd..9a4ffb10 100644
+--- a/.gitmodules
++++ b/.gitmodules
+@@ -7,7 +7,7 @@
+ 	branch = main
+ [submodule "contrib/tor-connect"]
+ 	path = contrib/tor-connect
+-	url = https://github.com/hyle-team/tor-connect.git
++	url = https://github.com/MrCyjaneK/tor-connect.git
+ 	branch = main
+ [submodule "contrib/jwt-cpp"]
+ 	path = contrib/jwt-cpp
+diff --git a/contrib/tor-connect b/contrib/tor-connect
+index b589edb1..cc445b2f 160000
+--- a/contrib/tor-connect
++++ b/contrib/tor-connect
+@@ -1 +1 @@
+-Subproject commit b589edb1906dccb387cfeded6ed12286c5f0405f
++Subproject commit cc445b2f4850cb1713911f6002a869fd2853e48f
+-- 
+2.39.5 (Apple Git-154)
+
