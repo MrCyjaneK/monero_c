@@ -103,24 +103,24 @@ case "$HOST_ABI" in
         export CXX="${HOST_ABI}-g++"
     ;;
     "x86_64-linux-android")
-        export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
-        export CC=x86_64-linux-android21-clang
-        export CXX=x86_64-linux-android21-clang++
+        export PATH="$WDIR/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
+        export CC=$WDIR/contrib/depends/${HOST_ABI}/native/bin/x86_64-linux-android21-clang
+        export CXX=$WDIR/contrib/depends/${HOST_ABI}/native/bin/x86_64-linux-android21-clang++
     ;;
     "i686-linux-android")
-        export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
-        export CC=i686-linux-android21-clang
-        export CXX=i686-linux-android21-clang++
+        export PATH="$WDIR/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
+        export CC=$WDIR/contrib/depends/${HOST_ABI}/native/bin/i686-linux-android21-clang
+        export CXX=$WDIR/contrib/depends/${HOST_ABI}/native/bin/i686-linux-android21-clang++
     ;;
     "aarch64-linux-android")
-        export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
-        export CC=aarch64-linux-android21-clang
-        export CXX=aarch64-linux-android21-clang++
+        export PATH="$WDIR/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
+        export CC=$WDIR/contrib/depends/${HOST_ABI}/native/bin/aarch64-linux-android21-clang
+        export CXX=$WDIR/contrib/depends/${HOST_ABI}/native/bin/aarch64-linux-android21-clang++
     ;;
     "armv7a-linux-androideabi")
-        export PATH="$WDIR/$repo/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
-        export CC=armv7a-linux-androideabi21-clang
-        export CXX=armv7a-linux-androideabi21-clang++
+        export PATH="$WDIR/contrib/depends/${HOST_ABI}/native/bin/:$PATH"
+        export CC=$WDIR/contrib/depends/${HOST_ABI}/native/bin/armv7a-linux-androideabi21-clang
+        export CXX=$WDIR/contrib/depends/${HOST_ABI}/native/bin/armv7a-linux-androideabi21-clang++
     ;;
     "i686-w64-mingw32")
         update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
@@ -135,14 +135,14 @@ case "$HOST_ABI" in
         export CXX=x86_64-w64-mingw32-g++-posix
     ;;
     "x86_64-apple-darwin11")
-        export PATH="$WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/bin:$PATH"
-        export CC="clang -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.14 --sysroot $WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
-        export CXX="clang++ -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.14 --sysroot $WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
+        export PATH="$WDIR/contrib/depends/x86_64-apple-darwin11/native/bin:$PATH"
+        export CC="clang -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.14 --sysroot $WDIR/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
+        export CXX="clang++ -stdlib=libc++ -target x86_64-apple-darwin11 -mmacosx-version-min=10.14 --sysroot $WDIR/contrib/depends/x86_64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/contrib/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-"
     ;;
     "aarch64-apple-darwin11")
-        export PATH="$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin:$PATH"
-        export CC="clang -stdlib=libc++ -target arm64-apple-darwin11 -mmacosx-version-min=10.14 --sysroot $WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin/aarch64-apple-darwin11-"
-        export CXX="clang++ -stdlib=libc++ -target arm64-apple-darwin11 -mmacosx-version-min=10.14 --sysroot $WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/$repo/contrib/depends/aarch64-apple-darwin11/native/bin/aarch64-apple-darwin11-"
+        export PATH="$WDIR/contrib/depends/aarch64-apple-darwin11/native/bin:$PATH"
+        export CC="clang -stdlib=libc++ -target arm64-apple-darwin11 -mmacosx-version-min=10.14 --sysroot $WDIR/contrib/depends/aarch64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/contrib/depends/aarch64-apple-darwin11/native/bin/aarch64-apple-darwin11-"
+        export CXX="clang++ -stdlib=libc++ -target arm64-apple-darwin11 -mmacosx-version-min=10.14 --sysroot $WDIR/contrib/depends/aarch64-apple-darwin11/native/SDK/ -mlinker-version=609 -B$WDIR/contrib/depends/aarch64-apple-darwin11/native/bin/aarch64-apple-darwin11-"
     ;;
     "host-apple-darwin"|"x86_64-host-apple-darwin"|"aarch64-host-apple-darwin")
         export CC="clang"
@@ -157,7 +157,7 @@ case "$HOST_ABI" in
         exit 1
     ;;
 esac
-pushd $repo/contrib/depends
+pushd contrib/depends
     case "$HOST_ABI" in
         "x86_64-linux-gnu" | "i686-linux-gnu" | "i686-meego-linux-gnu" | "aarch64-linux-gnu" | "aarch64-meego-linux-gnu" | "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "armv7a-linux-androideabi" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11")
             env -i PATH="$PATH" CC=gcc CXX=g++ make HOST="$HOST_ABI" "$NPROC"
@@ -299,83 +299,6 @@ popd
 
 buildType=Debug
 
-rm -rf $repo/build/${HOST_ABI} 2>/dev/null || true
-mkdir -p $repo/build/${HOST_ABI}
-pushd $repo/build/${HOST_ABI}
-    case "$HOST_ABI" in
-        "x86_64-linux-gnu")
-            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-x64" -D CMAKE_SYSTEM_NAME="Linux" ../..
-        ;;
-        "i686-linux-gnu")
-            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="i686" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-x86" -D CMAKE_SYSTEM_NAME="Linux" ../..
-        ;;
-        "i686-meego-linux-gnu")
-            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="i686" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-x86" -D CMAKE_SYSTEM_NAME="Linux" ../..
-        ;;
-        "aarch64-linux-gnu")
-            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv8-a" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-armv8" -D CMAKE_SYSTEM_NAME="Linux" ../..
-        ;;
-        "aarch64-meego-linux-gnu")
-            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv8-a" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-armv8" -D CMAKE_SYSTEM_NAME="Linux" ../..
-        ;;
-        "x86_64-linux-android")
-            env CC="${CC}" CXX="${CXX}" cmake -DMONERO_WALLET_CRYPTO_LIBRARY=amd64-64-24k -DHIDAPI_DUMMY=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-x86_64" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="x86_64" ../..
-        ;;
-        "i686-linux-android")
-            env CC="${CC}" CXX="${CXX}" cmake -DHIDAPI_DUMMY=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-x86" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="x86" ../..
-        ;;
-        "aarch64-linux-android")
-            env CC="${CC}" CXX="${CXX}" cmake -DHIDAPI_DUMMY=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv8-a" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-armv8" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="arm64-v8a" ../..
-        ;;
-        "armv7a-linux-androideabi")
-            env CC="${CC}" CXX="${CXX}" cmake -DHIDAPI_DUMMY=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="armv7-a" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-armv7" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="armeabi-v7a" ../..
-        ;;
-        "x86_64-w64-mingw32")
-            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D ARCH="x86-64" -D BUILD_64=ON -D CMAKE_BUILD_TYPE=$buildType -D BUILD_TAG="win-x64" ../..
-        ;;
-        "i686-w64-mingw32")
-            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D ARCH="i686" -D BUILD_64=OFF -D CMAKE_BUILD_TYPE=$buildType -D BUILD_TAG="win-x32" ../..
-        ;;
-        "x86_64-apple-darwin11")
-            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D ARCH="x86-64" -D BUILD_64=ON -D CMAKE_BUILD_TYPE=$buildType -D BUILD_TAG="mac-x64" ../..
-        ;;
-        "aarch64-apple-darwin11")
-            env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_TOOLCHAIN_FILE=$PWD/../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D ARCH="armv8-a" -D BUILD_64=ON -D CMAKE_BUILD_TYPE=$buildType -D BUILD_TAG="mac-armv8" ../..
-        ;;
-        "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin")
-	    PREFIX="$(realpath "${PWD}/../../../external/macos/build/MACOS")"
-	    env \
-		CMAKE_INCLUDE_PATH="${PREFIX}/include" \
-		CMAKE_LIBRARY_PATH="${PREFIX}/lib" \
-		CC="${CC}" CXX="${CXX}" cmake -DCMAKE_POSITION_INDEPENDENT_CODE=ON -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D STATIC=ON -D BUILD_64=ON -D CMAKE_BUILD_TYPE=$buildType ../..
-        ;;
-        "host-apple-ios")
-            PREFIX="$(realpath "${PWD}/../../../external/ios/build/ios")"
-            # echo $PREFIX
-            # exit 1
-            env \
-                CMAKE_INCLUDE_PATH="${PREFIX}/include" \
-                CMAKE_LIBRARY_PATH="${PREFIX}/lib" \
-                CC="${IOS_CC}" CXX="${IOS_CXX}" cmake -DHIDAPI_DUMMY=ON -D IOS=ON -D ARCH=arm64 -D CMAKE_BUILD_DYPE=$buildType -D STATIC=ON -D BUILD_GUI_DEPS=1 -D UNBOUND_INCLUDE_DIR="${PREFIX}/lib" ../..
-        ;;
-        *)
-            echo "we don't know how to compile monero for '$HOST_ABI'"
-            exit 1
-        ;;
-    esac
-    CC=gcc CXX=g++ make wallet_api $NPROC
-popd
-
-# Special treatment for apple
-if [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" ]];
-then
-    ${HOST_ABI}-ranlib $PWD/$repo/contrib/depends/${HOST_ABI}/lib/libpolyseed.a
-    if [[ "$repo" == "wownero" ]];
-    then
-        ${HOST_ABI}-ranlib $PWD/$repo/contrib/depends/${HOST_ABI}/lib/libwownero-seed.a
-    fi
-fi
-
 pushd ${repo}_libwallet2_api_c
     rm -rf build/${HOST_ABI} || true
     mkdir -p build/${HOST_ABI} -p
@@ -383,12 +306,17 @@ pushd ${repo}_libwallet2_api_c
         case $HOST_ABI in
             "x86_64-linux-gnu" | "i686-linux-gnu" | "i686-meego-linux-gnu" | "aarch64-linux-gnu" | "aarch64-meego-linux-gnu" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11" | "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin")
                 echo $CC
-                env CC="${CC}" CXX="${CXX}" cmake -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+                env CC="${CC}" CXX="${CXX}" cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-x64" -D CMAKE_SYSTEM_NAME="Linux" -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
                 CC="${CC}" CXX="${CXX}" make $NPROC
             ;;
-            "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "armv7a-linux-androideabi")
+            "x86_64-linux-android")
                 echo $CC
-                env CC="${CC}" CXX="${CXX}" cmake  -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+                env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -DMONERO_WALLET_CRYPTO_LIBRARY=amd64-64-24k -DHIDAPI_DUMMY=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-x86_64" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="x86_64" -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+                CC="${CC}" CXX="${CXX}" make $NPROC
+            ;;
+            "i686-linux-android" | "aarch64-linux-android" | "armv7a-linux-androideabi")
+                echo $CC
+                env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -DHIDAPI_DUMMY=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-x86" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="x86"-DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
                 CC="${CC}" CXX="${CXX}" make $NPROC
             ;;
             "host-apple-ios")
