@@ -493,6 +493,10 @@ jobs:
           path: release/wownero
       - uses: actions/download-artifact@v4
         with:
+          name: android zano
+          path: release/zano
+      - uses: actions/download-artifact@v4
+        with:
           name: darwin monero
           path: release/monero
       - uses: actions/download-artifact@v4
@@ -509,12 +513,20 @@ jobs:
           path: release/wownero
       - uses: actions/download-artifact@v4
         with:
+          name: ios zano
+          path: release/zano
+      - uses: actions/download-artifact@v4
+        with:
           name: linux monero
           path: release/monero
       - uses: actions/download-artifact@v4
         with:
           name: linux wownero
           path: release/wownero
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux zano
+          path: release/zano
       - uses: actions/download-artifact@v4
         with:
           name: macos monero
@@ -541,12 +553,20 @@ jobs:
           path: release/wownero
       - uses: actions/download-artifact@v4
         with:
+          name: sfos aarch64 zano
+          path: release/zano
+      - uses: actions/download-artifact@v4
+        with:
           name: sfos_i486 monero
           path: release/monero
       - uses: actions/download-artifact@v4
         with:
           name: sfos_i486 wownero
           path: release/wownero
+      - uses: actions/download-artifact@v4
+        with:
+          name: sfos_i486 zano
+          path: release/zano
       - name: zip release dir
         run: zip -r release-bundle.zip release
       - name: Release
