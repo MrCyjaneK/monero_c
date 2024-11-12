@@ -397,21 +397,25 @@ fi
 pushd ${repo}_libwallet2_api_c
     rm -rf build/${HOST_ABI} || true
     mkdir -p build/${HOST_ABI} -p
+    if [[ "$repo" == "zano" ]];
+    then
+       EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
+    fi
     pushd build/${HOST_ABI}
         case $HOST_ABI in
             "x86_64-linux-gnu" | "i686-linux-gnu" | "i686-meego-linux-gnu" | "aarch64-linux-gnu" | "aarch64-meego-linux-gnu" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11" | "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin")
                 echo $CC
-                env CC="${CC}" CXX="${CXX}" cmake -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+                env CC="${CC}" CXX="${CXX}" cmake $EXTRA_CMAKE_FLAGS -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
                 CC="${CC}" CXX="${CXX}" make $NPROC
             ;;
             "x86_64-linux-android" | "i686-linux-android" | "aarch64-linux-android" | "armv7a-linux-androideabi")
                 echo $CC
-                env CC="${CC}" CXX="${CXX}" cmake  -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+                env CC="${CC}" CXX="${CXX}" cmake $EXTRA_CMAKE_FLAGS -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
                 CC="${CC}" CXX="${CXX}" make $NPROC
             ;;
             "host-apple-ios")
                 export -n CC CXX
-                CC=clang CXX=clang++ cmake -DCMAKE_TOOLCHAIN_FILE=../../../external/ios-cmake/ios.toolchain.cmake -DPLATFORM=OS64 -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+                CC=clang CXX=clang++ cmake $EXTRA_CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=../../../external/ios-cmake/ios.toolchain.cmake -DPLATFORM=OS64 -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
                 CC=clang CXX=clang++ make $NPROC
             ;;
             *)
