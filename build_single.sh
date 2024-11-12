@@ -305,7 +305,7 @@ mkdir -p $repo/build/${HOST_ABI}
 pushd $repo/build/${HOST_ABI}
     if [[ "$repo" == "zano" ]];
     then
-       EXTRA_CMAKE_FLAGS="-DCAKEWALLET"
+       EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
     fi
     case "$HOST_ABI" in
         "x86_64-linux-gnu")
@@ -403,7 +403,7 @@ pushd ${repo}_libwallet2_api_c
     mkdir -p build/${HOST_ABI} -p
     if [[ "$repo" == "zano" ]];
     then
-       EXTRA_CMAKE_FLAGS="-DCAKEWALLET"
+       EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
     fi
     pushd build/${HOST_ABI}
         case $HOST_ABI in
