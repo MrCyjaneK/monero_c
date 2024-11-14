@@ -31,7 +31,6 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
 SET(LIBUNWIND_INCLUDE_DIR @prefix@/include)
 SET(LIBUNWIND_LIBRARIES @prefix@/lib/libunwind.a)
 SET(LIBUNWIND_LIBRARY_DIRS @prefix@/lib)
-
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
 SET(LIBUSB-1.0_LIBRARY @prefix@/lib/libusb-1.0.a)
 SET(LIBUDEV_LIBRARY @prefix@/lib/libudev.a)
@@ -172,6 +171,8 @@ if(ARCHITECTURE STREQUAL "x86_64")
   endif()
   SET(ARCH_ID "x86_64")
 endif()
+
+link_directories(@prefix@/lib)
 
 #Create a new global cmake flag that indicates building with depends
 set (DEPENDS true)

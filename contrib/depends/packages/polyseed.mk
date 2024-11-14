@@ -1,9 +1,9 @@
 package=polyseed
-$(package)_version=2.0.0
-$(package)_download_path=https://github.com/tevador/$(package)/archive/refs/tags/
+$(package)_version=2.0.0-patch
+$(package)_download_path=https://github.com/MrCyjaneK/$(package)/archive/refs/tags/
 $(package)_download_file=v$($(package)_version).tar.gz
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
-$(package)_sha256_hash=f36282fcbcd68d32461b8230c89e1a40661bd46b91109681cec637433004135a
+$(package)_sha256_hash=28a86b0bc178076ac65dc7d8cc28a79eb546708473efc0e8dce688f1e237ccc2
 $(package)_patches=force-static-mingw.patch 0001-disable-soname.patch
 
 define $(package)_preprocess_cmds
