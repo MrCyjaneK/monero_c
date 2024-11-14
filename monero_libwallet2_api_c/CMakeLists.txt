@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 project(wallet2_api_c)
-message(STATUS ABI_INFO  = ${HOST_ABI})
+message(STATUS ABI_INFO = ${HOST_ABI})
 
 set (CMAKE_CXX_STANDARD 11)
 
@@ -8,12 +8,12 @@ if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32")
     set(CMAKE_SYSTEM_NAME Windows)
     set(CMAKE_LINKER "x86_64-w64-mingw32-ld")
     set(TARGET "x86_64-w64-mingw32")
-    set(EXTRA_LIBS_WINDOWS ssp)
+    set(EXTRA_LIBS_WINDOWS ssp wsock32 ws2_32)
 elseif(${HOST_ABI} STREQUAL "i686-w64-mingw32")
     set(CMAKE_SYSTEM_NAME Windows)
     set(CMAKE_LINKER "i686-w64-mingw32-ld")
     set(TARGET "i686-w64-mingw32")
-    # set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    set(EXTRA_LIBS_WINDOWS ssp wsock32 ws2_32)
 elseif(${HOST_ABI} STREQUAL "host-apple-ios")
     set(CMAKE_SYSTEM_NAME iOS)
 elseif(${HOST_ABI} STREQUAL "host-apple-darwin" OR 
