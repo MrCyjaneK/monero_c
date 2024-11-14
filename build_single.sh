@@ -337,10 +337,11 @@ pushd release/$repo
     APPENDIX=""
     if [[ "${HOST_ABI}" == "x86_64-w64-mingw32" || "${HOST_ABI}" == "i686-w64-mingw32" ]];
     then
+        echo "TODO: check if it's still needed"
         APPENDIX="${APPENDIX}dll"
-        cp ../../$repo/build/${HOST_ABI}/external/polyseed/libpolyseed.${APPENDIX} ${HOST_ABI}_libpolyseed.${APPENDIX}
-        rm ${HOST_ABI}_libpolyseed.${APPENDIX}.xz || true
-        xz -e ${HOST_ABI}_libpolyseed.${APPENDIX}
+        # cp ../../$repo/build/${HOST_ABI}/external/polyseed/libpolyseed.${APPENDIX} ${HOST_ABI}_libpolyseed.${APPENDIX}
+        # rm ${HOST_ABI}_libpolyseed.${APPENDIX}.xz || true
+        # xz -e ${HOST_ABI}_libpolyseed.${APPENDIX}
     elif [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" || "${HOST_ABI}" == "host-apple-darwin" || "${HOST_ABI}" == "x86_64-host-apple-darwin" || "${HOST_ABI}" == "aarch64-host-apple-darwin" || "${HOST_ABI}" == "host-apple-ios" ]];
     then
         APPENDIX="${APPENDIX}dylib"

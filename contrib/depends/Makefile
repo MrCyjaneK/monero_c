@@ -2,7 +2,7 @@
 
 SOURCES_PATH ?= $(BASEDIR)/sources
 BASE_CACHE ?= $(BASEDIR)/built
-FALLBACK_DOWNLOAD_PATH ?= https://static.mrcyjanek.net/.download_mirror
+FALLBACK_DOWNLOAD_PATH ?= https://static.mrcyjanek.net/download_mirror/
 
 BUILD = $(shell ./config.guess)
 HOST ?= $(BUILD)
