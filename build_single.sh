@@ -306,18 +306,18 @@ pushd ${repo}_libwallet2_api_c
         case $HOST_ABI in
             "x86_64-linux-gnu" | "i686-linux-gnu" | "i686-meego-linux-gnu" | "aarch64-linux-gnu" | "aarch64-meego-linux-gnu" | "i686-w64-mingw32" | "x86_64-w64-mingw32" | "x86_64-apple-darwin11" | "aarch64-apple-darwin11" | "host-apple-darwin" | "x86_64-host-apple-darwin" | "aarch64-host-apple-darwin")
                 echo $CC
-                env CC=gcc CXX=g++ cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-x64" -D CMAKE_SYSTEM_NAME="Linux" -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+                env CC=${CC} CXX=${CXX} cmake -D Boost_USE_MULTITHREADED=ON -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=false -D BUILD_TAG="linux-x64" -D CMAKE_SYSTEM_NAME="Linux" -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
                 CC=gcc CXX=g++ make $NPROC
             ;;
             "x86_64-linux-android")
                 echo $CC
                 env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -DMONERO_WALLET_CRYPTO_LIBRARY=amd64-64-24k -DHIDAPI_DUMMY=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86-64" -D STATIC=ON -D BUILD_64="ON" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-x86_64" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="x86_64" -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
-                CC="${CC}" CXX="${CXX}" make $NPROC
+                CC=gcc CXX=g++ make $NPROC
             ;;
             "i686-linux-android" | "aarch64-linux-android" | "armv7a-linux-androideabi")
                 echo $CC
                 env CC="${CC}" CXX="${CXX}" cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -DHIDAPI_DUMMY=ON -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_VERSION=1 -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH="x86" -D STATIC=ON -D BUILD_64="OFF" -D CMAKE_BUILD_TYPE=$buildType -D ANDROID=true -D BUILD_TAG="android-x86" -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_ARCH_ABI="x86"-DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
-                CC="${CC}" CXX="${CXX}" make $NPROC
+                CC=gcc CXX=g++ make $NPROC
             ;;
             "host-apple-ios")
                 export -n CC CXX

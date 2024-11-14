@@ -48,6 +48,12 @@ set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../contrib/depends/${HOST_ABI})
 
 find_package(PkgConfig REQUIRED)
 
+if(MINGW)
+  set(WARNINGS "${WARNINGS} -Wno-error=unused-value -Wno-error=unused-but-set-variable")
+  set(MINGW_FLAG "${MINGW_FLAG} -DWIN32_LEAN_AND_MEAN")
+  set(Boost_THREADAPI win32)
+endif()
+
 find_package(Boost REQUIRED COMPONENTS chrono filesystem program_options system thread date_time regex serialization locale)
 
 
