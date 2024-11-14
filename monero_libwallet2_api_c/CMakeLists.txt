@@ -8,7 +8,7 @@ if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32")
     set(CMAKE_SYSTEM_NAME Windows)
     set(CMAKE_LINKER "x86_64-w64-mingw32-ld")
     set(TARGET "x86_64-w64-mingw32")
-    # set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    set(EXTRA_LIBS_WINDOWS ssp)
 elseif(${HOST_ABI} STREQUAL "i686-w64-mingw32")
     set(CMAKE_SYSTEM_NAME Windows)
     set(CMAKE_LINKER "i686-w64-mingw32-ld")
@@ -105,4 +105,5 @@ target_link_libraries(  wallet2_api_c
                         ${wallet_api_LIB_DEPENDS}
 
                         ${EXTRA_LIBS_ANDROID}
+                        ${EXTRA_LIBS_WINDOWS}
                        )
