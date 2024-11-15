@@ -10,12 +10,12 @@ jobs:
         coin: [monero, wownero]
     runs-on: ubuntu-latest
     container:
-      image: debian:trixie
+      image: debian:sid
     steps:
       - name: Install dependencies
         run: |
           apt update
-          apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686
+          apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo6 gperf gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
