@@ -4,15 +4,14 @@ $(package)_download_path=https://github.com/MrCyjaneK/$(package)/archive/refs/ta
 $(package)_download_file=v$($(package)_version).tar.gz
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
 $(package)_sha256_hash=7f5c583a1f48ee6d63174dd1f1485d00b02d76d6df0181bc42c54558502c8443
-$(package)_patches=force-static-mingw.patch 0001-disable-soname.patch
+$(package)_patches=force-static-mingw.patch
 
 define $(package)_preprocess_cmds
-    patch -p1 < $($(package)_patch_dir)/force-static-mingw.patch &&\
-    patch -p1 < $($(package)_patch_dir)/0001-disable-soname.patch
+    patch -p1 < $($(package)_patch_dir)/force-static-mingw.patch
 endef
 
 define $(package)_config_cmds
-    CC="$($(package)_cc)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" .
+    CC="$($(package)_cc)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DSTATIC=ON .
 endef
 
 define $(package)_set_vars
