@@ -10,7 +10,7 @@ jobs:
         coin: [monero, wownero]
     runs-on: ubuntu-latest
     container:
-      image: debian:bookworm
+      image: debian:13
     steps:
       - name: Install dependencies
         run: |

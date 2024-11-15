@@ -8,12 +8,14 @@ if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32")
     set(CMAKE_SYSTEM_NAME Windows)
     set(CMAKE_LINKER "x86_64-w64-mingw32-ld")
     set(TARGET "x86_64-w64-mingw32")
-    set(EXTRA_LIBS_WINDOWS ssp wsock32 ws2_32)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lssp")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lssp")
 elseif(${HOST_ABI} STREQUAL "i686-w64-mingw32")
     set(CMAKE_SYSTEM_NAME Windows)
     set(CMAKE_LINKER "i686-w64-mingw32-ld")
     set(TARGET "i686-w64-mingw32")
-    set(EXTRA_LIBS_WINDOWS ssp wsock32 ws2_32)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lssp")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lssp")
 elseif(${HOST_ABI} STREQUAL "host-apple-ios")
     set(CMAKE_SYSTEM_NAME iOS)
 elseif(${HOST_ABI} STREQUAL "host-apple-darwin" OR 
@@ -77,6 +79,15 @@ if(NOT ${HOST_ABI} STREQUAL "x86_64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL
     set_target_properties(wallet2_api_c PROPERTIES LINK_FLAGS "-Wl,--exclude-libs,ALL")
 endif()
 
+add_subdirectory("${CMAKE_SOURCE_DIR}/../${MONERO_FLAVOR}" ${CMAKE_BINARY_DIR}/${MONERO_FLAVOR}_build)
+
+
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
+
 if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" OR ${HOST_ABI} STREQUAL "host-apple-darwin" OR ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin" OR ${HOST_ABI} STREQUAL "host-apple-ios")
     if (${MONERO_FLAVOR} STREQUAL "monero")
         set(EXPORTED_SYMBOLS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/monero_libwallet2_api_c.exp)
@@ -88,22 +99,10 @@ if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64
     set_target_properties(${TARGET} PROPERTIES LINK_DEPENDS ${EXPORTED_SYMBOLS_FILE})
 endif()
 
-add_subdirectory("${CMAKE_SOURCE_DIR}/../${MONERO_FLAVOR}" ${CMAKE_BINARY_DIR}/${MONERO_FLAVOR}_build)
-
-
-get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
-
-# message(FATAL_ERROR "aaa")
-
 target_link_libraries(  wallet2_api_c
 
                         wallet_api
                         ${wallet_api_LIB_DEPENDS}
 
                         ${EXTRA_LIBS_ANDROID}
-                        ${EXTRA_LIBS_WINDOWS}
                        )
