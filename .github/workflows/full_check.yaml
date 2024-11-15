@@ -10,7 +10,7 @@ jobs:
         coin: [monero, wownero]
     runs-on: ubuntu-latest
     container:
-      image: debian:13
+      image: debian:trixie
     steps:
       - name: Install dependencies
         run: |

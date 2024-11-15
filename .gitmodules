@@ -9,7 +9,7 @@
 	shallow = true
 [submodule "external/polyseed"]
 	path = external/polyseed
-	url = https://github.com/tevador/polyseed
+	url = https://github.com/mrcyjanek/polyseed
 	shallow = true
 [submodule "external/ios-cmake"]
 	path = external/ios-cmake
