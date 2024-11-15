@@ -174,5 +174,7 @@ endif()
 
 link_directories(@prefix@/lib)
 
+add_definitions(-DPOLYSEED_STATIC=ON)
+
 #Create a new global cmake flag that indicates building with depends
 set (DEPENDS true)
