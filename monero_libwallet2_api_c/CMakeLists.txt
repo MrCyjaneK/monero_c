@@ -99,10 +99,23 @@ if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64
     set_target_properties(${TARGET} PROPERTIES LINK_DEPENDS ${EXPORTED_SYMBOLS_FILE})
 endif()
 
+if(${MONERO_FLAVOR} STREQUAL "wownero")
+    set(EXTRA_LIBS_WOWNEROSEED wownero-seed)
+    if(${HOST_ABI} STREQUAL "aarch64-meego-linux-gnu")
+        add_library(wownero-seed STATIC IMPORTED)
+        set_target_properties(wownero-seed PROPERTIES IMPORTED_LOCATION
+            ${EXTERNAL_LIBS_DIR}/lib64/libwownero-seed.a)
+    else()
+        add_library(wownero-seed STATIC IMPORTED)
+        set_target_properties(wownero-seed PROPERTIES IMPORTED_LOCATION
+            ${EXTERNAL_LIBS_DIR}/lib/libwownero-seed.a)
+    endif()
+endif()
 target_link_libraries(  wallet2_api_c
 
                         wallet_api
                         ${wallet_api_LIB_DEPENDS}
 
                         ${EXTRA_LIBS_ANDROID}
+                        ${EXTRA_LIBS_WOWNEROSEED}
                        )
