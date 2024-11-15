@@ -4,6 +4,7 @@ $(package)_download_path=https://downloads.sourceforge.net/project/boost/boost/1
 $(package)_file_name=$(package)_$($(package)_version).tar.bz2
 $(package)_sha256_hash=cc4b893acf645c9d4b698e9a0f08ca8846aa5d6c68275c14c3e7949c24109454
 $(package)_dependencies=libiconv
+$(package)_patches=fix_io_control_hpp.patch
 
 define $(package)_set_vars
 $(package)_config_opts_release=variant=release
@@ -29,6 +30,7 @@ $(package)_cxxflags_android=-fPIC
 endef
 
 define $(package)_preprocess_cmds
+  patch -p1 < $($(package)_patch_dir)/fix_io_control_hpp.patch &&\
   echo "using $(boost_toolset_$(host_os)) : : $($(package)_cxx) : <cxxflags>\"$($(package)_cxxflags) $($(package)_cppflags)\" <linkflags>\"$($(package)_ldflags)\" <archiver>\"$(boost_archiver_$(host_os))\" <arflags>\"$($(package)_arflags)\" <striper>\"$(host_STRIP)\"  <ranlib>\"$(host_RANLIB)\" <rc>\"$(host_WINDRES)\" : ;" > user-config.jam
 endef
 

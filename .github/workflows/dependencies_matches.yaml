@@ -39,25 +39,16 @@ jobs:
             exit 1
           fi
   polyseed:
-    strategy:
-      matrix:
-        coin: [monero, wownero]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
-      - name: Patch sources
-        run: |
-          git config --global --add safe.directory '*'
-          git config --global user.email "ci@mrcyjanek.net"
-          git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh ${{ matrix.coin }}
       - name: prepare
         run: |
           set -x
-          pushd ${{ matrix.coin }}/contrib/depends
+          pushd contrib/depends
             make download # sorry, this is the easiest way
             mkdir sources/polyseed
             pushd sources/polyseed
@@ -66,9 +57,9 @@ jobs:
           popd
       - name: diff
         run: |
-          OUTPUT=$(diff -ra external/polyseed ${{ matrix.coin }}/contrib/depends/sources/polyseed/* | grep -v .git | wc -l)
+          OUTPUT=$(diff -ra external/polyseed contrib/depends/sources/polyseed/* | grep -v .git | wc -l)
           if [[ ! "x$OUTPUT" == "x0" ]];
           then
-            diff -ra external/polyseed ${{ matrix.coin }}/contrib/depends/sources/polyseed/*
+            diff -ra external/polyseed contrib/depends/sources/polyseed/*
             exit 1
           fi
