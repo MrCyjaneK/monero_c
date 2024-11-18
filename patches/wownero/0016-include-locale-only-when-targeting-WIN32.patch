@@ -1,0 +1,112 @@
+From 41f67e50f34cd5d7d909a5d7ec0b1e59463261f6 Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Mon, 18 Nov 2024 10:57:37 -0500
+Subject: [PATCH] include locale only when targeting WIN32
+
+---
+ CMakeLists.txt            | 25 ++++++++++---------------
+ src/wallet/api/wallet.cpp |  2 ++
+ 2 files changed, 12 insertions(+), 15 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 763d240fc..ec5878005 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -96,8 +96,7 @@ enable_language(C ASM)
+ set(CMAKE_C_STANDARD 11)
+ set(CMAKE_C_STANDARD_REQUIRED ON)
+ set(CMAKE_C_EXTENSIONS OFF)
+-set(CMAKE_CXX_STANDARD 17)
+-add_definitions(-D_LIBCPP_ENABLE_CXX17_REMOVED_FEATURES) # boost: no template named 'unary_function' in namespace 'std'; did you mean '__unary_function'?
++set(CMAKE_CXX_STANDARD 14)
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ set(CMAKE_CXX_EXTENSIONS OFF)
+ 
+@@ -223,9 +222,9 @@ function(forbid_undefined_symbols)
+ cmake_minimum_required(VERSION 3.1)
+ project(test)
+ option(EXPECT_SUCCESS "" ON)
+-file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/incorrect_source.cpp" "void undefined_symbol(); void symbol() { undefined_symbol(); }")
++file(WRITE "${CMAKE_SOURCE_DIR}/incorrect_source.cpp" "void undefined_symbol(); void symbol() { undefined_symbol(); }")
+ if (EXPECT_SUCCESS)
+-  file(APPEND "${CMAKE_CURRENT_SOURCE_DIR}/incorrect_source.cpp" " void undefined_symbol() {}; ")
++  file(APPEND "${CMAKE_SOURCE_DIR}/incorrect_source.cpp" " void undefined_symbol() {}; ")
+ endif()
+ add_library(l0 SHARED incorrect_source.cpp)
+ add_library(l1 MODULE incorrect_source.cpp)
+@@ -366,14 +365,11 @@ if(NOT MANUAL_SUBMODULES)
+     endfunction ()
+     
+     message(STATUS "Checking submodules")
+-    #check_submodule(external/bc-ur)
+     check_submodule(external/miniupnp)
+     check_submodule(external/rapidjson)
+     #check_submodule(external/trezor-common)
+     check_submodule(external/randomwow)
+     check_submodule(external/supercop)
+-    check_submodule(external/polyseed)
+-    check_submodule(external/utf8proc)
+   endif()
+ endif()
+ 
+@@ -391,7 +387,7 @@ else()
+ endif()
+ 
+ list(INSERT CMAKE_MODULE_PATH 0
+-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
++  "${CMAKE_SOURCE_DIR}/cmake")
+ 
+ if (NOT DEFINED ENV{DEVELOPER_LOCAL_TOOLS})
+   message(STATUS "Could not find DEVELOPER_LOCAL_TOOLS in env (not required)")
+@@ -463,7 +459,7 @@ endif()
+ # elseif(CMAKE_SYSTEM_NAME MATCHES ".*BSDI.*")
+ #   set(BSDI TRUE)
+ 
+-include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/polyseed/include external/utf8proc)
++include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include)
+ 
+ if(APPLE)
+   cmake_policy(SET CMP0042 NEW)
+@@ -711,12 +707,8 @@ include_directories(${LMDB_INCLUDE})
+ include_directories(${LIBUNWIND_INCLUDE})
+ link_directories(${LIBUNWIND_LIBRARY_DIRS})
+ 
+-if (HIDAPI_DUMMY)
+-  add_definitions(-DHIDAPI_DUMMY)
+-endif()
+-
+ # Final setup for hid
+-if (HIDAPI_FOUND)
++if (HIDAPI_FOUND) 
+   message(STATUS "Using HIDAPI include dir at ${HIDAPI_INCLUDE_DIR}")
+   add_definitions(-DHAVE_HIDAPI)
+   include_directories(${HIDAPI_INCLUDE_DIR})
+@@ -1100,7 +1092,10 @@ if(STATIC)
+   set(Boost_USE_STATIC_LIBS ON)
+   set(Boost_USE_STATIC_RUNTIME ON)
+ endif()
+-find_package(Boost 1.58 QUIET REQUIRED COMPONENTS system filesystem thread date_time chrono regex serialization program_options locale)
++if(WIN32)
++  set(BOOST_LOCALE locale)
++endif()
++find_package(Boost 1.58 QUIET REQUIRED COMPONENTS system filesystem thread date_time chrono regex serialization program_options ${BOOST_LOCALE})
+ add_definitions(-DBOOST_ASIO_ENABLE_SEQUENTIAL_STRAND_ALLOCATION)
+ add_definitions(-DBOOST_NO_AUTO_PTR)
+ add_definitions(-DBOOST_UUID_DISABLE_ALIGNMENT) # This restores UUID's std::has_unique_object_representations property
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index 685432597..c9ff4b860 100644
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -46,7 +46,9 @@
+ #include <sstream>
+ #include <unordered_map>
+ 
++#ifdef WIN32
+ #include <boost/locale.hpp>
++#endif
+ #include <boost/filesystem.hpp>
+ #include "bc-ur/src/bc-ur.hpp"
+ #ifdef HIDAPI_DUMMY
+-- 
+2.39.5 (Apple Git-154)
+
