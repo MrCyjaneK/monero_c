@@ -1,10 +1,10 @@
 package=boost
-$(package)_version=1_84_0
-$(package)_download_path=https://downloads.sourceforge.net/project/boost/boost/1.84.0/
+$(package)_version=1_85_0
+$(package)_download_path=https://downloads.sourceforge.net/project/boost/boost/1.85.0/
 $(package)_file_name=$(package)_$($(package)_version).tar.bz2
-$(package)_sha256_hash=cc4b893acf645c9d4b698e9a0f08ca8846aa5d6c68275c14c3e7949c24109454
+$(package)_sha256_hash=7009fe1faa1697476bdc7027703a2badb84e849b7b0baad5086b087b971f8617
 $(package)_dependencies=libiconv
-$(package)_patches=fix_io_control_hpp.patch
+$(package)_patches=fix_io_control_hpp.patch static_iconv.patch
 
 define $(package)_set_vars
 $(package)_config_opts_release=variant=release
@@ -27,15 +27,16 @@ $(package)_cxxflags=-std=c++11
 $(package)_cxxflags_linux=-fPIC
 $(package)_cxxflags_freebsd=-fPIC
 $(package)_cxxflags_android=-fPIC
+$(package)_ldflags=-L$(host_prefix)/lib -L$(shell xcrun --sdk macosx --show-sdk-path)/usr/lib
 endef
 
 define $(package)_preprocess_cmds
-  patch -p1 < $($(package)_patch_dir)/fix_io_control_hpp.patch &&\
+  patch -p1 < $($(package)_patch_dir)/static_iconv.patch &&\
   echo "using $(boost_toolset_$(host_os)) : : $($(package)_cxx) : <cxxflags>\"$($(package)_cxxflags) $($(package)_cppflags)\" <linkflags>\"$($(package)_ldflags)\" <archiver>\"$(boost_archiver_$(host_os))\" <arflags>\"$($(package)_arflags)\" <striper>\"$(host_STRIP)\"  <ranlib>\"$(host_RANLIB)\" <rc>\"$(host_WINDRES)\" : ;" > user-config.jam
 endef
 
 define $(package)_config_cmds
-  ./bootstrap.sh --without-icu --with-libraries=$(boost_config_libraries)
+  ./bootstrap.sh --with-libraries=$(boost_config_libraries)
 endef
 
 define $(package)_build_cmds

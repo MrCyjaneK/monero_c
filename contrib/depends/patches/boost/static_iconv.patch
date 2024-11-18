@@ -1,0 +1,13 @@
+--- boost_1_84_0/libs/locale/build/Jamfile.v2.O	2017-04-17 03:22:26.000000000 +0100
++++ boost_1_84_0/libs/locale/build/Jamfile.v2	2019-11-15 15:46:16.957937137 +0000
+@@ -11,6 +11,6 @@
+ ICONV_PATH = [ modules.peek : ICONV_PATH ] ;
+ 
+ # There may also be an external iconv library
+ lib iconv :
+-  : <search>$(ICONV_PATH)/lib <link>shared <runtime-link>shared
++  : <search>$(ICONV_PATH)/lib <link>static <runtime-link>static
+   : : <include>$(ICONV_PATH)/include
+   ;
+ 
+ explicit iconv ;

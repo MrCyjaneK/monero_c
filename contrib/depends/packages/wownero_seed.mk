@@ -13,7 +13,7 @@ endef
 
 ifeq ($(host_os),darwin)
     define $(package)_config_cmds
-        CC="$($(package)_cc)" CXX="$($(package)_cxx)" cmake -DCMAKE_RANLIB="$($(package)_ranlib)" -DCMAKE_AR="$($(package)_ar)" -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DCMAKE_POSITION_INDEPENDENT_CODE=ON .
+        CC="$($(package)_cc)" CXX="$($(package)_cxx)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DCMAKE_POSITION_INDEPENDENT_CODE=ON .
     endef
 else
     define $(package)_config_cmds
