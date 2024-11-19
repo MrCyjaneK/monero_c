@@ -391,7 +391,7 @@ jobs:
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: build
         run: |
-          ./build_single.sh ${{ matrix.coin }} aarch64-host-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh ${{ matrix.coin }} arm64-apple-darwin11 -j$(sysctl -n hw.logicalcpu)
       - name: rename artifacts
         run: |
           mkdir release/gh/
@@ -448,7 +448,7 @@ jobs:
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: build
         run: |
-          ./build_single.sh ${{ matrix.coin }} host-apple-ios -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh ${{ matrix.coin }} arm64-apple-ios -j$(sysctl -n hw.logicalcpu)
       - name: rename artifacts
         run: |
           mkdir release/gh/

@@ -7,8 +7,10 @@ $(package)_sha256_hash=8f74213b56238c85a50a5329f77e06198771e70dd9a739779f4c02f65
 define $(package)_set_vars
   $(package)_config_opts=--disable-nls
   $(package)_config_opts=--enable-static
+  $(package)_config_opts=--disable-shared
   $(package)_config_opts_linux=--with-pic
   $(package)_config_opts_freebsd=--with-pic
+  $(package)_ar_ios=$(package)_ar rcs
 endef
 
 define $(package)_preprocess_cmds
@@ -16,7 +18,7 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_config_cmds
-  $($(package)_autoconf) AR_FLAGS=$($(package)_arflags)
+  $($(package)_autoconf)
 endef
 
 define $(package)_build_cmds
