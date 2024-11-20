@@ -404,7 +404,7 @@ export class Wallet {
   async createTransaction(
     destinationAddress: string,
     amount: bigint,
-    pendingTransactionPriority = 0 | 1 | 2 | 3,
+    pendingTransactionPriority: 0 | 1 | 2 | 3,
     subaddressAccount: number,
     sanitize = true,
     prefferedInputs = "",
