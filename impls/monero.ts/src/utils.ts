@@ -29,9 +29,11 @@ export async function readCString(pointer: Deno.PointerObject, free?: boolean): 
 export async function readCString(pointer: Deno.PointerValue, free?: boolean): Promise<string | null>;
 export async function readCString(pointer: Deno.PointerValue, free = true): Promise<string | null> {
   if (!pointer) return null;
+
   const string = new Deno.UnsafePointerView(pointer).getCString();
   if (free) {
     await getSymbol("free")(pointer);
   }
+
   return string;
 }

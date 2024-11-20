@@ -272,6 +272,16 @@ export const moneroSymbols = {
     // void*
     result: "pointer",
   },
+  "MONERO_Wallet_createTransactionMultDest": {
+    nonblocking: true,
+    // void* wallet_ptr, const char* dst_addr_list, const char* dst_addr_list_separator, const char* payment_id,
+    // bool amount_sweep_all, const char* amount_list, const char* amount_list_separator, uint32_t mixin_count,
+    // int pendingTransactionPriority, uint32_t subaddr_account, const char* preferredInputs, const char* preferredInputs_separator
+    // deno-fmt-ignore
+    parameters: ["pointer", "pointer", "pointer", "pointer", "bool", "pointer", "pointer", "u32", "i32", "u32", "pointer", "pointer"],
+    // void*
+    result: "pointer",
+  },
   "MONERO_Wallet_amountFromString": {
     nonblocking: true,
     // const char* amount

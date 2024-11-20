@@ -427,6 +427,36 @@ export class Wallet {
     return new PendingTransaction(pendingTxPtr as PendingTransactionPtr);
   }
 
+  async createTransactionMultDest(
+    destinationAddresses: string[],
+    amounts: bigint[],
+    amountSweepAll: boolean,
+    pendingTransactionPriority: 0 | 1 | 2 | 3,
+    subaddressAccount: number,
+    sanitize = true,
+    preferredInputs = "",
+    mixinCount = 0,
+    paymentId = "",
+    separator = ",",
+  ): Promise<PendingTransaction> {
+    const pendingTxPtr = await getSymbol("Wallet_createTransactionMultDest")(
+      this.#walletPtr,
+      CString(destinationAddresses.join(separator)),
+      CString(separator),
+      CString(paymentId),
+      amountSweepAll,
+      CString(amounts.join(separator)),
+      CString(separator),
+      mixinCount,
+      pendingTransactionPriority,
+      subaddressAccount,
+      CString(preferredInputs),
+      CString(separator),
+    );
+    await this.throwIfError(sanitize);
+    return new PendingTransaction(pendingTxPtr as PendingTransactionPtr);
+  }
+
   async amountFromString(amount: string): Promise<bigint> {
     return await getSymbol("Wallet_amountFromString")(CString(amount));
   }
