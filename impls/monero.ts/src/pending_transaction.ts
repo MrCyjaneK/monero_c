@@ -63,14 +63,19 @@ export class PendingTransaction {
     return await getSymbol("PendingTransaction_fee")(this.#pendingTxPtr);
   }
 
-  async txid(separator: string, sanitize = true): Promise<string | null> {
+  async txid(separator: string, sanitize = true): Promise<string | string[] | null> {
     const result = await getSymbol("PendingTransaction_txid")(
       this.#pendingTxPtr,
       CString(separator),
     );
     if (!result) return null;
     await this.throwIfError(sanitize);
-    return await readCString(result) || null;
+
+    const txids = (await readCString(result))?.split(separator);
+
+    if (!txids) return null;
+    if (txids.length > 1) return txids;
+    return txids[0];
   }
 
   async txCount(): Promise<bigint> {

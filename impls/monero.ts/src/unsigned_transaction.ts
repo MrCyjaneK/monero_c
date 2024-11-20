@@ -32,25 +32,47 @@ export class UnsignedTransaction {
     }
   }
 
-  async amount(separator = ","): Promise<string | null> {
-    return readCString(await getSymbol("UnsignedTransaction_amount")(this.#unsignedTxPtr, CString(separator)));
+  async amount(separator = ","): Promise<string | string[] | null> {
+    const amounts = (await readCString(
+      await getSymbol("UnsignedTransaction_amount")(this.#unsignedTxPtr, CString(separator)),
+    ))?.split(separator);
+
+    if (!amounts) return null;
+    if (amounts.length > 1) {
+      return amounts;
+    }
+    return amounts[0];
   }
 
-  async fee(separator = ","): Promise<string | null> {
-    return readCString(await getSymbol("UnsignedTransaction_fee")(this.#unsignedTxPtr, CString(separator)));
+  async fee(separator = ","): Promise<string | string[] | null> {
+    const fees = (await readCString(
+      await getSymbol("UnsignedTransaction_fee")(this.#unsignedTxPtr, CString(separator)),
+    ))?.split(separator);
+
+    if (!fees) return null;
+    if (fees.length > 1) {
+      return fees;
+    }
+    return fees[0];
   }
 
   async txCount(): Promise<bigint> {
     return await getSymbol("UnsignedTransaction_txCount")(this.#unsignedTxPtr);
   }
 
-  async recipientAddress(separator = ","): Promise<string | null> {
+  async recipientAddress(separator = ","): Promise<string | string[] | null> {
     const result = await getSymbol("UnsignedTransaction_recipientAddress")(
       this.#unsignedTxPtr,
       CString(separator),
     );
     await this.throwIfError();
-    return await readCString(result);
+    const addresses = (await readCString(result))?.split(separator);
+
+    if (!addresses) return null;
+    if (addresses.length > 1) {
+      return addresses;
+    }
+    return addresses[0];
   }
 
   async sign(signedFileName: string): Promise<boolean> {
