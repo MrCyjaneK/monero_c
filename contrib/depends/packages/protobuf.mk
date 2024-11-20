@@ -10,6 +10,7 @@ $(package)_patches=visibility.patch
 define $(package)_set_vars
   $(package)_config_opts=--disable-shared --with-protoc=$(build_prefix)/bin/protoc
   $(package)_config_opts_linux=--with-pic
+  $(package)_ar=$($(package)_ar)
 endef
 
 define $(package)_preprocess_cmds
@@ -17,7 +18,7 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_config_cmds
-  $($(package)_autoconf) AR_FLAGS=$($(package)_arflags)
+  $($(package)_autoconf)
 endef
 
 define $(package)_build_cmds

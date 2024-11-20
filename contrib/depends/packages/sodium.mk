@@ -8,6 +8,7 @@ $(package)_patches=disable-glibc-getrandom-getentropy.patch fix-whitespace.patch
 define $(package)_set_vars
 $(package)_config_opts=--enable-static --disable-shared --with-pic
 $(package)_config_opts+=--prefix=$(host_prefix)
+$(package)_ar=$($(package)_ar) rcs
 endef
 
 define $(package)_preprocess_cmds

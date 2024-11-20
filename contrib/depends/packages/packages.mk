@@ -13,6 +13,7 @@ android_packages = ncurses readline sodium
 
 darwin_native_packages = $(hardware_native_packages)
 darwin_packages = ncurses readline sodium $(hardware_packages)
+ios_packages = sodium protobuf native_protobuf
 
 # not really native...
 freebsd_native_packages = freebsd_base

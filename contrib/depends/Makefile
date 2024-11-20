@@ -80,6 +80,9 @@ endif
 ifeq ($(host_os),darwin)
 host_cmake=Darwin
 endif
+ifeq ($(host_os),ios)
+host_cmake=iOS
+endif
 ifeq ($(host_os),android)
 host_cmake=Android
 endif

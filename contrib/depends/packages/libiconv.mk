@@ -10,7 +10,7 @@ define $(package)_set_vars
   $(package)_config_opts=--disable-shared
   $(package)_config_opts_linux=--with-pic
   $(package)_config_opts_freebsd=--with-pic
-  $(package)_ar_ios=$(package)_ar rcs
+  $(package)_ar_ios=$($(package)_ar) rcs
 endef
 
 define $(package)_preprocess_cmds
