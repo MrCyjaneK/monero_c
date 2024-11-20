@@ -16,11 +16,11 @@ if [ -d "$BOOST_DIR_PATH" ]; then
     echo "Boost directory already exists."
 else
     echo "Cloning Boost from $BOOST_URL"
-    mkdir -p $BOOST_DIR_PATH || true
-    rm -rf $BOOST_DIR_PATH || true
-    cp -r "${MONEROC_DIR}/external/Apple-Boost-BuildScript" $BOOST_DIR_PATH
+    mkdir -p "$BOOST_DIR_PATH" || true
+    rm -rf "$BOOST_DIR_PATH" || true
+    cp -r "${MONEROC_DIR}/external/Apple-Boost-BuildScript" "$BOOST_DIR_PATH"
 fi
-cd $BOOST_DIR_PATH
+cd "$BOOST_DIR_PATH"
 
 ./boost.sh -ios \
 	--min-ios-version ${MIN_IOS_VERSION} \
@@ -28,5 +28,5 @@ cd $BOOST_DIR_PATH
 	--boost-version ${BOOST_VERSION} \
 	--no-framework
 
-mv -f ${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}/ios/release/prefix/include/*  $EXTERNAL_IOS_INCLUDE_DIR
-mv -f ${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}/ios/release/prefix/lib/*  $EXTERNAL_IOS_LIB_DIR
+cp -r "${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}"/ios/release/prefix/include/boost  "$EXTERNAL_IOS_INCLUDE_DIR/boost"
+cp -r "${BOOST_DIR_PATH}/build/boost/${BOOST_VERSION}"/ios/release/prefix/lib/*  "$EXTERNAL_IOS_LIB_DIR/"
