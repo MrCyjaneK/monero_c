@@ -8,12 +8,12 @@ $(package)_patches=disable-glibc-getrandom-getentropy.patch fix-whitespace.patch
 define $(package)_set_vars
 $(package)_config_opts=--enable-static --disable-shared --with-pic
 $(package)_config_opts+=--prefix=$(host_prefix)
-$(package)_ar=$($(package)_ar) rcs
+$(package)_ar_ios=$($(package)_ar) rcs
 endef
 
 define $(package)_preprocess_cmds
   patch -p1 < $($(package)_patch_dir)/disable-glibc-getrandom-getentropy.patch &&\
-  autoconf &&\
+  $($(package)_autoconf) &&\
   patch -p1 < $($(package)_patch_dir)/fix-whitespace.patch
 endef
 

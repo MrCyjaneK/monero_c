@@ -138,48 +138,58 @@ $(1)_build_env+=$($(1)_build_env_$(host_arch)) $($(1)_build_env_$(host_arch)_$(r
 $(1)_build_env+=$($(1)_build_env_$(host_os)) $($(1)_build_env_$(host_os)_$(release_type))
 $(1)_build_env+=$($(1)_build_env_$(host_arch)_$(host_os)) $($(1)_build_env_$(host_arch)_$(host_os)_$(release_type))
 
+ifneq ($$($(1)_ar_$(host_arch)),)
+$(1)_ar=$$($(1)_ar_$(host_arch))
+endif
+ifneq ($$($(1)_ar_$(host_os)),)
+$(1)_ar=$$($(1)_ar_$(host_os))
+endif
+ifneq ($$($(1)_ar_$(host_arch)_$(host_os)),)
+$(1)_ar=$$($(1)_ar_$(host_arch)_$(host_os))
+endif
+
 $(1)_config_env+=PKG_CONFIG_LIBDIR=$($($(1)_type)_prefix)/lib/pkgconfig
 $(1)_config_env+=PKG_CONFIG_PATH=$($($(1)_type)_prefix)/share/pkgconfig
 $(1)_config_env+=PATH="$(build_prefix)/bin:$(PATH)"
 $(1)_build_env+=PATH="$(build_prefix)/bin:$(PATH)"
 $(1)_stage_env+=PATH="$(build_prefix)/bin:$(PATH)"
-$(1)_autoconf_nohost=--prefix=$($($(1)_type)_prefix) $$($(1)_config_opts) CC="$$($(1)_cc)" CXX="$$($(1)_cxx)" AR="$$($(1)_ar)"
+$(1)_autoconf_args=--prefix=$($($(1)_type)_prefix) $$($(1)_config_opts) CC="$$($(1)_cc)" CXX="$$($(1)_cxx)" AR="$$($(1)_ar)"
 $(1)_autoconf=./configure --host=$($($(1)_type)_host) --prefix=$($($(1)_type)_prefix) $$($(1)_config_opts) CC="$$($(1)_cc)" CXX="$$($(1)_cxx)" AR="$$($(1)_ar)"
 
 ifeq ($(filter $(1),libusb unbound),)
-$(1)_autoconf_nohost += --disable-dependency-tracking
+$(1)_autoconf_args += --disable-dependency-tracking
 $(1)_autoconf += --disable-dependency-tracking
 endif
 ifneq ($($(1)_nm),)
-$(1)_autoconf_nohost += NM="$$($(1)_nm)"
+$(1)_autoconf_args += NM="$$($(1)_nm)"
 $(1)_autoconf += NM="$$($(1)_nm)"
 endif
 ifneq ($($(1)_ranlib),)
-$(1)_autoconf_nohost += RANLIB="$$($(1)_ranlib)"
+$(1)_autoconf_args += RANLIB="$$($(1)_ranlib)"
 $(1)_autoconf += RANLIB="$$($(1)_ranlib)"
 endif
 ifneq ($($(1)_ar),)
-$(1)_autoconf_nohost += AR="$$($(1)_ar)"
+$(1)_autoconf_args += AR="$$($(1)_ar)"
 $(1)_autoconf += AR="$$($(1)_ar)"
 endif
 ifneq ($($(1)_arflags),)
-$(1)_autoconf_nohost += ARFLAGS="$$($(1)_arflags)"
+$(1)_autoconf_args += ARFLAGS="$$($(1)_arflags)"
 $(1)_autoconf += ARFLAGS="$$($(1)_arflags)"
 endif
 ifneq ($($(1)_cflags),)
-$(1)_autoconf_nohost += CFLAGS="$$($(1)_cflags)"
+$(1)_autoconf_args += CFLAGS="$$($(1)_cflags)"
 $(1)_autoconf += CFLAGS="$$($(1)_cflags)"
 endif
 ifneq ($($(1)_cxxflags),)
-$(1)_autoconf_nohost += CXXFLAGS="$$($(1)_cxxflags)"
+$(1)_autoconf_args += CXXFLAGS="$$($(1)_cxxflags)"
 $(1)_autoconf += CXXFLAGS="$$($(1)_cxxflags)"
 endif
 ifneq ($($(1)_cppflags),)
-$(1)_autoconf_nohost += CPPFLAGS="$$($(1)_cppflags)"
+$(1)_autoconf_args += CPPFLAGS="$$($(1)_cppflags)"
 $(1)_autoconf += CPPFLAGS="$$($(1)_cppflags)"
 endif
 ifneq ($($(1)_ldflags),)
-$(1)_autoconf_nohost += LDFLAGS="$$($(1)_ldflags)"
+$(1)_autoconf_args += LDFLAGS="$$($(1)_ldflags)"
 $(1)_autoconf += LDFLAGS="$$($(1)_ldflags)"
 endif
 endef

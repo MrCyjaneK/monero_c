@@ -214,8 +214,8 @@ $(host_prefix)/share/toolchain.cmake: check-packages
 
 check-packages: check-sources
 
-install: check-packages $(host_prefix)/share/config.site
-install: check-packages $(host_prefix)/share/toolchain.cmake
+install: $(host_prefix)/share/config.site check-packages 
+install: $(host_prefix)/share/toolchain.cmake check-packages
 
 download-one: check-sources $(all_sources)
 

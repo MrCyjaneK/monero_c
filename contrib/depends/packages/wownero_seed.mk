@@ -11,15 +11,9 @@ define $(package)_preprocess_cmds
 endef
 
 
-ifeq ($(host_os),darwin)
-    define $(package)_config_cmds
-        CC="$($(package)_cc)" CXX="$($(package)_cxx)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DCMAKE_POSITION_INDEPENDENT_CODE=ON .
-    endef
-else
-    define $(package)_config_cmds
-        CC="$($(package)_cc)" CXX="$($(package)_cxx)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DCMAKE_POSITION_INDEPENDENT_CODE=ON .
-    endef
-endif
+define $(package)_config_cmds
+  CC="$($(package)_cc)" CXX="$($(package)_cxx)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DCMAKE_POSITION_INDEPENDENT_CODE=ON .
+endef
 
 define $(package)_set_vars
   $(package)_build_opts=CC="$($(package)_cc)" CXX="$($(package)_cxx)"
@@ -27,9 +21,9 @@ endef
 
 
 define $(package)_build_cmds
-    CC="$($(package)_cc)" CXX="$($(package)_cxx)" $(MAKE) VERBOSE=1
+    $(MAKE) VERBOSE=1
 endef
 
 define $(package)_stage_cmds
-    CC="$($(package)_cc)" CXX="$($(package)_cxx)" $(MAKE) DESTDIR=$($(package)_staging_dir) install
+    $(MAKE) DESTDIR=$($(package)_staging_dir) install
 endef

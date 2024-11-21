@@ -9,8 +9,10 @@ define $(package)_set_vars
   $(package)_config_opts=--without-documentation --disable-shared --without-libsodium --disable-curve
   $(package)_config_opts_linux=--with-pic
   $(package)_config_opts_freebsd=--with-pic
+  $(package)_config_opts_ios=--host=$(host_arch)-apple-darwin
   $(package)_cxxflags=-std=c++11
-  $(package)_cxxflags_darwin=-std=c++11 -Wno-deprecated-declarations
+  $(package)_cxxflags_darwin=-std=c++11
+  $(package)_cxxflags_ios=-std=c++11
 endef
 
 define $(package)_preprocess_cmds
@@ -18,15 +20,17 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_config_cmds
-  ./configure --host=aarch64-apple-darwin $($(package)_autoconf_args)
+  ./configure $($(package)_autoconf_args)
 endef
 
 define $(package)_build_cmds
-  $(MAKE) src/libzmq.la
+  $(MAKE) -j src/libzmq.la
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) DESTDIR=$($(package)_staging_dir) install-libLTLIBRARIES install-includeHEADERS install-pkgconfigDATA
+  $(MAKE) DESTDIR=$($(package)_staging_dir) install-pkgconfigDATA VERBOSE=1 &&\
+  $(MAKE) DESTDIR=$($(package)_staging_dir) install-libLTLIBRARIES VERBOSE=1 &&\
+  $(MAKE) DESTDIR=$($(package)_staging_dir) install-includeHEADERS VERBOSE=1
 endef
 
 define $(package)_postprocess_cmds
