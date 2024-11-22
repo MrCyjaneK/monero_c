@@ -9,13 +9,13 @@ Subject: [PATCH 16/16] add dummy device for ledger
  src/device/device.cpp          |  10 ++--
  src/device/device.hpp          |  12 +---
  src/device/device_io_dummy.cpp | 100 +++++++++++++++++++++++++++++++++
- src/device/device_io_dummy.hpp |  74 ++++++++++++++++++++++++
+ src/device/device_io_dummy.hpp |  68 ++++++++++++++++++++++
  src/device/device_ledger.cpp   |   6 +-
  src/device/device_ledger.hpp   |   7 ++-
  src/wallet/api/wallet.cpp      |  13 +++++
  src/wallet/api/wallet.h        |   2 +
  src/wallet/api/wallet2_api.h   |   3 +
- 11 files changed, 218 insertions(+), 21 deletions(-)
+ 11 files changed, 212 insertions(+), 21 deletions(-)
  create mode 100644 src/device/device_io_dummy.cpp
  create mode 100644 src/device/device_io_dummy.hpp
 
@@ -236,10 +236,10 @@ index 000000000..a5cbcb328
 +#endif // HAVE_HIDAPI
 diff --git a/src/device/device_io_dummy.hpp b/src/device/device_io_dummy.hpp
 new file mode 100644
-index 000000000..a1733616d
+index 000000000..77c0a7cb1
 --- /dev/null
 +++ b/src/device/device_io_dummy.hpp
-@@ -0,0 +1,74 @@
+@@ -0,0 +1,68 @@
 +// Copyright (c) 2017-2022, The Monero Project
 +//
 +// All rights reserved.
@@ -288,13 +288,7 @@ index 000000000..a1733616d
 +            boost::mutex mutex;
 +
 +        public:
-+            static bool stateIsConnected;
-+            static unsigned char* sendToDevice;
-+            static size_t sendToDeviceLength;
-+            static unsigned char* receivedFromDevice;
-+            static size_t receivedFromDeviceLength;
-+            static bool waitsForDeviceSend;
-+            static bool waitsForDeviceReceive;
++            static static int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len);
 +
 +            device_io_dummy()  = default;
 +            device_io_dummy(int a, int b, int c, int d);
