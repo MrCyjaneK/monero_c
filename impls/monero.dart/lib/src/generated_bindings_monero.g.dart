@@ -4384,6 +4384,21 @@ class MoneroC {
   late final _MONERO_Wallet_getBytesSent = _MONERO_Wallet_getBytesSentPtr
       .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
 
+  bool MONERO_Wallet_getStateIsConnected(
+    ffi.Pointer<ffi.Void> wallet_ptr,
+  ) {
+    return _MONERO_Wallet_getStateIsConnected(
+      wallet_ptr,
+    );
+  }
+
+  late final _MONERO_Wallet_getStateIsConnectedPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
+          'MONERO_Wallet_getStateIsConnected');
+  late final _MONERO_Wallet_getStateIsConnected =
+      _MONERO_Wallet_getStateIsConnectedPtr.asFunction<
+          bool Function(ffi.Pointer<ffi.Void>)>();
+
   void MONERO_Wallet_setLedgerExchange(
     ffi.Pointer<ffi.Void> wallet_ptr,
     ffi.Pointer<

@@ -3283,6 +3283,14 @@ int MONERO_Wallet_getBytesSent(wallet ptr) {
 
 // Ledger Stuff
 
+bool Wallet_getStateIsConnected(wallet ptr) {
+  debugStart?.call('MONERO_Wallet_getStateIsConnected');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+  final ret = lib!.MONERO_Wallet_getStateIsConnected(ptr);
+  debugEnd?.call('MONERO_Wallet_getStateIsConnected');
+  return ret;
+}
+
 typedef LedgerExchangeFunctionNative = Int Function(
     Pointer<UnsignedChar> command,
     UnsignedInt cmd_len,
