@@ -4,20 +4,16 @@ Date: Fri, 22 Nov 2024 11:43:18 +0100
 Subject: [PATCH 16/16] add dummy device for ledger
 
 ---
- CMakeLists.txt                 |   6 +-
- src/device/CMakeLists.txt      |   6 +-
- src/device/device.cpp          |  10 ++--
- src/device/device.hpp          |  12 +---
- src/device/device_io_dummy.cpp | 100 +++++++++++++++++++++++++++++++++
- src/device/device_io_dummy.hpp |  68 ++++++++++++++++++++++
- src/device/device_ledger.cpp   |   6 +-
- src/device/device_ledger.hpp   |   7 ++-
- src/wallet/api/wallet.cpp      |  13 +++++
- src/wallet/api/wallet.h        |   2 +
- src/wallet/api/wallet2_api.h   |   3 +
- 11 files changed, 212 insertions(+), 21 deletions(-)
- create mode 100644 src/device/device_io_dummy.cpp
- create mode 100644 src/device/device_io_dummy.hpp
+ CMakeLists.txt               |  6 +++++-
+ src/device/CMakeLists.txt    |  6 ++++--
+ src/device/device.cpp        | 10 ++++++----
+ src/device/device.hpp        | 12 +-----------
+ src/device/device_ledger.cpp |  6 ++++--
+ src/device/device_ledger.hpp |  7 ++++++-
+ src/wallet/api/wallet.cpp    | 13 +++++++++++++
+ src/wallet/api/wallet.h      |  2 ++
+ src/wallet/api/wallet2_api.h |  3 +++
+ 9 files changed, 44 insertions(+), 21 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 6028c0961..e7fa90abb 100644
@@ -128,186 +124,6 @@ index 392703a24..ffd419779 100644
  #define WITH_DEVICE_LEDGER
  #endif
  
-diff --git a/src/device/device_io_dummy.cpp b/src/device/device_io_dummy.cpp
-new file mode 100644
-index 000000000..a5cbcb328
---- /dev/null
-+++ b/src/device/device_io_dummy.cpp
-@@ -0,0 +1,100 @@
-+// Copyright (c) 2017-2022, The Monero Project
-+//
-+// All rights reserved.
-+//
-+// Redistribution and use in source and binary forms, with or without modification, are
-+// permitted provided that the following conditions are met:
-+//
-+// 1. Redistributions of source code must retain the above copyright notice, this list of
-+//    conditions and the following disclaimer.
-+//
-+// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-+//    of conditions and the following disclaimer in the documentation and/or other
-+//    materials provided with the distribution.
-+//
-+// 3. Neither the name of the copyright holder nor the names of its contributors may be
-+//    used to endorse or promote products derived from this software without specific
-+//    prior written permission.
-+//
-+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-+// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-+// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+//
-+
-+// device_io_dummy
-+// Main goal of device_io_dummy is to emulate a hw::io::device_io without the need to actually
-+// connect a device.
-+// Many operating systems do not support giving raw USB access to a process (android), or don't
-+// support that at all (hi iOS), therefore other means of connection can be used, either USB
-+// abstraction provided by the OS (monerujo), or BLE (also monerujo).
-+// Monerujo implementation is written in Java, which makes it a nice fit for iOS, but makes the
-+// code extremely unportable, so for this reason the code in here is written in CPP.
-+// Data transport is made available in wallet2_api.h, so wallet developers can easily plug their
-+// own USB/BLE/other transport layer.
-+
-+#ifdef HIDAPI_DUMMY
-+#include <boost/scope_exit.hpp>
-+#include "log.hpp"
-+#include "device_io_dummy.hpp"
-+#include "device_ledger.hpp"
-+
-+
-+int (*hw::io::device_io_dummy::sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len);
-+
-+namespace hw {
-+    namespace io {
-+
-+#undef MONERO_DEFAULT_LOG_CATEGORY
-+#define MONERO_DEFAULT_LOG_CATEGORY "device.io_dummy"
-+        device_io_dummy::device_io_dummy(int a, int b, int c, int d) {
-+            MDEBUG("device_io_dummy(a: " << a << ", b: " << b << ", c: " << c << ", d: " << d <<")");
-+        }
-+
-+        void device_io_dummy::init() {
-+            MDEBUG("init()");
-+        }
-+
-+        void device_io_dummy::connect(void *params) {
-+            MDEBUG("connect(" << params << ")");
-+            stateIsConnected = true;
-+        }
-+
-+        void device_io_dummy::connect(const std::vector<hw::io::hid_conn_params>& known_devices) {
-+            MDEBUG("connect([");
-+            for (const auto &item: known_devices) {
-+                MDEBUG("{   interface_number: " << item.interface_number);
-+                MDEBUG("    pid             : " << item.pid);
-+                MDEBUG("    usage_page      : " << item.usage_page);
-+                MDEBUG("    vid             : " << item.vid << " },");
-+            }
-+            MDEBUG("])");
-+            stateIsConnected = true;
-+        }
-+
-+        bool device_io_dummy::connected() const {
-+            MDEBUG("connected()");
-+            return stateIsConnected;
-+        }
-+
-+        int device_io_dummy::exchange(unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len, bool user_input)  {
-+            size_t receivedFromDeviceLength = sendToLedgerDevice(command, cmd_len, response, max_resp_len);
-+
-+            return receivedFromDeviceLength;
-+        }
-+
-+        void device_io_dummy::disconnect()  {
-+            MDEBUG("disconnect()");
-+        }
-+
-+        void device_io_dummy::release()  {
-+            MDEBUG("release()");
-+        }
-+    }
-+}
-+#endif // HAVE_HIDAPI
-diff --git a/src/device/device_io_dummy.hpp b/src/device/device_io_dummy.hpp
-new file mode 100644
-index 000000000..77c0a7cb1
---- /dev/null
-+++ b/src/device/device_io_dummy.hpp
-@@ -0,0 +1,68 @@
-+// Copyright (c) 2017-2022, The Monero Project
-+//
-+// All rights reserved.
-+//
-+// Redistribution and use in source and binary forms, with or without modification, are
-+// permitted provided that the following conditions are met:
-+//
-+// 1. Redistributions of source code must retain the above copyright notice, this list of
-+//    conditions and the following disclaimer.
-+//
-+// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-+//    of conditions and the following disclaimer in the documentation and/or other
-+//    materials provided with the distribution.
-+//
-+// 3. Neither the name of the copyright holder nor the names of its contributors may be
-+//    used to endorse or promote products derived from this software without specific
-+//    prior written permission.
-+//
-+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
-+// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-+// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+//
-+#ifdef HIDAPI_DUMMY
-+
-+#pragma once
-+
-+#include "device_io.hpp"
-+#include "device_io_hid.hpp"
-+
-+namespace hw {
-+    namespace io {
-+        struct hid_conn_params {
-+            unsigned int vid;
-+            unsigned int pid;
-+            int interface_number;
-+            unsigned short usage_page;
-+        };
-+        class device_io_dummy : device_io {
-+        private:
-+            boost::mutex mutex;
-+
-+        public:
-+            static static int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len);
-+
-+            device_io_dummy()  = default;
-+            device_io_dummy(int a, int b, int c, int d);
-+            ~device_io_dummy() = default;
-+
-+            void init();
-+            void release();
-+
-+            void connect(void *parms);
-+            void connect(const std::vector<hw::io::hid_conn_params>& known_devices);
-+            void disconnect();
-+            bool connected() const;
-+
-+            int  exchange(unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len, bool user_input);
-+        };
-+    };
-+};
-+
-+#endif // HAVE_HIDAPI
 diff --git a/src/device/device_ledger.cpp b/src/device/device_ledger.cpp
 index bb5b6f497..d405b86f2 100644
 --- a/src/device/device_ledger.cpp
@@ -416,7 +232,7 @@ index febc93119..bfe2eb34f 100644
  
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 2bbb32c8b..29ff39553 100644
+index 2bbb32c8b..bc1f733aa 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -1204,6 +1204,9 @@ struct Wallet
@@ -425,7 +241,7 @@ index 2bbb32c8b..29ff39553 100644
      virtual uint64_t getBytesSent() = 0;
 +
 +    // HIDAPI_DUMMY
-+    virtual setLedgerExchange(int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len)) = 0;
++    virtual void setLedgerExchange(int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len)) = 0;
  };
  
  /**
