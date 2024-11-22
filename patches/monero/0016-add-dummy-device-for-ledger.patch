@@ -403,7 +403,7 @@ index a307d35a7..6f1f9714e 100644
 +
  } // namespace
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index febc93119..58c55bb52 100644
+index febc93119..bfe2eb34f 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -321,6 +321,8 @@ private:
@@ -411,12 +411,12 @@ index febc93119..58c55bb52 100644
      mutable std::atomic<bool>   m_is_connected;
      boost::optional<epee::net_utils::http::login> m_daemon_login{};
 +
-+    void setLedgerExchange(int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len);
++    void setLedgerExchange(int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len));
  };
  
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 2bbb32c8b..a5f5c52d4 100644
+index 2bbb32c8b..29ff39553 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -1204,6 +1204,9 @@ struct Wallet
@@ -425,7 +425,7 @@ index 2bbb32c8b..a5f5c52d4 100644
      virtual uint64_t getBytesSent() = 0;
 +
 +    // HIDAPI_DUMMY
-+    virtual setLedgerExchange(int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len) = 0;
++    virtual setLedgerExchange(int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len)) = 0;
  };
  
  /**
