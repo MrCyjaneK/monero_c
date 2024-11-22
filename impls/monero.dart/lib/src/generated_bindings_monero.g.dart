@@ -4384,158 +4384,46 @@ class MoneroC {
   late final _MONERO_Wallet_getBytesSent = _MONERO_Wallet_getBytesSentPtr
       .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
 
-  bool MONERO_Wallet_getStateIsConnected(
+  void MONERO_Wallet_setLedgerExchange(
     ffi.Pointer<ffi.Void> wallet_ptr,
+    ffi.Pointer<
+            ffi.NativeFunction<
+                ffi.Int Function(
+                    ffi.Pointer<ffi.UnsignedChar> command,
+                    ffi.UnsignedInt cmd_len,
+                    ffi.Pointer<ffi.UnsignedChar> response,
+                    ffi.UnsignedInt max_resp_len)>>
+        sendToLedgerDevice,
   ) {
-    return _MONERO_Wallet_getStateIsConnected(
+    return _MONERO_Wallet_setLedgerExchange(
       wallet_ptr,
+      sendToLedgerDevice,
     );
   }
 
-  late final _MONERO_Wallet_getStateIsConnectedPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'MONERO_Wallet_getStateIsConnected');
-  late final _MONERO_Wallet_getStateIsConnected =
-      _MONERO_Wallet_getStateIsConnectedPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.UnsignedChar> MONERO_Wallet_getSendToDevice(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _MONERO_Wallet_getSendToDevice(
-      wallet_ptr,
-    );
-  }
-
-  late final _MONERO_Wallet_getSendToDevicePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.UnsignedChar> Function(
-              ffi.Pointer<ffi.Void>)>>('MONERO_Wallet_getSendToDevice');
-  late final _MONERO_Wallet_getSendToDevice =
-      _MONERO_Wallet_getSendToDevicePtr.asFunction<
-          ffi.Pointer<ffi.UnsignedChar> Function(ffi.Pointer<ffi.Void>)>();
-
-  int MONERO_Wallet_getSendToDeviceLength(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _MONERO_Wallet_getSendToDeviceLength(
-      wallet_ptr,
-    );
-  }
-
-  late final _MONERO_Wallet_getSendToDeviceLengthPtr =
-      _lookup<ffi.NativeFunction<ffi.Size Function(ffi.Pointer<ffi.Void>)>>(
-          'MONERO_Wallet_getSendToDeviceLength');
-  late final _MONERO_Wallet_getSendToDeviceLength =
-      _MONERO_Wallet_getSendToDeviceLengthPtr.asFunction<
-          int Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.UnsignedChar> MONERO_Wallet_getReceivedFromDevice(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _MONERO_Wallet_getReceivedFromDevice(
-      wallet_ptr,
-    );
-  }
-
-  late final _MONERO_Wallet_getReceivedFromDevicePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.UnsignedChar> Function(
-              ffi.Pointer<ffi.Void>)>>('MONERO_Wallet_getReceivedFromDevice');
-  late final _MONERO_Wallet_getReceivedFromDevice =
-      _MONERO_Wallet_getReceivedFromDevicePtr.asFunction<
-          ffi.Pointer<ffi.UnsignedChar> Function(ffi.Pointer<ffi.Void>)>();
-
-  int MONERO_Wallet_getReceivedFromDeviceLength(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _MONERO_Wallet_getReceivedFromDeviceLength(
-      wallet_ptr,
-    );
-  }
-
-  late final _MONERO_Wallet_getReceivedFromDeviceLengthPtr =
-      _lookup<ffi.NativeFunction<ffi.Size Function(ffi.Pointer<ffi.Void>)>>(
-          'MONERO_Wallet_getReceivedFromDeviceLength');
-  late final _MONERO_Wallet_getReceivedFromDeviceLength =
-      _MONERO_Wallet_getReceivedFromDeviceLengthPtr.asFunction<
-          int Function(ffi.Pointer<ffi.Void>)>();
-
-  bool MONERO_Wallet_getWaitsForDeviceSend(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _MONERO_Wallet_getWaitsForDeviceSend(
-      wallet_ptr,
-    );
-  }
-
-  late final _MONERO_Wallet_getWaitsForDeviceSendPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'MONERO_Wallet_getWaitsForDeviceSend');
-  late final _MONERO_Wallet_getWaitsForDeviceSend =
-      _MONERO_Wallet_getWaitsForDeviceSendPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>)>();
-
-  bool MONERO_Wallet_getWaitsForDeviceReceive(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _MONERO_Wallet_getWaitsForDeviceReceive(
-      wallet_ptr,
-    );
-  }
-
-  late final _MONERO_Wallet_getWaitsForDeviceReceivePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'MONERO_Wallet_getWaitsForDeviceReceive');
-  late final _MONERO_Wallet_getWaitsForDeviceReceive =
-      _MONERO_Wallet_getWaitsForDeviceReceivePtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>)>();
-
-  void MONERO_Wallet_setDeviceReceivedData(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.UnsignedChar> data,
-    int len,
-  ) {
-    return _MONERO_Wallet_setDeviceReceivedData(
-      wallet_ptr,
-      data,
-      len,
-    );
-  }
-
-  late final _MONERO_Wallet_setDeviceReceivedDataPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.UnsignedChar>,
-              ffi.Size)>>('MONERO_Wallet_setDeviceReceivedData');
-  late final _MONERO_Wallet_setDeviceReceivedData =
-      _MONERO_Wallet_setDeviceReceivedDataPtr.asFunction<
+  late final _MONERO_Wallet_setLedgerExchangePtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<
+                      ffi.NativeFunction<
+                          ffi.Int Function(
+                              ffi.Pointer<ffi.UnsignedChar> command,
+                              ffi.UnsignedInt cmd_len,
+                              ffi.Pointer<ffi.UnsignedChar> response,
+                              ffi.UnsignedInt max_resp_len)>>)>>(
+      'MONERO_Wallet_setLedgerExchange');
+  late final _MONERO_Wallet_setLedgerExchange =
+      _MONERO_Wallet_setLedgerExchangePtr.asFunction<
           void Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.UnsignedChar>, int)>();
-
-  void MONERO_Wallet_setDeviceSendData(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.UnsignedChar> data,
-    int len,
-  ) {
-    return _MONERO_Wallet_setDeviceSendData(
-      wallet_ptr,
-      data,
-      len,
-    );
-  }
-
-  late final _MONERO_Wallet_setDeviceSendDataPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
               ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.UnsignedChar>,
-              ffi.Size)>>('MONERO_Wallet_setDeviceSendData');
-  late final _MONERO_Wallet_setDeviceSendData =
-      _MONERO_Wallet_setDeviceSendDataPtr.asFunction<
-          void Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.UnsignedChar>, int)>();
+              ffi.Pointer<
+                  ffi.NativeFunction<
+                      ffi.Int Function(
+                          ffi.Pointer<ffi.UnsignedChar> command,
+                          ffi.UnsignedInt cmd_len,
+                          ffi.Pointer<ffi.UnsignedChar> response,
+                          ffi.UnsignedInt max_resp_len)>>)>();
 
   ffi.Pointer<ffi.Void> MONERO_WalletManager_createWallet(
     ffi.Pointer<ffi.Void> wm_ptr,

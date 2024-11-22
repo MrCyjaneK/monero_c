@@ -1607,49 +1607,9 @@ uint64_t MONERO_Wallet_getBytesSent(void* wallet_ptr) {
     return wallet->getBytesSent();
 }
 
-bool MONERO_Wallet_getStateIsConnected(void* wallet_ptr) {
+void MONERO_Wallet_setLedgerExchange(void* wallet_ptr, int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len)) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getStateIsConnected();
-}
-
-unsigned char* MONERO_Wallet_getSendToDevice(void* wallet_ptr) {
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getSendToDevice();
-}
-
-size_t MONERO_Wallet_getSendToDeviceLength(void* wallet_ptr) {
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getSendToDeviceLength();
-}
-
-unsigned char* MONERO_Wallet_getReceivedFromDevice(void* wallet_ptr) {
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getReceivedFromDevice();
-}
-
-size_t MONERO_Wallet_getReceivedFromDeviceLength(void* wallet_ptr) {
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getReceivedFromDeviceLength();
-}
-
-bool MONERO_Wallet_getWaitsForDeviceSend(void* wallet_ptr) {
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getWaitsForDeviceSend();
-}
-
-bool MONERO_Wallet_getWaitsForDeviceReceive(void* wallet_ptr) {
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getWaitsForDeviceReceive();
-}
-
-void MONERO_Wallet_setDeviceReceivedData(void* wallet_ptr, unsigned char* data, size_t len) {
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->setDeviceReceivedData(data, len);
-}
-
-void MONERO_Wallet_setDeviceSendData(void* wallet_ptr, unsigned char* data, size_t len) {
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->setDeviceSendData(data, len);
+    return wallet->setLedgerExchange(sendToLedgerDevice);
 }
 
 void* MONERO_WalletManager_createWallet(void* wm_ptr, const char* path, const char* password, const char* language, int networkType) {
