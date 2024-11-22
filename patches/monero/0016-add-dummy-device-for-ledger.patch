@@ -1,21 +1,21 @@
 From 77f328ba6befb9b964f764a27f8a03b71bf9095d Mon Sep 17 00:00:00 2001
-From: Czarek Nakamoto <cyjan@mrcyjanek.net>
-Date: Wed, 26 Jun 2024 15:04:38 +0200
+From: Konstantin Ullrich <konstantin@cakewallet.com>
+Date: Fri, 22 Nov 2024 11:43:18 +0100
 Subject: [PATCH 16/16] add dummy device for ledger
 
 ---
  CMakeLists.txt                 |   6 +-
  src/device/CMakeLists.txt      |   6 +-
- src/device/device.cpp          |  10 ++-
- src/device/device.hpp          |  12 +--
- src/device/device_io_dummy.cpp | 133 +++++++++++++++++++++++++++++++++
- src/device/device_io_dummy.hpp |  74 ++++++++++++++++++
+ src/device/device.cpp          |  10 ++--
+ src/device/device.hpp          |  12 +---
+ src/device/device_io_dummy.cpp | 100 +++++++++++++++++++++++++++++++++
+ src/device/device_io_dummy.hpp |  74 ++++++++++++++++++++++++
  src/device/device_ledger.cpp   |   6 +-
- src/device/device_ledger.hpp   |   7 +-
- src/wallet/api/wallet.cpp      |  94 +++++++++++++++++++++++
- src/wallet/api/wallet.h        |  18 +++++
- src/wallet/api/wallet2_api.h   |  12 +++
- 11 files changed, 357 insertions(+), 21 deletions(-)
+ src/device/device_ledger.hpp   |   7 ++-
+ src/wallet/api/wallet.cpp      |  13 +++++
+ src/wallet/api/wallet.h        |   2 +
+ src/wallet/api/wallet2_api.h   |   3 +
+ 11 files changed, 218 insertions(+), 21 deletions(-)
  create mode 100644 src/device/device_io_dummy.cpp
  create mode 100644 src/device/device_io_dummy.hpp
 
@@ -130,10 +130,10 @@ index 392703a24..ffd419779 100644
  
 diff --git a/src/device/device_io_dummy.cpp b/src/device/device_io_dummy.cpp
 new file mode 100644
-index 000000000..fb082694e
+index 000000000..a5cbcb328
 --- /dev/null
 +++ b/src/device/device_io_dummy.cpp
-@@ -0,0 +1,133 @@
+@@ -0,0 +1,100 @@
 +// Copyright (c) 2017-2022, The Monero Project
 +//
 +// All rights reserved.
@@ -181,13 +181,7 @@ index 000000000..fb082694e
 +#include "device_ledger.hpp"
 +
 +
-+bool hw::io::device_io_dummy::stateIsConnected = false;
-+unsigned char* hw::io::device_io_dummy::sendToDevice = {};
-+size_t hw::io::device_io_dummy::sendToDeviceLength = 0;
-+unsigned char* hw::io::device_io_dummy::receivedFromDevice = {};
-+size_t hw::io::device_io_dummy::receivedFromDeviceLength = 0;
-+bool hw::io::device_io_dummy::waitsForDeviceSend = false;
-+bool hw::io::device_io_dummy::waitsForDeviceReceive = false;
++int (*hw::io::device_io_dummy::sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len);
 +
 +namespace hw {
 +    namespace io {
@@ -225,32 +219,8 @@ index 000000000..fb082694e
 +        }
 +
 +        int device_io_dummy::exchange(unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len, bool user_input)  {
-+            MDEBUG("exchange(): locking mutex");
-+            boost::unique_lock<boost::mutex> lock(mutex);
-+            sendToDevice = command;
-+            sendToDeviceLength = cmd_len;
-+            waitsForDeviceSend = true;
-+            waitsForDeviceReceive = true;
-+            MDEBUG("exchange(): waitsForDeviceSend");
-+            // NOTE: waitsForDeviceSend should be changed by external code
-+            while (waitsForDeviceSend) {
-+                usleep(1000);
-+                MDEBUG("exchange(): waitsForDeviceSend (still)");
-+            }
++            size_t receivedFromDeviceLength = sendToLedgerDevice(command, cmd_len, response, max_resp_len);
 +
-+            MDEBUG("exchange(): waitsForDeviceReceive");
-+            while (waitsForDeviceReceive) {
-+                usleep(1000);
-+                MDEBUG("exchange(): waitsForDeviceReceive (still)");
-+            }
-+
-+            if (receivedFromDeviceLength > max_resp_len) {
-+                MDEBUG("exchange(): receivedFromDeviceLength ("<<receivedFromDeviceLength<<") is larger than max_resp_len ("<<max_resp_len<<")");
-+                return 1;
-+            }
-+
-+            memset(response,0,max_resp_len);
-+            memcpy(response, receivedFromDevice, receivedFromDeviceLength);
 +            return receivedFromDeviceLength;
 +        }
 +
@@ -261,13 +231,9 @@ index 000000000..fb082694e
 +        void device_io_dummy::release()  {
 +            MDEBUG("release()");
 +        }
-+
-+
-+
 +    }
 +}
 +#endif // HAVE_HIDAPI
-\ No newline at end of file
 diff --git a/src/device/device_io_dummy.hpp b/src/device/device_io_dummy.hpp
 new file mode 100644
 index 000000000..a1733616d
@@ -349,7 +315,7 @@ index 000000000..a1733616d
 +
 +#endif // HAVE_HIDAPI
 diff --git a/src/device/device_ledger.cpp b/src/device/device_ledger.cpp
-index 90675df11..136c6094b 100644
+index bb5b6f497..d405b86f2 100644
 --- a/src/device/device_ledger.cpp
 +++ b/src/device/device_ledger.cpp
 @@ -41,7 +41,7 @@ namespace hw {
@@ -370,7 +336,7 @@ index 90675df11..136c6094b 100644
        this->mode = NONE;
        this->has_view_key = false;
        this->tx_in_progress = false;
-@@ -532,7 +532,9 @@ namespace hw {
+@@ -533,7 +533,9 @@ namespace hw {
  
      bool device_ledger::connect(void) {
        this->disconnect();
@@ -414,7 +380,7 @@ index 03058c4f1..506f27c4a 100644
          unsigned char buffer_send[BUFFER_SEND_SIZE];
          unsigned int  length_recv;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 8bdd75a5a..09f91c5e2 100644
+index a307d35a7..6f1f9714e 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -49,6 +49,9 @@
@@ -427,154 +393,48 @@ index 8bdd75a5a..09f91c5e2 100644
  
  using namespace std;
  using namespace cryptonote;
-@@ -3299,4 +3302,95 @@ uint64_t WalletImpl::getBytesSent()
+@@ -3298,4 +3301,14 @@ uint64_t WalletImpl::getBytesSent()
      return m_wallet->get_bytes_sent();
  }
  
-+
 +// HIDAPI_DUMMY
-+bool WalletImpl::getStateIsConnected() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
-+    return false;
-+    #else
-+    return hw::io::device_io_dummy::stateIsConnected;
-+    #endif
-+}
-+
-+unsigned char* WalletImpl::getSendToDevice() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
-+    return {};
-+    #else
-+    return hw::io::device_io_dummy::sendToDevice;
-+    #endif
-+}
-+
-+size_t WalletImpl::getSendToDeviceLength() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
-+    return -1;
-+    #else
-+    return hw::io::device_io_dummy::sendToDeviceLength;
-+    #endif
-+}
-+
-+unsigned char* WalletImpl::getReceivedFromDevice() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
-+    return {};
-+    #else
-+    return hw::io::device_io_dummy::receivedFromDevice;
-+    #endif
-+}
-+
-+size_t WalletImpl::getReceivedFromDeviceLength() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
-+    return -1;
-+    #else
-+    return hw::io::device_io_dummy::receivedFromDeviceLength;
-+    #endif
-+}
-+
-+bool WalletImpl::getWaitsForDeviceSend() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
-+    return false;
-+    #else
-+    return hw::io::device_io_dummy::receivedFromDeviceLength;
-+    #endif
-+}
-+
-+bool WalletImpl::getWaitsForDeviceReceive() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
-+    return false;
-+    #else
-+    return hw::io::device_io_dummy::waitsForDeviceReceive;
-+    #endif
-+}
-+
-+void WalletImpl::setDeviceReceivedData(unsigned char* data, size_t len) {
++void WalletImpl::setLedgerExchange(int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len)) {
 +    #ifndef HIDAPI_DUMMY
 +    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
 +    return;
 +    #else
-+    hw::io::device_io_dummy::receivedFromDevice = static_cast<unsigned char *>(malloc(len));
-+    hw::io::device_io_dummy::receivedFromDeviceLength = len;
-+    memset(hw::io::device_io_dummy::receivedFromDevice, 0, len);
-+    memcpy(hw::io::device_io_dummy::receivedFromDevice, data, len);
-+    hw::io::device_io_dummy::waitsForDeviceReceive = false;
-+    #endif
-+}
-+
-+void WalletImpl::setDeviceSendData(unsigned char* data, size_t len) {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
-+    return;
-+    #else
-+    hw::io::device_io_dummy::sendToDevice = static_cast<unsigned char *>(malloc(len));
-+    hw::io::device_io_dummy::sendToDeviceLength = len;
-+    memset(hw::io::device_io_dummy::sendToDevice, 0, len);
-+    memcpy(hw::io::device_io_dummy::sendToDevice, data, len);
-+    hw::io::device_io_dummy::waitsForDeviceSend = false;
++    hw::io::device_io_dummy::sendToLedgerDevice = sendToLedgerDevice;
 +    #endif
 +}
 +
  } // namespace
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index febc93119..9e1fbb40b 100644
+index febc93119..58c55bb52 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
-@@ -321,6 +321,24 @@ private:
+@@ -321,6 +321,8 @@ private:
      // cache connection status to avoid unnecessary RPC calls
      mutable std::atomic<bool>   m_is_connected;
      boost::optional<epee::net_utils::http::login> m_daemon_login{};
 +
-+    bool getStateIsConnected();
-+
-+    unsigned char *getSendToDevice();
-+
-+    size_t getSendToDeviceLength();
-+
-+    unsigned char *getReceivedFromDevice();
-+
-+    size_t getReceivedFromDeviceLength();
-+
-+    bool getWaitsForDeviceSend();
-+
-+    bool getWaitsForDeviceReceive();
-+
-+    void setDeviceReceivedData(unsigned char *data, size_t len);
-+
-+    void setDeviceSendData(unsigned char *data, size_t len);
++    void setLedgerExchange(int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len);
  };
  
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 2bbb32c8b..c8d6bb179 100644
+index 2bbb32c8b..a5f5c52d4 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -1204,6 +1204,18 @@ struct Wallet
+@@ -1204,6 +1204,9 @@ struct Wallet
  
      //! get bytes sent
      virtual uint64_t getBytesSent() = 0;
 +
 +    // HIDAPI_DUMMY
-+    virtual bool getStateIsConnected() = 0;
-+    virtual unsigned char* getSendToDevice() = 0;
-+    virtual size_t getSendToDeviceLength() = 0;
-+    virtual unsigned char* getReceivedFromDevice() = 0;
-+    virtual size_t getReceivedFromDeviceLength() = 0;
-+    virtual bool getWaitsForDeviceSend() = 0;
-+    virtual bool getWaitsForDeviceReceive() = 0;
-+
-+    virtual void setDeviceReceivedData(unsigned char* data, size_t len) = 0;
-+    virtual void setDeviceSendData(unsigned char* data, size_t len) = 0;
++    virtual setLedgerExchange(int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len) = 0;
  };
  
  /**
 -- 
-2.45.1.windows.1
+2.47.0
 
