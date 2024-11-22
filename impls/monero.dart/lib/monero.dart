@@ -72,7 +72,9 @@ library;
 // ignore_for_file: non_constant_identifier_names, camel_case_types
 
 import 'dart:ffi';
+import 'dart:ffi' as ffi;
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:monero/src/generated_bindings_monero.g.dart';
@@ -3279,16 +3281,38 @@ int MONERO_Wallet_getBytesSent(wallet ptr) {
   return getBytesSent;
 }
 
-typedef LedgerExchangeFunction = Pointer<
-    NativeFunction<
-        Int Function(Pointer<UnsignedChar> command, UnsignedInt cmd_len,
-            Pointer<UnsignedChar> response, UnsignedInt max_resp_len)>>;
+// Ledger Stuff
+
+typedef LedgerExchangeFunctionNative = Int Function(
+    Pointer<UnsignedChar> command,
+    UnsignedInt cmd_len,
+    Pointer<UnsignedChar> response,
+    UnsignedInt max_resp_len);
 
 void Wallet_setLedgerExchange(
-    wallet ptr, LedgerExchangeFunction sendToLedgerDevice) {
+    wallet ptr, Uint8List Function(Uint8List, int) sendToLedgerDevice) {
   debugStart?.call('MONERO_Wallet_setLedgerExchange');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final ret = lib!.MONERO_Wallet_setLedgerExchange(ptr, sendToLedgerDevice);
+
+  int sendToLedgerDeviceWrapper(Pointer<UnsignedChar> command, int cmd_len,
+      Pointer<UnsignedChar> response, int max_resp_len) {
+    final command_ = command.cast<Uint8>().asTypedList(cmd_len);
+
+    final res = sendToLedgerDevice(command_, max_resp_len);
+
+    calloc.free(command);
+
+    for (var i = 0; i < res.length; i++) {
+      response.cast<Uint8>().asTypedList(res.length)[i] = res[i];
+    }
+
+    return res.length;
+  }
+
+  final sendToLedgerDevice_ =
+      Pointer.fromFunction<LedgerExchangeFunctionNative>(
+          sendToLedgerDeviceWrapper, 0);
+  final ret = lib!.MONERO_Wallet_setLedgerExchange(ptr, sendToLedgerDevice_);
   debugEnd?.call('MONERO_Wallet_setLedgerExchange');
   return ret;
 }
