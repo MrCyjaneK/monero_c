@@ -834,6 +834,7 @@ extern ADDAPI uint64_t MONERO_Wallet_getBytesReceived(void* wallet_ptr);
 //     virtual uint64_t getBytesSent() = 0;
 extern ADDAPI uint64_t MONERO_Wallet_getBytesSent(void* wallet_ptr);
     // HIDAPI_DUMMY
+extern ADDAPI bool MONERO_Wallet_getStateIsConnected(void* wallet_ptr);
 extern ADDAPI void MONERO_Wallet_setLedgerExchange(void* wallet_ptr, int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len));
 // };
 

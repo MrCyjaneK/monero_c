@@ -1607,6 +1607,11 @@ uint64_t MONERO_Wallet_getBytesSent(void* wallet_ptr) {
     return wallet->getBytesSent();
 }
 
+bool MONERO_Wallet_getStateIsConnected(void* wallet_ptr) {
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->getStateIsConnected();
+}
+
 void MONERO_Wallet_setLedgerExchange(void* wallet_ptr, int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len)) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     return wallet->setLedgerExchange(sendToLedgerDevice);
