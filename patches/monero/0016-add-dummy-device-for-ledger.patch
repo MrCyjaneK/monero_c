@@ -9,13 +9,13 @@ Subject: [PATCH 16/16] add dummy device for ledger
  src/device/device.cpp          |  10 ++--
  src/device/device.hpp          |  12 +---
  src/device/device_io_dummy.cpp | 100 +++++++++++++++++++++++++++++++++
- src/device/device_io_dummy.hpp |  68 ++++++++++++++++++++++
+ src/device/device_io_dummy.hpp |  69 +++++++++++++++++++++++
  src/device/device_ledger.cpp   |   6 +-
  src/device/device_ledger.hpp   |   7 ++-
- src/wallet/api/wallet.cpp      |  13 +++++
- src/wallet/api/wallet.h        |   2 +
- src/wallet/api/wallet2_api.h   |   3 +
- 11 files changed, 212 insertions(+), 21 deletions(-)
+ src/wallet/api/wallet.cpp      |  22 ++++++++
+ src/wallet/api/wallet.h        |   3 +
+ src/wallet/api/wallet2_api.h   |   4 ++
+ 11 files changed, 224 insertions(+), 21 deletions(-)
  create mode 100644 src/device/device_io_dummy.cpp
  create mode 100644 src/device/device_io_dummy.hpp
 
@@ -130,7 +130,7 @@ index 392703a24..ffd419779 100644
  
 diff --git a/src/device/device_io_dummy.cpp b/src/device/device_io_dummy.cpp
 new file mode 100644
-index 000000000..a5cbcb328
+index 000000000..c95de70cc
 --- /dev/null
 +++ b/src/device/device_io_dummy.cpp
 @@ -0,0 +1,100 @@
@@ -180,7 +180,7 @@ index 000000000..a5cbcb328
 +#include "device_io_dummy.hpp"
 +#include "device_ledger.hpp"
 +
-+
++bool hw::io::device_io_dummy::stateIsConnected = false;
 +int (*hw::io::device_io_dummy::sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len);
 +
 +namespace hw {
@@ -236,10 +236,10 @@ index 000000000..a5cbcb328
 +#endif // HAVE_HIDAPI
 diff --git a/src/device/device_io_dummy.hpp b/src/device/device_io_dummy.hpp
 new file mode 100644
-index 000000000..77c0a7cb1
+index 000000000..266702f28
 --- /dev/null
 +++ b/src/device/device_io_dummy.hpp
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,69 @@
 +// Copyright (c) 2017-2022, The Monero Project
 +//
 +// All rights reserved.
@@ -288,7 +288,8 @@ index 000000000..77c0a7cb1
 +            boost::mutex mutex;
 +
 +        public:
-+            static static int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len);
++            static bool stateIsConnected;
++            static int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len);
 +
 +            device_io_dummy()  = default;
 +            device_io_dummy(int a, int b, int c, int d);
@@ -374,7 +375,7 @@ index 03058c4f1..506f27c4a 100644
          unsigned char buffer_send[BUFFER_SEND_SIZE];
          unsigned int  length_recv;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index a307d35a7..6f1f9714e 100644
+index a307d35a7..df2b1d7a4 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -49,6 +49,9 @@
@@ -387,11 +388,20 @@ index a307d35a7..6f1f9714e 100644
  
  using namespace std;
  using namespace cryptonote;
-@@ -3298,4 +3301,14 @@ uint64_t WalletImpl::getBytesSent()
+@@ -3298,4 +3301,23 @@ uint64_t WalletImpl::getBytesSent()
      return m_wallet->get_bytes_sent();
  }
  
 +// HIDAPI_DUMMY
++bool WalletImpl::getStateIsConnected() {
++    #ifndef HIDAPI_DUMMY
++    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    return false;
++    #else
++    return hw::io::device_io_dummy::stateIsConnected;
++    #endif
++}
++
 +void WalletImpl::setLedgerExchange(int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len)) {
 +    #ifndef HIDAPI_DUMMY
 +    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
@@ -403,28 +413,30 @@ index a307d35a7..6f1f9714e 100644
 +
  } // namespace
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index febc93119..bfe2eb34f 100644
+index febc93119..f821bf475 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
-@@ -321,6 +321,8 @@ private:
+@@ -321,6 +321,9 @@ private:
      // cache connection status to avoid unnecessary RPC calls
      mutable std::atomic<bool>   m_is_connected;
      boost::optional<epee::net_utils::http::login> m_daemon_login{};
 +
++    bool getStateIsConnected();
 +    void setLedgerExchange(int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len));
  };
  
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 2bbb32c8b..bc1f733aa 100644
+index 2bbb32c8b..ca7cfaeb2 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -1204,6 +1204,9 @@ struct Wallet
+@@ -1204,6 +1204,10 @@ struct Wallet
  
      //! get bytes sent
      virtual uint64_t getBytesSent() = 0;
 +
 +    // HIDAPI_DUMMY
++    virtual bool getStateIsConnected() = 0;
 +    virtual void setLedgerExchange(int (*sendToLedgerDevice) (unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len)) = 0;
  };
  
