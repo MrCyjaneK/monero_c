@@ -1,7 +1,7 @@
-From 6cc0e6fdccfd48065a03a741f65258f563a9900f Mon Sep 17 00:00:00 2001
+From 05d9d0ca610daab96634ffaddafeeb7ff931148c Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 23 May 2024 08:02:49 +0200
-Subject: [PATCH 05/14] Update android ndk
+Subject: [PATCH 05/17] Update android ndk
 
 rename arm -> armv7a
 ---
@@ -13,7 +13,7 @@ rename arm -> armv7a
  5 files changed, 44 insertions(+), 18 deletions(-)
 
 diff --git a/contrib/depends/hosts/android.mk b/contrib/depends/hosts/android.mk
-index d6f8b99..827103c 100644
+index d6f8b99dd..827103c36 100644
 --- a/contrib/depends/hosts/android.mk
 +++ b/contrib/depends/hosts/android.mk
 @@ -1,12 +1,22 @@
@@ -44,7 +44,7 @@ index d6f8b99..827103c 100644
  android_CFLAGS=-pipe
  android_CXXFLAGS=$(android_CFLAGS)
 diff --git a/contrib/depends/packages/android_ndk.mk b/contrib/depends/packages/android_ndk.mk
-index 9b8a533..2c2914e 100644
+index 9b8a5332f..2c2914ec2 100644
 --- a/contrib/depends/packages/android_ndk.mk
 +++ b/contrib/depends/packages/android_ndk.mk
 @@ -1,12 +1,16 @@
@@ -92,7 +92,7 @@ index 9b8a533..2c2914e 100644
  endef
  
 diff --git a/contrib/depends/packages/boost.mk b/contrib/depends/packages/boost.mk
-index fd06c53..c17e863 100644
+index fd06c5393..c17e863cc 100644
 --- a/contrib/depends/packages/boost.mk
 +++ b/contrib/depends/packages/boost.mk
 @@ -25,6 +25,7 @@ $(package)_archiver_darwin=$($(package)_libtool)
@@ -104,7 +104,7 @@ index fd06c53..c17e863 100644
  endef
  
 diff --git a/contrib/depends/packages/openssl.mk b/contrib/depends/packages/openssl.mk
-index a157762..2430f64 100644
+index a157762c7..2430f6495 100644
 --- a/contrib/depends/packages/openssl.mk
 +++ b/contrib/depends/packages/openssl.mk
 @@ -34,7 +34,7 @@ $(package)_config_opts_x86_64_linux=linux-x86_64
@@ -117,7 +117,7 @@ index a157762..2430f64 100644
  $(package)_config_opts_aarch64_darwin=darwin64-arm64-cc
  $(package)_config_opts_riscv64_linux=linux-generic64
 diff --git a/contrib/depends/toolchain.cmake.in b/contrib/depends/toolchain.cmake.in
-index f118c75..cc1d9b5 100644
+index f118c754e..cc1d9b5c5 100644
 --- a/contrib/depends/toolchain.cmake.in
 +++ b/contrib/depends/toolchain.cmake.in
 @@ -100,20 +100,21 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")

@@ -193,6 +193,8 @@ if(ARCHITECTURE STREQUAL "x86_64")
 endif()
 
 link_directories(@prefix@/lib)
+include_directories(@prefix@/include)
+include_directories(@prefix@/include/wownero_seed)
 
 add_definitions(-DPOLYSEED_STATIC=ON)
 

@@ -5,7 +5,7 @@
 #include <cstring>
 #include <thread>
 #include "../../../../wownero/src/wallet/api/wallet2_api.h"
-#include "../../../../external/wownero-seed/include/wownero_seed/wownero_seed.hpp"
+#include "../../../wownero-seed/include/wownero_seed/wownero_seed.hpp"
 #include "wownero_checksum.h"
 
 #ifdef __cplusplus

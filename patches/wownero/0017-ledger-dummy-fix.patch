@@ -1,0 +1,157 @@
+From a2a5c6a81ae63b2a4a8fe02b7929dcf3084b2a51 Mon Sep 17 00:00:00 2001
+From: cyan <cyjan@mrcyjanek.net>
+Date: Tue, 26 Nov 2024 00:31:15 +0000
+Subject: [PATCH 17/17] ledger dummy fix
+
+---
+ src/device/device_io_dummy.cpp |  2 +-
+ src/device/device_io_dummy.hpp |  2 +-
+ src/device/device_ledger.hpp   |  2 +-
+ src/wallet/api/wallet.cpp      | 36 +++++++++++++++++-----------------
+ 4 files changed, 21 insertions(+), 21 deletions(-)
+
+diff --git a/src/device/device_io_dummy.cpp b/src/device/device_io_dummy.cpp
+index fb082694e..e7e79fb58 100644
+--- a/src/device/device_io_dummy.cpp
++++ b/src/device/device_io_dummy.cpp
+@@ -38,7 +38,7 @@
+ // Data transport is made available in wallet2_api.h, so wallet developers can easily plug their
+ // own USB/BLE/other transport layer.
+ 
+-#ifdef HIDAPI_DUMMY
++#if defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI)
+ #include <boost/scope_exit.hpp>
+ #include "log.hpp"
+ #include "device_io_dummy.hpp"
+diff --git a/src/device/device_io_dummy.hpp b/src/device/device_io_dummy.hpp
+index a1733616d..4a4807121 100644
+--- a/src/device/device_io_dummy.hpp
++++ b/src/device/device_io_dummy.hpp
+@@ -26,7 +26,7 @@
+ // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ //
+-#ifdef HIDAPI_DUMMY
++#if defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI)
+ 
+ #pragma once
+ 
+diff --git a/src/device/device_ledger.hpp b/src/device/device_ledger.hpp
+index 506f27c4a..39454ca6d 100644
+--- a/src/device/device_ledger.hpp
++++ b/src/device/device_ledger.hpp
+@@ -149,7 +149,7 @@ namespace hw {
+         mutable boost::mutex   command_locker;
+ 
+         //IO
+-#ifdef  HIDAPI_DUMMY
++#if defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI)
+         hw::io::device_io_dummy hw_device;
+ #else
+         hw::io::device_io_hid hw_device;
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index c9ff4b860..313384f54 100644
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -3339,8 +3339,8 @@ uint64_t WalletImpl::getBytesSent()
+ 
+ // HIDAPI_DUMMY
+ bool WalletImpl::getStateIsConnected() {
+-    #ifndef HIDAPI_DUMMY
+-    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
+     return false;
+     #else
+     return hw::io::device_io_dummy::stateIsConnected;
+@@ -3348,8 +3348,8 @@ bool WalletImpl::getStateIsConnected() {
+ }
+ 
+ unsigned char* WalletImpl::getSendToDevice() {
+-    #ifndef HIDAPI_DUMMY
+-    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
+     return {};
+     #else
+     return hw::io::device_io_dummy::sendToDevice;
+@@ -3357,8 +3357,8 @@ unsigned char* WalletImpl::getSendToDevice() {
+ }
+ 
+ size_t WalletImpl::getSendToDeviceLength() {
+-    #ifndef HIDAPI_DUMMY
+-    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
+     return -1;
+     #else
+     return hw::io::device_io_dummy::sendToDeviceLength;
+@@ -3366,8 +3366,8 @@ size_t WalletImpl::getSendToDeviceLength() {
+ }
+ 
+ unsigned char* WalletImpl::getReceivedFromDevice() {
+-    #ifndef HIDAPI_DUMMY
+-    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
+     return {};
+     #else
+     return hw::io::device_io_dummy::receivedFromDevice;
+@@ -3375,8 +3375,8 @@ unsigned char* WalletImpl::getReceivedFromDevice() {
+ }
+ 
+ size_t WalletImpl::getReceivedFromDeviceLength() {
+-    #ifndef HIDAPI_DUMMY
+-    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
+     return -1;
+     #else
+     return hw::io::device_io_dummy::receivedFromDeviceLength;
+@@ -3384,8 +3384,8 @@ size_t WalletImpl::getReceivedFromDeviceLength() {
+ }
+ 
+ bool WalletImpl::getWaitsForDeviceSend() {
+-    #ifndef HIDAPI_DUMMY
+-    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
+     return false;
+     #else
+     return hw::io::device_io_dummy::receivedFromDeviceLength;
+@@ -3393,8 +3393,8 @@ bool WalletImpl::getWaitsForDeviceSend() {
+ }
+ 
+ bool WalletImpl::getWaitsForDeviceReceive() {
+-    #ifndef HIDAPI_DUMMY
+-    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
+     return false;
+     #else
+     return hw::io::device_io_dummy::waitsForDeviceReceive;
+@@ -3402,8 +3402,8 @@ bool WalletImpl::getWaitsForDeviceReceive() {
+ }
+ 
+ void WalletImpl::setDeviceReceivedData(unsigned char* data, size_t len) {
+-    #ifndef HIDAPI_DUMMY
+-    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
+     return;
+     #else
+     hw::io::device_io_dummy::receivedFromDevice = static_cast<unsigned char *>(malloc(len));
+@@ -3415,8 +3415,8 @@ void WalletImpl::setDeviceReceivedData(unsigned char* data, size_t len) {
+ }
+ 
+ void WalletImpl::setDeviceSendData(unsigned char* data, size_t len) {
+-    #ifndef HIDAPI_DUMMY
+-    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
+     return;
+     #else
+     hw::io::device_io_dummy::sendToDevice = static_cast<unsigned char *>(malloc(len));
+-- 
+2.39.5 (Apple Git-154)
+

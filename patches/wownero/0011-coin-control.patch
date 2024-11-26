@@ -1,7 +1,7 @@
-From 4292758a3d7c0186ee3fb665d789e078ff3e9ec6 Mon Sep 17 00:00:00 2001
+From 7d9d947f049c39aa9e5e4c7cb37c03e63eaf3187 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 11:07:57 +0100
-Subject: [PATCH 11/14] coin control
+Subject: [PATCH 11/17] coin control
 
 ---
  src/simplewallet/simplewallet.cpp |   2 +-
@@ -22,7 +22,7 @@ Subject: [PATCH 11/14] coin control
  create mode 100644 src/wallet/api/coins_info.h
 
 diff --git a/src/simplewallet/simplewallet.cpp b/src/simplewallet/simplewallet.cpp
-index 8c51220..cfdb893 100644
+index 8c5122097..cfdb8935f 100644
 --- a/src/simplewallet/simplewallet.cpp
 +++ b/src/simplewallet/simplewallet.cpp
 @@ -6981,7 +6981,7 @@ bool simple_wallet::transfer_main(const std::vector<std::string> &args_, bool ca
@@ -35,7 +35,7 @@ index 8c51220..cfdb893 100644
      if (ptx_vector.empty())
      {
 diff --git a/src/wallet/api/CMakeLists.txt b/src/wallet/api/CMakeLists.txt
-index af7948d..bb740e2 100644
+index af7948d8a..bb740e2ac 100644
 --- a/src/wallet/api/CMakeLists.txt
 +++ b/src/wallet/api/CMakeLists.txt
 @@ -40,7 +40,9 @@ set(wallet_api_sources
@@ -62,7 +62,7 @@ index af7948d..bb740e2 100644
    ${wallet_api_private_headers})
 diff --git a/src/wallet/api/coins.cpp b/src/wallet/api/coins.cpp
 new file mode 100644
-index 0000000..ef12141
+index 000000000..ef12141cf
 --- /dev/null
 +++ b/src/wallet/api/coins.cpp
 @@ -0,0 +1,186 @@
@@ -254,7 +254,7 @@ index 0000000..ef12141
 +} // namespace
 diff --git a/src/wallet/api/coins.h b/src/wallet/api/coins.h
 new file mode 100644
-index 0000000..b7a0a86
+index 000000000..b7a0a8642
 --- /dev/null
 +++ b/src/wallet/api/coins.h
 @@ -0,0 +1,40 @@
@@ -300,7 +300,7 @@ index 0000000..b7a0a86
 +#endif //FEATHER_COINS_H
 diff --git a/src/wallet/api/coins_info.cpp b/src/wallet/api/coins_info.cpp
 new file mode 100644
-index 0000000..5f2c4e1
+index 000000000..5f2c4e1e4
 --- /dev/null
 +++ b/src/wallet/api/coins_info.cpp
 @@ -0,0 +1,122 @@
@@ -428,7 +428,7 @@ index 0000000..5f2c4e1
 +namespace Bitmonero = Monero;
 diff --git a/src/wallet/api/coins_info.h b/src/wallet/api/coins_info.h
 new file mode 100644
-index 0000000..c43e45a
+index 000000000..c43e45abd
 --- /dev/null
 +++ b/src/wallet/api/coins_info.h
 @@ -0,0 +1,71 @@
@@ -504,7 +504,7 @@ index 0000000..c43e45a
 +
 +#endif //FEATHER_COINS_INFO_H
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 0d78536..ff1baac 100644
+index 0d785360a..ff1baac5c 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -35,6 +35,7 @@
@@ -640,7 +640,7 @@ index 0d78536..ff1baac 100644
  {
      return m_subaddress.get();
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 32e1228..a82f270 100644
+index 32e12284b..a82f270e4 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -46,6 +46,7 @@ class PendingTransactionImpl;
@@ -693,7 +693,7 @@ index 32e1228..a82f270 100644
  
      // multi-threaded refresh stuff
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index be1c370..013b5bc 100644
+index be1c3704e..013b5bcba 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -263,6 +263,51 @@ struct AddressBook
@@ -777,7 +777,7 @@ index be1c370..013b5bc 100644
      virtual SubaddressAccount * subaddressAccount() = 0;
      virtual void setListener(WalletListener *) = 0;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 3e49c21..4d75656 100644
+index 3e49c21f8..4d756567f 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -2094,12 +2094,21 @@ bool wallet2::frozen(const multisig_tx_set& txs) const
@@ -924,7 +924,7 @@ index 3e49c21..4d75656 100644
      {
        MDEBUG("Ignoring output " << i << " of amount " << print_money(td.amount()) << " which is below threshold " << print_money(fractional_threshold));
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index c26349c..a48ba33 100644
+index c26349ce3..a48ba33b6 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -1209,8 +1209,8 @@ private:

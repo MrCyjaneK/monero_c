@@ -7,3 +7,8 @@
 	path = wownero
 	url = https://codeberg.org/wownero/wownero
 	shallow = true
+[submodule "wownero_libwallet2_api_c/wownero-seed"]
+	path = wownero_libwallet2_api_c/wownero-seed
+	url = https://github.com/MrCyjaneK/wownero-seed
+	branch = cyjan-namespace2
+	shallow = true
