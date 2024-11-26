@@ -210,7 +210,7 @@ jobs:
           xcode-version: '15.4'
       - name: install dependencies
         run: |
-          brew install ccache binutils pigz
+          brew install ccache binutils pigz autoconf
       - name: Patch sources
         run: |
           git config --global --add safe.directory '*'
