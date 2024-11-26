@@ -230,7 +230,7 @@ jobs:
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: build (aarch64-apple-darwin)
         run: |
-          ./build_single.sh ${{ matrix.coin }}  -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh ${{ matrix.coin }} aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
       - name: build (x86_64-apple-darwin)
         run: |
           ./build_single.sh ${{ matrix.coin }} x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
