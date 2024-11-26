@@ -196,10 +196,6 @@ endef
 
 COMPRESS_CMD := $(shell if command -v pigz >/dev/null 2>&1; then echo "pigz"; else echo "gzip"; fi)
 
-ifeq ($(COMPRESS_CMD),gzip)
-	$(AT)echo Slow compression used, you may want to install pigz
-endif
-
 define int_add_cmds
 $($(1)_fetched):
 	$(AT)mkdir -p $$(@D) $(SOURCES_PATH)

@@ -34,6 +34,7 @@ $(package)_config_libraries=system,filesystem,thread,timer,date_time,chrono,rege
 $(package)_cxxflags_linux=-fPIC
 $(package)_cxxflags_freebsd=-fPIC
 $(package)_cxxflags_android=-fPIC
+$(package)_cxxflags_darwin=-fPIC -std=c++11
 $(package)_ldflags_darwin=-L$(host_prefix)/lib -L$(shell xcrun --sdk macosx --show-sdk-path)/usr/lib
 $(package)_ldflags_ios=-L$(host_prefix)/lib -L$(IOS_SDK)/usr/lib
 endef
