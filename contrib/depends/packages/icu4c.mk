@@ -18,10 +18,10 @@ define $(package)_config_cmds
   make &&\
   cd ../buildb &&\
   sh ../source/runConfigureICU MinGW --enable-static=yes --disable-shared --disable-layout --disable-layoutex --disable-tests --disable-samples --prefix=$(host_prefix) --with-cross-build=`pwd`/../builda &&\
-  $(MAKE) $($(package)_build_opts)
+  $(MAKE) -j$(NUM_CORES) $($(package)_build_opts)
 endef
 
 define $(package)_stage_cmds
   cd buildb &&\
-  $(MAKE) $($(package)_build_opts) DESTDIR=$($(package)_staging_dir) install lib/*
+  $(MAKE) -j$(NUM_CORES) $($(package)_build_opts) DESTDIR=$($(package)_staging_dir) install lib/*
 endef

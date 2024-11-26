@@ -54,10 +54,10 @@ define $(package)_config_cmds
 endef
 
 define $(package)_build_cmds
-  $(MAKE) $($(package)_build_opts) V=1
+  $(MAKE) -j$(NUM_CORES) $($(package)_build_opts) V=1
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) install.libs DESTDIR=$($(package)_staging_dir)
+  $(MAKE) -j$(NUM_CORES) install.libs DESTDIR=$($(package)_staging_dir)
 endef
 

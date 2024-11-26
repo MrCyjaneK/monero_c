@@ -14,7 +14,7 @@ define $(package)_config_cmds
 endef
 
 define $(package)_build_cmds
-  $(MAKE) -C dmg
+  $(MAKE) -j$(NUM_CORES) -C dmg -j$(NUM_CORES)
 endef
 
 define $(package)_stage_cmds

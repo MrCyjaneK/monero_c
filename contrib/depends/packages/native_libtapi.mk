@@ -20,9 +20,9 @@ define $(package)_config_cmds
 endef
 
 define $(package)_build_cmds
-  $(MAKE) clangBasic && $(MAKE) libtapi
+  $(MAKE) -j$(NUM_CORES) clangBasic && $(MAKE) -j$(NUM_CORES) libtapi
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) DESTDIR=$($(package)_staging_dir) install-libtapi install-tapi-headers
+  $(MAKE) -j$(NUM_CORES) DESTDIR=$($(package)_staging_dir) install-libtapi install-tapi-headers
 endef

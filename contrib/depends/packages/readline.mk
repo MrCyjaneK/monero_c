@@ -20,10 +20,10 @@ define $(package)_config_cmds
 endef
 
 define $(package)_build_cmds
-  $(MAKE) $($(package)_build_opts)
+  $(MAKE) -j$(NUM_CORES) $($(package)_build_opts)
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) install DESTDIR=$($(package)_staging_dir) prefix=$(host_prefix) exec-prefix=$(host_prefix)
+  $(MAKE) -j$(NUM_CORES) install DESTDIR=$($(package)_staging_dir) prefix=$(host_prefix) exec-prefix=$(host_prefix)
 endef
 

@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: |
           apt update
-          apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686
+          apt install -y pigz build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -83,7 +83,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf unzip python-is-python3
+          sudo apt install -y pigz build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf unzip python-is-python3
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -145,7 +145,7 @@ jobs:
       - name: Install dependencies
         run: |
           apt update
-          apt install -y build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-i686-linux-gnu g++-i686-linux-gnu
+          apt install -y pigz build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-i686-linux-gnu g++-i686-linux-gnu
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -315,7 +315,7 @@ jobs:
           xcode-version: '15.4'
       - name: install dependencies
         run: |
-          brew install ccache binutils
+          brew install ccache binutils pigz
       - name: Patch sources
         run: |
           git config --global --add safe.directory '*'

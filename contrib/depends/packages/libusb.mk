@@ -28,11 +28,11 @@ else
 endif
 
 define $(package)_build_cmd
-  $(MAKE)
+  $(MAKE) -j$(NUM_CORES)
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) DESTDIR=$($(package)_staging_dir) install
+  $(MAKE) -j$(NUM_CORES) DESTDIR=$($(package)_staging_dir) install
 endef
 
 define $(package)_postprocess_cmds  cp -f lib/libusb-1.0.a lib/libusb.a

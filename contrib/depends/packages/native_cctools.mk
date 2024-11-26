@@ -19,10 +19,10 @@ define $(package)_config_cmds
 endef
 
 define $(package)_build_cmds
-  $(MAKE)
+  $(MAKE) -j$(NUM_CORES)
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) DESTDIR=$($(package)_staging_dir) install && \
+  $(MAKE) -j$(NUM_CORES) DESTDIR=$($(package)_staging_dir) install && \
   cp $($(package)_extract_dir)/cctools/misc/install_name_tool $($(package)_staging_prefix_dir)/bin/
 endef

@@ -20,17 +20,17 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_config_cmds
-  ./configure $($(package)_autoconf_args)
+  $($(package)_autoconf)
 endef
 
 define $(package)_build_cmds
-  $(MAKE) -j src/libzmq.la
+  $(MAKE) -j$(NUM_CORES) src/libzmq.la
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) DESTDIR=$($(package)_staging_dir) install-pkgconfigDATA VERBOSE=1 &&\
-  $(MAKE) DESTDIR=$($(package)_staging_dir) install-libLTLIBRARIES VERBOSE=1 &&\
-  $(MAKE) DESTDIR=$($(package)_staging_dir) install-includeHEADERS VERBOSE=1
+  $(MAKE) -j$(NUM_CORES) DESTDIR=$($(package)_staging_dir) install-pkgconfigDATA VERBOSE=1 &&\
+  $(MAKE) -j$(NUM_CORES) DESTDIR=$($(package)_staging_dir) install-libLTLIBRARIES VERBOSE=1 &&\
+  $(MAKE) -j$(NUM_CORES) DESTDIR=$($(package)_staging_dir) install-includeHEADERS VERBOSE=1
 endef
 
 define $(package)_postprocess_cmds

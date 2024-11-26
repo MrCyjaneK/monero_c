@@ -56,11 +56,11 @@ define $(package)_config_cmds
 endef
 
 define $(package)_build_cmds
-  $(MAKE) build_libs
+  $(MAKE) -j$(NUM_CORES) build_libs
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) DESTDIR=$($(package)_staging_dir) install_sw
+  $(MAKE) -j$(NUM_CORES) DESTDIR=$($(package)_staging_dir) install_sw
 endef
 
 define $(package)_postprocess_cmds

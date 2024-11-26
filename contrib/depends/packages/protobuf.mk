@@ -22,12 +22,12 @@ define $(package)_config_cmds
 endef
 
 define $(package)_build_cmds
-  $(MAKE) -C src libprotobuf.la
+  $(MAKE) -j$(NUM_CORES) -C src libprotobuf.la
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) DESTDIR=$($(package)_staging_dir) -C src install-libLTLIBRARIES install-nobase_includeHEADERS &&\
-  $(MAKE) DESTDIR=$($(package)_staging_dir) install-pkgconfigDATA
+  $(MAKE) -j$(NUM_CORES) DESTDIR=$($(package)_staging_dir) -C src install-libLTLIBRARIES install-nobase_includeHEADERS &&\
+  $(MAKE) -j$(NUM_CORES) DESTDIR=$($(package)_staging_dir) install-pkgconfigDATA
 endef
 
 define $(package)_postprocess_cmds

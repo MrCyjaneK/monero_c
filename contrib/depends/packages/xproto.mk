@@ -13,9 +13,9 @@ define $(package)_config_cmds
 endef
 
 define $(package)_build_cmds
-  $(MAKE)
+  $(MAKE) -j$(NUM_CORES)
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) DESTDIR=$($(package)_staging_dir) install
+  $(MAKE) -j$(NUM_CORES) DESTDIR=$($(package)_staging_dir) install
 endef

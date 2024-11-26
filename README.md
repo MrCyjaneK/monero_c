@@ -9,7 +9,7 @@ TL;DR:
 ```bash
 $ rm -rf monero wownero release
 $ git submodule update --init --recursive --force
-$ for coin in monero wownero; do ./apply_patches $coin; done
+$ for coin in monero wownero; do ./apply_patches.sh $coin; done
 $ ./build_single monero $(gcc -dumpmachine) -j$(nproc)
 ```
 

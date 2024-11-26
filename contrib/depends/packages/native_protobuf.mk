@@ -15,11 +15,11 @@ define $(package)_config_cmds
 endef
 
 define $(package)_build_cmds
-  $(MAKE) -C src
+  $(MAKE) -j$(NUM_CORES) -C src
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) DESTDIR=$($(package)_staging_dir) -C src install
+  $(MAKE) -j$(NUM_CORES) DESTDIR=$($(package)_staging_dir) -C src install
 endef
 
 define $(package)_postprocess_cmds

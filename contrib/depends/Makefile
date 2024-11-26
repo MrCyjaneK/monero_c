@@ -13,6 +13,14 @@ DOWNLOAD_CONNECT_TIMEOUT:=30
 DOWNLOAD_RETRIES:=5
 HOST_ID_SALT ?= salt
 BUILD_ID_SALT ?= salt
+# Detect the number of CPU cores
+ifeq ($(shell uname), Darwin)
+    NUM_CORES := $(shell sysctl -n hw.ncpu)
+else ifeq ($(shell uname), Linux)
+    NUM_CORES := $(shell nproc)
+else
+    NUM_CORES := 1 # Default if the OS is not detected
+endif
 
 host:=$(BUILD)
 ifneq ($(HOST),)

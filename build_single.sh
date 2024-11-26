@@ -64,7 +64,7 @@ pushd ${repo}_libwallet2_api_c
     rm -rf build/${HOST_ABI} || true
     mkdir -p build/${HOST_ABI} -p
     pushd build/${HOST_ABI}
-        cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -DUSE_DEVICE_TREZOR=OFF -DHIDAPI_DUMMY=ON -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+        cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake -DUSE_DEVICE_TREZOR=OFF -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
         make $NPROC
     popd
 popd
