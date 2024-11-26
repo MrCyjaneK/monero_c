@@ -9,7 +9,6 @@ define $(package)_set_vars
 $(package)_config_env_android=ANDROID_NDK_ROOT="$(host_prefix)/native" PATH="$(host_prefix)/native/bin" CC=clang AR=ar RANLIB=ranlib
 $(package)_config_opts=--enable-static --disable-shared --with-pic
 $(package)_config_opts+=--prefix=$(host_prefix)
-$(package)_ar_ios=$($(package)_ar) rcs
 endef
 
 define $(package)_preprocess_cmds
@@ -26,7 +25,7 @@ define $(package)_build_cmds
 endef
 
 define $(package)_stage_cmds
-  $(MAKE) -j$(NUM_CORES) DESTDIR=$($(package)_staging_dir) install
+  $(MAKE) DESTDIR=$($(package)_staging_dir) install
 endef
 
 define $(package)_postprocess_cmds

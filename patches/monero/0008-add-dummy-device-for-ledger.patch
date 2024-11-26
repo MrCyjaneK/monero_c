@@ -85,7 +85,7 @@ index e6cd358b6..636929feb 100644
      device_registry::device_registry(){
          hw::core::register_all(registry);
 -        #ifdef WITH_DEVICE_LEDGER
-+        #if defined(WITH_DEVICE_LEDGER) || defined(HIDAPI_DUMMY)
++        #if defined(WITH_DEVICE_LEDGER) && !defined(HIDAPI_DUMMY)
          hw::ledger::register_all(registry);
          #endif
          atexit(clear_device_registry);
