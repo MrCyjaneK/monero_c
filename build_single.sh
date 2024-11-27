@@ -55,7 +55,7 @@ fi
 cd $(dirname $0)
 WDIR=$PWD
 pushd contrib/depends
-    env -i PATH="$PATH" CC=gcc CXX=g++ make HOST="$HOST_ABI" "$NPROC"
+    env -i PATH="$PATH" CC=gcc CXX=g++ make "$NPROC" HOST="$HOST_ABI"
 popd
 
 buildType=Debug
