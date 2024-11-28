@@ -1,7 +1,7 @@
-From c66deda1792f4955e4175b4e47af54bd2a7d7b24 Mon Sep 17 00:00:00 2001
+From dfe8fde34cd51f5d5ec95fb464737f6e447d41bb Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 18 Nov 2024 10:57:37 -0500
-Subject: [PATCH] include locale only when targeting WIN32
+Subject: [PATCH 14/14] include locale only when targeting WIN32
 
 ---
  CMakeLists.txt            | 5 ++++-
@@ -9,10 +9,10 @@ Subject: [PATCH] include locale only when targeting WIN32
  2 files changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index b995a68..0d0a0e3 100644
+index 4e86328..809bce6 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -1083,7 +1083,10 @@ if(STATIC)
+@@ -1079,7 +1079,10 @@ if(STATIC)
    set(Boost_USE_STATIC_LIBS ON)
    set(Boost_USE_STATIC_RUNTIME ON)
  endif()
@@ -25,7 +25,7 @@ index b995a68..0d0a0e3 100644
  
  set(CMAKE_FIND_LIBRARY_SUFFIXES ${OLD_LIB_SUFFIXES})
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 17d1625..995c45c 100644
+index 5734aff..f4fb093 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -46,7 +46,9 @@
@@ -37,7 +37,7 @@ index 17d1625..995c45c 100644
 +#endif
  #include <boost/filesystem.hpp>
  #include "bc-ur/src/bc-ur.hpp"
- #ifdef HIDAPI_DUMMY
+ #if defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI)
 -- 
 2.39.5 (Apple Git-154)
 

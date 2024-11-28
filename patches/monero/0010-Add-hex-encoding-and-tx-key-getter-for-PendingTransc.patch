@@ -1,7 +1,7 @@
-From fc519329a5eaeaacd53ceb5109608069d57ac553 Mon Sep 17 00:00:00 2001
+From 42aca87b69ecdc9fb24d14dd947f8bbffc7f3500 Mon Sep 17 00:00:00 2001
 From: M <m@cakewallet.com>
 Date: Fri, 21 Apr 2023 15:43:47 -0400
-Subject: [PATCH 12/17] Add hex encoding and tx key getter for
+Subject: [PATCH 10/14] Add hex encoding and tx key getter for
  PendingTransction in wallet api.
 
 ---
@@ -11,7 +11,7 @@ Subject: [PATCH 12/17] Add hex encoding and tx key getter for
  3 files changed, 20 insertions(+)
 
 diff --git a/src/wallet/api/pending_transaction.cpp b/src/wallet/api/pending_transaction.cpp
-index 9c3c26ee5..1f714d229 100644
+index 9c3c26e..1f714d2 100644
 --- a/src/wallet/api/pending_transaction.cpp
 +++ b/src/wallet/api/pending_transaction.cpp
 @@ -80,6 +80,22 @@ std::vector<std::string> PendingTransactionImpl::txid() const
@@ -38,7 +38,7 @@ index 9c3c26ee5..1f714d229 100644
  {
  
 diff --git a/src/wallet/api/pending_transaction.h b/src/wallet/api/pending_transaction.h
-index 403bfe281..0cc6c58e9 100644
+index 403bfe2..0cc6c58 100644
 --- a/src/wallet/api/pending_transaction.h
 +++ b/src/wallet/api/pending_transaction.h
 @@ -59,6 +59,8 @@ public:
@@ -51,7 +51,7 @@ index 403bfe281..0cc6c58e9 100644
  private:
      friend class WalletImpl;
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 013b5bcba..f421fdc05 100644
+index 013b5bc..f421fdc 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -127,6 +127,8 @@ struct PendingTransaction

@@ -1,7 +1,7 @@
-From d1e443859c1b9e6845874fc30f7958da389846b3 Mon Sep 17 00:00:00 2001
+From c1f5cc2d9b71b7b923b17c33c23b23da918e4751 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 09:42:37 +0100
-Subject: [PATCH 10/17] polyseed
+Subject: [PATCH 09/15] polyseed
 
 Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
 ---
@@ -998,7 +998,7 @@ index 000000000..2c8c777a7
 +#endif //POLYSEED_HPP
 \ No newline at end of file
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 375edb4f1..0d785360a 100644
+index 556e2a8ce..704e5e148 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -728,6 +728,28 @@ bool WalletImpl::recoverFromDevice(const std::string &path, const std::string &p
@@ -1153,7 +1153,7 @@ index 53ec4abfc..be1c3704e 100644
       * \brief Closes wallet. In case operation succeeded, wallet object deleted. in case operation failed, wallet object not deleted
       * \param wallet        previously opened / created wallet instance
 diff --git a/src/wallet/api/wallet_manager.cpp b/src/wallet/api/wallet_manager.cpp
-index e81b8f83a..c79fe25d6 100644
+index 277be6ac9..da2056d8a 100644
 --- a/src/wallet/api/wallet_manager.cpp
 +++ b/src/wallet/api/wallet_manager.cpp
 @@ -156,6 +156,15 @@ Wallet *WalletManagerImpl::createWalletFromDevice(const std::string &path,

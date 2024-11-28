@@ -1,45 +1,35 @@
-From 6b0951540be868373ed261fa9b2806bf7888c9f0 Mon Sep 17 00:00:00 2001
+From ed2ce176ea5f1bbe81069a3df4601a141b533b95 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 09:42:37 +0100
-Subject: [PATCH 09/12] polyseed
+Subject: [PATCH 08/14] polyseed
 
 Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
 ---
- .gitmodules                                   |   6 +
- CMakeLists.txt                                |   4 +-
- contrib/depends/hosts/darwin.mk               |   2 +
- contrib/depends/hosts/linux.mk                |   8 +-
- contrib/depends/packages/packages.mk          |   2 +-
- contrib/depends/packages/polyseed.mk          |  28 +++
- contrib/depends/packages/sodium.mk            |   2 +-
- .../polyseed/0001-disable-soname.patch        |  48 +++++
- .../patches/polyseed/force-static-mingw.patch |  23 +++
- contrib/epee/include/wipeable_string.h        |   7 +
- contrib/epee/src/wipeable_string.cpp          |  10 +
- external/CMakeLists.txt                       |   2 +
- external/polyseed                             |   1 +
- external/utf8proc                             |   1 +
- src/CMakeLists.txt                            |   1 +
- src/cryptonote_basic/CMakeLists.txt           |   1 +
- src/cryptonote_basic/account.cpp              |  23 ++-
- src/cryptonote_basic/account.h                |   6 +
- src/cryptonote_config.h                       |   2 +
- src/polyseed/CMakeLists.txt                   |  25 +++
- src/polyseed/pbkdf2.c                         |  85 ++++++++
- src/polyseed/pbkdf2.h                         |  46 +++++
- src/polyseed/polyseed.cpp                     | 182 ++++++++++++++++++
- src/polyseed/polyseed.hpp                     | 167 ++++++++++++++++
- src/wallet/api/wallet.cpp                     |  70 +++++++
- src/wallet/api/wallet.h                       |  10 +
- src/wallet/api/wallet2_api.h                  |  25 +++
- src/wallet/api/wallet_manager.cpp             |   9 +
- src/wallet/api/wallet_manager.h               |  10 +
- src/wallet/wallet2.cpp                        | 100 ++++++++--
- src/wallet/wallet2.h                          |  30 ++-
- 31 files changed, 912 insertions(+), 24 deletions(-)
- create mode 100644 contrib/depends/packages/polyseed.mk
- create mode 100644 contrib/depends/patches/polyseed/0001-disable-soname.patch
- create mode 100644 contrib/depends/patches/polyseed/force-static-mingw.patch
+ .gitmodules                            |   6 +
+ CMakeLists.txt                         |   4 +-
+ contrib/epee/include/wipeable_string.h |   7 +
+ contrib/epee/src/wipeable_string.cpp   |  10 ++
+ external/CMakeLists.txt                |   2 +
+ external/polyseed                      |   1 +
+ external/utf8proc                      |   1 +
+ src/CMakeLists.txt                     |   1 +
+ src/cryptonote_basic/CMakeLists.txt    |   1 +
+ src/cryptonote_basic/account.cpp       |  23 +++-
+ src/cryptonote_basic/account.h         |   6 +
+ src/cryptonote_config.h                |   2 +
+ src/polyseed/CMakeLists.txt            |  25 ++++
+ src/polyseed/pbkdf2.c                  |  85 ++++++++++++
+ src/polyseed/pbkdf2.h                  |  46 +++++++
+ src/polyseed/polyseed.cpp              | 182 +++++++++++++++++++++++++
+ src/polyseed/polyseed.hpp              | 167 +++++++++++++++++++++++
+ src/wallet/api/wallet.cpp              |  70 ++++++++++
+ src/wallet/api/wallet.h                |  10 ++
+ src/wallet/api/wallet2_api.h           |  25 ++++
+ src/wallet/api/wallet_manager.cpp      |   9 ++
+ src/wallet/api/wallet_manager.h        |  10 ++
+ src/wallet/wallet2.cpp                 | 100 ++++++++++++--
+ src/wallet/wallet2.h                   |  30 +++-
+ 24 files changed, 805 insertions(+), 18 deletions(-)
  create mode 160000 external/polyseed
  create mode 160000 external/utf8proc
  create mode 100644 src/polyseed/CMakeLists.txt
@@ -49,7 +39,7 @@ Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
  create mode 100644 src/polyseed/polyseed.hpp
 
 diff --git a/.gitmodules b/.gitmodules
-index 72af74d55..b838e84e0 100644
+index 72af74d..b838e84 100644
 --- a/.gitmodules
 +++ b/.gitmodules
 @@ -11,6 +11,12 @@
@@ -66,7 +56,7 @@ index 72af74d55..b838e84e0 100644
  	path = external/supercop
  	url = https://github.com/monero-project/supercop
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 43ef6cd20..e7fa90abb 100644
+index 43ef6cd..e7fa90a 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -371,6 +371,8 @@ if(NOT MANUAL_SUBMODULES)
@@ -87,185 +77,8 @@ index 43ef6cd20..e7fa90abb 100644
  
  if(APPLE)
    cmake_policy(SET CMP0042 NEW)
-diff --git a/contrib/depends/hosts/darwin.mk b/contrib/depends/hosts/darwin.mk
-index 83d83036b..b14ee5c5b 100644
---- a/contrib/depends/hosts/darwin.mk
-+++ b/contrib/depends/hosts/darwin.mk
-@@ -8,6 +8,8 @@ endif
- darwin_CC=clang -target $(CC_target) -mmacosx-version-min=$(OSX_MIN_VERSION) --sysroot $(host_prefix)/native/SDK/ -mlinker-version=$(LD64_VERSION) -B$(host_prefix)/native/bin/$(host)-
- darwin_CXX=clang++ -target $(CC_target) -mmacosx-version-min=$(OSX_MIN_VERSION) --sysroot $(host_prefix)/native/SDK/ -mlinker-version=$(LD64_VERSION) -stdlib=libc++ -B$(host_prefix)/native/bin/$(host)-
- 
-+darwin_RANLIB=$(host_prefix)/native/bin/$(host)-ranlib
-+
- darwin_CFLAGS=-pipe
- darwin_CXXFLAGS=$(darwin_CFLAGS)
- darwin_ARFLAGS=cr
-diff --git a/contrib/depends/hosts/linux.mk b/contrib/depends/hosts/linux.mk
-index 912fdb03c..b79799f30 100644
---- a/contrib/depends/hosts/linux.mk
-+++ b/contrib/depends/hosts/linux.mk
-@@ -11,15 +11,15 @@ linux_debug_CXXFLAGS=$(linux_debug_CFLAGS)
- linux_debug_CPPFLAGS=-D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
- 
- ifeq (86,$(findstring 86,$(build_arch)))
--i686_linux_CC=gcc -m32
--i686_linux_CXX=g++ -m32
-+i686_linux_CC=i686-linux-gnu-gcc
-+i686_linux_CXX=i686-linux-gnu-g++
- i686_linux_AR=ar
- i686_linux_RANLIB=ranlib
- i686_linux_NM=nm
- i686_linux_STRIP=strip
- 
--x86_64_linux_CC=gcc -m64
--x86_64_linux_CXX=g++ -m64
-+x86_64_linux_CC=x86_64-linux-gnu-gcc
-+x86_64_linux_CXX=x86_64-linux-gnu-g++
- x86_64_linux_AR=ar
- x86_64_linux_RANLIB=ranlib
- x86_64_linux_NM=nm
-diff --git a/contrib/depends/packages/packages.mk b/contrib/depends/packages/packages.mk
-index d2d1eca85..8783d4955 100644
---- a/contrib/depends/packages/packages.mk
-+++ b/contrib/depends/packages/packages.mk
-@@ -1,4 +1,4 @@
--packages:=boost openssl zeromq libiconv expat unbound
-+packages:=boost openssl zeromq libiconv expat unbound polyseed
- 
- # ccache is useless in gitian builds
- ifneq ($(GITIAN),1)
-diff --git a/contrib/depends/packages/polyseed.mk b/contrib/depends/packages/polyseed.mk
-new file mode 100644
-index 000000000..0071b20f3
---- /dev/null
-+++ b/contrib/depends/packages/polyseed.mk
-@@ -0,0 +1,28 @@
-+package=polyseed
-+$(package)_version=2.0.0
-+$(package)_download_path=https://github.com/tevador/$(package)/archive/refs/tags/
-+$(package)_download_file=v$($(package)_version).tar.gz
-+$(package)_file_name=$(package)-$($(package)_version).tar.gz
-+$(package)_sha256_hash=f36282fcbcd68d32461b8230c89e1a40661bd46b91109681cec637433004135a
-+$(package)_patches=force-static-mingw.patch 0001-disable-soname.patch
-+
-+define $(package)_preprocess_cmds
-+    patch -p1 < $($(package)_patch_dir)/force-static-mingw.patch &&\
-+    patch -p1 < $($(package)_patch_dir)/0001-disable-soname.patch
-+endef
-+
-+define $(package)_config_cmds
-+    CC="$($(package)_cc)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" .
-+endef
-+
-+define $(package)_set_vars
-+  $(package)_build_opts=CC="$($(package)_cc)"
-+endef
-+
-+define $(package)_build_cmds
-+    CC="$($(package)_cc)" $(MAKE)
-+endef
-+
-+define $(package)_stage_cmds
-+    $(MAKE) DESTDIR=$($(package)_staging_dir) install
-+endef
-diff --git a/contrib/depends/packages/sodium.mk b/contrib/depends/packages/sodium.mk
-index 87b34599e..68a5b48ba 100644
---- a/contrib/depends/packages/sodium.mk
-+++ b/contrib/depends/packages/sodium.mk
-@@ -6,7 +6,7 @@ $(package)_sha256_hash=6f504490b342a4f8a4c4a02fc9b866cbef8622d5df4e5452b46be121e
- $(package)_patches=disable-glibc-getrandom-getentropy.patch fix-whitespace.patch
- 
- define $(package)_set_vars
--$(package)_config_opts=--enable-static --disable-shared
-+$(package)_config_opts=--enable-static --disable-shared --with-pic
- $(package)_config_opts+=--prefix=$(host_prefix)
- endef
- 
-diff --git a/contrib/depends/patches/polyseed/0001-disable-soname.patch b/contrib/depends/patches/polyseed/0001-disable-soname.patch
-new file mode 100644
-index 000000000..bd97dd394
---- /dev/null
-+++ b/contrib/depends/patches/polyseed/0001-disable-soname.patch
-@@ -0,0 +1,48 @@
-+From aabafcfc0572651436d024a635483c49042fad7f Mon Sep 17 00:00:00 2001
-+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
-+Date: Thu, 28 Mar 2024 00:32:51 +0100
-+Subject: [PATCH] disable soname
-+
-+---
-+ CMakeLists.txt | 16 +++++++++-------
-+ 1 file changed, 9 insertions(+), 7 deletions(-)
-+
-+diff --git a/CMakeLists.txt b/CMakeLists.txt
-+index 8a8e7c2..5301353 100644
-+--- a/CMakeLists.txt
-++++ b/CMakeLists.txt
-+@@ -36,6 +36,7 @@ include_directories(polyseed
-+ target_compile_definitions(polyseed PRIVATE POLYSEED_SHARED)
-+ set_target_properties(polyseed PROPERTIES VERSION 2.0.0
-+                                           SOVERSION 2
-++                                          NO_SONAME 1
-+                                           C_STANDARD 11
-+                                           C_STANDARD_REQUIRED ON)
-+
-+@@ -45,16 +46,17 @@ include_directories(polyseed_static
-+   include/)
-+ target_compile_definitions(polyseed_static PRIVATE POLYSEED_STATIC)
-+ set_target_properties(polyseed_static PROPERTIES OUTPUT_NAME polyseed
-++                                                 NO_SONAME 1
-+                                                  C_STANDARD 11
-+                                                  C_STANDARD_REQUIRED ON)
-+
-+-add_executable(polyseed-tests
-+-  tests/tests.c)
-+-include_directories(polyseed-tests
-+-  include/)
-+-target_compile_definitions(polyseed-tests PRIVATE POLYSEED_STATIC)
-+-target_link_libraries(polyseed-tests
-+-  PRIVATE polyseed_static)
-++# add_executable(polyseed-tests
-++#   tests/tests.c)
-++# include_directories(polyseed-tests
-++#   include/)
-++# target_compile_definitions(polyseed-tests PRIVATE POLYSEED_STATIC)
-++# target_link_libraries(polyseed-tests
-++#   PRIVATE polyseed_static)
-+
-+ include(GNUInstallDirs)
-+ install(TARGETS polyseed polyseed_static
-+--
-+2.39.2
-diff --git a/contrib/depends/patches/polyseed/force-static-mingw.patch b/contrib/depends/patches/polyseed/force-static-mingw.patch
-new file mode 100644
-index 000000000..f05cb2b6a
---- /dev/null
-+++ b/contrib/depends/patches/polyseed/force-static-mingw.patch
-@@ -0,0 +1,23 @@
-+--- a/include/polyseed.h
-++++ b/include/polyseed.h
-+@@ -93,13 +93,13 @@ Shared/static library definitions
-+     - define POLYSEED_STATIC when linking to the static library
-+ */
-+ #if defined(_WIN32) || defined(__CYGWIN__)
-+-    #ifdef POLYSEED_SHARED
-+-        #define POLYSEED_API __declspec(dllexport)
-+-    #elif !defined(POLYSEED_STATIC)
-+-        #define POLYSEED_API __declspec(dllimport)
-+-    #else
-+-        #define POLYSEED_API
-+-    #endif
-++//    #ifdef POLYSEED_SHARED
-++//        #define POLYSEED_API __declspec(dllexport)
-++//    #elif !defined(POLYSEED_STATIC)
-++//        #define POLYSEED_API __declspec(dllimport)
-++//    #else
-++          #define POLYSEED_API
-++//    #endif
-+     #define POLYSEED_PRIVATE
-+ #else
-+     #ifdef POLYSEED_SHARED
 diff --git a/contrib/epee/include/wipeable_string.h b/contrib/epee/include/wipeable_string.h
-index 65977cd97..594e15de4 100644
+index 65977cd..594e15d 100644
 --- a/contrib/epee/include/wipeable_string.h
 +++ b/contrib/epee/include/wipeable_string.h
 @@ -34,6 +34,7 @@
@@ -290,7 +103,7 @@ index 65977cd97..594e15de4 100644
    private:
      void grow(size_t sz, size_t reserved = 0);
 diff --git a/contrib/epee/src/wipeable_string.cpp b/contrib/epee/src/wipeable_string.cpp
-index b016f2f48..f2f365b1b 100644
+index b016f2f..f2f365b 100644
 --- a/contrib/epee/src/wipeable_string.cpp
 +++ b/contrib/epee/src/wipeable_string.cpp
 @@ -261,4 +261,14 @@ wipeable_string &wipeable_string::operator=(const wipeable_string &other)
@@ -309,7 +122,7 @@ index b016f2f48..f2f365b1b 100644
 +
  }
 diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
-index f9ed6a69a..8fcf792d7 100644
+index f9ed6a6..8fcf792 100644
 --- a/external/CMakeLists.txt
 +++ b/external/CMakeLists.txt
 @@ -69,5 +69,7 @@ endif()
@@ -322,20 +135,20 @@ index f9ed6a69a..8fcf792d7 100644
  add_subdirectory(randomx EXCLUDE_FROM_ALL)
 diff --git a/external/polyseed b/external/polyseed
 new file mode 160000
-index 000000000..dfb05d8ed
+index 0000000..bd79f50
 --- /dev/null
 +++ b/external/polyseed
 @@ -0,0 +1 @@
 +Subproject commit bd79f5014c331273357277ed8a3d756fb61b9fa1
 diff --git a/external/utf8proc b/external/utf8proc
 new file mode 160000
-index 000000000..3de4596fb
+index 0000000..3de4596
 --- /dev/null
 +++ b/external/utf8proc
 @@ -0,0 +1 @@
 +Subproject commit 3de4596fbe28956855df2ecb3c11c0bbc3535838
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 3335d3c21..06b708cf0 100644
+index 3335d3c..06b708c 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -95,6 +95,7 @@ add_subdirectory(net)
@@ -347,7 +160,7 @@ index 3335d3c21..06b708cf0 100644
  if(NOT IOS)
    add_subdirectory(serialization)
 diff --git a/src/cryptonote_basic/CMakeLists.txt b/src/cryptonote_basic/CMakeLists.txt
-index 1414be1b2..414936a05 100644
+index 1414be1..414936a 100644
 --- a/src/cryptonote_basic/CMakeLists.txt
 +++ b/src/cryptonote_basic/CMakeLists.txt
 @@ -71,6 +71,7 @@ target_link_libraries(cryptonote_basic
@@ -359,7 +172,7 @@ index 1414be1b2..414936a05 100644
      ${Boost_PROGRAM_OPTIONS_LIBRARY}
      ${Boost_SERIALIZATION_LIBRARY}
 diff --git a/src/cryptonote_basic/account.cpp b/src/cryptonote_basic/account.cpp
-index 4e87d4477..2d556f285 100644
+index 4e87d44..2d556f2 100644
 --- a/src/cryptonote_basic/account.cpp
 +++ b/src/cryptonote_basic/account.cpp
 @@ -87,12 +87,16 @@ DISABLE_VS_WARNINGS(4244 4345)
@@ -412,7 +225,7 @@ index 4e87d4477..2d556f285 100644
    {
      m_keys.m_account_address.m_spend_public_key = spend_public_key;
 diff --git a/src/cryptonote_basic/account.h b/src/cryptonote_basic/account.h
-index 93d1d28f0..1f76febce 100644
+index 93d1d28..1f76feb 100644
 --- a/src/cryptonote_basic/account.h
 +++ b/src/cryptonote_basic/account.h
 @@ -33,6 +33,7 @@
@@ -450,7 +263,7 @@ index 93d1d28f0..1f76febce 100644
      const account_keys& get_keys() const;
      std::string get_public_address_str(network_type nettype) const;
 diff --git a/src/cryptonote_config.h b/src/cryptonote_config.h
-index f9e6a6cb9..3af3a63a1 100644
+index f9e6a6c..3af3a63 100644
 --- a/src/cryptonote_config.h
 +++ b/src/cryptonote_config.h
 @@ -207,6 +207,8 @@
@@ -464,7 +277,7 @@ index f9e6a6cb9..3af3a63a1 100644
  // (1+32) + (1+1+16*32) + (1+16*32) = 1060
 diff --git a/src/polyseed/CMakeLists.txt b/src/polyseed/CMakeLists.txt
 new file mode 100644
-index 000000000..cca4eb746
+index 0000000..cca4eb7
 --- /dev/null
 +++ b/src/polyseed/CMakeLists.txt
 @@ -0,0 +1,25 @@
@@ -495,7 +308,7 @@ index 000000000..cca4eb746
 +)
 diff --git a/src/polyseed/pbkdf2.c b/src/polyseed/pbkdf2.c
 new file mode 100644
-index 000000000..1c45f4708
+index 0000000..1c45f47
 --- /dev/null
 +++ b/src/polyseed/pbkdf2.c
 @@ -0,0 +1,85 @@
@@ -587,7 +400,7 @@ index 000000000..1c45f4708
 \ No newline at end of file
 diff --git a/src/polyseed/pbkdf2.h b/src/polyseed/pbkdf2.h
 new file mode 100644
-index 000000000..f6253b9d7
+index 0000000..f6253b9
 --- /dev/null
 +++ b/src/polyseed/pbkdf2.h
 @@ -0,0 +1,46 @@
@@ -640,7 +453,7 @@ index 000000000..f6253b9d7
 \ No newline at end of file
 diff --git a/src/polyseed/polyseed.cpp b/src/polyseed/polyseed.cpp
 new file mode 100644
-index 000000000..231a48a94
+index 0000000..231a48a
 --- /dev/null
 +++ b/src/polyseed/polyseed.cpp
 @@ -0,0 +1,182 @@
@@ -828,7 +641,7 @@ index 000000000..231a48a94
 +}
 diff --git a/src/polyseed/polyseed.hpp b/src/polyseed/polyseed.hpp
 new file mode 100644
-index 000000000..2c8c777a7
+index 0000000..2c8c777
 --- /dev/null
 +++ b/src/polyseed/polyseed.hpp
 @@ -0,0 +1,167 @@
@@ -1001,7 +814,7 @@ index 000000000..2c8c777a7
 +#endif //POLYSEED_HPP
 \ No newline at end of file
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index ec79482ac..e74fa0884 100644
+index c73f38e..67ac90a 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -728,6 +728,28 @@ bool WalletImpl::recoverFromDevice(const std::string &path, const std::string &p
@@ -1089,7 +902,7 @@ index ec79482ac..e74fa0884 100644
  {
      return m_wallet->get_seed_language();
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 4e9c21ecb..32e12284b 100644
+index 4e9c21e..32e1228 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -79,9 +79,19 @@ public:
@@ -1113,7 +926,7 @@ index 4e9c21ecb..32e12284b 100644
      void setSeedLanguage(const std::string &arg) override;
      // void setListener(Listener *) {}
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 53ec4abfc..be1c3704e 100644
+index 53ec4ab..be1c370 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -709,6 +709,10 @@ struct Wallet
@@ -1156,7 +969,7 @@ index 53ec4abfc..be1c3704e 100644
       * \brief Closes wallet. In case operation succeeded, wallet object deleted. in case operation failed, wallet object not deleted
       * \param wallet        previously opened / created wallet instance
 diff --git a/src/wallet/api/wallet_manager.cpp b/src/wallet/api/wallet_manager.cpp
-index e81b8f83a..c79fe25d6 100644
+index 277be6a..da2056d 100644
 --- a/src/wallet/api/wallet_manager.cpp
 +++ b/src/wallet/api/wallet_manager.cpp
 @@ -156,6 +156,15 @@ Wallet *WalletManagerImpl::createWalletFromDevice(const std::string &path,
@@ -1176,7 +989,7 @@ index e81b8f83a..c79fe25d6 100644
  {
      WalletImpl * wallet_ = dynamic_cast<WalletImpl*>(wallet);
 diff --git a/src/wallet/api/wallet_manager.h b/src/wallet/api/wallet_manager.h
-index a223e1df9..28fcd36c9 100644
+index a223e1d..28fcd36 100644
 --- a/src/wallet/api/wallet_manager.h
 +++ b/src/wallet/api/wallet_manager.h
 @@ -75,6 +75,16 @@ public:
@@ -1197,7 +1010,7 @@ index a223e1df9..28fcd36c9 100644
      bool walletExists(const std::string &path) override;
      bool verifyWalletPassword(const std::string &keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const override;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 4f58d7aea..1b3a66279 100644
+index dfa3213..fa346a9 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -92,6 +92,7 @@ using namespace epee;
@@ -1239,7 +1052,7 @@ index 4f58d7aea..1b3a66279 100644
  bool wallet2::get_multisig_seed(epee::wipeable_string& seed, const epee::wipeable_string &passphrase) const
  {
    bool ready;
-@@ -4790,6 +4806,9 @@ boost::optional<wallet2::keys_file_data> wallet2::get_keys_file_data(const crypt
+@@ -4789,6 +4805,9 @@ boost::optional<wallet2::keys_file_data> wallet2::get_keys_file_data(const crypt
    value2.SetInt(m_enable_multisig ? 1 : 0);
    json.AddMember("enable_multisig", value2, json.GetAllocator());
  
@@ -1249,7 +1062,7 @@ index 4f58d7aea..1b3a66279 100644
    if (m_background_sync_type == BackgroundSyncCustomPassword && !background_keys_file && m_custom_background_key)
    {
      value.SetString(reinterpret_cast<const char*>(m_custom_background_key.get().data()), m_custom_background_key.get().size());
-@@ -5029,6 +5048,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
+@@ -5028,6 +5047,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
      m_enable_multisig = false;
      m_allow_mismatched_daemon_version = false;
      m_custom_background_key = boost::none;
@@ -1257,7 +1070,7 @@ index 4f58d7aea..1b3a66279 100644
    }
    else if(json.IsObject())
    {
-@@ -5269,6 +5289,9 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
+@@ -5268,6 +5288,9 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
      GET_FIELD_FROM_JSON_RETURN_ON_ERROR(json, background_sync_type, BackgroundSyncType, Int, false, BackgroundSyncOff);
      m_background_sync_type = field_background_sync_type;
  
@@ -1267,7 +1080,7 @@ index 4f58d7aea..1b3a66279 100644
      // Load encryption key used to encrypt background cache
      crypto::chacha_key custom_background_key;
      m_custom_background_key = boost::none;
-@@ -5588,6 +5611,48 @@ void wallet2::init_type(hw::device::device_type device_type)
+@@ -5587,6 +5610,48 @@ void wallet2::init_type(hw::device::device_type device_type)
    m_key_device_type = device_type;
  }
  
@@ -1316,7 +1129,7 @@ index 4f58d7aea..1b3a66279 100644
  /*!
   * \brief  Generates a wallet or restores one. Assumes the multisig setup
   *         has already completed for the provided multisig info.
-@@ -5715,7 +5780,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
+@@ -5714,7 +5779,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
    return retval;
  }
  
@@ -1325,7 +1138,7 @@ index 4f58d7aea..1b3a66279 100644
   {
     // -1 month for fluctuations in block time and machine date/time setup.
     // avg seconds per block
-@@ -5739,7 +5804,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
+@@ -5738,7 +5803,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
     // the daemon is currently syncing.
     // If we use the approximate height we subtract one month as
     // a safety margin.
@@ -1334,7 +1147,7 @@ index 4f58d7aea..1b3a66279 100644
     uint64_t target_height = get_daemon_blockchain_target_height(err);
     if (err.empty()) {
       if (target_height < height)
-@@ -13636,7 +13701,7 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
+@@ -13635,7 +13700,7 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
    return target_height;
  }
  
@@ -1343,7 +1156,7 @@ index 4f58d7aea..1b3a66279 100644
  {
    // time of v2 fork
    const time_t fork_time = m_nettype == TESTNET ? 1448285909 : m_nettype == STAGENET ? 1520937818 : 1458748658;
-@@ -13645,7 +13710,7 @@ uint64_t wallet2::get_approximate_blockchain_height() const
+@@ -13644,7 +13709,7 @@ uint64_t wallet2::get_approximate_blockchain_height() const
    // avg seconds per block
    const int seconds_per_block = DIFFICULTY_TARGET_V2;
    // Calculated blockchain height
@@ -1352,7 +1165,7 @@ index 4f58d7aea..1b3a66279 100644
    // testnet and stagenet got some huge rollbacks, so the estimation is way off
    static const uint64_t approximate_rolled_back_blocks = m_nettype == TESTNET ? 342100 : m_nettype == STAGENET ? 60000 : 30000;
    if ((m_nettype == TESTNET || m_nettype == STAGENET) && approx_blockchain_height > approximate_rolled_back_blocks)
-@@ -15784,15 +15849,6 @@ bool wallet2::parse_uri(const std::string &uri, std::string &address, std::strin
+@@ -15783,15 +15848,6 @@ bool wallet2::parse_uri(const std::string &uri, std::string &address, std::strin
  //----------------------------------------------------------------------------------------------------
  uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, uint8_t day)
  {
@@ -1368,7 +1181,7 @@ index 4f58d7aea..1b3a66279 100644
    std::tm date = { 0, 0, 0, 0, 0, 0, 0, 0 };
    date.tm_year = year - 1900;
    date.tm_mon  = month - 1;
-@@ -15801,7 +15857,23 @@ uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, ui
+@@ -15800,7 +15856,23 @@ uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, ui
    {
      throw std::runtime_error("month or day out of range");
    }
@@ -1393,7 +1206,7 @@ index 4f58d7aea..1b3a66279 100644
    uint64_t height_min = 0;
    uint64_t height_max = get_daemon_blockchain_height(err) - 1;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 1d7e430b9..91cf2a376 100644
+index 1d7e430..91cf2a3 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -72,6 +72,7 @@
@@ -1469,5 +1282,5 @@ index 1d7e430b9..91cf2a376 100644
      uint32_t m_multisig_threshold;
      std::vector<crypto::public_key> m_multisig_signers;
 -- 
-2.43.0
+2.39.5 (Apple Git-154)
 

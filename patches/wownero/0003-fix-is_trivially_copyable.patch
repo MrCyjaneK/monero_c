@@ -1,7 +1,7 @@
-From 8c4d673da3adc9c97962e09dc62ce29de73be829 Mon Sep 17 00:00:00 2001
+From b41551e7dd8d3f4968f330f60d14773eaabca818 Mon Sep 17 00:00:00 2001
 From: cyan <cyjan@mrcyjanek.net>
 Date: Tue, 22 Oct 2024 10:23:18 +0000
-Subject: [PATCH 03/17] fix is_trivially_copyable
+Subject: [PATCH 03/15] fix is_trivially_copyable
 
 ---
  contrib/epee/include/span.h | 2 --

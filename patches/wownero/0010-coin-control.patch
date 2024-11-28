@@ -1,7 +1,7 @@
-From 7d9d947f049c39aa9e5e4c7cb37c03e63eaf3187 Mon Sep 17 00:00:00 2001
+From 14bcfd4bb49e7697c034d3d38c988f90a1842145 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 11:07:57 +0100
-Subject: [PATCH 11/17] coin control
+Subject: [PATCH 10/15] coin control
 
 ---
  src/simplewallet/simplewallet.cpp |   2 +-
@@ -504,7 +504,7 @@ index 000000000..c43e45abd
 +
 +#endif //FEATHER_COINS_INFO_H
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 0d785360a..ff1baac5c 100644
+index 704e5e148..e69910e69 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -35,6 +35,7 @@

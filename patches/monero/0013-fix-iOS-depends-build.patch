@@ -1,7 +1,7 @@
-From 40d2ef7f253aafc16796c9465cd0d0a68ffeaa16 Mon Sep 17 00:00:00 2001
+From dcb483e5cb97c4e3c500355d8225bd49d3e0ae7f Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 21 Nov 2024 06:05:03 -0500
-Subject: [PATCH] fix iOS depends build
+Subject: [PATCH 13/14] fix iOS depends build
 
 ---
  CMakeLists.txt                      | 4 ----
@@ -11,7 +11,7 @@ Subject: [PATCH] fix iOS depends build
  4 files changed, 14 insertions(+), 10 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 0d0a0e3..809bce6 100644
+index b995a68..4e86328 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -39,10 +39,6 @@ include(CheckLibraryExists)

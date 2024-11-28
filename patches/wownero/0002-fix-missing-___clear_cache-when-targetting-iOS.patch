@@ -1,7 +1,7 @@
-From 36f3c8e3a69c2cca71ce7fcc9a5095e9153170ce Mon Sep 17 00:00:00 2001
+From 21e95275c2e40454d9cce05c1139d8139af16587 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 23 Oct 2024 15:18:21 +0200
-Subject: [PATCH 02/17] fix missing ___clear_cache when targetting iOS
+Subject: [PATCH 02/15] fix missing ___clear_cache when targetting iOS
 
 ---
  external/randomwow | 2 +-

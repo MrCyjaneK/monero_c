@@ -1,29 +1,30 @@
-From 08301e22d38bf69b35cda50111f95af120f98a3f Mon Sep 17 00:00:00 2001
+From bf8c0d01e60dade9fbdd77c4ce825e6b37d3c6c3 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
-Subject: [PATCH 09/17] add dummy device for ledger
+Subject: [PATCH 07/14] add dummy device for ledger
 
 ---
- CMakeLists.txt                 |   6 +-
- src/device/CMakeLists.txt      |   6 +-
- src/device/device.cpp          |  10 ++-
- src/device/device.hpp          |  12 +--
- src/device/device_io_dummy.cpp | 133 +++++++++++++++++++++++++++++++++
- src/device/device_io_dummy.hpp |  74 ++++++++++++++++++
- src/device/device_ledger.cpp   |   6 +-
- src/device/device_ledger.hpp   |   7 +-
- src/wallet/api/wallet.cpp      |  94 +++++++++++++++++++++++
- src/wallet/api/wallet.h        |  18 +++++
- src/wallet/api/wallet2_api.h   |  12 +++
- 11 files changed, 357 insertions(+), 21 deletions(-)
+ CMakeLists.txt                    |   6 +-
+ src/device/CMakeLists.txt         |   6 +-
+ src/device/device.cpp             |  10 ++-
+ src/device/device.hpp             |  12 +--
+ src/device/device_io_dummy.cpp    | 133 ++++++++++++++++++++++++++++++
+ src/device/device_io_dummy.hpp    |  74 +++++++++++++++++
+ src/device/device_ledger.cpp      |   6 +-
+ src/device/device_ledger.hpp      |   7 +-
+ src/wallet/api/wallet.cpp         |  94 +++++++++++++++++++++
+ src/wallet/api/wallet.h           |  18 ++++
+ src/wallet/api/wallet2_api.h      |  12 +++
+ src/wallet/api/wallet_manager.cpp |  12 ++-
+ 12 files changed, 365 insertions(+), 25 deletions(-)
  create mode 100644 src/device/device_io_dummy.cpp
  create mode 100644 src/device/device_io_dummy.hpp
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 8b81c7ab7..abe44eca5 100644
+index 63ee825..43ef6cd 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -709,8 +709,12 @@ include_directories(${LMDB_INCLUDE})
+@@ -692,8 +692,12 @@ include_directories(${LMDB_INCLUDE})
  include_directories(${LIBUNWIND_INCLUDE})
  link_directories(${LIBUNWIND_LIBRARY_DIRS})
  
@@ -38,7 +39,7 @@ index 8b81c7ab7..abe44eca5 100644
    add_definitions(-DHAVE_HIDAPI)
    include_directories(${HIDAPI_INCLUDE_DIR})
 diff --git a/src/device/CMakeLists.txt b/src/device/CMakeLists.txt
-index e4f1159b5..14d398f87 100644
+index e4f1159..14d398f 100644
 --- a/src/device/CMakeLists.txt
 +++ b/src/device/CMakeLists.txt
 @@ -29,10 +29,11 @@
@@ -68,7 +69,7 @@ index e4f1159b5..14d398f87 100644
      ${device_headers} 
      device_ledger.hpp
 diff --git a/src/device/device.cpp b/src/device/device.cpp
-index e6cd358b6..636929feb 100644
+index e6cd358..777584c 100644
 --- a/src/device/device.cpp
 +++ b/src/device/device.cpp
 @@ -29,7 +29,7 @@
@@ -106,7 +107,7 @@ index e6cd358b6..636929feb 100644
          return *device->second;
      }
 diff --git a/src/device/device.hpp b/src/device/device.hpp
-index 392703a24..ffd419779 100644
+index 392703a..ffd4197 100644
 --- a/src/device/device.hpp
 +++ b/src/device/device.hpp
 @@ -34,17 +34,7 @@
@@ -130,7 +131,7 @@ index 392703a24..ffd419779 100644
  
 diff --git a/src/device/device_io_dummy.cpp b/src/device/device_io_dummy.cpp
 new file mode 100644
-index 000000000..fb082694e
+index 0000000..edb4bee
 --- /dev/null
 +++ b/src/device/device_io_dummy.cpp
 @@ -0,0 +1,133 @@
@@ -174,7 +175,7 @@ index 000000000..fb082694e
 +// Data transport is made available in wallet2_api.h, so wallet developers can easily plug their
 +// own USB/BLE/other transport layer.
 +
-+#ifdef HIDAPI_DUMMY
++#if defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI)
 +#include <boost/scope_exit.hpp>
 +#include "log.hpp"
 +#include "device_io_dummy.hpp"
@@ -234,13 +235,13 @@ index 000000000..fb082694e
 +            MDEBUG("exchange(): waitsForDeviceSend");
 +            // NOTE: waitsForDeviceSend should be changed by external code
 +            while (waitsForDeviceSend) {
-+                sleep(1);
++                usleep(1000);
 +                MDEBUG("exchange(): waitsForDeviceSend (still)");
 +            }
 +
 +            MDEBUG("exchange(): waitsForDeviceReceive");
 +            while (waitsForDeviceReceive) {
-+                sleep(1);
++                usleep(1000);
 +                MDEBUG("exchange(): waitsForDeviceReceive (still)");
 +            }
 +
@@ -270,7 +271,7 @@ index 000000000..fb082694e
 \ No newline at end of file
 diff --git a/src/device/device_io_dummy.hpp b/src/device/device_io_dummy.hpp
 new file mode 100644
-index 000000000..a1733616d
+index 0000000..a173361
 --- /dev/null
 +++ b/src/device/device_io_dummy.hpp
 @@ -0,0 +1,74 @@
@@ -349,7 +350,7 @@ index 000000000..a1733616d
 +
 +#endif // HAVE_HIDAPI
 diff --git a/src/device/device_ledger.cpp b/src/device/device_ledger.cpp
-index 8403d76e8..db40a2eb7 100644
+index bb5b6f4..046201a 100644
 --- a/src/device/device_ledger.cpp
 +++ b/src/device/device_ledger.cpp
 @@ -41,7 +41,7 @@ namespace hw {
@@ -374,14 +375,14 @@ index 8403d76e8..db40a2eb7 100644
  
      bool device_ledger::connect(void) {
        this->disconnect();
-+      #ifndef HIDAPI_DUMMY
++      #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
        hw_device.connect(known_devices);
 +      #endif
        this->reset();
        #ifdef DEBUG_HWDEVICE
        cryptonote::account_public_address pubkey;
 diff --git a/src/device/device_ledger.hpp b/src/device/device_ledger.hpp
-index 03058c4f1..506f27c4a 100644
+index 03058c4..39454ca 100644
 --- a/src/device/device_ledger.hpp
 +++ b/src/device/device_ledger.hpp
 @@ -35,6 +35,7 @@
@@ -405,7 +406,7 @@ index 03058c4f1..506f27c4a 100644
          mutable boost::mutex   command_locker;
  
          //IO
-+#ifdef  HIDAPI_DUMMY
++#if defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI)
 +        hw::io::device_io_dummy hw_device;
 +#else
          hw::io::device_io_hid hw_device;
@@ -414,14 +415,14 @@ index 03058c4f1..506f27c4a 100644
          unsigned char buffer_send[BUFFER_SEND_SIZE];
          unsigned int  length_recv;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index ee000e7ab..375edb4f1 100644
+index 4fb5f75..c73f38e 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -48,6 +48,9 @@
  #include <boost/locale.hpp>
  #include <boost/filesystem.hpp>
  #include "bc-ur/src/bc-ur.hpp"
-+#ifdef HIDAPI_DUMMY
++#if defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI)
 +#include "device/device_io_dummy.hpp"
 +#endif
  
@@ -434,8 +435,8 @@ index ee000e7ab..375edb4f1 100644
 +
 +// HIDAPI_DUMMY
 +bool WalletImpl::getStateIsConnected() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
 +    return false;
 +    #else
 +    return hw::io::device_io_dummy::stateIsConnected;
@@ -443,8 +444,8 @@ index ee000e7ab..375edb4f1 100644
 +}
 +
 +unsigned char* WalletImpl::getSendToDevice() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
 +    return {};
 +    #else
 +    return hw::io::device_io_dummy::sendToDevice;
@@ -452,8 +453,8 @@ index ee000e7ab..375edb4f1 100644
 +}
 +
 +size_t WalletImpl::getSendToDeviceLength() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
 +    return -1;
 +    #else
 +    return hw::io::device_io_dummy::sendToDeviceLength;
@@ -461,8 +462,8 @@ index ee000e7ab..375edb4f1 100644
 +}
 +
 +unsigned char* WalletImpl::getReceivedFromDevice() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
 +    return {};
 +    #else
 +    return hw::io::device_io_dummy::receivedFromDevice;
@@ -470,8 +471,8 @@ index ee000e7ab..375edb4f1 100644
 +}
 +
 +size_t WalletImpl::getReceivedFromDeviceLength() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
 +    return -1;
 +    #else
 +    return hw::io::device_io_dummy::receivedFromDeviceLength;
@@ -479,8 +480,8 @@ index ee000e7ab..375edb4f1 100644
 +}
 +
 +bool WalletImpl::getWaitsForDeviceSend() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
 +    return false;
 +    #else
 +    return hw::io::device_io_dummy::receivedFromDeviceLength;
@@ -488,8 +489,8 @@ index ee000e7ab..375edb4f1 100644
 +}
 +
 +bool WalletImpl::getWaitsForDeviceReceive() {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
 +    return false;
 +    #else
 +    return hw::io::device_io_dummy::waitsForDeviceReceive;
@@ -497,8 +498,8 @@ index ee000e7ab..375edb4f1 100644
 +}
 +
 +void WalletImpl::setDeviceReceivedData(unsigned char* data, size_t len) {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
 +    return;
 +    #else
 +    hw::io::device_io_dummy::receivedFromDevice = static_cast<unsigned char *>(malloc(len));
@@ -510,8 +511,8 @@ index ee000e7ab..375edb4f1 100644
 +}
 +
 +void WalletImpl::setDeviceSendData(unsigned char* data, size_t len) {
-+    #ifndef HIDAPI_DUMMY
-+    setStatusError("MONERO compiled with -DHIDAPI_DUMMY");
++    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
++    setStatusError("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
 +    return;
 +    #else
 +    hw::io::device_io_dummy::sendToDevice = static_cast<unsigned char *>(malloc(len));
@@ -524,7 +525,7 @@ index ee000e7ab..375edb4f1 100644
 +
  } // namespace
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index edf8bb8ce..4e9c21ecb 100644
+index edf8bb8..4e9c21e 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -301,6 +301,24 @@ private:
@@ -553,7 +554,7 @@ index edf8bb8ce..4e9c21ecb 100644
  
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 764adbfbf..53ec4abfc 100644
+index 764adbf..53ec4ab 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -1150,6 +1150,18 @@ struct Wallet
@@ -575,6 +576,29 @@ index 764adbfbf..53ec4abfc 100644
  };
  
  /**
+diff --git a/src/wallet/api/wallet_manager.cpp b/src/wallet/api/wallet_manager.cpp
+index e81b8f8..277be6a 100644
+--- a/src/wallet/api/wallet_manager.cpp
++++ b/src/wallet/api/wallet_manager.cpp
+@@ -188,10 +188,14 @@ bool WalletManagerImpl::verifyWalletPassword(const std::string &keys_file_name,
+ 
+ bool WalletManagerImpl::queryWalletDevice(Wallet::Device& device_type, const std::string &keys_file_name, const std::string &password, uint64_t kdf_rounds) const
+ {
+-    hw::device::device_type type;
+-    bool r = tools::wallet2::query_device(type, keys_file_name, password, kdf_rounds);
+-    device_type = static_cast<Wallet::Device>(type);
+-    return r;
++    try {
++        hw::device::device_type type;
++        bool r = tools::wallet2::query_device(type, keys_file_name, password, kdf_rounds);
++        device_type = static_cast<Wallet::Device>(type);
++        return r;
++    } catch (...) {
++        return false;
++    }
+ }
+ 
+ std::vector<std::string> WalletManagerImpl::findWallets(const std::string &path)
 -- 
 2.39.5 (Apple Git-154)
 

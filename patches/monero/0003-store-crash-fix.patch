@@ -1,7 +1,7 @@
-From 92b9dcfa4cc36728fc8d5738ab8bb71931a3e30d Mon Sep 17 00:00:00 2001
+From b49bc52f3d3d1751dd65d4694e4f74b84b23f583 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 11 May 2024 16:25:10 +0200
-Subject: [PATCH 03/12] store crash fix
+Subject: [PATCH 03/14] store crash fix
 
 Monero wallet crashes (sometimes) when it is syncing,
 while the proper solution (that can be seen in feather)
@@ -38,12 +38,12 @@ the current state.
 ---
  src/wallet/api/wallet.cpp | 25 ++++++++++++-------------
  src/wallet/api/wallet.h   |  1 -
- src/wallet/wallet2.cpp    | 12 +++++++++++-
+ src/wallet/wallet2.cpp    | 11 ++++++++++-
  src/wallet/wallet2.h      |  3 +++
- 4 files changed, 26 insertions(+), 15 deletions(-)
+ 4 files changed, 25 insertions(+), 15 deletions(-)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index e9f76f4cf..0d85cf359 100644
+index e9f76f4..0d85cf3 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -55,8 +55,8 @@ using namespace cryptonote;
@@ -135,7 +135,7 @@ index e9f76f4cf..0d85cf359 100644
  
  
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 1f199a72c..ac7ce2f6a 100644
+index 1f199a7..ac7ce2f 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -273,7 +273,6 @@ private:
@@ -147,7 +147,7 @@ index 1f199a72c..ac7ce2f6a 100644
      std::atomic<int>  m_refreshIntervalMillis;
      std::atomic<bool> m_refreshShouldRescan;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 8146014d6..aa61fb298 100644
+index 8146014..7913d55 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -1192,6 +1192,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
@@ -173,19 +173,17 @@ index 8146014d6..aa61fb298 100644
  bool wallet2::set_proxy(const std::string &address)
  {
    return m_http_client->set_proxy(address);
-@@ -4096,8 +4105,9 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
+@@ -4096,7 +4105,7 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
    // infer when we get an incoming output
  
    bool first = true, last = false;
 -  while(m_run.load(std::memory_order_relaxed) && blocks_fetched < max_blocks)
 +  while(m_run.load(std::memory_order_relaxed) && blocks_fetched < max_blocks && m_refreshEnabled)
    {
-+    LOG_ERROR("SYNCING");
      uint64_t next_blocks_start_height;
      std::vector<cryptonote::block_complete_entry> next_blocks;
-     std::vector<parsed_block> next_parsed_blocks;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index b1dc4f716..a050286bc 100644
+index b1dc4f7..a050286 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -1071,6 +1071,8 @@ private:
@@ -206,5 +204,5 @@ index b1dc4f716..a050286bc 100644
      i_wallet2_callback* m_callback;
      hw::device::device_type m_key_device_type;
 -- 
-2.43.0
+2.39.5 (Apple Git-154)
 

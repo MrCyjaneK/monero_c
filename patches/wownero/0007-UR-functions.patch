@@ -1,7 +1,7 @@
-From 06921411d75e372df8176dd307e146812fe397ba Mon Sep 17 00:00:00 2001
+From 1302c64b0218da6d32b9dd9cbf1c2c56f51e6aff Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 10:09:50 +0100
-Subject: [PATCH 07/12] UR functions
+Subject: [PATCH 07/15] UR functions
 
 This commit adds UR functions for UR tasks,
 I believe that the right place to get
@@ -19,7 +19,7 @@ Things broken in the commit
   later. However (considering the purpose
   of this patch) it is not a dealbreaker.
 ---
- .gitmodules                             |   4 +
+ .gitmodules                             |   5 +-
  CMakeLists.txt                          |   4 +-
  contrib/depends/hosts/darwin.mk         |   2 +-
  contrib/depends/toolchain.cmake.in      |   2 +-
@@ -36,23 +36,24 @@ Things broken in the commit
  src/wallet/api/wallet2_api.h            |  22 +-
  src/wallet/wallet2.cpp                  | 141 +++++++----
  src/wallet/wallet2.h                    |   3 +
- 17 files changed, 521 insertions(+), 59 deletions(-)
+ 17 files changed, 521 insertions(+), 60 deletions(-)
  create mode 160000 external/bc-ur
 
 diff --git a/.gitmodules b/.gitmodules
-index ffb73fe9a..72af74d55 100644
+index 991071fbe..b24855d9b 100644
 --- a/.gitmodules
 +++ b/.gitmodules
-@@ -15,3 +15,7 @@
- 	path = external/supercop
- 	url = https://github.com/monero-project/supercop
- 	branch = monero
+@@ -16,4 +16,7 @@
+ 	path = external/randomwow
+ 	url = https://codeberg.org/wownero/RandomWOW
+         branch = 1.2.1-wow
+-
 +[submodule "external/bc-ur"]
 +	path = external/bc-ur
 +	url = https://github.com/MrCyjaneK/bc-ur
 +	branch = misc
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 8fb03ba1f..63ee8252d 100644
+index e387ffb1b..8b81c7ab7 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -96,7 +96,8 @@ enable_language(C ASM)
@@ -65,14 +66,14 @@ index 8fb03ba1f..63ee8252d 100644
  set(CMAKE_CXX_STANDARD_REQUIRED ON)
  set(CMAKE_CXX_EXTENSIONS OFF)
  
-@@ -364,6 +365,7 @@ if(NOT MANUAL_SUBMODULES)
+@@ -365,6 +366,7 @@ if(NOT MANUAL_SUBMODULES)
      endfunction ()
      
      message(STATUS "Checking submodules")
-+#    check_submodule(external/bc-ur)
++    #check_submodule(external/bc-ur)
      check_submodule(external/miniupnp)
      check_submodule(external/rapidjson)
-     check_submodule(external/trezor-common)
+     #check_submodule(external/trezor-common)
 diff --git a/contrib/depends/hosts/darwin.mk b/contrib/depends/hosts/darwin.mk
 index 79d449054..83d83036b 100644
 --- a/contrib/depends/hosts/darwin.mk
@@ -84,7 +85,7 @@ index 79d449054..83d83036b 100644
  ifeq (aarch64, $(host_arch))
  CC_target=arm64-apple-$(host_os)
 diff --git a/contrib/depends/toolchain.cmake.in b/contrib/depends/toolchain.cmake.in
-index cc1d9b5c5..48a6f947e 100644
+index f118c754e..f26655d68 100644
 --- a/contrib/depends/toolchain.cmake.in
 +++ b/contrib/depends/toolchain.cmake.in
 @@ -94,7 +94,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
@@ -97,15 +98,15 @@ index cc1d9b5c5..48a6f947e 100644
    SET(LLVM_ENABLE_PIC OFF)
    SET(LLVM_ENABLE_PIE OFF)
 diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
-index 5b7f69a56..f9ed6a69a 100644
+index 3184ae5a1..88a7bb0b5 100644
 --- a/external/CMakeLists.txt
 +++ b/external/CMakeLists.txt
-@@ -69,4 +69,5 @@ endif()
+@@ -72,4 +72,5 @@ endif()
  add_subdirectory(db_drivers)
  add_subdirectory(easylogging++)
  add_subdirectory(qrcodegen)
 +add_subdirectory(bc-ur)
- add_subdirectory(randomx EXCLUDE_FROM_ALL)
+ add_subdirectory(randomwow EXCLUDE_FROM_ALL)
 diff --git a/external/bc-ur b/external/bc-ur
 new file mode 160000
 index 000000000..d82e7c753
@@ -114,7 +115,7 @@ index 000000000..d82e7c753
 @@ -0,0 +1 @@
 +Subproject commit d82e7c753e710b8000706dc3383b498438795208
 diff --git a/src/device/device_ledger.cpp b/src/device/device_ledger.cpp
-index 5d0afe1ee..bb5b6f497 100644
+index 9961d13e7..8403d76e8 100644
 --- a/src/device/device_ledger.cpp
 +++ b/src/device/device_ledger.cpp
 @@ -313,12 +313,13 @@ namespace hw {
@@ -134,7 +135,7 @@ index 5d0afe1ee..bb5b6f497 100644
        boost::lock_guard<boost::recursive_mutex> lock1(device_locker, boost::adopt_lock); \
        boost::lock_guard<boost::mutex> lock2(command_locker, boost::adopt_lock)
 diff --git a/src/wallet/CMakeLists.txt b/src/wallet/CMakeLists.txt
-index 6095f99d5..b163212b7 100644
+index fdf3f2f5d..66384fe31 100644
 --- a/src/wallet/CMakeLists.txt
 +++ b/src/wallet/CMakeLists.txt
 @@ -50,6 +50,7 @@ monero_add_library(wallet
@@ -281,7 +282,7 @@ index 30065a7fa..a94b23f75 100644
      uint64_t minMixinCount() const override;
  
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index dfbf4fd28..4fb5f7595 100644
+index e16d8f83f..ee000e7ab 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -47,6 +47,7 @@
@@ -779,7 +780,7 @@ index e349df176..764adbfbf 100644
      /*!
       * \brief scanTransactions - scan a list of transaction ids, this operation may reveal the txids to the remote node and affect your privacy
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 5ffeda2ec..4f58d7aea 100644
+index 1e527cf97..671fa5298 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -948,6 +948,16 @@ uint32_t get_subaddress_clamped_sum(uint32_t idx, uint32_t extra)
@@ -799,7 +800,7 @@ index 5ffeda2ec..4f58d7aea 100644
  static void setup_shim(hw::wallet_shim * shim, tools::wallet2 * wallet)
  {
    shim->get_tx_pub_key_from_received_outs = std::bind(&tools::wallet2::get_tx_pub_key_from_received_outs, wallet, std::placeholders::_1);
-@@ -6987,6 +6997,25 @@ uint64_t wallet2::unlocked_balance(uint32_t index_major, bool strict, uint64_t *
+@@ -6989,6 +6999,25 @@ uint64_t wallet2::unlocked_balance(uint32_t index_major, bool strict, uint64_t *
    return amount;
  }
  //----------------------------------------------------------------------------------------------------
@@ -825,7 +826,7 @@ index 5ffeda2ec..4f58d7aea 100644
  std::map<uint32_t, uint64_t> wallet2::balance_per_subaddress(uint32_t index_major, bool strict) const
  {
    std::map<uint32_t, uint64_t> amount_per_subaddr;
-@@ -7838,9 +7867,7 @@ bool wallet2::sign_tx(unsigned_tx_set &exported_txs, std::vector<wallet2::pendin
+@@ -7840,9 +7869,7 @@ bool wallet2::sign_tx(unsigned_tx_set &exported_txs, std::vector<wallet2::pendin
      crypto::key_derivation derivation;
      std::vector<crypto::key_derivation> additional_derivations;
  
@@ -836,7 +837,7 @@ index 5ffeda2ec..4f58d7aea 100644
      std::vector<crypto::public_key> additional_tx_pub_keys;
      for (const crypto::secret_key &skey: txs[n].additional_tx_keys)
      {
-@@ -11236,7 +11263,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
+@@ -11232,7 +11259,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
        MDEBUG("Ignoring output " << i << " of amount " << print_money(td.amount()) << " which is below fractional threshold " << print_money(fractional_threshold));
        continue;
      }
@@ -845,7 +846,7 @@ index 5ffeda2ec..4f58d7aea 100644
      {
        if (td.amount() > m_ignore_outputs_above || td.amount() < m_ignore_outputs_below)
        {
-@@ -11286,9 +11313,15 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
+@@ -11282,9 +11309,15 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
  
    LOG_PRINT_L2("Starting with " << num_nondust_outputs << " non-dust outputs and " << num_dust_outputs << " dust outputs");
  
@@ -863,7 +864,7 @@ index 5ffeda2ec..4f58d7aea 100644
    // if empty, put dummy entry so that the front can be referenced later in the loop
    if (unused_dust_indices_per_subaddr.empty())
      unused_dust_indices_per_subaddr.push_back({});
-@@ -13924,33 +13957,40 @@ crypto::public_key wallet2::get_tx_pub_key_from_received_outs(const tools::walle
+@@ -13911,33 +13944,40 @@ crypto::public_key wallet2::get_tx_pub_key_from_received_outs(const tools::walle
  
  bool wallet2::export_key_images(const std::string &filename, bool all) const
  {
@@ -927,7 +928,7 @@ index 5ffeda2ec..4f58d7aea 100644
  //----------------------------------------------------------------------------------------------------
  std::pair<uint64_t, std::vector<std::pair<crypto::key_image, crypto::signature>>> wallet2::export_key_images(bool all) const
  {
-@@ -14005,53 +14045,60 @@ std::pair<uint64_t, std::vector<std::pair<crypto::key_image, crypto::signature>>
+@@ -13992,53 +14032,60 @@ std::pair<uint64_t, std::vector<std::pair<crypto::key_image, crypto::signature>>
    return std::make_pair(offset, ski);
  }
  
@@ -1007,7 +1008,7 @@ index 5ffeda2ec..4f58d7aea 100644
      ski.push_back(std::make_pair(key_image, signature));
    }
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index a050286bc..1d7e430b9 100644
+index c07a47c11..80ff0698d 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -1150,6 +1150,7 @@ private:
@@ -1031,5 +1032,5 @@ index a050286bc..1d7e430b9 100644
      bool import_key_images(signed_tx_set & signed_tx, size_t offset=0, bool only_selected_transfers=false);
      crypto::public_key get_tx_pub_key_from_received_outs(const tools::wallet2::transfer_details &td) const;
 -- 
-2.43.0
+2.39.5 (Apple Git-154)
 

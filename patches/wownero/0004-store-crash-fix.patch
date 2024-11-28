@@ -1,7 +1,7 @@
-From fb3c06a713325f63bc090c5e09e46a63bdaa8c2d Mon Sep 17 00:00:00 2001
+From 9dc9c8048d3918fe3615e91ab8be342471167c26 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 11 May 2024 16:25:10 +0200
-Subject: [PATCH 04/17] store crash fix
+Subject: [PATCH 04/15] store crash fix
 
 Monero wallet crashes (sometimes) when it is syncing,
 while the proper solution (that can be seen in feather)
