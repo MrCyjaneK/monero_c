@@ -1,8 +1,21 @@
-import { type Dylib, moneroSymbols, type MoneroTsDylib, wowneroSymbols, type WowneroTsDylib } from "./symbols.ts";
+import { type MoneroSymbols, moneroSymbols, type SymbolName, type WowneroSymbols, wowneroSymbols } from "./symbols.ts";
+
+export type MoneroDylib = Deno.DynamicLibrary<MoneroSymbols>;
+export type WowneroDylib = Deno.DynamicLibrary<WowneroSymbols>;
+export type Dylib = MoneroDylib | WowneroDylib;
 
 export let dylib: Dylib;
 
-export function loadMoneroDylib(newDylib?: MoneroTsDylib) {
+let dylibPrefix = "MONERO";
+export const fns = new Proxy({} as { [K in SymbolName]: MoneroDylib["symbols"][`MONERO_${K}`] }, {
+  get(_, symbolName: SymbolName) {
+    return dylib.symbols[`${dylibPrefix}_${symbolName}` as keyof Dylib["symbols"]];
+  },
+});
+
+export function loadMoneroDylib(newDylib?: MoneroDylib) {
+  dylibPrefix = "MONERO";
+
   if (newDylib) {
     dylib = newDylib;
     return;
@@ -27,7 +40,9 @@ export function loadMoneroDylib(newDylib?: MoneroTsDylib) {
   dylib = Deno.dlopen(libPath, moneroSymbols);
 }
 
-export function loadWowneroDylib(newDylib?: WowneroTsDylib) {
+export function loadWowneroDylib(newDylib?: WowneroDylib) {
+  dylibPrefix = "WOWNERO";
+
   if (newDylib) {
     dylib = newDylib;
     return;

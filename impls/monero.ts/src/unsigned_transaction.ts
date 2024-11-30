@@ -1,93 +1,79 @@
-import { CString, getSymbol, readCString, type Sanitizer } from "./utils.ts";
+import { fns } from "./bindings.ts";
+import { C_SEPARATOR, CString, maybeMultipleStrings, readCString } from "./utils.ts";
 
-export type UnsignedTransactionPtr = Deno.PointerObject<"unsignedTransaction">;
+export type UnsignedTransactionPtr = Deno.PointerObject<"pendingTransaction">;
 
-export class UnsignedTransaction {
-  #unsignedTxPtr: UnsignedTransactionPtr;
-  sanitizer?: Sanitizer;
+export class UnsignedTransaction<MultDest extends boolean = false> {
+  #ptr: UnsignedTransactionPtr;
 
-  constructor(pendingTxPtr: UnsignedTransactionPtr, sanitizer?: Sanitizer) {
-    this.sanitizer = sanitizer;
-    this.#unsignedTxPtr = pendingTxPtr;
+  #amount!: string | string[] | null;
+  #fee!: string | string[] | null;
+  #txCount!: bigint;
+  #paymentId!: string | null;
+  #recipientAddress!: string | string[] | null;
+
+  constructor(ptr: UnsignedTransactionPtr) {
+    this.#ptr = ptr;
   }
 
   async status(): Promise<number> {
-    return await getSymbol("UnsignedTransaction_status")(this.#unsignedTxPtr);
+    return await fns.UnsignedTransaction_status(this.#ptr);
   }
 
   async errorString(): Promise<string | null> {
-    if (!await this.status()) return null;
-
-    const error = await getSymbol("UnsignedTransaction_errorString")(this.#unsignedTxPtr);
-    if (!error) return null;
-
-    return await readCString(error) || null;
+    return await readCString(await fns.UnsignedTransaction_errorString(this.#ptr));
   }
 
-  async throwIfError(sanitize = true): Promise<void> {
-    const maybeError = await this.errorString();
-    if (maybeError) {
-      if (sanitize) this.sanitizer?.();
-      throw new Error(maybeError);
-    }
+  static async new(ptr: UnsignedTransactionPtr): Promise<UnsignedTransaction> {
+    const instance = new UnsignedTransaction(ptr);
+
+    const [amount, paymentId, fee, txCount, recipientAddress] = await Promise.all([
+      fns.UnsignedTransaction_amount(ptr, C_SEPARATOR).then(readCString),
+      fns.UnsignedTransaction_paymentId(ptr, C_SEPARATOR).then(readCString),
+      fns.UnsignedTransaction_fee(ptr, C_SEPARATOR).then(readCString),
+      fns.UnsignedTransaction_txCount(ptr),
+      fns.UnsignedTransaction_recipientAddress(ptr, C_SEPARATOR).then(readCString),
+    ]);
+
+    instance.#amount = maybeMultipleStrings(amount);
+    instance.#fee = maybeMultipleStrings(fee);
+    instance.#recipientAddress = maybeMultipleStrings(recipientAddress);
+    instance.#txCount = txCount;
+    instance.#paymentId = paymentId;
+
+    return instance;
   }
 
-  async amount(separator = ","): Promise<string | string[] | null> {
-    const amounts = (await readCString(
-      await getSymbol("UnsignedTransaction_amount")(this.#unsignedTxPtr, CString(separator)),
-    ))?.split(separator);
-
-    if (!amounts) return null;
-    if (amounts.length > 1) {
-      return amounts;
-    }
-    return amounts[0];
+  get amount(): string | string[] | null {
+    return this.#amount;
   }
 
-  async fee(separator = ","): Promise<string | string[] | null> {
-    const fees = (await readCString(
-      await getSymbol("UnsignedTransaction_fee")(this.#unsignedTxPtr, CString(separator)),
-    ))?.split(separator);
-
-    if (!fees) return null;
-    if (fees.length > 1) {
-      return fees;
-    }
-    return fees[0];
+  get fee(): string | string[] | null {
+    return this.#fee;
   }
 
-  async txCount(): Promise<bigint> {
-    return await getSymbol("UnsignedTransaction_txCount")(this.#unsignedTxPtr);
+  get txCount(): bigint {
+    return this.#txCount;
   }
 
-  async recipientAddress(separator = ","): Promise<string | string[] | null> {
-    const result = await getSymbol("UnsignedTransaction_recipientAddress")(
-      this.#unsignedTxPtr,
-      CString(separator),
-    );
-    await this.throwIfError();
-    const addresses = (await readCString(result))?.split(separator);
+  get paymentId(): string | null {
+    return this.#paymentId;
+  }
 
-    if (!addresses) return null;
-    if (addresses.length > 1) {
-      return addresses;
-    }
-    return addresses[0];
+  get recipientAddress(): string | string[] | null {
+    return this.#recipientAddress;
   }
 
   async sign(signedFileName: string): Promise<boolean> {
-    return await getSymbol("UnsignedTransaction_sign")(
-      this.#unsignedTxPtr,
-      CString(signedFileName),
-    );
+    return await fns.UnsignedTransaction_sign(this.#ptr, CString(signedFileName));
   }
 
   async signUR(maxFragmentLength: number): Promise<string | null> {
-    const signUR = getSymbol("UnsignedTransaction_signUR");
+    const signUR = fns.UnsignedTransaction_signUR;
     if (!signUR) return null;
 
-    const output = await signUR(this.#unsignedTxPtr, maxFragmentLength);
-    await this.throwIfError();
-    return await readCString(output);
+    return await readCString(
+      await signUR(this.#ptr, maxFragmentLength),
+    );
   }
 }
