@@ -1,19 +1,20 @@
-import { type Dylib, moneroSymbols, wowneroSymbols } from "../impls/monero.ts/src/symbols.ts";
-import { loadMoneroDylib, loadWowneroDylib } from "../impls/monero.ts/src/bindings.ts";
-import { Wallet, WalletManager } from "../impls/monero.ts/mod.ts";
-import { readCString } from "../impls/monero.ts/src/utils.ts";
+import {
+  CoinsInfo,
+  type Dylib,
+  loadMoneroDylib,
+  loadWowneroDylib,
+  moneroSymbols,
+  Wallet,
+  WalletManager,
+  wowneroSymbols,
+} from "../impls/monero.ts/mod.ts";
+
 import { assert, assertEquals } from "jsr:@std/assert";
 import { $, downloadCli, getMoneroC } from "./utils.ts";
-import { getSymbol } from "../impls/monero.ts/src/utils.ts";
-import type { CoinsInfo } from "../impls/monero.ts/src/coinsInfo.ts";
 
 const coin = Deno.env.get("COIN");
 if (coin !== "monero" && coin !== "wownero") {
   throw new Error("COIN env var invalid or missing");
-}
-
-async function getKey(wallet: Wallet, type: `${"secret" | "public"}${"Spend" | "View"}Key`): Promise<string | null> {
-  return await readCString(await getSymbol(`Wallet_${type}` as const)(wallet.getPointer()));
 }
 
 async function syncBlockchain(wallet: Wallet): Promise<bigint> {
@@ -235,8 +236,7 @@ Deno.test("0001-polyseed.patch", async (t) => {
       const walletManager = await WalletManager.new();
       const path = `tests/wallets/${walletInfo.name}`;
 
-      const wallet = await Wallet.recoverFromPolyseed(
-        walletManager,
+      const wallet = await walletManager.recoverFromPolyseed(
         path,
         walletInfo.password,
         walletInfo.seed,
@@ -244,7 +244,7 @@ Deno.test("0001-polyseed.patch", async (t) => {
         walletInfo.offset,
       );
 
-      await wallet.initWallet(""); // empty string for offline test
+      await wallet.init({}); // empty daemon address for offline test
 
       assertEquals(await wallet.address(), walletInfo.address);
 
@@ -267,34 +267,35 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
   const dylib = loadDylib();
 
   const walletManager = await WalletManager.new();
-  const wallet = await Wallet.create(walletManager, "tests/wallets/squirrel", "belka");
-  await wallet.initWallet(NODE_URL);
+  const wallet = await walletManager.createWallet("tests/wallets/squirrel", "belka");
+  await wallet.init({
+    address: NODE_URL,
+  });
 
   const walletInfo = {
     address: await wallet.address(),
-    publicSpendKey: await getKey(wallet, "publicSpendKey"),
-    secretSpendKey: await getKey(wallet, "secretSpendKey"),
-    publicViewKey: await getKey(wallet, "publicViewKey"),
-    secretViewKey: await getKey(wallet, "secretViewKey"),
+    publicSpendKey: await wallet.publicSpendKey(),
+    secretSpendKey: await wallet.secretSpendKey(),
+    publicViewKey: await wallet.publicViewKey(),
+    secretViewKey: await wallet.secretViewKey(),
   };
 
   await wallet.setupBackgroundSync(2, "belka", "background-belka");
   await wallet.startBackgroundSync();
   await wallet.close(true);
 
-  const backgroundWallet = await Wallet.open(
-    walletManager,
+  const backgroundWallet = await walletManager.openWallet(
     "tests/wallets/squirrel.background",
     "background-belka",
   );
-  await backgroundWallet.initWallet(NODE_URL);
+  await backgroundWallet.init({ address: NODE_URL });
 
   const blockChainHeight = await syncBlockchain(backgroundWallet);
   await backgroundWallet.refreshAsync();
 
   await backgroundWallet.close(true);
 
-  const reopenedWallet = await Wallet.open(walletManager, "tests/wallets/squirrel", "belka");
+  const reopenedWallet = await walletManager.openWallet("tests/wallets/squirrel", "belka");
   await reopenedWallet.throwIfError();
   await reopenedWallet.refreshAsync();
 
@@ -303,10 +304,10 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
     walletInfo,
     {
       address: await reopenedWallet.address(),
-      publicSpendKey: await getKey(reopenedWallet, "publicSpendKey"),
-      secretSpendKey: await getKey(reopenedWallet, "secretSpendKey"),
-      publicViewKey: await getKey(reopenedWallet, "publicViewKey"),
-      secretViewKey: await getKey(reopenedWallet, "secretViewKey"),
+      publicSpendKey: await reopenedWallet.publicSpendKey(),
+      secretSpendKey: await reopenedWallet.secretSpendKey(),
+      publicViewKey: await reopenedWallet.publicViewKey(),
+      secretViewKey: await reopenedWallet.secretViewKey(),
     },
   );
 
@@ -327,8 +328,7 @@ Deno.test("0004-coin-control.patch", {
   const dylib = loadDylib();
 
   const walletManager = await WalletManager.new();
-  const wallet = await Wallet.recoverFromPolyseed(
-    walletManager,
+  const wallet = await walletManager.recoverFromPolyseed(
     "tests/wallets/secret-wallet",
     Deno.env.get("SECRET_WALLET_PASSWORD")!,
     Deno.env.get("SECRET_WALLET_MNEMONIC")!,
@@ -340,7 +340,7 @@ Deno.test("0004-coin-control.patch", {
     "434dZdLzhymcoNyGSBUJAqhDCLtBECN6698CGRMYByuEAYtpxXdbiibQb3t4qX3SiZi9vDWkxeiEF8kmDGmEoEZ4VMG8Nvh",
   );
 
-  await wallet.initWallet(NODE_URL);
+  await wallet.init({ address: NODE_URL });
   await wallet.refreshAsync();
 
   // Wait for blockchain to sync
@@ -390,15 +390,14 @@ Deno.test("0004-coin-control.patch", {
     let totalAvailableAmount = 0n;
     for (let i = 0; i < coinsCount; ++i) {
       const coin = (await coins.coin(i))!;
-      if (await coin.spent()) {
+      if (coin.spent) {
         continue;
       }
 
-      const amount = await coin.amount();
       let humanReadableAmount: string;
-      if (amount === BILLION) {
+      if (coin.amount === BILLION) {
         humanReadableAmount = "0.001";
-      } else if (amount === 5n * BILLION) {
+      } else if (coin.amount === 5n * BILLION) {
         humanReadableAmount = "0.005";
       } else {
         throw new Error("Invalid coin amount! Only 5x0.01XMR coins and 1x0.05XMR coin should be available");
@@ -407,11 +406,11 @@ Deno.test("0004-coin-control.patch", {
       availableCoinsData[humanReadableAmount].push({
         index: i,
         coin,
-        keyImage: await coin.keyImage(),
-        amount,
+        keyImage: coin.keyImage,
+        amount: coin.amount,
       });
 
-      totalAvailableAmount += amount;
+      totalAvailableAmount += coin.amount;
       availableCoinsCount += 1;
 
       await coins.thaw(i);
@@ -428,9 +427,13 @@ Deno.test("0004-coin-control.patch", {
         2n * BILLION,
         0,
         0,
-        false,
         availableCoinsData["0.001"][0].keyImage!,
       );
+
+      if (!transaction) {
+        throw new Error("Failed creating a transaction");
+      }
+
       assertEquals(await transaction.status(), 1);
     });
 
@@ -438,7 +441,11 @@ Deno.test("0004-coin-control.patch", {
       await freezeAll();
       await coins.thaw(availableCoinsData["0.001"][0].index);
 
-      const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, 2n * BILLION, 0, 0, false);
+      const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, 2n * BILLION, 0, 0);
+
+      if (!transaction) {
+        throw new Error("Failed creating a transaction: " + await wallet.errorString());
+      }
 
       assertEquals(await transaction.status(), 1);
       assert((await transaction.errorString())?.includes("not enough money to transfer"));
@@ -450,14 +457,18 @@ Deno.test("0004-coin-control.patch", {
       await freezeAll();
       await coins.thaw(availableCoinsData["0.001"][0].index);
       await coins.thaw(availableCoinsData["0.001"][1].index);
+
       const transaction = await wallet.createTransaction(
         DESTINATION_ADDRESS,
         2n * BILLION,
         0,
         0,
-        false,
         availableCoinsData["0.001"][0].keyImage!,
       );
+
+      if (!transaction) {
+        throw new Error("Failed creating a transaction: " + await wallet.errorString());
+      }
 
       assertEquals(await transaction.status(), 1);
       assertEquals(
@@ -472,6 +483,10 @@ Deno.test("0004-coin-control.patch", {
   await t.step("spend more than unfrozen balance", async () => {
     const unlockedBalance = await wallet.unlockedBalance();
     const transaction = await wallet.createTransaction(DESTINATION_ADDRESS, unlockedBalance + 1n, 0, 0);
+
+    if (!transaction) {
+      throw new Error("Failed creating a transaction: " + await wallet.errorString());
+    }
 
     assertEquals(await transaction.status(), 1);
     assert(
@@ -494,7 +509,7 @@ Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
   const dylib = loadDylib();
 
   const walletManager = await WalletManager.new();
-  const wallet = await Wallet.create(walletManager, "tests/wallets/stoat", "gornostay");
+  const wallet = await walletManager.createWallet("tests/wallets/stoat", "gornostay");
   const moneroCSeed = await wallet.seed();
   await wallet.close(true);
 
@@ -524,25 +539,23 @@ Deno.test("0012-WIP-UR-functions.patch", {
 
     const walletManager = await WalletManager.new();
 
-    const airgap = await Wallet.recoverFromPolyseed(
-      walletManager,
+    const airgap = await walletManager.recoverFromPolyseed(
       "tests/wallets/secret-wallet",
       Deno.env.get("SECRET_WALLET_PASSWORD")!,
       Deno.env.get("SECRET_WALLET_MNEMONIC")!,
       BigInt(Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")!),
     );
-    await airgap.initWallet("");
+    await airgap.init({ address: "" });
 
-    const online = await Wallet.recoverFromKeys(
-      walletManager,
+    const online = await walletManager.recoverFromKeys(
       "tests/wallets/horse-online",
       "loshad-online",
       BigInt(Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")!) - 2000n,
-      await airgap.address(),
+      (await airgap.address())!,
       (await airgap.secretViewKey())!,
       "",
     );
-    await online.initWallet(NODE_URL);
+    await online.init({ address: NODE_URL });
     await online.refreshAsync();
 
     await syncBlockchain(online);
@@ -576,16 +589,25 @@ Deno.test("0012-WIP-UR-functions.patch", {
         name: "Transaction (UR)",
         ignore: coin === "wownero",
         fn: async () => {
-          const transaction = await online.createTransaction(DESTINATION_ADDRESS, 1n * BILLION, 0, 0, false);
+          const transaction = await online.createTransaction(DESTINATION_ADDRESS, 1n * BILLION, 0, 0);
+          if (!transaction) {
+            throw new Error("Failed creating online transaction: " + await online.errorString());
+          }
+
           const input = await transaction.commitUR(130);
+
           const unsignedTx = (await airgap.loadUnsignedTxUR(input!))!;
+          if (!unsignedTx) {
+            throw new Error("Failed creating unsigned transaction: " + await online.errorString());
+          }
+
           assertEquals(await unsignedTx.status(), 0);
-          assertEquals(await unsignedTx.amount(), "1000000000");
-          assertEquals(await unsignedTx.recipientAddress(), DESTINATION_ADDRESS);
-          assert(!isNaN(Number(await unsignedTx.fee())));
+          assertEquals(unsignedTx.recipientAddress, DESTINATION_ADDRESS);
+          assert(!isNaN(Number(unsignedTx.fee)));
+          assertEquals(unsignedTx.amount, "1000000000");
 
           await unsignedTx.signUR(130);
-          assertEquals(await unsignedTx.status(), 0);
+          assertEquals(await unsignedTx.status(), 0, (await unsignedTx.errorString())!);
         },
       });
     } else {
@@ -606,13 +628,22 @@ Deno.test("0012-WIP-UR-functions.patch", {
       });
 
       await t.step("Transaction (File)", async () => {
-        const transaction = await online.createTransaction(DESTINATION_ADDRESS, 1n * BILLION, 0, 0, false);
+        const transaction = await online.createTransaction(DESTINATION_ADDRESS, 1n * BILLION, 0, 0);
+        if (!transaction) {
+          throw new Error("Failed creating online transaction: " + await online.errorString());
+        }
+
         await transaction.commit("tests/wallets/transaction", false);
+
         const unsignedTx = await airgap.loadUnsignedTx("tests/wallets/transaction");
+        if (!unsignedTx) {
+          throw new Error("Failed creating unsigned transaction: " + await online.errorString());
+        }
+
         assertEquals(await unsignedTx.status(), 0);
-        assertEquals(await unsignedTx.amount(), "1000000000");
-        assertEquals(await unsignedTx.recipientAddress(), DESTINATION_ADDRESS);
-        assert(!isNaN(Number(await unsignedTx.fee())));
+        assertEquals(unsignedTx.amount, "1000000000");
+        assertEquals(unsignedTx.recipientAddress, DESTINATION_ADDRESS);
+        assert(!isNaN(Number(unsignedTx.fee)));
 
         await unsignedTx.sign("tests/wallets/signed-transaction");
         assertEquals(await unsignedTx.status(), 0);
