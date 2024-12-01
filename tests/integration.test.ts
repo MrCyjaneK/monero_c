@@ -74,16 +74,13 @@ async function clearWallets() {
   await Deno.mkdir("tests/wallets/");
 }
 
-function loadDylib() {
-  let dylib: Dylib;
-  if (coin === "monero") {
-    dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
-    loadMoneroDylib(dylib);
-  } else {
-    dylib = Deno.dlopen(`tests/libs/next/wownero_libwallet2_api_c.so`, wowneroSymbols);
-    loadWowneroDylib(dylib);
-  }
-  return dylib;
+let dylib: Dylib;
+if (coin === "monero") {
+  dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
+  loadMoneroDylib(dylib);
+} else {
+  dylib = Deno.dlopen(`tests/libs/next/wownero_libwallet2_api_c.so`, wowneroSymbols);
+  loadWowneroDylib(dylib);
 }
 
 Deno.test("0001-polyseed.patch", async (t) => {
@@ -227,8 +224,6 @@ Deno.test("0001-polyseed.patch", async (t) => {
     ],
   };
 
-  const dylib = loadDylib();
-
   await clearWallets();
 
   for (const walletInfo of WALLETS[coin]) {
@@ -257,14 +252,10 @@ Deno.test("0001-polyseed.patch", async (t) => {
       await wallet.close(true);
     });
   }
-
-  dylib.close();
 });
 
 Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () => {
   await clearWallets();
-
-  const dylib = loadDylib();
 
   const walletManager = await WalletManager.new();
   const wallet = await walletManager.createWallet("tests/wallets/squirrel", "belka");
@@ -312,8 +303,6 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
   );
 
   await reopenedWallet.close(true);
-
-  dylib.close();
 });
 
 Deno.test("0004-coin-control.patch", {
@@ -324,8 +313,6 @@ Deno.test("0004-coin-control.patch", {
   ),
 }, async (t) => {
   await clearWallets();
-
-  const dylib = loadDylib();
 
   const walletManager = await WalletManager.new();
   const wallet = await walletManager.recoverFromPolyseed(
@@ -496,8 +483,6 @@ Deno.test("0004-coin-control.patch", {
   });
 
   await wallet.close(true);
-
-  dylib.close();
 });
 
 Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
@@ -505,8 +490,6 @@ Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
     downloadCli(coin),
     clearWallets(),
   ]);
-
-  const dylib = loadDylib();
 
   const walletManager = await WalletManager.new();
   const wallet = await walletManager.createWallet("tests/wallets/stoat", "gornostay");
@@ -521,8 +504,6 @@ Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
     .lines()).slice(-3).join(" ");
 
   assertEquals(moneroCSeed, moneroCliSeed);
-
-  dylib.close();
 });
 
 Deno.test("0012-WIP-UR-functions.patch", {
@@ -532,8 +513,6 @@ Deno.test("0012-WIP-UR-functions.patch", {
     Deno.env.get("SECRET_WALLET_RESTORE_HEIGHT")
   ),
 }, async (t) => {
-  const dylib = loadDylib();
-
   for (const method of ["UR", "file"] as const) {
     await clearWallets();
 
@@ -650,6 +629,4 @@ Deno.test("0012-WIP-UR-functions.patch", {
       });
     }
   }
-
-  dylib.close();
 });
