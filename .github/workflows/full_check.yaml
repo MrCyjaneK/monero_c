@@ -609,7 +609,38 @@ jobs:
           path: release/${{ matrix.coin }}
 
       - name: Run regression tests
-        run: COIN="${{ matrix.coin }}" deno test -A tests/
+        run: COIN="${{ matrix.coin }}" deno test -A tests/regression.test.ts
+
+  integration_check:
+    strategy:
+      matrix:
+        coin: [monero, wownero]
+    needs: [
+      lib_linux
+    ]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux ${{ matrix.coin }}
+          path: release/${{ matrix.coin }}
+
+      - name: Run integration tests
+        run: COIN="${{ matrix.coin }}" deno test -A tests/integration.test.ts
+        env:
+          SECRET_WALLET_PASSWORD: ${{ secrets.SECRET_WALLET_PASSWORD }}
+          SECRET_WALLET_MNEMONIC: ${{ secrets.SECRET_WALLET_MNEMONIC }}
+          SECRET_WALLET_RESTORE_HEIGHT: ${{ secrets.SECRET_WALLET_RESTORE_HEIGHT }}
+
 
   comment_pr:
     name: comment on pr
