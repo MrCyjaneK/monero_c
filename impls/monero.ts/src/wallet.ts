@@ -1,294 +1,268 @@
-import { dylib } from "./bindings.ts";
-import { CString, getSymbol, readCString, Sanitizer } from "./utils.ts";
+import { WalletManager } from "./wallet_manager.ts";
 
-import { WalletManager, type WalletManagerPtr } from "./wallet_manager.ts";
-import { TransactionHistory, TransactionHistoryPtr } from "./transaction_history.ts";
-import { PendingTransaction } from "./pending_transaction.ts";
-import { PendingTransactionPtr } from "./pending_transaction.ts";
+import { C_SEPARATOR, CString, readCString, SEPARATOR } from "./utils.ts";
+import { PendingTransaction, PendingTransactionPtr } from "./pending_transaction.ts";
+import { UnsignedTransaction, UnsignedTransactionPtr } from "./unsigned_transaction.ts";
+import { Coins, CoinsPtr } from "./coins.ts";
+import { fns } from "./bindings.ts";
 
 export type WalletPtr = Deno.PointerObject<"walletManager">;
 
+interface DaemonInfo {
+  address?: string;
+  username?: string;
+  password?: string;
+  lightWallet?: boolean;
+  proxyAddress?: string;
+}
+
 export class Wallet {
-  #walletManagerPtr: WalletManagerPtr;
-  #walletPtr: WalletPtr;
-  sanitizer?: Sanitizer;
+  #walletManager: WalletManager;
+  #ptr: WalletPtr;
 
-  constructor(walletManagerPtr: WalletManager, walletPtr: WalletPtr, sanitizer?: Sanitizer) {
-    this.#walletPtr = walletPtr;
-    this.#walletManagerPtr = walletManagerPtr.getPointer();
-    this.sanitizer = sanitizer;
+  constructor(walletManager: WalletManager, ptr: WalletPtr) {
+    this.#walletManager = walletManager;
+    this.#ptr = ptr;
   }
 
-  getPointer(): WalletPtr {
-    return this.#walletPtr;
+  getPointer() {
+    return this.#ptr;
   }
 
-  async store(path = ""): Promise<boolean> {
-    const bool = await getSymbol("Wallet_store")(this.#walletPtr, CString(path));
-    await this.throwIfError();
-    return bool;
-  }
+  async init(daemonInfo: DaemonInfo, log = false): Promise<boolean> {
+    const success = await fns.Wallet_init(
+      this.#ptr,
+      CString(daemonInfo.address ?? ""),
+      0n,
+      CString(daemonInfo.username ?? ""),
+      CString(daemonInfo.password ?? ""),
+      false,
+      daemonInfo.lightWallet ?? false,
+      CString(daemonInfo.proxyAddress ?? ""),
+    );
 
-  async initWallet(daemonAddress = "http://nodex.monerujo.io:18081"): Promise<void> {
-    await this.init();
+    if (log) {
+      await fns.Wallet_init3(
+        this.#ptr,
+        CString(""),
+        CString(""),
+        CString(""),
+        true,
+      );
+    }
+
     await this.setTrustedDaemon(true);
-    await this.setDaemonAddress(daemonAddress);
     await this.startRefresh();
     await this.refreshAsync();
-    await this.throwIfError();
-  }
 
-  async setDaemonAddress(address: string): Promise<void> {
-    await getSymbol("WalletManager_setDaemonAddress")(
-      this.#walletManagerPtr,
-      CString(address),
-    );
-  }
-
-  async startRefresh(): Promise<void> {
-    await getSymbol("Wallet_startRefresh")(this.#walletPtr);
-    await this.throwIfError();
-  }
-
-  async refreshAsync(): Promise<void> {
-    await getSymbol("Wallet_refreshAsync")(this.#walletPtr);
-    await this.throwIfError();
-  }
-
-  async init(): Promise<boolean> {
-    const bool = await getSymbol("Wallet_init")(
-      this.#walletPtr,
-      CString("http://nodex.monerujo.io:18081"),
-      0n,
-      CString(""),
-      CString(""),
-      false,
-      false,
-      CString(""),
-    );
-    await this.throwIfError();
-    return bool;
+    return success;
   }
 
   async setTrustedDaemon(value: boolean): Promise<void> {
-    await getSymbol("Wallet_setTrustedDaemon")(this.#walletPtr, value);
+    return await fns.Wallet_setTrustedDaemon(this.#ptr, value);
   }
 
-  static async create(
-    walletManager: WalletManager,
-    path: string,
-    password: string,
-    sanitizeError = true,
-  ): Promise<Wallet> {
-    // We assign holder of the pointer in Wallet constructor
-    const walletManagerPtr = walletManager.getPointer();
+  async startRefresh(): Promise<void> {
+    return await fns.Wallet_startRefresh(this.#ptr);
+  }
 
-    const walletPtr = await getSymbol("WalletManager_createWallet")(
-      walletManagerPtr,
-      CString(path),
-      CString(password),
-      CString("English"),
-      0,
+  async refreshAsync(): Promise<void> {
+    return await fns.Wallet_refreshAsync(this.#ptr);
+  }
+
+  async setupBackgroundSync(
+    backgroundSyncType: number,
+    walletPassword: string,
+    backgroundCachePassword: string,
+  ): Promise<boolean> {
+    return await fns.Wallet_setupBackgroundSync(
+      this.#ptr,
+      backgroundSyncType,
+      CString(walletPassword),
+      CString(backgroundCachePassword),
     );
-
-    const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
-    await wallet.throwIfError(sanitizeError);
-    await wallet.initWallet();
-
-    return wallet;
   }
 
-  static async open(
-    walletManager: WalletManager,
-    path: string,
-    password: string,
-    sanitizeError = true,
-  ): Promise<Wallet> {
-    // We assign holder of the pointer in Wallet constructor
-    const walletManagerPtr = walletManager.getPointer();
+  async startBackgroundSync(): Promise<boolean> {
+    return await fns.Wallet_startBackgroundSync(this.#ptr);
+  }
 
-    const walletPtr = await getSymbol("WalletManager_openWallet")(
-      walletManagerPtr,
-      CString(path),
-      CString(password),
-      0,
+  async stopBackgroundSync(walletPassword: string): Promise<boolean> {
+    return await fns.Wallet_stopBackgroundSync(this.#ptr, CString(walletPassword));
+  }
+
+  async store(path = ""): Promise<boolean> {
+    return await fns.Wallet_store(this.#ptr, CString(path));
+  }
+
+  async close(store: boolean): Promise<boolean> {
+    return await fns.WalletManager_closeWallet(this.#walletManager.getPointer(), this.#ptr, store);
+  }
+
+  async seed(offset = ""): Promise<string | null> {
+    return await readCString(
+      await fns.Wallet_seed(this.#ptr, CString(offset)),
     );
-
-    const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
-    await wallet.throwIfError(sanitizeError);
-    await wallet.initWallet();
-
-    return wallet;
   }
 
-  static async recover(
-    walletManager: WalletManager,
-    path: string,
-    password: string,
-    mnemonic: string,
-    restoreHeight: bigint,
-    seedOffset: string = "",
-    sanitizeError = true,
-  ): Promise<Wallet> {
-    // We assign holder of the pointer in Wallet constructor
-    const walletManagerPtr = walletManager.getPointer();
-
-    const walletPtr = await getSymbol("WalletManager_recoveryWallet")(
-      walletManagerPtr,
-      CString(path),
-      CString(password),
-      CString(mnemonic),
-      0,
-      restoreHeight,
-      1n,
-      CString(seedOffset),
+  async address(accountIndex = 0n, addressIndex = 0n): Promise<string | null> {
+    return await readCString(
+      await fns.Wallet_address(this.#ptr, accountIndex, addressIndex),
     );
-
-    const wallet = new Wallet(walletManager, walletPtr as WalletPtr, walletManager.sanitizer);
-    await wallet.throwIfError(sanitizeError);
-    await wallet.initWallet();
-
-    return wallet;
-  }
-
-  async address(accountIndex = 0n, addressIndex = 0n): Promise<string> {
-    const address = await getSymbol("Wallet_address")(this.#walletPtr, accountIndex, addressIndex);
-    if (!address) {
-      const error = await this.errorString();
-      throw new Error(`Failed getting address from a wallet: ${error ?? "<Error unknown>"}`);
-    }
-    return await readCString(address);
   }
 
   async balance(accountIndex = 0): Promise<bigint> {
-    return await getSymbol("Wallet_balance")(this.#walletPtr, accountIndex);
+    return await fns.Wallet_balance(this.#ptr, accountIndex);
   }
 
   async unlockedBalance(accountIndex = 0): Promise<bigint> {
-    return await getSymbol("Wallet_unlockedBalance")(this.#walletPtr, accountIndex);
-  }
-
-  status(): Promise<number> {
-    return getSymbol("Wallet_status")(this.#walletPtr);
-  }
-
-  async errorString(): Promise<string | null> {
-    if (!await this.status()) return null;
-
-    const error = await getSymbol("Wallet_errorString")(this.#walletPtr);
-    if (!error) return null;
-
-    return await readCString(error) || null;
-  }
-
-  async throwIfError(sanitize = true): Promise<void> {
-    const maybeError = await this.errorString();
-    if (maybeError) {
-      if (sanitize) this.sanitizer?.();
-      throw new Error(maybeError);
-    }
+    return await fns.Wallet_unlockedBalance(this.#ptr, accountIndex);
   }
 
   async synchronized(): Promise<boolean> {
-    const synchronized = await getSymbol("Wallet_synchronized")(this.#walletPtr);
-    await this.throwIfError();
-    return synchronized;
+    return await fns.Wallet_synchronized(this.#ptr);
   }
 
   async blockChainHeight(): Promise<bigint> {
-    const height = await getSymbol("Wallet_blockChainHeight")(this.#walletPtr);
-    await this.throwIfError();
-    return height;
+    return await fns.Wallet_blockChainHeight(this.#ptr);
   }
 
   async daemonBlockChainHeight(): Promise<bigint> {
-    const height = await getSymbol("Wallet_daemonBlockChainHeight")(this.#walletPtr);
-    await this.throwIfError();
-    return height;
-  }
-
-  async managerBlockChainHeight(): Promise<bigint> {
-    const height = await getSymbol("WalletManager_blockchainHeight")(this.#walletManagerPtr);
-    await this.throwIfError();
-    return height;
-  }
-
-  async managerTargetBlockChainHeight(): Promise<bigint> {
-    const height = await getSymbol("WalletManager_blockchainTargetHeight")(this.#walletManagerPtr);
-    await this.throwIfError();
-    return height;
+    return await fns.Wallet_daemonBlockChainHeight(this.#ptr);
   }
 
   async addSubaddressAccount(label: string): Promise<void> {
-    await getSymbol("Wallet_addSubaddressAccount")(
-      this.#walletPtr,
-      CString(label),
-    );
-    await this.throwIfError();
+    return await fns.Wallet_addSubaddressAccount(this.#ptr, CString(label));
   }
 
   async numSubaddressAccounts(): Promise<bigint> {
-    const accountsLen = await getSymbol("Wallet_numSubaddressAccounts")(this.#walletPtr);
-    await this.throwIfError();
-    return accountsLen;
+    return await fns.Wallet_numSubaddressAccounts(this.#ptr);
   }
 
   async addSubaddress(accountIndex: number, label: string): Promise<void> {
-    await getSymbol("Wallet_addSubaddress")(
-      this.#walletPtr,
+    return await fns.Wallet_addSubaddress(
+      this.#ptr,
       accountIndex,
       CString(label),
     );
-    await this.throwIfError();
   }
 
   async numSubaddresses(accountIndex: number): Promise<bigint> {
-    const address = await getSymbol("Wallet_numSubaddresses")(
-      this.#walletPtr,
+    return await fns.Wallet_numSubaddresses(
+      this.#ptr,
       accountIndex,
     );
-    await this.throwIfError();
-    return address;
   }
 
-  async getSubaddressLabel(accountIndex: number, addressIndex: number): Promise<string> {
-    const label = await getSymbol("Wallet_getSubaddressLabel")(this.#walletPtr, accountIndex, addressIndex);
-    if (!label) {
-      const error = await this.errorString();
-      throw new Error(`Failed getting subaddress label from a wallet: ${error ?? "<Error unknown>"}`);
-    }
-    return await readCString(label);
+  async getSubaddressLabel(accountIndex: number, addressIndex: number): Promise<string | null> {
+    return await readCString(
+      await fns.Wallet_getSubaddressLabel(this.#ptr, accountIndex, addressIndex),
+    );
   }
 
   async setSubaddressLabel(accountIndex: number, addressIndex: number, label: string): Promise<void> {
-    await getSymbol("Wallet_setSubaddressLabel")(
-      this.#walletPtr,
-      accountIndex,
-      addressIndex,
-      CString(label),
-    );
-    await this.throwIfError();
+    return await fns.Wallet_setSubaddressLabel(this.#ptr, accountIndex, addressIndex, CString(label));
   }
 
-  async getHistory(): Promise<TransactionHistory> {
-    const transactionHistoryPointer = await getSymbol("Wallet_history")(this.#walletPtr);
-    await this.throwIfError();
-    return new TransactionHistory(transactionHistoryPointer as TransactionHistoryPtr);
+  async isOffline(): Promise<boolean> {
+    return await fns.Wallet_isOffline(this.#ptr);
+  }
+
+  async setOffline(offline: boolean): Promise<void> {
+    return await fns.Wallet_setOffline(this.#ptr, offline);
+  }
+
+  async publicViewKey(): Promise<string | null> {
+    return await readCString(await fns.Wallet_publicViewKey(this.#ptr));
+  }
+
+  async secretViewKey(): Promise<string | null> {
+    return await readCString(await fns.Wallet_secretViewKey(this.#ptr));
+  }
+
+  async publicSpendKey(): Promise<string | null> {
+    return await readCString(await fns.Wallet_publicSpendKey(this.#ptr));
+  }
+
+  async secretSpendKey(): Promise<string | null> {
+    return await readCString(await fns.Wallet_secretSpendKey(this.#ptr));
+  }
+
+  async exportOutputs(fileName: string, all: boolean): Promise<boolean> {
+    return await fns.Wallet_exportOutputs(this.#ptr, CString(fileName), all);
+  }
+
+  async exportOutputsUR(maxFragmentLength: bigint, all: boolean): Promise<string | null> {
+    const exportOutputsUR = fns.Wallet_exportOutputsUR;
+    if (!exportOutputsUR) return null;
+
+    return await readCString(
+      await exportOutputsUR(this.#ptr, maxFragmentLength, all),
+    );
+  }
+
+  async importOutputs(fileName: string): Promise<boolean> {
+    return await fns.Wallet_importOutputs(this.#ptr, CString(fileName));
+  }
+
+  async importOutputsUR(input: string): Promise<boolean | null> {
+    const importOutputsUR = fns.Wallet_importOutputsUR;
+    if (!importOutputsUR) return null;
+
+    return await importOutputsUR(this.#ptr, CString(input));
+  }
+
+  async exportKeyImages(fileName: string, all: boolean): Promise<boolean> {
+    return await fns.Wallet_exportKeyImages(this.#ptr, CString(fileName), all);
+  }
+
+  async exportKeyImagesUR(maxFragmentLength: bigint, all: boolean): Promise<string | null> {
+    const exportKeyImagesUR = fns.Wallet_exportKeyImagesUR;
+    if (!exportKeyImagesUR) return null;
+
+    return await readCString(
+      await exportKeyImagesUR(this.#ptr, maxFragmentLength, all),
+    );
+  }
+
+  async importKeyImages(fileName: string): Promise<boolean> {
+    return await fns.Wallet_importKeyImages(this.#ptr, CString(fileName));
+  }
+
+  async importKeyImagesUR(input: string): Promise<boolean | null> {
+    const importKeyImagesUR = fns.Wallet_importKeyImagesUR;
+    if (!importKeyImagesUR) return null;
+
+    return await importKeyImagesUR(this.#ptr, CString(input));
+  }
+
+  async loadUnsignedTx(fileName: string): Promise<UnsignedTransaction> {
+    const pendingTxPtr = await fns.Wallet_loadUnsignedTx(this.#ptr, CString(fileName));
+    return UnsignedTransaction.new(pendingTxPtr as UnsignedTransactionPtr);
+  }
+
+  async loadUnsignedTxUR(input: string): Promise<UnsignedTransaction | null> {
+    const loadUnsignedTxUR = fns.Wallet_loadUnsignedTxUR;
+    if (!loadUnsignedTxUR) return null;
+
+    const pendingTxPtr = await loadUnsignedTxUR(this.#ptr, CString(input));
+    if (await this.status()) {
+      throw this.errorString();
+    }
+    return UnsignedTransaction.new(pendingTxPtr as UnsignedTransactionPtr);
   }
 
   async createTransaction(
     destinationAddress: string,
     amount: bigint,
-    pendingTransactionPriority = 0 | 1 | 2 | 3,
+    pendingTransactionPriority: 0 | 1 | 2 | 3,
     subaddressAccount: number,
-    sanitize = true,
     prefferedInputs = "",
     mixinCount = 0,
     paymentId = "",
-    separator = ",",
-  ): Promise<PendingTransaction> {
-    const pendingTxPtr = await getSymbol("Wallet_createTransaction")(
-      this.#walletPtr,
+  ): Promise<PendingTransaction | null> {
+    const pendingTxPtr = await fns.Wallet_createTransaction(
+      this.#ptr,
       CString(destinationAddress),
       CString(paymentId),
       amount,
@@ -296,13 +270,61 @@ export class Wallet {
       pendingTransactionPriority,
       subaddressAccount,
       CString(prefferedInputs),
-      CString(separator),
+      C_SEPARATOR,
     );
-    await this.throwIfError(sanitize);
-    return new PendingTransaction(pendingTxPtr as PendingTransactionPtr);
+
+    if (!pendingTxPtr) return null;
+    return PendingTransaction.new(pendingTxPtr as PendingTransactionPtr);
   }
 
-  async amountFromString(amount: string): Promise<bigint> {
-    return await getSymbol("Wallet_amountFromString")(CString(amount));
+  async createTransactionMultDest(
+    destinationAddresses: string[],
+    amounts: bigint[],
+    amountSweepAll: boolean,
+    pendingTransactionPriority: 0 | 1 | 2 | 3,
+    subaddressAccount: number,
+    preferredInputs: string[] = [],
+    mixinCount = 0,
+    paymentId = "",
+  ): Promise<PendingTransaction> {
+    const pendingTxPtr = await fns.Wallet_createTransactionMultDest(
+      this.#ptr,
+      CString(destinationAddresses.join(SEPARATOR)),
+      C_SEPARATOR,
+      CString(paymentId),
+      amountSweepAll,
+      CString(amounts.join(SEPARATOR)),
+      C_SEPARATOR,
+      mixinCount,
+      pendingTransactionPriority,
+      subaddressAccount,
+      CString(preferredInputs.join(SEPARATOR)),
+      C_SEPARATOR,
+    );
+    return PendingTransaction.new(pendingTxPtr as PendingTransactionPtr);
+  }
+
+  async coins(): Promise<Coins | null> {
+    const coinsPtr = await fns.Wallet_coins(this.#ptr);
+    if (!coinsPtr) return null;
+
+    return new Coins(coinsPtr as CoinsPtr);
+  }
+
+  async status(): Promise<number> {
+    return await fns.Wallet_status(this.#ptr);
+  }
+
+  async errorString(): Promise<string | null> {
+    if (!await this.status()) return null;
+    const error = await fns.Wallet_errorString(this.#ptr);
+    return await readCString(error);
+  }
+
+  async throwIfError(): Promise<void> {
+    const maybeError = await this.errorString();
+    if (maybeError) {
+      throw new Error(maybeError);
+    }
   }
 }

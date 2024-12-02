@@ -1,22 +1,19 @@
-import { dylib } from "../mod.ts";
-import type { moneroSymbols, MoneroTsDylib, WowneroTsDylib } from "./symbols.ts";
-
-export type Sanitizer = () => void | PromiseLike<void>;
+import { fns } from "./bindings.ts";
 
 const textEncoder = new TextEncoder();
-export function CString(string: string): Deno.PointerValue<string> {
-  return Deno.UnsafePointer.of(textEncoder.encode(`${string}\x00`));
+export const SEPARATOR = ",";
+export const C_SEPARATOR = CString(SEPARATOR);
+
+export function maybeMultipleStrings(input: string): string | string[];
+export function maybeMultipleStrings(input: null | string): null | string | string[];
+export function maybeMultipleStrings(input: null | string): null | string | string[] {
+  if (!input) return null;
+  const multiple = input.split(SEPARATOR);
+  return multiple.length === 1 ? multiple[0] : multiple;
 }
 
-type SymbolWithoutPrefix = keyof typeof moneroSymbols extends `MONERO_${infer DylibSymbol}` ? DylibSymbol : never;
-export function getSymbol<S extends SymbolWithoutPrefix>(
-  symbol: S,
-): MoneroTsDylib["symbols"][`MONERO_${S}`] | WowneroTsDylib["symbols"][`WOWNERO_${S}`] {
-  if ("MONERO_free" in dylib.symbols) {
-    return dylib.symbols[`MONERO_${symbol}` as const];
-  } else {
-    return dylib.symbols[`WOWNERO_${symbol}` as const];
-  }
+export function CString(string: string): Deno.PointerValue<string> {
+  return Deno.UnsafePointer.of(textEncoder.encode(`${string}\x00`));
 }
 
 /**
@@ -29,9 +26,8 @@ export async function readCString(pointer: Deno.PointerObject, free?: boolean): 
 export async function readCString(pointer: Deno.PointerValue, free?: boolean): Promise<string | null>;
 export async function readCString(pointer: Deno.PointerValue, free = true): Promise<string | null> {
   if (!pointer) return null;
+
   const string = new Deno.UnsafePointerView(pointer).getCString();
-  if (free) {
-    await getSymbol("free")(pointer);
-  }
+  if (string && free) await fns.free(pointer);
   return string;
 }

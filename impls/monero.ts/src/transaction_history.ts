@@ -1,34 +1,41 @@
+import { fns } from "./bindings.ts";
 import { TransactionInfo, TransactionInfoPtr } from "./transaction_info.ts";
-import { CString, getSymbol } from "./utils.ts";
+import { CString } from "./utils.ts";
 
 export type TransactionHistoryPtr = Deno.PointerObject<"transactionHistory">;
 
 export class TransactionHistory {
-  #txHistoryPtr: TransactionHistoryPtr;
+  #ptr: TransactionHistoryPtr;
 
-  constructor(txHistoryPtr: TransactionHistoryPtr) {
-    this.#txHistoryPtr = txHistoryPtr;
+  #count!: number;
+
+  constructor(ptr: TransactionHistoryPtr) {
+    this.#ptr = ptr;
   }
 
-  async count(): Promise<number> {
-    return await getSymbol("TransactionHistory_count")(this.#txHistoryPtr);
+  static async new(ptr: TransactionHistoryPtr) {
+    const instance = new TransactionHistory(ptr);
+    instance.#count = await fns.TransactionHistory_count(ptr);
+    return instance;
+  }
+
+  get count(): number {
+    return this.#count;
   }
 
   async transaction(index: number): Promise<TransactionInfo> {
-    return new TransactionInfo(
-      (
-        await getSymbol("TransactionHistory_transaction")(this.#txHistoryPtr, index)
-      ) as TransactionInfoPtr,
+    return TransactionInfo.new(
+      await fns.TransactionHistory_transaction(this.#ptr, index) as TransactionInfoPtr,
     );
   }
 
   async refresh(): Promise<void> {
-    await getSymbol("TransactionHistory_refresh")(this.#txHistoryPtr);
+    await fns.TransactionHistory_refresh(this.#ptr);
   }
 
   async setTxNote(transactionId: string, note: string): Promise<void> {
-    await getSymbol("TransactionHistory_setTxNote")(
-      this.#txHistoryPtr,
+    await fns.TransactionHistory_setTxNote(
+      this.#ptr,
       CString(transactionId),
       CString(note),
     );
