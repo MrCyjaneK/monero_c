@@ -601,8 +601,6 @@ extern ADDAPI uint64_t WOWNERO_Wallet_approximateBlockChainHeight(void* wallet_p
 extern ADDAPI uint64_t WOWNERO_Wallet_estimateBlockChainHeight(void* wallet_ptr);
 //     virtual uint64_t daemonBlockChainHeight() const = 0;
 extern ADDAPI uint64_t WOWNERO_Wallet_daemonBlockChainHeight(void* wallet_ptr);
-extern ADDAPI uint64_t WOWNERO_Wallet_daemonBlockChainHeight_cached(void* wallet_ptr);
-extern ADDAPI void WOWNERO_Wallet_daemonBlockChainHeight_runThread(void* wallet_ptr, int seconds);
 //     virtual uint64_t daemonBlockChainTargetHeight() const = 0;
 extern ADDAPI uint64_t WOWNERO_Wallet_daemonBlockChainTargetHeight(void* wallet_ptr);
 //     virtual bool synchronized() const = 0;

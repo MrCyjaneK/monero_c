@@ -1,0 +1,65 @@
+From d8ab8f6fffd6235e935400f0fe750c1ba29b85e7 Mon Sep 17 00:00:00 2001
+From: cyan <cyjan@mrcyjanek.net>
+Date: Thu, 7 Nov 2024 16:46:24 +0000
+Subject: [PATCH 12/14] add monero submodule support
+
+---
+ CMakeLists.txt                   | 6 +++---
+ cmake/CheckLinkerFlag.cmake      | 2 +-
+ src/wallet/wallet_rpc_server.cpp | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e7fa90a..b995a68 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -223,9 +223,9 @@ function(forbid_undefined_symbols)
+ cmake_minimum_required(VERSION 3.1)
+ project(test)
+ option(EXPECT_SUCCESS "" ON)
+-file(WRITE "${CMAKE_SOURCE_DIR}/incorrect_source.cpp" "void undefined_symbol(); void symbol() { undefined_symbol(); }")
++file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/incorrect_source.cpp" "void undefined_symbol(); void symbol() { undefined_symbol(); }")
+ if (EXPECT_SUCCESS)
+-  file(APPEND "${CMAKE_SOURCE_DIR}/incorrect_source.cpp" " void undefined_symbol() {}; ")
++  file(APPEND "${CMAKE_CURRENT_SOURCE_DIR}/incorrect_source.cpp" " void undefined_symbol() {}; ")
+ endif()
+ add_library(l0 SHARED incorrect_source.cpp)
+ add_library(l1 MODULE incorrect_source.cpp)
+@@ -390,7 +390,7 @@ else()
+ endif()
+ 
+ list(INSERT CMAKE_MODULE_PATH 0
+-  "${CMAKE_SOURCE_DIR}/cmake")
++  "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+ 
+ if (NOT DEFINED ENV{DEVELOPER_LOCAL_TOOLS})
+   message(STATUS "Could not find DEVELOPER_LOCAL_TOOLS in env (not required)")
+diff --git a/cmake/CheckLinkerFlag.cmake b/cmake/CheckLinkerFlag.cmake
+index 7ecf5f6..89fb9d1 100644
+--- a/cmake/CheckLinkerFlag.cmake
++++ b/cmake/CheckLinkerFlag.cmake
+@@ -6,7 +6,7 @@ macro(CHECK_LINKER_FLAG flag VARIABLE)
+       message(STATUS "Looking for ${flag} linker flag")
+     endif()
+ 
+-    set(_cle_source ${CMAKE_SOURCE_DIR}/cmake/CheckLinkerFlag.c)
++    set(_cle_source ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckLinkerFlag.c)
+ 
+     set(saved_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+     set(CMAKE_C_FLAGS "${flag}")
+diff --git a/src/wallet/wallet_rpc_server.cpp b/src/wallet/wallet_rpc_server.cpp
+index d24b4c5..91f6925 100644
+--- a/src/wallet/wallet_rpc_server.cpp
++++ b/src/wallet/wallet_rpc_server.cpp
+@@ -1163,7 +1163,7 @@ namespace tools
+     {
+       uint64_t mixin = m_wallet->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
+       uint32_t priority = m_wallet->adjust_priority(req.priority);
+-      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, mixin, priority, extra, req.account_index, req.subaddr_indices, req.subtract_fee_from_outputs);
++      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, mixin, priority, extra, req.account_index, req.subaddr_indices, {}, req.subtract_fee_from_outputs);
+ 
+       if (ptx_vector.empty())
+       {
+-- 
+2.39.5 (Apple Git-154)
+

@@ -1,0 +1,71 @@
+From 776d22d6dc47739074f004979894f3c62d43a0c9 Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Mon, 24 Jun 2024 10:49:12 +0200
+Subject: [PATCH 06/15] use proper error handling in get_seed
+
+---
+ src/wallet/api/wallet.cpp | 17 ++++++++++++-----
+ src/wallet/wallet2.cpp    |  5 ++++-
+ 2 files changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index 899ef044a..e16d8f83f 100644
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -826,12 +826,19 @@ bool WalletImpl::close(bool store)
+ 
+ std::string WalletImpl::seed(const std::string& seed_offset) const
+ {
+-    if (checkBackgroundSync("cannot get seed"))
++    if (checkBackgroundSync("cannot get seed")) {
++        setStatusError("cannot get seed");
+         return std::string();
+-    epee::wipeable_string seed;
+-    if (m_wallet)
+-        m_wallet->get_seed(seed, seed_offset);
+-    return std::string(seed.data(), seed.size()); // TODO
++    }
++    try {
++        epee::wipeable_string seed;
++        if (m_wallet)
++            m_wallet->get_seed(seed, seed_offset);
++        return std::string(seed.data(), seed.size()); // TODO
++    } catch (const std::exception &e) {
++        setStatusError(e.what());
++        return std::string();
++    }
+ }
+ 
+ std::string WalletImpl::getSeedLanguage() const
+diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
+index 651161d14..1e527cf97 100644
+--- a/src/wallet/wallet2.cpp
++++ b/src/wallet/wallet2.cpp
+@@ -1440,11 +1440,13 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
+   bool keys_deterministic = is_deterministic();
+   if (!keys_deterministic)
+   {
++    THROW_WALLET_EXCEPTION(error::wallet_internal_error, "This is not a deterministic wallet");
+     std::cout << "This is not a deterministic wallet" << std::endl;
+     return false;
+   }
+   if (seed_language.empty())
+   {
++    THROW_WALLET_EXCEPTION(error::wallet_internal_error, "seed_language not set");
+     std::cout << "seed_language not set" << std::endl;
+     return false;
+   }
+@@ -1454,8 +1456,9 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
+     key = cryptonote::encrypt_key(key, passphrase);
+   if (!crypto::ElectrumWords::bytes_to_words(key, electrum_words, seed_language))
+   {
++    THROW_WALLET_EXCEPTION(error::wallet_internal_error, "Failed to create seed from key for language: "+seed_language+", falling back to English.");
+     std::cout << "Failed to create seed from key for language: " << seed_language << std::endl;
+-    return false;
++    crypto::ElectrumWords::bytes_to_words(key, electrum_words, "English");
+   }
+ 
+   return true;
+-- 
+2.39.5 (Apple Git-154)
+
