@@ -234,13 +234,13 @@ index 000000000..fb082694e
 +            MDEBUG("exchange(): waitsForDeviceSend");
 +            // NOTE: waitsForDeviceSend should be changed by external code
 +            while (waitsForDeviceSend) {
-+                sleep(1);
++                usleep(1000);
 +                MDEBUG("exchange(): waitsForDeviceSend (still)");
 +            }
 +
 +            MDEBUG("exchange(): waitsForDeviceReceive");
 +            while (waitsForDeviceReceive) {
-+                sleep(1);
++                usleep(1000);
 +                MDEBUG("exchange(): waitsForDeviceReceive (still)");
 +            }
 +

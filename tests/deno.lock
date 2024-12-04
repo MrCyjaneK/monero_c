@@ -12,6 +12,7 @@
     "jsr:@std/fs@1": "1.0.4",
     "jsr:@std/io@0.221": "0.221.0",
     "jsr:@std/path@1": "1.0.6",
+    "jsr:@std/path@1.0.8": "1.0.8",
     "jsr:@std/path@^1.0.6": "1.0.6",
     "jsr:@std/streams@0.221": "0.221.0",
     "jsr:@std/streams@^1.0.7": "1.0.7",
@@ -70,6 +71,9 @@
     },
     "@std/path@1.0.6": {
       "integrity": "ab2c55f902b380cf28e0eec501b4906e4c1960d13f00e11cfbcd21de15f18fed"
+    },
+    "@std/path@1.0.8": {
+      "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
     },
     "@std/streams@0.221.0": {
       "integrity": "47f2f74634b47449277c0ee79fe878da4424b66bd8975c032e3afdca88986e61",
