@@ -1,18 +1,17 @@
-From 38fa77b0b86891d3b5e6128746f36a2b9f069bef Mon Sep 17 00:00:00 2001
+From 20975fed75b7255f6cb6df74a17f1923f7159c09 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 5 Nov 2024 16:52:23 +0100
-Subject: [PATCH] fix ios builds
+Subject: [PATCH 5/5] fix ios builds
 
 ---
- CMakeLists.txt             | 6 +++---
- contrib/depends/.gitignore | 1 +
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ CMakeLists.txt | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 04790815..5e6a9ae7 100644
+index c480300f..7087d796 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -130,6 +130,8 @@ else()
+@@ -136,6 +136,8 @@ else()
    set(ARCH default CACHE STRING "CPU to build for: -march value or default")
    if("${ARCH}" STREQUAL "default")
      set(ARCH_FLAG "")
@@ -21,7 +20,7 @@ index 04790815..5e6a9ae7 100644
    else()
      set(ARCH_FLAG "-march=${ARCH}")
    endif()
-@@ -201,7 +203,7 @@ else()
+@@ -207,7 +209,7 @@ else()
    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${RELEASE_FLAGS}")
    if(STATIC)
      if(APPLE)
@@ -30,7 +29,7 @@ index 04790815..5e6a9ae7 100644
      else()
        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
      endif()
-@@ -245,8 +247,6 @@ else()
+@@ -260,8 +262,6 @@ else()
    find_package(Boost 1.70 REQUIRED COMPONENTS system filesystem thread timer date_time chrono regex serialization atomic program_options locale log)
  endif()
  
@@ -39,15 +38,6 @@ index 04790815..5e6a9ae7 100644
  message(STATUS "Boost: ${Boost_VERSION} from ${Boost_LIBRARY_DIRS}")
  
  
-diff --git a/contrib/depends/.gitignore b/contrib/depends/.gitignore
-index 3cb4b9ac..85d2e249 100644
---- a/contrib/depends/.gitignore
-+++ b/contrib/depends/.gitignore
-@@ -8,3 +8,4 @@ i686*
- mips*
- arm*
- aarch64*
-+host-*
 -- 
-2.39.3 (Apple Git-146)
+2.39.5 (Apple Git-154)
 

@@ -1,0 +1,39 @@
+From 627750b0f1471c5d34755ca446d452429945d5d6 Mon Sep 17 00:00:00 2001
+From: cyan <cyjan@mrcyjanek.net>
+Date: Sat, 2 Nov 2024 20:50:26 +0000
+Subject: [PATCH 2/5] fix build issues
+
+---
+ contrib/db/libmdbx/CMakeLists.txt              | 2 +-
+ contrib/db/libmdbx/packages/rpm/CMakeLists.txt | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/contrib/db/libmdbx/CMakeLists.txt b/contrib/db/libmdbx/CMakeLists.txt
+index 75e9b3b0..01a5915c 100644
+--- a/contrib/db/libmdbx/CMakeLists.txt
++++ b/contrib/db/libmdbx/CMakeLists.txt
+@@ -80,7 +80,7 @@ macro(add_mdbx_option NAME DESCRIPTION DEFAULT)
+ endmacro()
+ 
+ # only for compatibility testing
+-# set(CMAKE_CXX_STANDARD 14)
++set(CMAKE_CXX_STANDARD 17)
+ 
+ if(NOT "$ENV{TEAMCITY_PROCESS_FLOW_ID}" STREQUAL "")
+   set(CI TEAMCITY)
+diff --git a/contrib/db/libmdbx/packages/rpm/CMakeLists.txt b/contrib/db/libmdbx/packages/rpm/CMakeLists.txt
+index 5949e9f0..e7b677bd 100644
+--- a/contrib/db/libmdbx/packages/rpm/CMakeLists.txt
++++ b/contrib/db/libmdbx/packages/rpm/CMakeLists.txt
+@@ -12,7 +12,7 @@ set(MDBX_VERSION_STRING ${MDBX_VERSION_MAJOR}.${MDBX_VERSION_MINOR}.${MDBX_VERSI
+ enable_language(C)
+ enable_language(CXX)
+ 
+-set(CMAKE_CXX_STANDARD 11)
++set(CMAKE_CXX_STANDARD 17)
+ set(CMAKE_CXX_STANDARD_REQUIRED on)
+ 
+ add_definitions(-DNDEBUG=1 -DMDBX_DEBUG=0 -DLIBMDBX_EXPORTS=1 -D_GNU_SOURCE=1)
+-- 
+2.39.5 (Apple Git-154)
+

@@ -1,7 +1,7 @@
-From a26111b04ef8057787287f724408dc41a56dea2a Mon Sep 17 00:00:00 2001
+From 1f7604d5b661f4490a1757e5ed1d6ed367ffb739 Mon Sep 17 00:00:00 2001
 From: cyan <cyjan@mrcyjanek.net>
 Date: Sun, 3 Nov 2024 08:59:22 +0000
-Subject: [PATCH] fix mingw build issues
+Subject: [PATCH 3/5] fix mingw build issues
 
 ---
  contrib/epee/include/misc_os_dependent.h | 4 ++--
@@ -57,5 +57,5 @@ index 9176de17..8b488135 100644
  #define I64T __int64
  #define U64C(v) (v##ui64)
 -- 
-2.43.0
+2.39.5 (Apple Git-154)
 
