@@ -27,7 +27,7 @@ jobs:
       - name: Update image
         run: cd docs && ./update_screenshot.sh
       - name: Build Writerside docs using Docker
-        uses: JetBrains/writerside-github-action@v4
+        uses: JetBrains/writerside-github-action@v5
         with:
           location: "docs"
           instance: ${{ env.INSTANCE }}
