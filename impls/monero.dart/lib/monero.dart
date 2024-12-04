@@ -2143,23 +2143,6 @@ int Wallet_daemonBlockChainHeight(wallet ptr) {
   return daemonBlockChainHeight;
 }
 
-int Wallet_daemonBlockChainHeight_cached(wallet ptr) {
-  debugStart?.call('MONERO_Wallet_daemonBlockChainHeight_cached');
-  lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final daemonBlockChainHeight =
-      lib!.MONERO_Wallet_daemonBlockChainHeight_cached(ptr);
-  debugEnd?.call('MONERO_Wallet_daemonBlockChainHeight_cached');
-  return daemonBlockChainHeight;
-}
-
-void Wallet_daemonBlockChainHeight_runThread(wallet ptr, int seconds) {
-  debugStart?.call('MONERO_Wallet_daemonBlockChainHeight_enableRefresh');
-  lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final ret = lib!.MONERO_Wallet_daemonBlockChainHeight_runThread(ptr, seconds);
-  debugEnd?.call('MONERO_Wallet_daemonBlockChainHeight_enableRefresh');
-  return ret;
-}
-
 bool Wallet_synchronized(wallet ptr) {
   debugStart?.call('MONERO_Wallet_synchronized');
   lib ??= MoneroC(DynamicLibrary.open(libPath));

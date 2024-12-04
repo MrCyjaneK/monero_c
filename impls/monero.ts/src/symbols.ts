@@ -1252,21 +1252,6 @@ export const moneroSymbols = {
       wallet_ptr: "pointer",
     ],
   },
-  MONERO_Wallet_daemonBlockChainHeight_cached: {
-    nonblocking: true,
-    result: "u64",
-    parameters: ["pointer"] as [
-      wallet_ptr: "pointer",
-    ],
-  },
-  MONERO_Wallet_daemonBlockChainHeight_runThread: {
-    nonblocking: true,
-    result: "void",
-    parameters: ["pointer", "i32"] as [
-      wallet_ptr: "pointer",
-      seconds: "i32",
-    ],
-  },
   MONERO_Wallet_daemonBlockChainTargetHeight: {
     nonblocking: true,
     result: "u64",

@@ -1,0 +1,43 @@
+From dfe8fde34cd51f5d5ec95fb464737f6e447d41bb Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Mon, 18 Nov 2024 10:57:37 -0500
+Subject: [PATCH 14/14] include locale only when targeting WIN32
+
+---
+ CMakeLists.txt            | 5 ++++-
+ src/wallet/api/wallet.cpp | 2 ++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4e86328..809bce6 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1079,7 +1079,10 @@ if(STATIC)
+   set(Boost_USE_STATIC_LIBS ON)
+   set(Boost_USE_STATIC_RUNTIME ON)
+ endif()
+-find_package(Boost 1.58 QUIET REQUIRED COMPONENTS system filesystem thread date_time chrono regex serialization program_options locale)
++if(WIN32)
++  set(BOOST_LOCALE locale)
++endif()
++find_package(Boost 1.58 QUIET REQUIRED COMPONENTS system filesystem thread date_time chrono regex serialization program_options ${BOOST_LOCALE})
+ add_definitions(-DBOOST_ASIO_ENABLE_SEQUENTIAL_STRAND_ALLOCATION)
+ 
+ set(CMAKE_FIND_LIBRARY_SUFFIXES ${OLD_LIB_SUFFIXES})
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index 5734aff..f4fb093 100644
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -46,7 +46,9 @@
+ #include <sstream>
+ #include <unordered_map>
+ 
++#ifdef WIN32
+ #include <boost/locale.hpp>
++#endif
+ #include <boost/filesystem.hpp>
+ #include "bc-ur/src/bc-ur.hpp"
+ #if defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI)
+-- 
+2.39.5 (Apple Git-154)
+

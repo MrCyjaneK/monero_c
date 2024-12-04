@@ -1,7 +1,7 @@
-From 3cc8b1f822f642b574fe38ff27627b362002eab7 Mon Sep 17 00:00:00 2001
+From 42aca87b69ecdc9fb24d14dd947f8bbffc7f3500 Mon Sep 17 00:00:00 2001
 From: M <m@cakewallet.com>
 Date: Fri, 21 Apr 2023 15:43:47 -0400
-Subject: [PATCH 10/16] Add hex encoding and tx key getter for
+Subject: [PATCH 10/14] Add hex encoding and tx key getter for
  PendingTransction in wallet api.
 
 ---
@@ -11,10 +11,10 @@ Subject: [PATCH 10/16] Add hex encoding and tx key getter for
  3 files changed, 20 insertions(+)
 
 diff --git a/src/wallet/api/pending_transaction.cpp b/src/wallet/api/pending_transaction.cpp
-index 70a702796..be20b478c 100644
+index 9c3c26e..1f714d2 100644
 --- a/src/wallet/api/pending_transaction.cpp
 +++ b/src/wallet/api/pending_transaction.cpp
-@@ -78,6 +78,22 @@ std::vector<std::string> PendingTransactionImpl::txid() const
+@@ -80,6 +80,22 @@ std::vector<std::string> PendingTransactionImpl::txid() const
      return txid;
  }
  
@@ -38,10 +38,10 @@ index 70a702796..be20b478c 100644
  {
  
 diff --git a/src/wallet/api/pending_transaction.h b/src/wallet/api/pending_transaction.h
-index 0a9779c07..2fbaa83d9 100644
+index 403bfe2..0cc6c58 100644
 --- a/src/wallet/api/pending_transaction.h
 +++ b/src/wallet/api/pending_transaction.h
-@@ -58,6 +58,8 @@ public:
+@@ -59,6 +59,8 @@ public:
      std::string multisigSignData() override;
      void signMultisigTx() override;
      std::vector<std::string> signersKeys() const override;
@@ -51,10 +51,10 @@ index 0a9779c07..2fbaa83d9 100644
  private:
      friend class WalletImpl;
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index a585c8212..1c3a11c39 100644
+index 013b5bc..f421fdc 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -126,6 +126,8 @@ struct PendingTransaction
+@@ -127,6 +127,8 @@ struct PendingTransaction
       * @return vector of base58-encoded signers' public keys
       */
      virtual std::vector<std::string> signersKeys() const = 0;
@@ -64,5 +64,5 @@ index a585c8212..1c3a11c39 100644
  
  /**
 -- 
-2.39.2
+2.39.5 (Apple Git-154)
 

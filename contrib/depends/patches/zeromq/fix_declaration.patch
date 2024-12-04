@@ -1,0 +1,11 @@
+--- a/src/proxy.cpp   2024-11-19 19:46:31
++++ b/src/proxy.cpp   2024-11-19 19:47:37
+@@ -499,7 +499,7 @@
+     zmq_pollitem_t itemsout[] = {{frontend_, 0, ZMQ_POLLOUT, 0},
+                                  {backend_, 0, ZMQ_POLLOUT, 0}};
+ 
+-    stats_proxy stats = {0};
++    stats_proxy stats =  {{{0, 0}, {0, 0}}, {{0, 0}, {0, 0}}};
+ 
+     //  Proxy can be in these three states
+     proxy_state_t state = active;

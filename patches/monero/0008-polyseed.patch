@@ -1,0 +1,1286 @@
+From ed2ce176ea5f1bbe81069a3df4601a141b533b95 Mon Sep 17 00:00:00 2001
+From: tobtoht <tob@featherwallet.org>
+Date: Tue, 12 Mar 2024 09:42:37 +0100
+Subject: [PATCH 08/14] polyseed
+
+Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
+---
+ .gitmodules                            |   6 +
+ CMakeLists.txt                         |   4 +-
+ contrib/epee/include/wipeable_string.h |   7 +
+ contrib/epee/src/wipeable_string.cpp   |  10 ++
+ external/CMakeLists.txt                |   2 +
+ external/polyseed                      |   1 +
+ external/utf8proc                      |   1 +
+ src/CMakeLists.txt                     |   1 +
+ src/cryptonote_basic/CMakeLists.txt    |   1 +
+ src/cryptonote_basic/account.cpp       |  23 +++-
+ src/cryptonote_basic/account.h         |   6 +
+ src/cryptonote_config.h                |   2 +
+ src/polyseed/CMakeLists.txt            |  25 ++++
+ src/polyseed/pbkdf2.c                  |  85 ++++++++++++
+ src/polyseed/pbkdf2.h                  |  46 +++++++
+ src/polyseed/polyseed.cpp              | 182 +++++++++++++++++++++++++
+ src/polyseed/polyseed.hpp              | 167 +++++++++++++++++++++++
+ src/wallet/api/wallet.cpp              |  70 ++++++++++
+ src/wallet/api/wallet.h                |  10 ++
+ src/wallet/api/wallet2_api.h           |  25 ++++
+ src/wallet/api/wallet_manager.cpp      |   9 ++
+ src/wallet/api/wallet_manager.h        |  10 ++
+ src/wallet/wallet2.cpp                 | 100 ++++++++++++--
+ src/wallet/wallet2.h                   |  30 +++-
+ 24 files changed, 805 insertions(+), 18 deletions(-)
+ create mode 160000 external/polyseed
+ create mode 160000 external/utf8proc
+ create mode 100644 src/polyseed/CMakeLists.txt
+ create mode 100644 src/polyseed/pbkdf2.c
+ create mode 100644 src/polyseed/pbkdf2.h
+ create mode 100644 src/polyseed/polyseed.cpp
+ create mode 100644 src/polyseed/polyseed.hpp
+
+diff --git a/.gitmodules b/.gitmodules
+index 72af74d..b838e84 100644
+--- a/.gitmodules
++++ b/.gitmodules
+@@ -11,6 +11,12 @@
+ 	path = external/randomx
+ 	url = https://github.com/MrCyjaneK/RandomX
+ 	branch = cyjan-fix-ios
++[submodule "external/utf8proc"]
++	path = external/utf8proc
++	url = https://github.com/JuliaStrings/utf8proc.git
++[submodule "external/polyseed"]
++	path = external/polyseed
++	url = https://github.com/tevador/polyseed.git
+ [submodule "external/supercop"]
+ 	path = external/supercop
+ 	url = https://github.com/monero-project/supercop
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 43ef6cd..e7fa90a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -371,6 +371,8 @@ if(NOT MANUAL_SUBMODULES)
+     check_submodule(external/trezor-common)
+     check_submodule(external/randomx)
+     check_submodule(external/supercop)
++    check_submodule(external/polyseed)
++    check_submodule(external/utf8proc)
+   endif()
+ endif()
+ 
+@@ -460,7 +462,7 @@ endif()
+ # elseif(CMAKE_SYSTEM_NAME MATCHES ".*BSDI.*")
+ #   set(BSDI TRUE)
+ 
+-include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include)
++include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/polyseed/include external/utf8proc)
+ 
+ if(APPLE)
+   cmake_policy(SET CMP0042 NEW)
+diff --git a/contrib/epee/include/wipeable_string.h b/contrib/epee/include/wipeable_string.h
+index 65977cd..594e15d 100644
+--- a/contrib/epee/include/wipeable_string.h
++++ b/contrib/epee/include/wipeable_string.h
+@@ -34,6 +34,7 @@
+ #include <string>
+ #include "memwipe.h"
+ #include "fnv1.h"
++#include "serialization/keyvalue_serialization.h"
+ 
+ namespace epee
+ {
+@@ -75,6 +76,12 @@ namespace epee
+     bool operator!=(const wipeable_string &other) const noexcept { return buffer != other.buffer; }
+     wipeable_string &operator=(wipeable_string &&other);
+     wipeable_string &operator=(const wipeable_string &other);
++    char& operator[](size_t idx);
++    const char& operator[](size_t idx) const;
++
++    BEGIN_KV_SERIALIZE_MAP()
++        KV_SERIALIZE_CONTAINER_POD_AS_BLOB(buffer)
++    END_KV_SERIALIZE_MAP()
+ 
+   private:
+     void grow(size_t sz, size_t reserved = 0);
+diff --git a/contrib/epee/src/wipeable_string.cpp b/contrib/epee/src/wipeable_string.cpp
+index b016f2f..f2f365b 100644
+--- a/contrib/epee/src/wipeable_string.cpp
++++ b/contrib/epee/src/wipeable_string.cpp
+@@ -261,4 +261,14 @@ wipeable_string &wipeable_string::operator=(const wipeable_string &other)
+   return *this;
+ }
+ 
++char& wipeable_string::operator[](size_t idx) {
++  CHECK_AND_ASSERT_THROW_MES(idx < buffer.size(), "Index out of bounds");
++  return buffer[idx];
++}
++
++const char& wipeable_string::operator[](size_t idx) const {
++  CHECK_AND_ASSERT_THROW_MES(idx < buffer.size(), "Index out of bounds");
++  return buffer[idx];
++}
++
+ }
+diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
+index f9ed6a6..8fcf792 100644
+--- a/external/CMakeLists.txt
++++ b/external/CMakeLists.txt
+@@ -69,5 +69,7 @@ endif()
+ add_subdirectory(db_drivers)
+ add_subdirectory(easylogging++)
+ add_subdirectory(qrcodegen)
++add_subdirectory(polyseed EXCLUDE_FROM_ALL)
++add_subdirectory(utf8proc EXCLUDE_FROM_ALL)
+ add_subdirectory(bc-ur)
+ add_subdirectory(randomx EXCLUDE_FROM_ALL)
+diff --git a/external/polyseed b/external/polyseed
+new file mode 160000
+index 0000000..bd79f50
+--- /dev/null
++++ b/external/polyseed
+@@ -0,0 +1 @@
++Subproject commit bd79f5014c331273357277ed8a3d756fb61b9fa1
+diff --git a/external/utf8proc b/external/utf8proc
+new file mode 160000
+index 0000000..3de4596
+--- /dev/null
++++ b/external/utf8proc
+@@ -0,0 +1 @@
++Subproject commit 3de4596fbe28956855df2ecb3c11c0bbc3535838
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 3335d3c..06b708c 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -95,6 +95,7 @@ add_subdirectory(net)
+ add_subdirectory(hardforks)
+ add_subdirectory(blockchain_db)
+ add_subdirectory(mnemonics)
++add_subdirectory(polyseed)
+ add_subdirectory(rpc)
+ if(NOT IOS)
+   add_subdirectory(serialization)
+diff --git a/src/cryptonote_basic/CMakeLists.txt b/src/cryptonote_basic/CMakeLists.txt
+index 1414be1..414936a 100644
+--- a/src/cryptonote_basic/CMakeLists.txt
++++ b/src/cryptonote_basic/CMakeLists.txt
+@@ -71,6 +71,7 @@ target_link_libraries(cryptonote_basic
+     checkpoints
+     cryptonote_format_utils_basic
+     device
++    polyseed_wrapper
+     ${Boost_DATE_TIME_LIBRARY}
+     ${Boost_PROGRAM_OPTIONS_LIBRARY}
+     ${Boost_SERIALIZATION_LIBRARY}
+diff --git a/src/cryptonote_basic/account.cpp b/src/cryptonote_basic/account.cpp
+index 4e87d44..2d556f2 100644
+--- a/src/cryptonote_basic/account.cpp
++++ b/src/cryptonote_basic/account.cpp
+@@ -87,12 +87,16 @@ DISABLE_VS_WARNINGS(4244 4345)
+   void account_keys::xor_with_key_stream(const crypto::chacha_key &key)
+   {
+     // encrypt a large enough byte stream with chacha20
+-    epee::wipeable_string key_stream = get_key_stream(key, m_encryption_iv, sizeof(crypto::secret_key) * (2 + m_multisig_keys.size()));
++    epee::wipeable_string key_stream = get_key_stream(key, m_encryption_iv, sizeof(crypto::secret_key) * (3 + m_multisig_keys.size()) + m_passphrase.size());
+     const char *ptr = key_stream.data();
+     for (size_t i = 0; i < sizeof(crypto::secret_key); ++i)
+       m_spend_secret_key.data[i] ^= *ptr++;
+     for (size_t i = 0; i < sizeof(crypto::secret_key); ++i)
+       m_view_secret_key.data[i] ^= *ptr++;
++    for (size_t i = 0; i < sizeof(crypto::secret_key); ++i)
++      m_polyseed.data[i] ^= *ptr++;
++    for (size_t i = 0; i < m_passphrase.size(); ++i)
++      m_passphrase.data()[i] ^= *ptr++;
+     for (crypto::secret_key &k: m_multisig_keys)
+     {
+       for (size_t i = 0; i < sizeof(crypto::secret_key); ++i)
+@@ -150,6 +154,8 @@ DISABLE_VS_WARNINGS(4244 4345)
+   {
+     m_keys.m_spend_secret_key = crypto::secret_key();
+     m_keys.m_multisig_keys.clear();
++    m_keys.m_polyseed = crypto::secret_key();
++    m_keys.m_passphrase.wipe();
+   }
+   //-----------------------------------------------------------------
+   void account_base::set_spend_key(const crypto::secret_key& spend_secret_key)
+@@ -255,6 +261,21 @@ DISABLE_VS_WARNINGS(4244 4345)
+     create_from_keys(address, fake, viewkey);
+   }
+   //-----------------------------------------------------------------
++  void account_base::create_from_polyseed(const polyseed::data& seed, const epee::wipeable_string &passphrase)
++  {
++    crypto::secret_key secret_key;
++    seed.keygen(&secret_key, sizeof(secret_key));
++
++    if (!passphrase.empty()) {
++      secret_key = cryptonote::decrypt_key(secret_key, passphrase);
++    }
++
++    generate(secret_key, true, false);
++
++    seed.save(m_keys.m_polyseed.data);
++    m_keys.m_passphrase = passphrase;
++  }
++  //-----------------------------------------------------------------
+   bool account_base::make_multisig(const crypto::secret_key &view_secret_key, const crypto::secret_key &spend_secret_key, const crypto::public_key &spend_public_key, const std::vector<crypto::secret_key> &multisig_keys)
+   {
+     m_keys.m_account_address.m_spend_public_key = spend_public_key;
+diff --git a/src/cryptonote_basic/account.h b/src/cryptonote_basic/account.h
+index 93d1d28..1f76feb 100644
+--- a/src/cryptonote_basic/account.h
++++ b/src/cryptonote_basic/account.h
+@@ -33,6 +33,7 @@
+ #include "cryptonote_basic.h"
+ #include "crypto/crypto.h"
+ #include "serialization/keyvalue_serialization.h"
++#include "polyseed/polyseed.hpp"
+ 
+ namespace cryptonote
+ {
+@@ -45,6 +46,8 @@ namespace cryptonote
+     std::vector<crypto::secret_key> m_multisig_keys;
+     hw::device *m_device = &hw::get_device("default");
+     crypto::chacha_iv m_encryption_iv;
++    crypto::secret_key m_polyseed;
++    epee::wipeable_string m_passphrase; // Only used with polyseed
+ 
+     BEGIN_KV_SERIALIZE_MAP()
+       KV_SERIALIZE(m_account_address)
+@@ -53,6 +56,8 @@ namespace cryptonote
+       KV_SERIALIZE_CONTAINER_POD_AS_BLOB(m_multisig_keys)
+       const crypto::chacha_iv default_iv{{0, 0, 0, 0, 0, 0, 0, 0}};
+       KV_SERIALIZE_VAL_POD_AS_BLOB_OPT(m_encryption_iv, default_iv)
++      KV_SERIALIZE_VAL_POD_AS_BLOB_FORCE(m_polyseed)
++      KV_SERIALIZE(m_passphrase)
+     END_KV_SERIALIZE_MAP()
+ 
+     void encrypt(const crypto::chacha_key &key);
+@@ -79,6 +84,7 @@ namespace cryptonote
+     void create_from_device(hw::device &hwdev);
+     void create_from_keys(const cryptonote::account_public_address& address, const crypto::secret_key& spendkey, const crypto::secret_key& viewkey);
+     void create_from_viewkey(const cryptonote::account_public_address& address, const crypto::secret_key& viewkey);
++    void create_from_polyseed(const polyseed::data &polyseed, const epee::wipeable_string &passphrase);
+     bool make_multisig(const crypto::secret_key &view_secret_key, const crypto::secret_key &spend_secret_key, const crypto::public_key &spend_public_key, const std::vector<crypto::secret_key> &multisig_keys);
+     const account_keys& get_keys() const;
+     std::string get_public_address_str(network_type nettype) const;
+diff --git a/src/cryptonote_config.h b/src/cryptonote_config.h
+index f9e6a6c..3af3a63 100644
+--- a/src/cryptonote_config.h
++++ b/src/cryptonote_config.h
+@@ -207,6 +207,8 @@
+ 
+ #define DNS_BLOCKLIST_LIFETIME (86400 * 8)
+ 
++#define POLYSEED_COIN POLYSEED_MONERO
++
+ //The limit is enough for the mandatory transaction content with 16 outputs (547 bytes),
+ //a custom tag (1 byte) and up to 32 bytes of custom data for each recipient.
+ // (1+32) + (1+1+16*32) + (1+16*32) = 1060
+diff --git a/src/polyseed/CMakeLists.txt b/src/polyseed/CMakeLists.txt
+new file mode 100644
+index 0000000..cca4eb7
+--- /dev/null
++++ b/src/polyseed/CMakeLists.txt
+@@ -0,0 +1,25 @@
++set(polyseed_sources
++        pbkdf2.c
++        polyseed.cpp
++)
++
++monero_find_all_headers(polyseed_private_headers "${CMAKE_CURRENT_SOURCE_DIR}")
++
++monero_private_headers(polyseed_wrapper
++        ${polyseed_private_headers}
++)
++
++monero_add_library(polyseed_wrapper
++        ${polyseed_sources}
++        ${polyseed_headers}
++        ${polyseed_private_headers}
++)
++
++target_link_libraries(polyseed_wrapper
++PUBLIC
++        polyseed
++        utf8proc
++        ${SODIUM_LIBRARY}
++        PRIVATE
++        ${EXTRA_LIBRARIES}
++)
+diff --git a/src/polyseed/pbkdf2.c b/src/polyseed/pbkdf2.c
+new file mode 100644
+index 0000000..1c45f47
+--- /dev/null
++++ b/src/polyseed/pbkdf2.c
+@@ -0,0 +1,85 @@
++// Copyright (c) 2023, The Monero Project
++// Copyright (c) 2021, tevador <tevador@gmail.com>
++// Copyright (c) 2005,2007,2009 Colin Percival
++//
++// All rights reserved.
++//
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions
++// are met:
++// 1. Redistributions of source code must retain the above copyright
++//    notice, this list of conditions and the following disclaimer.
++// 2. Redistributions in binary form must reproduce the above copyright
++//    notice, this list of conditions and the following disclaimer in the
++//    documentation and/or other materials provided with the distribution.
++//
++// THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
++// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++// ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
++// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++// SUCH DAMAGE.
++
++#include <string.h>
++
++#include <sodium/crypto_auth_hmacsha256.h>
++#include <sodium/utils.h>
++
++static inline void
++store32_be(uint8_t dst[4], uint32_t w)
++{
++    dst[3] = (uint8_t) w; w >>= 8;
++    dst[2] = (uint8_t) w; w >>= 8;
++    dst[1] = (uint8_t) w; w >>= 8;
++    dst[0] = (uint8_t) w;
++}
++
++void
++crypto_pbkdf2_sha256(const uint8_t* passwd, size_t passwdlen,
++                     const uint8_t* salt, size_t saltlen, uint64_t c,
++                     uint8_t* buf, size_t dkLen)
++{
++    crypto_auth_hmacsha256_state Phctx, PShctx, hctx;
++    size_t                       i;
++    uint8_t                      ivec[4];
++    uint8_t                      U[32];
++    uint8_t                      T[32];
++    uint64_t                     j;
++    int                          k;
++    size_t                       clen;
++
++    crypto_auth_hmacsha256_init(&Phctx, passwd, passwdlen);
++    PShctx = Phctx;
++    crypto_auth_hmacsha256_update(&PShctx, salt, saltlen);
++
++    for (i = 0; i * 32 < dkLen; i++) {
++        store32_be(ivec, (uint32_t)(i + 1));
++        hctx = PShctx;
++        crypto_auth_hmacsha256_update(&hctx, ivec, 4);
++        crypto_auth_hmacsha256_final(&hctx, U);
++
++        memcpy(T, U, 32);
++        for (j = 2; j <= c; j++) {
++            hctx = Phctx;
++            crypto_auth_hmacsha256_update(&hctx, U, 32);
++            crypto_auth_hmacsha256_final(&hctx, U);
++
++            for (k = 0; k < 32; k++) {
++                T[k] ^= U[k];
++            }
++        }
++
++        clen = dkLen - i * 32;
++        if (clen > 32) {
++            clen = 32;
++        }
++        memcpy(&buf[i * 32], T, clen);
++    }
++    sodium_memzero((void*)&Phctx, sizeof Phctx);
++    sodium_memzero((void*)&PShctx, sizeof PShctx);
++}
+\ No newline at end of file
+diff --git a/src/polyseed/pbkdf2.h b/src/polyseed/pbkdf2.h
+new file mode 100644
+index 0000000..f6253b9
+--- /dev/null
++++ b/src/polyseed/pbkdf2.h
+@@ -0,0 +1,46 @@
++// Copyright (c) 2023, The Monero Project
++// Copyright (c) 2021, tevador <tevador@gmail.com>
++//
++// All rights reserved.
++//
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions
++// are met:
++// 1. Redistributions of source code must retain the above copyright
++//    notice, this list of conditions and the following disclaimer.
++// 2. Redistributions in binary form must reproduce the above copyright
++//    notice, this list of conditions and the following disclaimer in the
++//    documentation and/or other materials provided with the distribution.
++//
++// THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
++// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++// ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
++// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++// SUCH DAMAGE.
++
++#ifndef PBKDF2_H
++#define PBKDF2_H
++
++#include <stddef.h>
++#include <stdint.h>
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++void
++crypto_pbkdf2_sha256(const uint8_t* passwd, size_t passwdlen,
++                     const uint8_t* salt, size_t saltlen, uint64_t c,
++                     uint8_t* buf, size_t dkLen);
++
++#ifdef __cplusplus
++}
++#endif
++
++#endif
+\ No newline at end of file
+diff --git a/src/polyseed/polyseed.cpp b/src/polyseed/polyseed.cpp
+new file mode 100644
+index 0000000..231a48a
+--- /dev/null
++++ b/src/polyseed/polyseed.cpp
+@@ -0,0 +1,182 @@
++// Copyright (c) 2023, The Monero Project
++// Copyright (c) 2021, tevador <tevador@gmail.com>
++//
++// All rights reserved.
++//
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions
++// are met:
++// 1. Redistributions of source code must retain the above copyright
++//    notice, this list of conditions and the following disclaimer.
++// 2. Redistributions in binary form must reproduce the above copyright
++//    notice, this list of conditions and the following disclaimer in the
++//    documentation and/or other materials provided with the distribution.
++//
++// THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
++// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++// ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
++// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++// SUCH DAMAGE.
++
++#include "polyseed.hpp"
++#include "pbkdf2.h"
++
++#include <sodium/core.h>
++#include <sodium/utils.h>
++#include <sodium/randombytes.h>
++#include <utf8proc.h>
++
++#include <cstring>
++#include <algorithm>
++#include <array>
++
++namespace polyseed {
++
++    inline size_t utf8_norm(const char* str, polyseed_str norm, utf8proc_option_t options) {
++      utf8proc_int32_t buffer[POLYSEED_STR_SIZE];
++      utf8proc_ssize_t result;
++
++      result = utf8proc_decompose(reinterpret_cast<const uint8_t*>(str), 0, buffer, POLYSEED_STR_SIZE, options);
++      if (result < 0 || result > (POLYSEED_STR_SIZE - 1)) {
++        throw std::runtime_error("Unicode normalization failed");
++      }
++
++      result = utf8proc_reencode(buffer, result, options);
++      if (result < 0 || result > POLYSEED_STR_SIZE) {
++        throw std::runtime_error("Unicode normalization failed");
++      }
++
++      strcpy(norm, reinterpret_cast<const char*>(buffer));
++      sodium_memzero(buffer, POLYSEED_STR_SIZE);
++      return result;
++    }
++
++    static size_t utf8_nfc(const char* str, polyseed_str norm) {
++        // Note: UTF8PROC_LUMP is used here to replace the ideographic space with a regular space for Japanese phrases
++        // to allow wallets to split on ' '.
++        return utf8_norm(str, norm, (utf8proc_option_t)(UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_STRIPNA));
++    }
++
++    static size_t utf8_nfkd(const char* str, polyseed_str norm) {
++        return utf8_norm(str, norm, (utf8proc_option_t)(UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_DECOMPOSE | UTF8PROC_COMPAT | UTF8PROC_STRIPNA));
++    }
++
++    struct dependency {
++        dependency();
++        std::vector<language> languages;
++    };
++
++    static dependency deps;
++
++    dependency::dependency() {
++        if (sodium_init() == -1) {
++            throw std::runtime_error("sodium_init failed");
++        }
++
++        polyseed_dependency pd;
++        pd.randbytes = &randombytes_buf;
++        pd.pbkdf2_sha256 = &crypto_pbkdf2_sha256;
++        pd.memzero = &sodium_memzero;
++        pd.u8_nfc = &utf8_nfc;
++        pd.u8_nfkd = &utf8_nfkd;
++        pd.time = nullptr;
++        pd.alloc = nullptr;
++        pd.free = nullptr;
++
++        polyseed_inject(&pd);
++
++        for (int i = 0; i < polyseed_get_num_langs(); ++i) {
++            languages.push_back(language(polyseed_get_lang(i)));
++        }
++    }
++
++    static language invalid_lang;
++
++    const std::vector<language>& get_langs() {
++        return deps.languages;
++    }
++
++    const language& get_lang_by_name(const std::string& name) {
++        for (auto& lang : deps.languages) {
++            if (name == lang.name_en()) {
++                return lang;
++            }
++            if (name == lang.name()) {
++                return lang;
++            }
++        }
++        return invalid_lang;
++    }
++
++    inline void data::check_init() const {
++        if (valid()) {
++            throw std::runtime_error("already initialized");
++        }
++    }
++
++    static std::array<const char*, 8> error_desc = {
++        "Success",
++        "Wrong number of words in the phrase",
++        "Unknown language or unsupported words",
++        "Checksum mismatch",
++        "Unsupported seed features",
++        "Invalid seed format",
++        "Memory allocation failure",
++        "Unicode normalization failed"
++    };
++
++    static error get_error(polyseed_status status) {
++        if (status > 0 && status < sizeof(error_desc) / sizeof(const char*)) {
++            return error(error_desc[(int)status], status);
++        }
++        return error("Unknown error", status);
++    }
++
++    void data::create(feature_type features) {
++        check_init();
++        auto status = polyseed_create(features, &m_data);
++        if (status != POLYSEED_OK) {
++            throw get_error(status);
++        }
++    }
++
++    void data::split(const language& lang, polyseed_phrase& words) {
++        check_init();
++        if (!lang.valid()) {
++            throw std::runtime_error("invalid language");
++        }
++    }
++
++    void data::load(polyseed_storage storage) {
++        check_init();
++        auto status = polyseed_load(storage, &m_data);
++        if (status != POLYSEED_OK) {
++            throw get_error(status);
++        }
++    }
++
++    void data::load(const crypto::secret_key &key) {
++        polyseed_storage d;
++        memcpy(&d, &key.data, 32);
++        auto status = polyseed_load(d, &m_data);
++        if (status != POLYSEED_OK) {
++            throw get_error(status);
++        }
++    }
++
++    language data::decode(const char* phrase) {
++        check_init();
++        const polyseed_lang* lang;
++        auto status = polyseed_decode(phrase, m_coin, &lang, &m_data);
++        if (status != POLYSEED_OK) {
++            throw get_error(status);
++        }
++        return language(lang);
++    }
++}
+diff --git a/src/polyseed/polyseed.hpp b/src/polyseed/polyseed.hpp
+new file mode 100644
+index 0000000..2c8c777
+--- /dev/null
++++ b/src/polyseed/polyseed.hpp
+@@ -0,0 +1,167 @@
++// Copyright (c) 2023, The Monero Project
++// Copyright (c) 2021, tevador <tevador@gmail.com>
++//
++// All rights reserved.
++//
++// Redistribution and use in source and binary forms, with or without
++// modification, are permitted provided that the following conditions
++// are met:
++// 1. Redistributions of source code must retain the above copyright
++//    notice, this list of conditions and the following disclaimer.
++// 2. Redistributions in binary form must reproduce the above copyright
++//    notice, this list of conditions and the following disclaimer in the
++//    documentation and/or other materials provided with the distribution.
++//
++// THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
++// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++// ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
++// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++// SUCH DAMAGE.
++
++#ifndef POLYSEED_HPP
++#define POLYSEED_HPP
++
++#include <polyseed/include/polyseed.h>
++#include <polyseed/src/lang.h>
++#include <vector>
++#include <stdexcept>
++#include <string>
++#include "crypto/crypto.h"
++
++namespace polyseed {
++
++    class data;
++
++    class language {
++        public:
++            language() : m_lang(nullptr) {}
++            language(const language&) = default;
++            language(const polyseed_lang* lang) : m_lang(lang) {}
++            const char* name() const {
++                return polyseed_get_lang_name(m_lang);
++            }
++            const char* name_en() const {
++                return polyseed_get_lang_name_en(m_lang);
++            }
++            const char* separator() const {
++                return m_lang->separator;
++            }
++            bool valid() const {
++                return m_lang != nullptr;
++            }
++
++        const polyseed_lang* m_lang;
++    private:
++
++        friend class data;
++    };
++
++    const std::vector<language>& get_langs();
++    const language& get_lang_by_name(const std::string& name);
++
++    class error : public std::runtime_error {
++        public:
++            error(const char* msg, polyseed_status status)
++                : std::runtime_error(msg), m_status(status)
++            {
++            }
++            polyseed_status status() const {
++                return m_status;
++            }
++        private:
++            polyseed_status m_status;
++    };
++
++    using feature_type = unsigned int;
++
++    inline int enable_features(feature_type features) {
++        return polyseed_enable_features(features);
++    }
++
++    class data {
++        public:
++            data(const data&) = delete;
++            data(polyseed_coin coin) : m_data(nullptr), m_coin(coin) {}
++            ~data() {
++                polyseed_free(m_data);
++            }
++
++            void create(feature_type features);
++
++            void load(polyseed_storage storage);
++
++            void load(const crypto::secret_key &key);
++
++            language decode(const char* phrase);
++
++            template<class str_type>
++            void encode(const language& lang, str_type& str) const {
++                check_valid();
++                if (!lang.valid()) {
++                    throw std::runtime_error("invalid language");
++                }
++                str.resize(POLYSEED_STR_SIZE);
++                auto size = polyseed_encode(m_data, lang.m_lang, m_coin, &str[0]);
++                str.resize(size);
++            }
++
++            void split(const language& lang, polyseed_phrase& words);
++
++            void save(polyseed_storage storage) const {
++                check_valid();
++                polyseed_store(m_data, storage);
++            }
++
++            void save(void *storage) const {
++              check_valid();
++              polyseed_store(m_data, (uint8_t*)storage);
++            }
++
++            void crypt(const char* password) {
++                check_valid();
++                polyseed_crypt(m_data, password);
++            }
++
++            void keygen(void* ptr, size_t key_size) const {
++                check_valid();
++                polyseed_keygen(m_data, m_coin, key_size, (uint8_t*)ptr);
++            }
++
++            bool valid() const {
++                return m_data != nullptr;
++            }
++
++            bool encrypted() const {
++                check_valid();
++                return polyseed_is_encrypted(m_data);
++            }
++
++            uint64_t birthday() const {
++                check_valid();
++                return polyseed_get_birthday(m_data);
++            }
++
++            bool has_feature(feature_type feature) const {
++                check_valid();
++                return polyseed_get_feature(m_data, feature) != 0;
++            }
++        private:
++            void check_valid() const {
++                if (m_data == nullptr) {
++                    throw std::runtime_error("invalid object");
++                }
++            }
++            void check_init() const;
++
++            polyseed_data* m_data;
++            polyseed_coin m_coin;
++    };
++}
++
++#endif //POLYSEED_HPP
+\ No newline at end of file
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index c73f38e..67ac90a 100644
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -728,6 +728,28 @@ bool WalletImpl::recoverFromDevice(const std::string &path, const std::string &p
+     return true;
+ }
+ 
++bool WalletImpl::createFromPolyseed(const std::string &path, const std::string &password, const std::string &seed,
++                                     const std::string &passphrase, bool newWallet, uint64_t restoreHeight)
++{
++    clearStatus();
++    m_recoveringFromSeed = !newWallet;
++    m_recoveringFromDevice = false;
++
++    polyseed::data polyseed(POLYSEED_COIN);
++
++    try {
++        auto lang = polyseed.decode(seed.data());
++        m_wallet->set_seed_language(lang.name());
++        m_wallet->generate(path, password, polyseed, passphrase, !newWallet);
++    }
++    catch (const std::exception &e) {
++        setStatusError(e.what());
++        return false;
++    }
++
++    return true;
++}
++
+ Wallet::Device WalletImpl::getDeviceType() const
+ {
+     return static_cast<Wallet::Device>(m_wallet->get_device_type());
+@@ -845,6 +867,54 @@ std::string WalletImpl::seed(const std::string& seed_offset) const
+     }
+ }
+ 
++bool WalletImpl::getPolyseed(std::string &seed_words, std::string &passphrase) const
++{
++  epee::wipeable_string seed_words_epee(seed_words.c_str(), seed_words.size());
++  epee::wipeable_string passphrase_epee(passphrase.c_str(), passphrase.size());
++  clearStatus();
++
++  if (!m_wallet) {
++    return false;
++  }
++
++  bool result = m_wallet->get_polyseed(seed_words_epee, passphrase_epee);
++
++  seed_words.assign(seed_words_epee.data(), seed_words_epee.size());
++  passphrase.assign(passphrase_epee.data(), passphrase_epee.size());
++
++  return result;
++}
++
++std::vector<std::pair<std::string, std::string>> Wallet::getPolyseedLanguages()
++  {
++    std::vector<std::pair<std::string, std::string>> languages;
++
++    auto langs = polyseed::get_langs();
++    for (const auto &lang : langs) {
++      languages.emplace_back(std::pair<std::string, std::string>(lang.name_en(), lang.name()));
++    }
++
++    return languages;
++}
++
++bool Wallet::createPolyseed(std::string &seed_words, std::string &err, const std::string &language)
++{
++  epee::wipeable_string seed_words_epee(seed_words.c_str(), seed_words.size());
++
++  try {
++    polyseed::data polyseed(POLYSEED_COIN);
++    polyseed.create(0);
++    polyseed.encode(polyseed::get_lang_by_name(language), seed_words_epee);
++
++    seed_words.assign(seed_words_epee.data(), seed_words_epee.size());
++  }
++  catch (const std::exception &e) {
++    err = e.what();
++    return false;
++  }
++
++  return true;
++}
+ std::string WalletImpl::getSeedLanguage() const
+ {
+     return m_wallet->get_seed_language();
+diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
+index 4e9c21e..32e1228 100644
+--- a/src/wallet/api/wallet.h
++++ b/src/wallet/api/wallet.h
+@@ -79,9 +79,19 @@ public:
+     bool recoverFromDevice(const std::string &path,
+                            const std::string &password,
+                            const std::string &device_name);
++
++    bool createFromPolyseed(const std::string &path,
++                             const std::string &password,
++                             const std::string &seed,
++                             const std::string &passphrase = "",
++                             bool newWallet = true,
++                             uint64_t restoreHeight = 0);
++
+     Device getDeviceType() const override;
+     bool close(bool store = true);
+     std::string seed(const std::string& seed_offset = "") const override;
++    bool getPolyseed(std::string &seed_words, std::string &passphrase) const override;
++
+     std::string getSeedLanguage() const override;
+     void setSeedLanguage(const std::string &arg) override;
+     // void setListener(Listener *) {}
+diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
+index 53ec4ab..be1c370 100644
+--- a/src/wallet/api/wallet2_api.h
++++ b/src/wallet/api/wallet2_api.h
+@@ -709,6 +709,10 @@ struct Wallet
+     static void warning(const std::string &category, const std::string &str);
+     static void error(const std::string &category, const std::string &str);
+ 
++    virtual bool getPolyseed(std::string &seed, std::string &passphrase) const = 0;
++    static bool createPolyseed(std::string &seed_words, std::string &err, const std::string &language = "English");
++    static std::vector<std::pair<std::string, std::string>> getPolyseedLanguages();
++
+    /**
+     * @brief StartRefresh - Start/resume refresh thread (refresh every 10 seconds)
+     */
+@@ -1320,6 +1324,27 @@ struct WalletManager
+                                             uint64_t kdf_rounds = 1,
+                                             WalletListener * listener = nullptr) = 0;
+ 
++    /*!
++     * \brief creates a wallet from a polyseed mnemonic phrase
++     * \param path                         Name of the wallet file to be created
++     * \param password                     Password of wallet file
++     * \param nettype                      Network type
++     * \param mnemonic                     Polyseed mnemonic
++     * \param passphrase                   Optional seed offset passphrase
++     * \param newWallet                    Whether it is a new wallet
++     * \param restoreHeight                Override the embedded restore height
++     * \param kdf_rounds                   Number of rounds for key derivation function
++     * @return
++     */
++    virtual Wallet * createWalletFromPolyseed(const std::string &path,
++                                              const std::string &password,
++                                              NetworkType nettype,
++                                              const std::string &mnemonic,
++                                              const std::string &passphrase = "",
++                                              bool newWallet = true,
++                                              uint64_t restore_height = 0,
++                                              uint64_t kdf_rounds = 1) = 0;
++
+     /*!
+      * \brief Closes wallet. In case operation succeeded, wallet object deleted. in case operation failed, wallet object not deleted
+      * \param wallet        previously opened / created wallet instance
+diff --git a/src/wallet/api/wallet_manager.cpp b/src/wallet/api/wallet_manager.cpp
+index 277be6a..da2056d 100644
+--- a/src/wallet/api/wallet_manager.cpp
++++ b/src/wallet/api/wallet_manager.cpp
+@@ -156,6 +156,15 @@ Wallet *WalletManagerImpl::createWalletFromDevice(const std::string &path,
+     return wallet;
+ }
+ 
++Wallet *WalletManagerImpl::createWalletFromPolyseed(const std::string &path, const std::string &password, NetworkType nettype,
++                                                    const std::string &mnemonic, const std::string &passphrase,
++                                                    bool newWallet, uint64_t restoreHeight, uint64_t kdf_rounds)
++{
++    WalletImpl * wallet = new WalletImpl(nettype, kdf_rounds);
++    wallet->createFromPolyseed(path, password, mnemonic, passphrase, newWallet, restoreHeight);
++    return wallet;
++}
++
+ bool WalletManagerImpl::closeWallet(Wallet *wallet, bool store)
+ {
+     WalletImpl * wallet_ = dynamic_cast<WalletImpl*>(wallet);
+diff --git a/src/wallet/api/wallet_manager.h b/src/wallet/api/wallet_manager.h
+index a223e1d..28fcd36 100644
+--- a/src/wallet/api/wallet_manager.h
++++ b/src/wallet/api/wallet_manager.h
+@@ -75,6 +75,16 @@ public:
+                                             const std::string &subaddressLookahead = "",
+                                             uint64_t kdf_rounds = 1,
+                                             WalletListener * listener = nullptr) override;
++
++    virtual Wallet * createWalletFromPolyseed(const std::string &path,
++                                              const std::string &password,
++                                              NetworkType nettype,
++                                              const std::string &mnemonic,
++                                              const std::string &passphrase,
++                                              bool newWallet = true,
++                                              uint64_t restore_height = 0,
++                                              uint64_t kdf_rounds = 1) override;
++
+     virtual bool closeWallet(Wallet *wallet, bool store = true) override;
+     bool walletExists(const std::string &path) override;
+     bool verifyWalletPassword(const std::string &keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const override;
+diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
+index dfa3213..fa346a9 100644
+--- a/src/wallet/wallet2.cpp
++++ b/src/wallet/wallet2.cpp
+@@ -92,6 +92,7 @@ using namespace epee;
+ #include "device/device_cold.hpp"
+ #include "device_trezor/device_trezor.hpp"
+ #include "net/socks_connect.h"
++#include "polyseed/include/polyseed.h"
+ 
+ extern "C"
+ {
+@@ -1278,7 +1279,8 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
+   m_enable_multisig(false),
+   m_pool_info_query_time(0),
+   m_has_ever_refreshed_from_node(false),
+-  m_allow_mismatched_daemon_version(false)
++  m_allow_mismatched_daemon_version(false),
++  m_polyseed(false)
+ {
+   set_rpc_client_secret_key(rct::rct2sk(rct::skGen()));
+ }
+@@ -1474,6 +1476,20 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
+   return true;
+ }
+ //----------------------------------------------------------------------------------------------------
++
++bool wallet2::get_polyseed(epee::wipeable_string& polyseed, epee::wipeable_string& passphrase) const
++{
++  if (!m_polyseed) {
++    return false;
++  }
++
++  polyseed::data data(POLYSEED_COIN);
++  data.load(get_account().get_keys().m_polyseed);
++  data.encode(polyseed::get_lang_by_name(seed_language), polyseed);
++  passphrase = get_account().get_keys().m_passphrase;
++  return true;
++}
++//----------------------------------------------------------------------------------------------------
+ bool wallet2::get_multisig_seed(epee::wipeable_string& seed, const epee::wipeable_string &passphrase) const
+ {
+   bool ready;
+@@ -4789,6 +4805,9 @@ boost::optional<wallet2::keys_file_data> wallet2::get_keys_file_data(const crypt
+   value2.SetInt(m_enable_multisig ? 1 : 0);
+   json.AddMember("enable_multisig", value2, json.GetAllocator());
+ 
++  value2.SetInt(m_polyseed ? 1 : 0);
++  json.AddMember("polyseed", value2, json.GetAllocator());
++
+   if (m_background_sync_type == BackgroundSyncCustomPassword && !background_keys_file && m_custom_background_key)
+   {
+     value.SetString(reinterpret_cast<const char*>(m_custom_background_key.get().data()), m_custom_background_key.get().size());
+@@ -5028,6 +5047,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
+     m_enable_multisig = false;
+     m_allow_mismatched_daemon_version = false;
+     m_custom_background_key = boost::none;
++    m_polyseed = false;
+   }
+   else if(json.IsObject())
+   {
+@@ -5268,6 +5288,9 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
+     GET_FIELD_FROM_JSON_RETURN_ON_ERROR(json, background_sync_type, BackgroundSyncType, Int, false, BackgroundSyncOff);
+     m_background_sync_type = field_background_sync_type;
+ 
++    GET_FIELD_FROM_JSON_RETURN_ON_ERROR(json, polyseed, int, Int, false, false);
++    m_polyseed = field_polyseed;
++
+     // Load encryption key used to encrypt background cache
+     crypto::chacha_key custom_background_key;
+     m_custom_background_key = boost::none;
+@@ -5587,6 +5610,48 @@ void wallet2::init_type(hw::device::device_type device_type)
+   m_key_device_type = device_type;
+ }
+ 
++/*!
++ * \brief  Generates a polyseed wallet or restores one.
++ * \param  wallet_                 Name of wallet file
++ * \param  password                Password of wallet file
++ * \param  passphrase              Seed offset passphrase
++ * \param  recover                 Whether it is a restore
++ * \param  seed_words              If it is a restore, the polyseed
++ * \param  create_address_file     Whether to create an address file
++ * \return                         The secret key of the generated wallet
++ */
++void wallet2::generate(const std::string& wallet_, const epee::wipeable_string& password,
++                  const polyseed::data &seed, const epee::wipeable_string& passphrase, bool recover, uint64_t restoreHeight, bool create_address_file)
++{
++  clear();
++  prepare_file_names(wallet_);
++
++  if (!wallet_.empty()) {
++    boost::system::error_code ignored_ec;
++    THROW_WALLET_EXCEPTION_IF(boost::filesystem::exists(m_wallet_file, ignored_ec), error::file_exists, m_wallet_file);
++    THROW_WALLET_EXCEPTION_IF(boost::filesystem::exists(m_keys_file,   ignored_ec), error::file_exists, m_keys_file);
++  }
++
++  m_account.create_from_polyseed(seed, passphrase);
++
++  init_type(hw::device::device_type::SOFTWARE);
++  m_polyseed = true;
++  setup_keys(password);
++
++  if (recover) {
++      m_refresh_from_block_height = estimate_blockchain_height(restoreHeight > 0 ? restoreHeight : seed.birthday());
++  } else {
++      m_refresh_from_block_height = estimate_blockchain_height();
++  }
++
++  create_keys_file(wallet_, false, password, m_nettype != MAINNET || create_address_file);
++
++  setup_new_blockchain();
++
++  if (!wallet_.empty())
++    store();
++}
++
+ /*!
+  * \brief  Generates a wallet or restores one. Assumes the multisig setup
+  *         has already completed for the provided multisig info.
+@@ -5714,7 +5779,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
+   return retval;
+ }
+ 
+- uint64_t wallet2::estimate_blockchain_height()
++ uint64_t wallet2::estimate_blockchain_height(uint64_t time)
+  {
+    // -1 month for fluctuations in block time and machine date/time setup.
+    // avg seconds per block
+@@ -5738,7 +5803,7 @@ crypto::secret_key wallet2::generate(const std::string& wallet_, const epee::wip
+    // the daemon is currently syncing.
+    // If we use the approximate height we subtract one month as
+    // a safety margin.
+-   height = get_approximate_blockchain_height();
++   height = get_approximate_blockchain_height(time);
+    uint64_t target_height = get_daemon_blockchain_target_height(err);
+    if (err.empty()) {
+      if (target_height < height)
+@@ -13635,7 +13700,7 @@ uint64_t wallet2::get_daemon_blockchain_target_height(string &err)
+   return target_height;
+ }
+ 
+-uint64_t wallet2::get_approximate_blockchain_height() const
++uint64_t wallet2::get_approximate_blockchain_height(uint64_t t) const
+ {
+   // time of v2 fork
+   const time_t fork_time = m_nettype == TESTNET ? 1448285909 : m_nettype == STAGENET ? 1520937818 : 1458748658;
+@@ -13644,7 +13709,7 @@ uint64_t wallet2::get_approximate_blockchain_height() const
+   // avg seconds per block
+   const int seconds_per_block = DIFFICULTY_TARGET_V2;
+   // Calculated blockchain height
+-  uint64_t approx_blockchain_height = fork_block + (time(NULL) - fork_time)/seconds_per_block;
++  uint64_t approx_blockchain_height = fork_block + ((t > 0 ? t : time(NULL)) - fork_time)/seconds_per_block;
+   // testnet and stagenet got some huge rollbacks, so the estimation is way off
+   static const uint64_t approximate_rolled_back_blocks = m_nettype == TESTNET ? 342100 : m_nettype == STAGENET ? 60000 : 30000;
+   if ((m_nettype == TESTNET || m_nettype == STAGENET) && approx_blockchain_height > approximate_rolled_back_blocks)
+@@ -15783,15 +15848,6 @@ bool wallet2::parse_uri(const std::string &uri, std::string &address, std::strin
+ //----------------------------------------------------------------------------------------------------
+ uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, uint8_t day)
+ {
+-  uint32_t version;
+-  if (!check_connection(&version))
+-  {
+-    throw std::runtime_error("failed to connect to daemon: " + get_daemon_address());
+-  }
+-  if (version < MAKE_CORE_RPC_VERSION(1, 6))
+-  {
+-    throw std::runtime_error("this function requires RPC version 1.6 or higher");
+-  }
+   std::tm date = { 0, 0, 0, 0, 0, 0, 0, 0 };
+   date.tm_year = year - 1900;
+   date.tm_mon  = month - 1;
+@@ -15800,7 +15856,23 @@ uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, ui
+   {
+     throw std::runtime_error("month or day out of range");
+   }
++
+   uint64_t timestamp_target = std::mktime(&date);
++
++  return get_blockchain_height_by_timestamp(timestamp_target);
++}
++
++uint64_t wallet2::get_blockchain_height_by_timestamp(uint64_t timestamp_target) {
++  uint32_t version;
++  if (!check_connection(&version))
++  {
++    throw std::runtime_error("failed to connect to daemon: " + get_daemon_address());
++  }
++  if (version < MAKE_CORE_RPC_VERSION(1, 6))
++  {
++    throw std::runtime_error("this function requires RPC version 1.6 or higher");
++  }
++
+   std::string err;
+   uint64_t height_min = 0;
+   uint64_t height_max = get_daemon_blockchain_height(err) - 1;
+diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
+index 1d7e430..91cf2a3 100644
+--- a/src/wallet/wallet2.h
++++ b/src/wallet/wallet2.h
+@@ -72,6 +72,7 @@
+ #include "message_store.h"
+ #include "wallet_light_rpc.h"
+ #include "wallet_rpc_helpers.h"
++#include "polyseed/polyseed.hpp"
+ 
+ #undef MONERO_DEFAULT_LOG_CATEGORY
+ #define MONERO_DEFAULT_LOG_CATEGORY "wallet.wallet2"
+@@ -921,6 +922,20 @@ private:
+     void generate(const std::string& wallet_, const epee::wipeable_string& password,
+       const epee::wipeable_string& multisig_data, bool create_address_file = false);
+ 
++    /*!
++     * \brief Generates a wallet from a polyseed.
++     * @param wallet_              Name of wallet file
++     * @param password             Password of wallet file
++     * @param seed                 Polyseed data
++     * @param passphrase           Optional seed offset passphrase
++     * @param recover              Whether it is a restore
++     * @param restoreHeight        Override the embedded restore height
++     * @param create_address_file  Whether to create an address file
++     */
++    void generate(const std::string& wallet_, const epee::wipeable_string& password,
++      const polyseed::data &seed, const epee::wipeable_string& passphrase = "",
++      bool recover = false, uint64_t restoreHeight = 0, bool create_address_file = false);
++
+     /*!
+      * \brief Generates a wallet or restores one.
+      * \param  wallet_              Name of wallet file
+@@ -1088,6 +1103,15 @@ private:
+     bool is_deterministic() const;
+     bool get_seed(epee::wipeable_string& electrum_words, const epee::wipeable_string &passphrase = epee::wipeable_string()) const;
+ 
++    /*!
++     * \brief get_polyseed  Gets the polyseed (if available) and passphrase (if set) needed to recover the wallet.
++     * @param seed          Polyseed mnemonic phrase
++     * @param passphrase    Seed offset passphrase that was used to restore the wallet
++     * @return              Returns true if the wallet has a polyseed.
++     * Note: both the mnemonic phrase and the passphrase are needed to recover the wallet
++     */
++    bool get_polyseed(epee::wipeable_string& seed, epee::wipeable_string &passphrase) const;
++
+     /*!
+     * \brief Checks if light wallet. A light wallet sends view key to a server where the blockchain is scanned.
+     */
+@@ -1555,8 +1579,8 @@ private:
+    /*!
+     * \brief Calculates the approximate blockchain height from current date/time.
+     */
+-    uint64_t get_approximate_blockchain_height() const;
+-    uint64_t estimate_blockchain_height();
++    uint64_t get_approximate_blockchain_height(uint64_t time = 0) const;
++    uint64_t estimate_blockchain_height(uint64_t time = 0);
+     std::vector<size_t> select_available_outputs_from_histogram(uint64_t count, bool atleast, bool unlocked, bool allow_rct);
+     std::vector<size_t> select_available_outputs(const std::function<bool(const transfer_details &td)> &f);
+     std::vector<size_t> select_available_unmixable_outputs();
+@@ -1650,6 +1674,7 @@ private:
+     bool parse_uri(const std::string &uri, std::string &address, std::string &payment_id, uint64_t &amount, std::string &tx_description, std::string &recipient_name, std::vector<std::string> &unknown_parameters, std::string &error);
+ 
+     uint64_t get_blockchain_height_by_date(uint16_t year, uint8_t month, uint8_t day);    // 1<=month<=12, 1<=day<=31
++    uint64_t get_blockchain_height_by_timestamp(uint64_t timestamp);
+ 
+     bool is_synced();
+ 
+@@ -1995,6 +2020,7 @@ private:
+     std::string seed_language; /*!< Language of the mnemonics (seed). */
+     bool is_old_file_format; /*!< Whether the wallet file is of an old file format */
+     bool m_watch_only; /*!< no spend key */
++    bool m_polyseed;
+     bool m_multisig; /*!< if > 1 spend secret key will not match spend public key */
+     uint32_t m_multisig_threshold;
+     std::vector<crypto::public_key> m_multisig_signers;
+-- 
+2.39.5 (Apple Git-154)
+

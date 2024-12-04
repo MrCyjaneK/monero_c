@@ -10,6 +10,8 @@
 #include <sstream>
 #include <cstring>
 #include <thread>
+#include <iostream>
+#include <stdexcept>
 
 #ifdef __ANDROID__
 #include <android/log.h>
