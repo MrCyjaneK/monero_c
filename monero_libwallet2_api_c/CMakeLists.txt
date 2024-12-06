@@ -115,13 +115,13 @@ elseif(${MONERO_FLAVOR} STREQUAL "zano")
     find_package(Boost 1.71 REQUIRED COMPONENTS system filesystem thread timer date_time chrono regex serialization atomic program_options)
     find_package(OpenSSL REQUIRED)
     set(WALLET_TARGETS 
+        zlibstatic
         wallet
         general
         tor-connect
         crypto
         currency_core
-        common
-        zlibstatic
+        common    
         
         ${Boost_LIBRARIES}
         ${OpenSSL_LIBRARIES})
