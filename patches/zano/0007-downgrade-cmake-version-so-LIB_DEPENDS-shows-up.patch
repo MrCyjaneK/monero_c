@@ -1,0 +1,22 @@
+From e6201106cd09416f96c8d83270c94565583cd356 Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Thu, 5 Dec 2024 09:36:34 -0600
+Subject: [PATCH] downgrade cmake version so LIB_DEPENDS shows up
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 6ded9711..47d24a81 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-cmake_minimum_required(VERSION 3.16)
++cmake_minimum_required(VERSION 3.5)
+ 
+ PROJECT(Zano)
+ 
+-- 
+2.39.5 (Apple Git-154)
+
