@@ -258,7 +258,7 @@ jobs:
       matrix:
         coin: [monero, wownero, zano]
     name: ios build
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout monero_c repo
         uses: actions/checkout@v4
@@ -268,7 +268,7 @@ jobs:
           submodules: recursive
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.4'
+          xcode-version: '16.1'
       - name: install dependencies
         run: |
           brew install ccache unbound boost@1.76 zmq autoconf automake libtool && brew link boost@1.76
