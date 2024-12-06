@@ -27,7 +27,7 @@ index b589edb1..cc445b2f 160000
 +++ b/contrib/tor-connect
 @@ -1 +1 @@
 -Subproject commit b589edb1906dccb387cfeded6ed12286c5f0405f
-+Subproject commit cc445b2f4850cb1713911f6002a869fd2853e48f
++Subproject commit cd7f0c4b583488a7fe9b50de8e533a9853b6a5c7
 -- 
 2.39.5 (Apple Git-154)
 
