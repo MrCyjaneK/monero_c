@@ -112,7 +112,19 @@ if (${MONERO_FLAVOR} STREQUAL "monero")
 elseif(${MONERO_FLAVOR} STREQUAL "wownero")
     set(WALLET_TARGETS wallet_api ${wallet_api_LIB_DEPENDS}) # wallet_api_LIB_DEPENDS
 elseif(${MONERO_FLAVOR} STREQUAL "zano")
-    set(WALLET_TARGETS wallet ${wallet_LIB_DEPENDS})
+    find_package(Boost 1.71 REQUIRED COMPONENTS system filesystem thread timer date_time chrono regex serialization atomic program_options)
+    find_package(OpenSSL REQUIRED)
+    set(WALLET_TARGETS 
+        wallet
+        general
+        tor-connect
+        crypto
+        currency_core
+        common
+        zlibstatic
+        
+        ${Boost_LIBRARIES}
+        ${OpenSSL_LIBRARIES})
 endif()
 
 if(${MONERO_FLAVOR} STREQUAL "wownero")
@@ -125,7 +137,7 @@ endif()
 #foreach (_variableName ${_variableNames})
 #    message(STATUS "${_variableName}=${${_variableName}}")
 #endforeach()
-#message(SEND_ERROR noooo)
+# message(SEND_ERROR "${Boost_LIBRARIES}")
 
 target_link_libraries(  wallet2_api_c
 

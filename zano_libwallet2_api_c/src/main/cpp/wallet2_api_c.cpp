@@ -4,6 +4,7 @@
 #include <cstring>
 #include <thread>
 #include "zano_checksum.h"
+#include "helpers.hpp"
 #include "../../../../zano/src/wallet/plain_wallet_api.h"
 
 #ifdef __cplusplus
