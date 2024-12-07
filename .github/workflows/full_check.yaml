@@ -585,7 +585,8 @@ jobs:
           cd impls/monero.ts
           deno run --unstable-ffi --allow-ffi checksum.ts
 
-  regression_check:
+  regression_tests_linux:
+    name: linux regression tests
     strategy:
       matrix:
         coin: [monero, wownero]
@@ -611,7 +612,35 @@ jobs:
       - name: Run regression tests
         run: COIN="${{ matrix.coin }}" deno test -A tests/regression.test.ts
 
-  integration_check:
+  regression_tests_macos:
+    name: macos regression tests
+    strategy:
+      matrix:
+        coin: [monero, wownero]
+    needs: [
+      lib_macos
+    ]
+    runs-on: macos-14
+    steps:
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux ${{ matrix.coin }}
+          path: release/${{ matrix.coin }}
+
+      - name: Run regression tests
+        run: COIN="${{ matrix.coin }}" deno test -A tests/regression.test.ts
+
+  integration_tests_linux:
+    name: linux integration tests
     strategy:
       matrix:
         coin: [monero, wownero]
@@ -619,6 +648,38 @@ jobs:
       lib_linux
     ]
     runs-on: ubuntu-24.04
+    steps:
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux ${{ matrix.coin }}
+          path: release/${{ matrix.coin }}
+
+      - name: Run integration tests
+        run: COIN="${{ matrix.coin }}" deno test -A tests/integration.test.ts
+        env:
+          SECRET_WALLET_PASSWORD: ${{ secrets.SECRET_WALLET_PASSWORD }}
+          SECRET_WALLET_MNEMONIC: ${{ secrets.SECRET_WALLET_MNEMONIC }}
+          SECRET_WALLET_RESTORE_HEIGHT: ${{ secrets.SECRET_WALLET_RESTORE_HEIGHT }}
+
+
+  integration_tests_macos:
+    name: macos integration tests
+    strategy:
+      matrix:
+        coin: [monero, wownero]
+    needs: [
+      lib_macos
+    ]
+    runs-on: macos-14
     steps:
       - uses: denoland/setup-deno@v2
         with:
