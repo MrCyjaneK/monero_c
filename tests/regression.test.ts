@@ -1,4 +1,4 @@
-import { $, createWalletViaCli, downloadCli, getMoneroC, getMoneroCTags } from "./utils.ts";
+import { $, createWalletViaCli, getMoneroCTags, prepareCli, prepareMoneroC } from "./utils.ts";
 
 const coin = Deno.env.get("COIN");
 if (coin !== "monero" && coin !== "wownero") {
@@ -11,7 +11,7 @@ Deno.test(`Regression tests (${coin})`, async (t) => {
 
   const tags = await getMoneroCTags();
   const latestTag = tags[0];
-  await Promise.all([getMoneroC(coin, "next"), await getMoneroC(coin, latestTag), downloadCli(coin)]);
+  await Promise.all([prepareMoneroC(coin, "next"), await prepareMoneroC(coin, latestTag), prepareCli(coin)]);
 
   await t.step("Simple (next, latest, next)", async () => {
     const walletInfo = await createWalletViaCli(coin, "dog", "sobaka");
@@ -27,7 +27,7 @@ Deno.test(`Regression tests (${coin})`, async (t) => {
     const walletInfo = await createWalletViaCli(coin, "cat", "koshka");
 
     for (const version of tags.toReversed()) {
-      if (version !== "next" && version !== tags[0]) await getMoneroC(coin, version);
+      if (version !== "next" && version !== tags[0]) await prepareMoneroC(coin, version);
       await $`deno run -A ./tests/compare.ts ${coin} ${version} ${JSON.stringify(walletInfo)}`;
     }
 
