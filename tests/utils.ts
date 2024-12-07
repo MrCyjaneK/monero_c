@@ -173,7 +173,7 @@ export async function prepareMoneroC(coin: Coin, version: MoneroCVersion) {
       `./tests/dependencies/libs/next/${moneroTsDylibName}`,
     );
   } else {
-    const downloadInfo = moneroCInfos.find((info) => info.outDir?.includes(version));
+    const downloadInfo = moneroCInfos.find((info) => info.outDir?.endsWith(version));
     if (downloadInfo) {
       await downloadDependencies(downloadInfo);
     }
