@@ -36,7 +36,7 @@ async function sha256(buffer: Uint8Array): Promise<string> {
   return Array.from(hashed).map((i) => i.toString(16).padStart(2, "0")).join("");
 }
 
-const outDir = "./tests/dependencies";
+let outDir = "./tests/dependencies";
 export async function downloadDependencies(...infos: DownloadInfo[]): Promise<void> {
   try {
     await Deno.mkdir(outDir, { recursive: true });
@@ -156,6 +156,9 @@ for (const tag of await getMoneroCTags()) {
   }
 }
 
+// Download files to the monero_c folder
+// (used on mirror to keep files up to date)
 if (import.meta.main) {
+  outDir = "./monero_c";
   downloadDependencies(moneroCliInfo, wowneroCliInfo, ...moneroCInfos);
 }
