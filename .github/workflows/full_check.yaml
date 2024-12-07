@@ -633,7 +633,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: linux ${{ matrix.coin }}
+          name: macos ${{ matrix.coin }}
           path: release/${{ matrix.coin }}
 
       - name: Run regression tests
@@ -692,7 +692,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: linux ${{ matrix.coin }}
+          name: macos ${{ matrix.coin }}
           path: release/${{ matrix.coin }}
 
       - name: Run integration tests
