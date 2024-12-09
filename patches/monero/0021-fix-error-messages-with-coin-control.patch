@@ -42,8 +42,8 @@ index de507b3..731055a 100644
                        print_money(e.fee());
 +            if (max_coin_control_input != 0 &&
 +                max_coin_control_input != e.available()) {
-+                writer << std::endl << boost::format(tr("In addition, coin control was enabled for this transaction, limiting available balance to %s. Make sure that you have enough outputs selected in coin control" %
-+                    print_money(max_coin_control_input)));
++                writer << std::endl << boost::format(tr("In addition, coin control was enabled for this transaction, limiting available balance to %s. Make sure that you have enough outputs selected in coin control")) %
++                    print_money(max_coin_control_input);
 +            }
              setStatusError(writer.str());
          } catch (const tools::error::not_enough_outs_to_mix& e) {
