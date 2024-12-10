@@ -53,7 +53,7 @@ export async function extract(path: string, out: string) {
 
   if (path.endsWith(".tar.bz2")) {
     let args = `-C ${dirname(out)}`;
-    if (outDir !== out) {
+    if (outDir === out) {
       args = `-C ${out} --strip-components=1`;
     }
     await $.raw`tar -xf ${path} ${args}`;
@@ -75,7 +75,7 @@ export async function prepareMoneroCli() {
 
 export async function prepareWowneroCli() {
   await downloadDependencies(wowneroCliInfo);
-  const path = join("./tests/dependecies", wowneroCliInfo.outDir ?? "", getFileInfo(wowneroCliInfo).name);
+  const path = join("./tests/dependencies", wowneroCliInfo.outDir ?? "", getFileInfo(wowneroCliInfo).name);
   await extract(path, "./tests/dependencies/wownero-cli/");
 }
 
