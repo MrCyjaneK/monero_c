@@ -2,14 +2,17 @@ import { build$, CommandBuilder } from "jsr:@david/dax";
 import { dirname, join } from "jsr:@std/path";
 import {
   downloadDependencies,
+  dylibInfos,
   getFileInfo,
-  moneroCInfos,
   moneroCliInfo,
   Target,
-  target,
   wowneroCliInfo,
 } from "./download_deps.ts";
 import { loadMoneroDylib, loadWowneroDylib, moneroSymbols, wowneroSymbols } from "../impls/monero.ts/mod.ts";
+
+export type Coin = "monero" | "wownero";
+
+const target = `${Deno.build.os}_${Deno.build.arch}` as const;
 
 export const $ = build$({
   commandBuilder: new CommandBuilder()
@@ -18,8 +21,6 @@ export const $ = build$({
     .stdout("inherit")
     .stderr("inherit"),
 });
-
-type Coin = "monero" | "wownero";
 
 export const dylibNames: (coin: Coin) => Partial<Record<Target, string>> = (coin) => ({
   linux_x86_64: `${coin}_x86_64-linux-gnu_libwallet2_api_c.so`,
@@ -173,7 +174,7 @@ export async function prepareMoneroC(coin: Coin, version: MoneroCVersion) {
       `./tests/dependencies/libs/next/${moneroTsDylibName}`,
     );
   } else {
-    const downloadInfo = moneroCInfos.find((info) => info.outDir?.endsWith(version));
+    const downloadInfo = dylibInfos[coin].find((info) => info.outDir?.endsWith(version));
     if (downloadInfo) {
       await downloadDependencies(downloadInfo);
     }
