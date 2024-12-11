@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     runs-on: ubuntu-latest
     container:
       image: ubuntu:24.04
@@ -195,7 +195,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     name: macos build
     runs-on: macos-14
     steps:
@@ -210,7 +210,7 @@ jobs:
           xcode-version: '15.4'
       - name: install dependencies
         run: |
-          brew install ccache binutils pigz autoconf automake libtool
+          brew install ccache binutils pigz autoconf automake libtool pkg-config
       - name: Patch sources
         run: |
           git config --global --add safe.directory '*'
@@ -271,7 +271,7 @@ jobs:
           xcode-version: '16.1'
       - name: install dependencies
         run: |
-          brew install ccache unbound boost@1.76 zmq autoconf automake libtool && brew link boost@1.76
+          brew install ccache cmake autoconf automake libtool
       - name: Patch sources
         run: |
           git config --global --add safe.directory '*'
