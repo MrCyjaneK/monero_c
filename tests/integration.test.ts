@@ -1,16 +1,7 @@
-import {
-  CoinsInfo,
-  type Dylib,
-  loadMoneroDylib,
-  loadWowneroDylib,
-  moneroSymbols,
-  Wallet,
-  WalletManager,
-  wowneroSymbols,
-} from "../impls/monero.ts/mod.ts";
+import { CoinsInfo, Wallet, WalletManager } from "../impls/monero.ts/mod.ts";
 
 import { assert, assertEquals } from "jsr:@std/assert";
-import { $, downloadCli, getMoneroC } from "./utils.ts";
+import { $, loadDylib, prepareCli, prepareMoneroC } from "./utils.ts";
 
 const coin = Deno.env.get("COIN");
 if (coin !== "monero" && coin !== "wownero") {
@@ -53,7 +44,7 @@ const DESTINATION_ADDRESS = coin === "monero" ? MONERO_DESTINATION_ADDRESS : WOW
 
 const BILLION = 10n ** 9n;
 
-await getMoneroC(coin, "next");
+await prepareMoneroC(coin, "next");
 
 interface WalletInfo {
   name: string;
@@ -74,14 +65,7 @@ async function clearWallets() {
   await Deno.mkdir("tests/wallets/");
 }
 
-let dylib: Dylib;
-if (coin === "monero") {
-  dylib = Deno.dlopen(`tests/libs/next/monero_libwallet2_api_c.so`, moneroSymbols);
-  loadMoneroDylib(dylib);
-} else {
-  dylib = Deno.dlopen(`tests/libs/next/wownero_libwallet2_api_c.so`, wowneroSymbols);
-  loadWowneroDylib(dylib);
-}
+loadDylib(coin, "next");
 
 Deno.test("0001-polyseed.patch", async (t) => {
   const WALLETS: Record<"monero" | "wownero", WalletInfo[]> = {
@@ -487,7 +471,7 @@ Deno.test("0004-coin-control.patch", {
 
 Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
   await Promise.all([
-    downloadCli(coin),
+    prepareCli(coin),
     clearWallets(),
   ]);
 
@@ -498,7 +482,7 @@ Deno.test("0009-Add-recoverDeterministicWalletFromSpendKey.patch", async () => {
 
   await Deno.remove("./tests/wallets/stoat");
 
-  const cliPath = `./tests/${coin}-cli/${coin}-wallet-cli`;
+  const cliPath = `./tests/dependencies/${coin}-cli/${coin}-wallet-cli`;
   const moneroCliSeed = (await $.raw`${cliPath} --wallet-file ./tests/wallets/stoat --password gornostay --command seed`
     .stdinText(`gornostay\n`)
     .lines()).slice(-3).join(" ");
