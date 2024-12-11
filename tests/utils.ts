@@ -151,7 +151,7 @@ export async function getMoneroCTags(): Promise<string[]> {
   );
 
   if (!response.ok) {
-    throw new Error("Could not receive monero_c release tags");
+    throw new Error(`Could not receive monero_c release tags: ${await response.text()}`);
   }
 
   const json = await response.json() as { tag_name: string }[];
