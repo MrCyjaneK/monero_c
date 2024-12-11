@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coin: [monero, wownero, zano]
+        coin: [monero, wownero]
     runs-on: ubuntu-latest
     container:
       image: ubuntu:24.04
@@ -195,7 +195,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coin: [monero, wownero, zano]
+        coin: [monero, wownero]
     name: macos build
     runs-on: macos-14
     steps:
