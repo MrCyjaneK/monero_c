@@ -112,7 +112,7 @@ export async function downloadFiles(outDir: string, target: Target, ...infos: Do
 
 export const wowneroCliInfo: DownloadInfo = {
   mirrors: [
-    "https://static.mrcyjanek.net/monero_c/",
+    "https://static.mrcyjanek.net/download_mirror/",
     "https://codeberg.org/wownero/wownero/releases/download/v0.11.2.0/",
   ],
   file: {
@@ -141,7 +141,7 @@ export const wowneroCliInfo: DownloadInfo = {
 
     android_aarch64: {
       overrideMirrors: [
-        "https://static.mrcyjanek.net/monero_c/",
+        "https://static.mrcyjanek.net/download_mirror/",
         "https://codeberg.org/wownero/wownero/releases/download/v0.11.1.0/",
       ],
       name: "wownero-aarch64-linux-android-v0.11.1.0.tar.bz2",
@@ -152,7 +152,7 @@ export const wowneroCliInfo: DownloadInfo = {
 
 export const moneroCliInfo: DownloadInfo = {
   mirrors: [
-    "https://static.mrcyjanek.net/monero_c/",
+    "https://static.mrcyjanek.net/download_mirror/",
     "https://downloads.getmonero.org/cli/",
   ],
   file: {
@@ -195,7 +195,7 @@ for (const tag of await getMoneroCTags()) {
   for (const coin of ["monero", "wownero"] as const) {
     dylibInfos[coin].push({
       mirrors: [
-        `https://static.mrcyjanek.net/monero_c/libs/${tag}/`,
+        `https://static.mrcyjanek.net/download_mirror/libs/${tag}/`,
         `https://github.com/MrCyjaneK/monero_c/releases/download/${tag}/`,
       ],
       file: {
@@ -211,7 +211,7 @@ for (const tag of await getMoneroCTags()) {
   }
 }
 
-// Download files to the monero_c folder
+// Download files to the download_mirror folder
 // (used on mirror to keep files up to date)
 if (import.meta.main) {
   const supportedTargets: Target[] = [
@@ -224,6 +224,6 @@ if (import.meta.main) {
   ];
 
   for (const target of supportedTargets) {
-    await downloadFiles("./monero_c", target, moneroCliInfo, wowneroCliInfo, ...Object.values(dylibInfos).flat());
+    await downloadFiles("./download_mirror", target, moneroCliInfo, wowneroCliInfo, ...Object.values(dylibInfos).flat());
   }
 }
