@@ -195,7 +195,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     name: macos build
     runs-on: macos-14
     steps:
@@ -361,6 +361,10 @@ jobs:
         with:
           name: macos wownero
           path: release/wownero
+      - uses: actions/download-artifact@v4
+        with:
+          name: macos zano
+          path: release/zano
       - uses: actions/download-artifact@v4
         with:
           name: mingw monero
