@@ -5,7 +5,7 @@ $(package)_file_name=ccache-$($(package)_version).tar.gz
 $(package)_sha256_hash=108100960bb7e64573ea925af2ee7611701241abb36ce0aae3354528403a7d87
 
 define $(package)_set_vars
-$(package)_config_opts=-DCMAKE_INSTALL_PREFIX="$(host_prefix)/native"
+$(package)_config_opts=-DCMAKE_INSTALL_PREFIX="$(host_prefix)/native" -DENABLE_TESTING=OFF
 endef
 
 define $(package)_config_cmds
