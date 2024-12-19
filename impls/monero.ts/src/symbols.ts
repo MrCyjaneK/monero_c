@@ -1957,6 +1957,7 @@ export const moneroSymbols = {
     ],
   },
   MONERO_Wallet_reconnectDevice: {
+    optional: true,
     nonblocking: true,
     result: "bool",
     parameters: ["pointer"] as [
