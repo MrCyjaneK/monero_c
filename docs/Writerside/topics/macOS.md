@@ -11,17 +11,15 @@ Building on linux has been tested on
 <tab title="Native">
 <code-block>
 $ # install xcode 15.4 (or current latest)
-$ brew install ccache unbound boost@1.76 zmq autoconf automake libtool 
-$ brew link boost@1.76
+$ brew install ccache unbound zmq autoconf automake libtool
 </code-block>
 </tab>
 <tab title="Native (Rosetta2)">
 <code-block>
 $ # install xcode 15.4 (or current latest)
-$ brew install ccache unbound boost@1.76 zmq autoconf automake libtool 
-$ brew link boost@1.76
-$ arch -x86_64 brew install ccache unbound boost@1.76 zmq autoconf automake libtool 
-$ arch -x86_64 brew link boost@1.76
+$ brew install ccache unbound zmq autoconf automake libtool
+$ arch -x86_64 brew install ccache unbound zmq autoconf automake libtool
+$ arch -x86_64 brew link
 </code-block>
 </tab>
 <tab title="Linux">
