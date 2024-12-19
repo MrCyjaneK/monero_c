@@ -271,7 +271,7 @@ jobs:
           xcode-version: '15.4'
       - name: install dependencies
         run: |
-          brew install ccache unbound boost@1.76 zmq autoconf automake libtool && brew link boost@1.76
+          brew install ccache unbound zmq autoconf automake libtool
       - name: Patch sources
         run: |
           git config --global --add safe.directory '*'
