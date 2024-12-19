@@ -24,7 +24,7 @@ export const $ = build$({
 
 export const dylibNames: (coin: Coin) => Partial<Record<Target, string>> = (coin) => ({
   linux_x86_64: `${coin}_x86_64-linux-gnu_libwallet2_api_c.so`,
-  darwin_aarch64: `${coin}_aarch64-apple-darwin_libwallet2_api_c.dylib.xz`,
+  darwin_aarch64: `${coin}_aarch64-apple-darwin_libwallet2_api_c.dylib`,
   windows_x86_64: `${coin}_x86_64-w64-mingw32_libwallet2_api_c.dll`,
 });
 
