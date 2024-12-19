@@ -1,4 +1,4 @@
 // ignore_for_file: constant_identifier_names
-const String wallet2_api_c_h_sha256 = "198a27486ce4f014b737f52ec2879a90838c3b3ca088de8dc7d55b79a10f4a5b";
-const String wallet2_api_c_cpp_sha256 = "22b0c9dd542fb55edfe9e17da67e97ddf5f80bcdd3e126e1bd64cce54234bde1-b089f9ee69924882c5d14dd1a6991deb05d9d1cd";
-const String wallet2_api_c_exp_sha256 = "c1f785d62709fd8b849063ecf4fe8854d9e3b05b568b9716de98d33e7bdaf522";
+const String wallet2_api_c_h_sha256 = "9e80c4b59a0509aa02fbf01e8df2881b89f82225d1765bfa7856cbdbaf7af116";
+const String wallet2_api_c_cpp_sha256 = "d229507db508e574bd2badf4819a38dbead8c16a84311ad32c22c887a6003439-b089f9ee69924882c5d14dd1a6991deb05d9d1cd";
+const String wallet2_api_c_exp_sha256 = "d0f95f1f3bc49f1f59fe4eb0b61826128d7d3bb75405d5a01a252d02db03097d";

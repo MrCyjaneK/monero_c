@@ -1,0 +1,32 @@
+From b41551e7dd8d3f4968f330f60d14773eaabca818 Mon Sep 17 00:00:00 2001
+From: cyan <cyjan@mrcyjanek.net>
+Date: Tue, 22 Oct 2024 10:23:18 +0000
+Subject: [PATCH 03/15] fix is_trivially_copyable
+
+---
+ contrib/epee/include/span.h | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/contrib/epee/include/span.h b/contrib/epee/include/span.h
+index 01dc387d6..5e3af4d11 100644
+--- a/contrib/epee/include/span.h
++++ b/contrib/epee/include/span.h
+@@ -151,7 +151,6 @@ namespace epee
+     using value_type = typename T::value_type;
+     static_assert(!std::is_empty<value_type>(), "empty value types will not work -> sizeof == 1");
+     static_assert(std::is_standard_layout<value_type>(), "value type must have standard layout");
+-    static_assert(std::is_trivially_copyable<value_type>(), "value type must be trivially copyable");
+     static_assert(alignof(value_type) == 1, "value type may have padding");
+     return {reinterpret_cast<std::uint8_t*>(src.data()), src.size() * sizeof(value_type)};
+   }
+@@ -162,7 +161,6 @@ namespace epee
+   {
+     static_assert(!std::is_empty<T>(), "empty types will not work -> sizeof == 1");
+     static_assert(std::is_standard_layout<T>(), "type must have standard layout");
+-    static_assert(std::is_trivially_copyable<T>(), "type must be trivially copyable");
+     static_assert(alignof(T) == 1, "type may have padding");
+     return {reinterpret_cast<const std::uint8_t*>(std::addressof(src)), sizeof(T)};
+   }
+-- 
+2.39.5 (Apple Git-154)
+
