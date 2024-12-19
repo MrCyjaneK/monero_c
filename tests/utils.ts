@@ -24,7 +24,7 @@ export const $ = build$({
 
 export const dylibNames: (coin: Coin) => Partial<Record<Target, string>> = (coin) => ({
   linux_x86_64: `${coin}_x86_64-linux-gnu_libwallet2_api_c.so`,
-  darwin_aarch64: `${coin}_aarch64-apple-darwin11_libwallet2_api_c.dylib`,
+  darwin_aarch64: `${coin}_aarch64-apple-darwin_libwallet2_api_c.dylib.xz`,
   windows_x86_64: `${coin}_x86_64-w64-mingw32_libwallet2_api_c.dll`,
 });
 
@@ -61,7 +61,6 @@ export async function extract(path: string, out: string) {
   } else if (path.endsWith(".zip")) {
     await $.raw`unzip ${path} -nu -d ${outDir}`;
   } else if (path.endsWith(".xz")) {
-    await $.raw`find ${dirname(path)}`;
     await $.raw`xz -kd ${path}`;
     await Deno.rename(path.slice(0, -3), out);
   } else {
