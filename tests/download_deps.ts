@@ -224,6 +224,12 @@ if (import.meta.main) {
   ];
 
   for (const target of supportedTargets) {
-    await downloadFiles("./download_mirror", target, moneroCliInfo, wowneroCliInfo, ...Object.values(dylibInfos).flat());
+    await downloadFiles(
+      "./download_mirror",
+      target,
+      moneroCliInfo,
+      wowneroCliInfo,
+      ...Object.values(dylibInfos).flat(),
+    );
   }
 }

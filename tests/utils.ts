@@ -146,9 +146,7 @@ export async function createWalletViaCli(
 export type MoneroCVersion = "next" | (string & {});
 
 export async function getMoneroCTags(): Promise<string[]> {
-  const response = await fetch(
-    "https://api.github.com/repos/MrCyjanek/monero_c/releases",
-  );
+  const response = await fetch("https://static.mrcyjanek.net/monero_c/release.php");
 
   if (!response.ok) {
     throw new Error(`Could not receive monero_c release tags: ${await response.text()}`);
