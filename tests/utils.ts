@@ -61,6 +61,7 @@ export async function extract(path: string, out: string) {
   } else if (path.endsWith(".zip")) {
     await $.raw`unzip ${path} -nu -d ${outDir}`;
   } else if (path.endsWith(".xz")) {
+    await $.raw`tree ${dirname(path)}`;
     await $.raw`xz -kd ${path}`;
     await Deno.rename(path.slice(0, -3), out);
   } else {
