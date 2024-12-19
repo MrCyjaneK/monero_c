@@ -22,17 +22,19 @@ export const $ = build$({
     .stderr("inherit"),
 });
 
-export const dylibNames: (coin: Coin) => Partial<Record<Target, string>> = (coin) => ({
+export const dylibNames = (coin: Coin, version: MoneroCVersion) => ({
   linux_x86_64: `${coin}_x86_64-linux-gnu_libwallet2_api_c.so`,
-  darwin_aarch64: `${coin}_aarch64-apple-darwin_libwallet2_api_c.dylib`,
+  darwin_aarch64: version === "next"
+    ? `${coin}_aarch64-apple-darwin_libwallet2_api_c.dylib`
+    : `${coin}_aarch64-apple-darwin11_libwallet2_api_c.dylib`,
   windows_x86_64: `${coin}_x86_64-w64-mingw32_libwallet2_api_c.dll`,
-});
+} as Partial<Record<Target, string>>);
 
-export const moneroTsDylibNames: (coin: Coin) => Partial<Record<Target, string>> = (coin) => ({
+export const moneroTsDylibNames = (coin: Coin) => ({
   linux_x86_64: `${coin}_libwallet2_api_c.so`,
   darwin_aarch64: `${coin}_aarch64-apple-darwin11_libwallet2_api_c.dylib`,
   windows_x86_64: `${coin}_libwallet2_api_c.dll`,
-});
+} as Partial<Record<Target, string>>);
 
 export function loadDylib(coin: Coin, version: MoneroCVersion) {
   const dylibName = moneroTsDylibNames(coin)[target]!;
@@ -157,7 +159,7 @@ export async function getMoneroCTags(): Promise<string[]> {
 }
 
 export async function prepareMoneroC(coin: Coin, version: MoneroCVersion) {
-  const dylibName = dylibNames(coin)[target];
+  const dylibName = dylibNames(coin, version)[target];
   const moneroTsDylibName = moneroTsDylibNames(coin)[target];
 
   if (!dylibName || !moneroTsDylibName) {
