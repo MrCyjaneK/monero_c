@@ -17,7 +17,7 @@ define $(package)_build_cmds
 endef
 
 define $(package)_stage_cmds
-  cd build && $(MAKE) DESTDIR=$($(package)_staging_dir) install
+  cd build && $(MAKE) -j1 DESTDIR=$($(package)_staging_dir) install
 endef
 
 define $(package)_postprocess_cmds
