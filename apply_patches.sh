@@ -46,5 +46,22 @@ then
 fi
 git submodule init
 git submodule update --init --recursive --force
-touch .patch-applied
+git am -3 <<EOF
+From e56dd6cd0fb1a5e55d3cb08691edf24b26d65299 Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Fri, 20 Dec 2024 09:18:08 +0100
+Subject: [PATCH] add .patch-applied
+
+---
+ .patch-applied | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 .patch-applied
+
+diff --git a/.patch-applied b/.patch-applied
+new file mode 100644
+index 000000000..e69de29bb
+-- 
+2.39.5 (Apple Git-154)
+EOF
+
 echo "you are good to go!"
