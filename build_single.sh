@@ -55,7 +55,12 @@ fi
 cd $(dirname $0)
 WDIR=$PWD
 pushd contrib/depends
-    env -i PATH="$PATH" CC=gcc CXX=g++ make "$NPROC" HOST="$HOST_ABI"
+    if [[ -d $HOST_ABI ]];
+    then
+        echo "Not building depends, directory exists"
+    else
+        env -i PATH="$PATH" CC=gcc CXX=g++ make "$NPROC" HOST="$HOST_ABI"
+    fi
 popd
 
 buildType=Debug
