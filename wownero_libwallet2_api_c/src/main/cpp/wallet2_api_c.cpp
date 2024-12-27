@@ -1923,8 +1923,12 @@ void* WOWNERO_deprecated_restore14WordSeed(char *path, char *password, char *see
 }
 
 uint64_t WOWNERO_deprecated_14WordSeedHeight(char *seed) {
-    wownero_seed wow_seed(seed, "wownero");
-    return wow_seed.blockheight();
+    try {
+        wownero_seed wow_seed(seed, "wownero");
+        return wow_seed.blockheight();
+    } catch (...) {
+        return 2;
+    }
 }
 
 void* WOWNERO_deprecated_create14WordSeed(char *path, char *password, char *language, int32_t networkType) {
