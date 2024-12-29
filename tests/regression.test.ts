@@ -30,10 +30,7 @@ Deno.test(`Regression tests (${coin})`, async (t) => {
       if (version !== "next" && version !== tags[0]) await prepareMoneroC(coin, version);
       await $`deno run -A ./tests/compare.ts ${coin} ${version} ${JSON.stringify(walletInfo)}`;
     }
-
-    await Deno.remove("./tests/wallets", { recursive: true }).catch(() => {});
   });
 
   await Deno.remove("./tests/wallets", { recursive: true }).catch(() => {});
-  await Deno.remove("./tests/libs", { recursive: true }).catch(() => {});
 });
