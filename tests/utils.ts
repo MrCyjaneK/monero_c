@@ -50,6 +50,18 @@ export function loadDylib(coin: Coin, version: MoneroCVersion) {
   }
 }
 
+async function exists(path: string): Promise<boolean> {
+  try {
+    await Deno.stat(path);
+    return true;
+  } catch (error) {
+    if (error instanceof Deno.errors.NotFound) {
+      return false;
+    }
+    throw error;
+  }
+}
+
 export async function extract(path: string, out: string) {
   const outDir = out.endsWith("/") ? out : dirname(out);
   await Deno.mkdir(outDir, { recursive: true });
@@ -169,19 +181,25 @@ export async function prepareMoneroC(coin: Coin, version: MoneroCVersion) {
   const releaseDylibName = dylibName.slice(`${coin}_`.length);
 
   if (version === "next") {
-    await extract(
-      `./release/${coin}/${releaseDylibName}.xz`,
-      `./tests/dependencies/libs/next/${moneroTsDylibName}`,
-    );
+    const outFileDir = `./tests/dependencies/libs/${version}/${moneroTsDylibName}`;
+
+    if (await exists(outFileDir)) {
+      return;
+    }
+
+    await extract(`./release/${coin}/${releaseDylibName}.xz`, outFileDir);
   } else {
+    const outFileDir = `./tests/dependencies/libs/${version}/${moneroTsDylibName}`;
+
+    if (await exists(outFileDir)) {
+      return;
+    }
+
     const downloadInfo = dylibInfos[coin].find((info) => info.outDir?.endsWith(version));
     if (downloadInfo) {
       await downloadDependencies(downloadInfo);
     }
 
-    await extract(
-      `./tests/dependencies/libs/${version}/${dylibName}.xz`,
-      `./tests/dependencies/libs/${version}/${moneroTsDylibName}`,
-    );
+    await extract(`./tests/dependencies/libs/${version}/${dylibName}.xz`, outFileDir);
   }
 }
