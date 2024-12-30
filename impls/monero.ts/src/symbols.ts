@@ -1548,6 +1548,7 @@ export const moneroSymbols = {
     ],
   },
   MONERO_Wallet_createTransactionMultDest: {
+    optional: true,
     nonblocking: true,
     result: "pointer",
     parameters: [
@@ -1956,6 +1957,7 @@ export const moneroSymbols = {
     ],
   },
   MONERO_Wallet_reconnectDevice: {
+    optional: true,
     nonblocking: true,
     result: "bool",
     parameters: ["pointer"] as [
