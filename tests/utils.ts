@@ -84,13 +84,13 @@ export async function extract(path: string, out: string) {
 
 export async function prepareMoneroCli() {
   await downloadDependencies(moneroCliInfo);
-  const path = join("./tests/dependencies", moneroCliInfo.outDir ?? "", getFileInfo(moneroCliInfo).name);
+  const path = join("./tests/dependencies", moneroCliInfo.outDir ?? "", getFileInfo(moneroCliInfo).names[0]);
   await extract(path, "./tests/dependencies/monero-cli/");
 }
 
 export async function prepareWowneroCli() {
   await downloadDependencies(wowneroCliInfo);
-  const path = join("./tests/dependencies", wowneroCliInfo.outDir ?? "", getFileInfo(wowneroCliInfo).name);
+  const path = join("./tests/dependencies", wowneroCliInfo.outDir ?? "", getFileInfo(wowneroCliInfo).names[0]);
   await extract(path, "./tests/dependencies/wownero-cli/");
 }
 
