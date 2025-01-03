@@ -1511,6 +1511,19 @@ const char* MONERO_Wallet_getTxKey(void* wallet_ptr, const char* txid) {
     return buffer;
 }
 
+bool MONERO_Wallet_checkTxKey(void* wallet_ptr, const char* txid, const char* tx_key, const char* address, uint64_t received, bool in_pool, uint64_t confirmations) {
+    Monero::Wallet* wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    bool result = wallet->checkTxKey(
+            std::string(txid),
+            std::string(tx_key),
+            std::string(address),
+            received,
+            in_pool,
+            confirmations
+    );
+    return result;
+}
+
 const char* MONERO_Wallet_signMessage(void* wallet_ptr, const char* message, const char* address) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->signMessage(std::string(message), std::string(address));
