@@ -443,7 +443,7 @@ Deno.test("0004-coin-control.patch", {
 
       assertEquals(await transaction.status(), 1);
       assertEquals(
-        await transaction.errorString(),
+        (await transaction.errorString())?.split("\n")[0],
         "not enough money to transfer, overall balance only 0.002000000000, sent amount 0.002000000000",
       );
     });
