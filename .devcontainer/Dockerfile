@@ -6,7 +6,10 @@ SHELL ["/bin/bash", "-c"]
 
 # lintinfo5
 
-RUN wget http://mirrors.kernel.org/ubuntu/pool/universe/n/ncurses/libtinfo5_6.3-2ubuntu0.1_amd64.deb -O libtinfo5.deb \
+SHELL ["/bin/bash", "-c"]
+
+RUN [[ "$(uname -m)" == "aarch64" || "$(uname -m)" == "arm64" ]] && exit 0 \
+    || wget http://mirrors.kernel.org/ubuntu/pool/universe/n/ncurses/libtinfo5_6.3-2ubuntu0.1_amd64.deb -O libtinfo5.deb \
     && apt install ./libtinfo5.deb \
     && rm libtinfo5.deb
 

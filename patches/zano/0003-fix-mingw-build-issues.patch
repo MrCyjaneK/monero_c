@@ -1,0 +1,61 @@
+From 1f7604d5b661f4490a1757e5ed1d6ed367ffb739 Mon Sep 17 00:00:00 2001
+From: cyan <cyjan@mrcyjanek.net>
+Date: Sun, 3 Nov 2024 08:59:22 +0000
+Subject: [PATCH 3/5] fix mingw build issues
+
+---
+ contrib/epee/include/misc_os_dependent.h | 4 ++--
+ src/common/callstack_helper.cpp          | 2 +-
+ src/crypto/ecrypt-config.h               | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/contrib/epee/include/misc_os_dependent.h b/contrib/epee/include/misc_os_dependent.h
+index c06e5d94..a2a979b9 100644
+--- a/contrib/epee/include/misc_os_dependent.h
++++ b/contrib/epee/include/misc_os_dependent.h
+@@ -110,14 +110,14 @@ namespace misc_utils
+ 	}
+ 
+ 
+-#if defined(__GNUC__) && !defined(__ANDROID__)
++#if defined(__GNUC__) && !defined(__ANDROID__) && !defined(_WIN32)
+ #include <execinfo.h>
+ #include <boost/core/demangle.hpp>
+ #endif
+   inline std::string print_trace_default()
+   {
+     std::stringstream ss;
+-#if defined(__GNUC__) && !defined(__ANDROID__)
++#if defined(__GNUC__) && !defined(__ANDROID__) && !defined(_WIN32)
+     ss << std::endl << "STACK" << std::endl;
+     const size_t max_depth = 100;
+     size_t stack_depth;
+diff --git a/src/common/callstack_helper.cpp b/src/common/callstack_helper.cpp
+index b84fe5a8..c9eae839 100644
+--- a/src/common/callstack_helper.cpp
++++ b/src/common/callstack_helper.cpp
+@@ -9,7 +9,7 @@
+ #define NOMINMAX
+ #endif
+ #include <windows.h>
+-#include <Psapi.h>
++#include <psapi.h>
+ #pragma comment(lib, "psapi.lib")
+ #pragma comment(lib, "dbghelp.lib")
+ 
+diff --git a/src/crypto/ecrypt-config.h b/src/crypto/ecrypt-config.h
+index 9176de17..8b488135 100644
+--- a/src/crypto/ecrypt-config.h
++++ b/src/crypto/ecrypt-config.h
+@@ -257,7 +257,7 @@
+ 
+ #ifdef _UI64_MAX
+ 
+-#if (_UI64_MAX / 0xFFFFFFFFui64 > 0xFFFFFFFFui64)
++#if (_UI64_MAX / 0xFFFFFFFF > 0xFFFFFFFF)
+ #ifndef I64T
+ #define I64T __int64
+ #define U64C(v) (v##ui64)
+-- 
+2.39.5 (Apple Git-154)
+

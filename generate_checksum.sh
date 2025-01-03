@@ -6,7 +6,7 @@ then
     function sha256sum() { shasum -a 256 "$@" ; } && export -f sha256sum
 fi
 
-for coin in monero wownero;
+for coin in monero wownero zano;
 do
     submodule_hash=$(git ls-tree HEAD ${coin} | xargs | awk '{ print $3 }')
     COIN=$(echo "$coin" | tr a-z A-Z)

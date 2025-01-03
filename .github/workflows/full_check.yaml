@@ -64,8 +64,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coin: [monero, wownero]
-    runs-on: ubuntu-24.04
+        coin: [monero, wownero, zano]
+    runs-on: ubuntu-22.04
     # container:
     #   image: debian:bookworm
     steps:
@@ -137,7 +137,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     runs-on: ubuntu-latest
     container:
       image: debian:bullseye
@@ -195,7 +195,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     name: macos build
     runs-on: macos-14
     steps:
@@ -210,7 +210,7 @@ jobs:
           xcode-version: '15.4'
       - name: install dependencies
         run: |
-          brew install ccache binutils pigz autoconf automake libtool
+          brew install ccache binutils pigz autoconf automake libtool pkg-config
       - name: Patch sources
         run: |
           git config --global --add safe.directory '*'
@@ -256,9 +256,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        coin: [monero, wownero]
+        coin: [monero, wownero, zano]
     name: ios build
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout monero_c repo
         uses: actions/checkout@v4
@@ -268,10 +268,10 @@ jobs:
           submodules: recursive
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.4'
+          xcode-version: '16.1'
       - name: install dependencies
         run: |
-          brew install ccache unbound zmq autoconf automake libtool
+          brew install ccache cmake autoconf automake libtool
       - name: Patch sources
         run: |
           git config --global --add safe.directory '*'
@@ -327,12 +327,20 @@ jobs:
           path: release/wownero
       - uses: actions/download-artifact@v4
         with:
+          name: android zano
+          path: release/zano
+      - uses: actions/download-artifact@v4
+        with:
           name: ios monero
           path: release/monero
       - uses: actions/download-artifact@v4
         with:
           name: ios wownero
           path: release/wownero
+      - uses: actions/download-artifact@v4
+        with:
+          name: ios zano
+          path: release/zano
       - uses: actions/download-artifact@v4
         with:
           name: linux monero
@@ -343,12 +351,20 @@ jobs:
           path: release/wownero
       - uses: actions/download-artifact@v4
         with:
+          name: linux zano
+          path: release/zano
+      - uses: actions/download-artifact@v4
+        with:
           name: macos monero
           path: release/monero
       - uses: actions/download-artifact@v4
         with:
           name: macos wownero
           path: release/wownero
+      - uses: actions/download-artifact@v4
+        with:
+          name: macos zano
+          path: release/zano
       - uses: actions/download-artifact@v4
         with:
           name: mingw monero
