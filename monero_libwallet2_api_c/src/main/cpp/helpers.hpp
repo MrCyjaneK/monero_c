@@ -3,6 +3,7 @@
 #include <set>
 #include <sstream>
 #include <cstdlib>
+#include <iostream>
 
 // Debug macros
 #define DEBUG_START()                                                             \

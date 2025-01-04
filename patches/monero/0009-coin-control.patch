@@ -1,4 +1,4 @@
-From d15a18cac55cb06d5421ecfef1118e439d0cd572 Mon Sep 17 00:00:00 2001
+From 5b7e0a2085f1e9804b0c4ae97f17d84419a1199b Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 11:07:57 +0100
 Subject: [PATCH 10/15] coin control
@@ -10,12 +10,12 @@ Subject: [PATCH 10/15] coin control
  src/wallet/api/coins.h            |  40 +++++++
  src/wallet/api/coins_info.cpp     | 122 ++++++++++++++++++++
  src/wallet/api/coins_info.h       |  71 ++++++++++++
- src/wallet/api/wallet.cpp         | 106 ++++++++++++++++-
+ src/wallet/api/wallet.cpp         | 170 +++++++++++++++++++++------
  src/wallet/api/wallet.h           |  10 +-
  src/wallet/api/wallet2_api.h      |  52 ++++++++-
  src/wallet/wallet2.cpp            |  46 +++++++-
  src/wallet/wallet2.h              |  11 +-
- 11 files changed, 635 insertions(+), 19 deletions(-)
+ 11 files changed, 667 insertions(+), 51 deletions(-)
  create mode 100644 src/wallet/api/coins.cpp
  create mode 100644 src/wallet/api/coins.h
  create mode 100644 src/wallet/api/coins_info.cpp
@@ -504,7 +504,7 @@ index 000000000..c43e45abd
 +
 +#endif //FEATHER_COINS_INFO_H
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 67ac90a46..a76d773ba 100644
+index 67ac90a46..06837ab61 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -35,6 +35,7 @@
@@ -532,87 +532,144 @@ index 67ac90a46..a76d773ba 100644
  
  {
      clearStatus();
-@@ -2084,6 +2086,7 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<stri
+@@ -2083,57 +2085,116 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<stri
+                 break;
              }
          }
-         bool error = false;
-+        uint64_t amountSum = 0;
-         for (size_t i = 0; i < dst_addr.size() && !error; i++) {
-             if(!cryptonote::get_account_address_from_str(info, m_wallet->nettype(), dst_addr[i])) {
-                 // TODO: copy-paste 'if treating as an address fails, try as url' from simplewallet.cpp:1982
-@@ -2105,6 +2108,7 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<stri
-                 de.original = dst_addr[i];
-                 de.addr = info.address;
-                 de.amount = (*amount)[i];
-+                amountSum += (*amount)[i];
-                 de.is_subaddress = info.is_subaddress;
-                 de.is_integrated = info.has_payment_id;
-                 dsts.push_back(de);
-@@ -2115,6 +2119,63 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<stri
+-        bool error = false;
+-        for (size_t i = 0; i < dst_addr.size() && !error; i++) {
+-            if(!cryptonote::get_account_address_from_str(info, m_wallet->nettype(), dst_addr[i])) {
+-                // TODO: copy-paste 'if treating as an address fails, try as url' from simplewallet.cpp:1982
+-                setStatusError(tr("Invalid destination address"));
+-                error = true;
+-                break;
+-            }
+-            if (info.has_payment_id) {
+-                if (!extra_nonce.empty()) {
+-                    setStatusError(tr("a single transaction cannot use more than one payment id"));
++            uint64_t max_coin_control_input = 0;
++            uint64_t max_frozen_input = 0;
++        try {
++            bool error = false;
++            uint64_t amountSum = 0;
++            for (size_t i = 0; i < dst_addr.size() && !error; i++) {
++                if(!cryptonote::get_account_address_from_str(info, m_wallet->nettype(), dst_addr[i])) {
++                    // TODO: copy-paste 'if treating as an address fails, try as url' from simplewallet.cpp:1982
++                    setStatusError(tr("Invalid destination address"));
+                     error = true;
+                     break;
                  }
+-                set_encrypted_payment_id_to_tx_extra_nonce(extra_nonce, info.payment_id);
++                if (info.has_payment_id) {
++                    if (!extra_nonce.empty()) {
++                        setStatusError(tr("a single transaction cannot use more than one payment id"));
++                        error = true;
++                        break;
++                    }
++                    set_encrypted_payment_id_to_tx_extra_nonce(extra_nonce, info.payment_id);
++                }
++
++                if (amount) {
++                    cryptonote::tx_destination_entry de;
++                    de.original = dst_addr[i];
++                    de.addr = info.address;
++                    de.amount = (*amount)[i];
++                    amountSum += (*amount)[i];
++                    de.is_subaddress = info.is_subaddress;
++                    de.is_integrated = info.has_payment_id;
++                    dsts.push_back(de);
++                } else {
++                    if (subaddr_indices.empty()) {
++                        for (uint32_t index = 0; index < m_wallet->get_num_subaddresses(subaddr_account); ++index)
++                            subaddr_indices.insert(index);
++                    }
++                }
              }
-         }
-+        // uint64_t maxAllowedSpend = m_wallet->unlocked_balance(subaddr_account, true);
-+        // if (maxAllowedSpend < amountSum) {
-+        //   error = true;
-+        //   setStatusError(tr("Amount you are trying to spend is larger than unlocked amount"));
-+        //   break;
-+        // }
-+        std::vector<crypto::key_image> preferred_input_list;
-+        uint64_t max_coin_control_input = 0;
-+        uint64_t max_frozen_input = 0;
-+        if (!preferred_inputs.empty()) {
-+          LOG_ERROR("not empty");
-+
-+          for (const auto &public_key : preferred_inputs) {
-+            crypto::key_image keyImage;
-+            bool r = epee::string_tools::hex_to_pod(public_key, keyImage);
-+              if (!r) {
-+              error = true;
-+              setStatusError(tr("failed to parse key image"));
-+              break;
-+            }
-+            if (m_wallet->frozen(keyImage)) {
-+              error = true;
-+              setStatusError(tr("refusing to spend frozen coin"));
-+              break;
-+            }
-+
-+            for (size_t i = 0; i < m_wallet->get_num_transfer_details(); ++i) {
-+                const tools::wallet2::transfer_details &td = m_wallet->get_transfer_details(i);
-+                if (td.m_key_image == keyImage) {
-+                    max_coin_control_input += td.amount();
-+                }
-+                if (td.m_frozen) {
-+                    max_frozen_input += td.amount();
-+                }
-+            }
-+
-+            preferred_input_list.push_back(keyImage);
-+          }
-+        } else {
++            // uint64_t maxAllowedSpend = m_wallet->unlocked_balance(subaddr_account, true);
++            // if (maxAllowedSpend < amountSum) {
++            //   error = true;
++            //   setStatusError(tr("Amount you are trying to spend is larger than unlocked amount"));
++            //   break;
++            // }
++            std::vector<crypto::key_image> preferred_input_list;
++            if (!preferred_inputs.empty()) {
 +            LOG_ERROR("not empty");
 +
-+            boost::shared_lock<boost::shared_mutex> transfers_lock(m_wallet->m_transfers_mutex);
-+            for (size_t i = 0; i < m_wallet->get_num_transfer_details(); ++i) {
-+                const tools::wallet2::transfer_details &td = m_wallet->get_transfer_details(i);
-+                LOG_ERROR("COIN: " << i << ": " << td.amount() << "; "<<td.m_spent << ";" << td.m_frozen << ";" << m_wallet->frozen(td));
-+                if (td.m_spent) continue;
-+                LOG_ERROR("is frozen");
-+                if (!td.m_frozen) {
-+                    LOG_ERROR("isn't:");
-+                    LOG_ERROR("hash: " << td.m_key_image << "; " << td.amount());
-+                    preferred_input_list.push_back(td.m_key_image);
++            for (const auto &public_key : preferred_inputs) {
++                crypto::key_image keyImage;
++                bool r = epee::string_tools::hex_to_pod(public_key, keyImage);
++                if (!r) {
++                error = true;
++                setStatusError(tr("failed to parse key image"));
++                break;
 +                }
++                if (m_wallet->frozen(keyImage)) {
++                error = true;
++                setStatusError(tr("refusing to spend frozen coin"));
++                break;
++                }
+ 
+-            if (amount) {
+-                cryptonote::tx_destination_entry de;
+-                de.original = dst_addr[i];
+-                de.addr = info.address;
+-                de.amount = (*amount)[i];
+-                de.is_subaddress = info.is_subaddress;
+-                de.is_integrated = info.has_payment_id;
+-                dsts.push_back(de);
++                for (size_t i = 0; i < m_wallet->get_num_transfer_details(); ++i) {
++                    const tools::wallet2::transfer_details &td = m_wallet->get_transfer_details(i);
++                    if (td.m_key_image == keyImage) {
++                        max_coin_control_input += td.amount();
++                    }
++                    if (td.m_frozen) {
++                        max_frozen_input += td.amount();
++                    }
++                }
++
++                preferred_input_list.push_back(keyImage);
 +            }
-+        }
-+        for (const auto &de : preferred_input_list) {
-+            LOG_ERROR("preferred input: " << de);
-+        }
-         if (error) {
-             break;
-         }
-@@ -2129,11 +2190,11 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<stri
+             } else {
+-                if (subaddr_indices.empty()) {
+-                    for (uint32_t index = 0; index < m_wallet->get_num_subaddresses(subaddr_account); ++index)
+-                        subaddr_indices.insert(index);
++                LOG_ERROR("not empty");
++
++                boost::shared_lock<boost::shared_mutex> transfers_lock(m_wallet->m_transfers_mutex);
++                for (size_t i = 0; i < m_wallet->get_num_transfer_details(); ++i) {
++                    const tools::wallet2::transfer_details &td = m_wallet->get_transfer_details(i);
++                    LOG_ERROR("COIN: " << i << ": " << td.amount() << "; "<<td.m_spent << ";" << td.m_frozen << ";" << m_wallet->frozen(td));
++                    if (td.m_spent) continue;
++                    LOG_ERROR("is frozen");
++                    if (!td.m_frozen) {
++                        LOG_ERROR("isn't:");
++                        LOG_ERROR("hash: " << td.m_key_image << "; " << td.amount());
++                        preferred_input_list.push_back(td.m_key_image);
++                    }
+                 }
+             }
+-        }
+-        if (error) {
+-            break;
+-        }
+-        if (!extra_nonce.empty() && !add_extra_nonce_to_tx_extra(extra, extra_nonce)) {
+-            setStatusError(tr("failed to set up payment id, though it was decoded correctly"));
+-            break;
+-        }
+-        try {
++            for (const auto &de : preferred_input_list) {
++                LOG_ERROR("preferred input: " << de);
++            }
++            if (error) {
++                break;
++            }
++            if (!extra_nonce.empty() && !add_extra_nonce_to_tx_extra(extra, extra_nonce)) {
++                setStatusError(tr("failed to set up payment id, though it was decoded correctly"));
++                break;
++            }
+             size_t fake_outs_count = mixin_count > 0 ? mixin_count : m_wallet->default_mixin();
+             fake_outs_count = m_wallet->adjust_mixin(mixin_count);
+ 
              if (amount) {
                  transaction->m_pending_tx = m_wallet->create_transactions_2(dsts, fake_outs_count,
                                                                              adjusted_priority,
@@ -1038,5 +1095,5 @@ index 91cf2a376..bc16d528c 100644
      void set_unspent(size_t idx);
      bool is_spent(const transfer_details &td, bool strict = true) const;
 -- 
-2.43.0
+2.39.5 (Apple Git-154)
 

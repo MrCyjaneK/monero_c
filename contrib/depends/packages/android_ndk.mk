@@ -15,7 +15,7 @@ endef
 
 define $(package)_extract_cmds
   echo $($(package)_sha256_hash) $($(1)_source_dir)/$($(package)_file_name) | sha256sum -c &&\
-  unzip -q $($(1)_source_dir)/$($(package)_file_name)
+  echo "A" | unzip -q $($(1)_source_dir)/$($(package)_file_name)
 endef
 
 # arm-linux-androideabi-ar - openssl workaround
