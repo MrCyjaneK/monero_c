@@ -2108,24 +2108,6 @@ int Wallet_daemonBlockChainHeight(wallet ptr) {
   return daemonBlockChainHeight;
 }
 
-int Wallet_daemonBlockChainHeight_cached(wallet ptr) {
-  debugStart?.call('WOWNERO_Wallet_daemonBlockChainHeight_cached');
-  lib ??= WowneroC(DynamicLibrary.open(libPath));
-  final daemonBlockChainHeight =
-      lib!.WOWNERO_Wallet_daemonBlockChainHeight_cached(ptr);
-  debugEnd?.call('WOWNERO_Wallet_daemonBlockChainHeight_cached');
-  return daemonBlockChainHeight;
-}
-
-void Wallet_daemonBlockChainHeight_runThread(wallet ptr, int seconds) {
-  debugStart?.call('WOWNERO_Wallet_daemonBlockChainHeight_enableRefresh');
-  lib ??= WowneroC(DynamicLibrary.open(libPath));
-  final ret =
-      lib!.WOWNERO_Wallet_daemonBlockChainHeight_runThread(ptr, seconds);
-  debugEnd?.call('WOWNERO_Wallet_daemonBlockChainHeight_enableRefresh');
-  return ret;
-}
-
 bool Wallet_synchronized(wallet ptr) {
   debugStart?.call('WOWNERO_Wallet_synchronized');
   lib ??= WowneroC(DynamicLibrary.open(libPath));

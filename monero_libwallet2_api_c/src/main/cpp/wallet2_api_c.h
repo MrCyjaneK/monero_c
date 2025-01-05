@@ -604,8 +604,6 @@ extern ADDAPI uint64_t MONERO_Wallet_approximateBlockChainHeight(void* wallet_pt
 extern ADDAPI uint64_t MONERO_Wallet_estimateBlockChainHeight(void* wallet_ptr);
 //     virtual uint64_t daemonBlockChainHeight() const = 0;
 extern ADDAPI uint64_t MONERO_Wallet_daemonBlockChainHeight(void* wallet_ptr);
-extern ADDAPI uint64_t MONERO_Wallet_daemonBlockChainHeight_cached(void* wallet_ptr);
-extern ADDAPI void MONERO_Wallet_daemonBlockChainHeight_runThread(void* wallet_ptr, int seconds);
 //     virtual uint64_t daemonBlockChainTargetHeight() const = 0;
 extern ADDAPI uint64_t MONERO_Wallet_daemonBlockChainTargetHeight(void* wallet_ptr);
 //     virtual bool synchronized() const = 0;
@@ -949,7 +947,7 @@ extern ADDAPI bool MONERO_WalletManager_walletExists(void* wm_ptr, const char* p
 //     virtual bool verifyWalletPassword(const std::string &keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const = 0;
 extern ADDAPI bool MONERO_WalletManager_verifyWalletPassword(void* wm_ptr, const char* keys_file_name, const char* password, bool no_spend_key, uint64_t kdf_rounds);
 //     virtual bool queryWalletDevice(Wallet::Device& device_type, const std::string &keys_file_name, const std::string &password, uint64_t kdf_rounds = 1) const = 0;
-extern ADDAPI bool MONERO_WalletManager_queryWalletDevice(int device_type, const char* keys_file_name, const char* password, uint64_t kdf_rounds);
+extern ADDAPI int MONERO_WalletManager_queryWalletDevice(void* wm_ptr, const char* keys_file_name, const char* password, uint64_t kdf_rounds);
 //     virtual std::vector<std::string> findWallets(const std::string &path) = 0;
 extern ADDAPI const char* MONERO_WalletManager_findWallets(void* wm_ptr, const char* path, const char* separator);
 //     virtual std::string errorString() const = 0;
