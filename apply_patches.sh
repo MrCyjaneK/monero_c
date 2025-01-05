@@ -6,14 +6,15 @@ repo="$1"
 
 if [[ "x$repo" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero"
+    echo "Usage: $0 monero/wownero/zano"
     exit 1
 fi
 
-if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" ]];
+if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero"  && "x$repo" != "xzano" ]];
 then
-    echo "Usage: $0 monero/wownero"
+    echo "Usage: $0 monero/wownero/zano"
     echo "Invalid target given, only monero and wownero are supported targets"
+    exit 1
 fi
 
 if [[ ! -d "$repo" ]]

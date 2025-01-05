@@ -197,7 +197,7 @@ jobs:
       matrix:
         coin: [monero, wownero, zano]
     name: macos build
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout monero_c repo
         uses: actions/checkout@v4
@@ -271,7 +271,7 @@ jobs:
           xcode-version: '16.1'
       - name: install dependencies
         run: |
-          brew install ccache cmake autoconf automake libtool
+          brew install ccache cmake autoconf automake libtool git
       - name: Patch sources
         run: |
           git config --global --add safe.directory '*'
@@ -456,7 +456,7 @@ jobs:
     needs: [
       lib_macos
     ]
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: denoland/setup-deno@v2
         with:
@@ -515,7 +515,7 @@ jobs:
     needs: [
       lib_macos
     ]
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: denoland/setup-deno@v2
         with:
