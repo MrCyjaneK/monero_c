@@ -35,6 +35,9 @@ fn main() -> Result<(), WalletError> {
         proxy_address: "".to_string(),
     };
 
+    // Set WalletManager's daemon address
+    manager.set_daemon_address(&config.daemon_address);
+
     // Perform the initialization.
     wallet.init(config)?;
     wallet.throw_if_error()?;
@@ -46,10 +49,11 @@ fn main() -> Result<(), WalletError> {
 
     // Wait for the refresh to complete.
     loop {
-        let height = manager.get_height().expect("Failed to get blockchain height");
+        let height = manager.get_height()?;
         println!("Current blockchain height: {}", height);
-        if height > 3263501 { // After this height we can get_balance.
-            break ();
+        if height > 3263501 {
+            // After this height we can get_balance.
+            break;
         }
         // Wait one second.
         std::thread::sleep(std::time::Duration::from_secs(1));

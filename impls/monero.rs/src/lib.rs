@@ -628,6 +628,20 @@ impl WalletManager {
             Ok(height)
         }
     }
+
+    /// Sets the daemon address of WalletManager
+    pub fn set_daemon_address(&self, daemon_address: &str) -> WalletResult<()> {
+        let c_daemon_address = CString::new(daemon_address)
+            .map_err(|_| WalletError::FfiError("Invalid daemon address".to_string()))?;
+
+        unsafe {
+            bindings::MONERO_WalletManager_setDaemonAddress(
+                self.ptr.as_ptr(),
+                c_daemon_address.as_ptr(),
+            );
+            Ok(())
+        }
+    }
 }
 
 impl Wallet {
