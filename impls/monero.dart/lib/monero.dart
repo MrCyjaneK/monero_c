@@ -2143,23 +2143,6 @@ int Wallet_daemonBlockChainHeight(wallet ptr) {
   return daemonBlockChainHeight;
 }
 
-int Wallet_daemonBlockChainHeight_cached(wallet ptr) {
-  debugStart?.call('MONERO_Wallet_daemonBlockChainHeight_cached');
-  lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final daemonBlockChainHeight =
-      lib!.MONERO_Wallet_daemonBlockChainHeight_cached(ptr);
-  debugEnd?.call('MONERO_Wallet_daemonBlockChainHeight_cached');
-  return daemonBlockChainHeight;
-}
-
-void Wallet_daemonBlockChainHeight_runThread(wallet ptr, int seconds) {
-  debugStart?.call('MONERO_Wallet_daemonBlockChainHeight_enableRefresh');
-  lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final ret = lib!.MONERO_Wallet_daemonBlockChainHeight_runThread(ptr, seconds);
-  debugEnd?.call('MONERO_Wallet_daemonBlockChainHeight_enableRefresh');
-  return ret;
-}
-
 bool Wallet_synchronized(wallet ptr) {
   debugStart?.call('MONERO_Wallet_synchronized');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3604,6 +3587,24 @@ bool WalletManager_verifyWalletPassword(
   calloc.free(keysFileName_);
   calloc.free(password_);
   debugEnd?.call('MONERO_WalletManager_verifyWalletPassword');
+  return s;
+}
+
+int WalletManager_queryWalletDevice(
+    WalletManager wm_ptr, {
+      required String keysFileName,
+      required String password,
+      required int kdfRounds,
+    }) {
+  debugStart?.call('MONERO_WalletManager_queryWalletDevice');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+  final keysFileName_ = keysFileName.toNativeUtf8().cast<Char>();
+  final password_ = password.toNativeUtf8().cast<Char>();
+  final s = lib!.MONERO_WalletManager_queryWalletDevice(
+      wm_ptr, keysFileName_, password_, kdfRounds);
+  calloc.free(keysFileName_);
+  calloc.free(password_);
+  debugEnd?.call('MONERO_WalletManager_queryWalletDevice');
   return s;
 }
 

@@ -1,0 +1,19 @@
+From 21e95275c2e40454d9cce05c1139d8139af16587 Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Wed, 23 Oct 2024 15:18:21 +0200
+Subject: [PATCH 02/15] fix missing ___clear_cache when targetting iOS
+
+---
+ external/randomwow | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/external/randomwow b/external/randomwow
+index 27b099b6d..c00685dad 160000
+--- a/external/randomwow
++++ b/external/randomwow
+@@ -1 +1 @@
+-Subproject commit 27b099b6dd6fef6e17f58c6dfe00009e9c5df587
++Subproject commit c00685dad575137caf4a9100ba08e77be376fa98
+-- 
+2.39.5 (Apple Git-154)
+

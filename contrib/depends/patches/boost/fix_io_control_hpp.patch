@@ -1,0 +1,11 @@
+--- boost_1_84_0/boost/asio/detail/io_control.hpp.O	2017-04-17 03:22:26.000000000 +0100
++++ boost_1_84_0/boost/asio/detail/io_control.hpp	2019-11-15 15:46:16.957937137 +0000
+@@ -11,6 +11,9 @@
+ # pragma once
+ #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
+ 
++#ifdef APPLE
++#include <netinet/in.h>
++#endif 
+ #include <boost/asio/detail/config.hpp>
+ #include <cstddef>

@@ -23,7 +23,7 @@ There are at least two ways to do so:
   loadMoneroDylib();
 
   const wm = await WalletManager.new();
-  const wallet = await Wallet.create(wm, "./my_wallet", "password");
+  const wallet = await wm.createWallet("./my_wallet", "password");
 
   console.log(await wallet.address());
 
@@ -41,7 +41,7 @@ There are at least two ways to do so:
   loadMoneroDylib(lib);
 
   const wm = await WalletManager.new();
-  const wallet = await Wallet.create(wm, "./my_wallet", "password");
+  const wallet = await wm.createWallet("./my_wallet", "password");
 
   console.log(await wallet.address());
 

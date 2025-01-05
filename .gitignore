@@ -1,5 +1,4 @@
 release/
 build/
-tests/monero-cli
-tests/libs
+tests/dependencies
 tests/wallets

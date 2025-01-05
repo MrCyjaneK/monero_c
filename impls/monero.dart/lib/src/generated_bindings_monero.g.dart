@@ -2763,39 +2763,6 @@ class MoneroC {
       _MONERO_Wallet_daemonBlockChainHeightPtr.asFunction<
           int Function(ffi.Pointer<ffi.Void>)>();
 
-  int MONERO_Wallet_daemonBlockChainHeight_cached(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _MONERO_Wallet_daemonBlockChainHeight_cached(
-      wallet_ptr,
-    );
-  }
-
-  late final _MONERO_Wallet_daemonBlockChainHeight_cachedPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<ffi.Void>)>>(
-          'MONERO_Wallet_daemonBlockChainHeight_cached');
-  late final _MONERO_Wallet_daemonBlockChainHeight_cached =
-      _MONERO_Wallet_daemonBlockChainHeight_cachedPtr.asFunction<
-          int Function(ffi.Pointer<ffi.Void>)>();
-
-  void MONERO_Wallet_daemonBlockChainHeight_runThread(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    int seconds,
-  ) {
-    return _MONERO_Wallet_daemonBlockChainHeight_runThread(
-      wallet_ptr,
-      seconds,
-    );
-  }
-
-  late final _MONERO_Wallet_daemonBlockChainHeight_runThreadPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int)>>(
-      'MONERO_Wallet_daemonBlockChainHeight_runThread');
-  late final _MONERO_Wallet_daemonBlockChainHeight_runThread =
-      _MONERO_Wallet_daemonBlockChainHeight_runThreadPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Void>, int)>();
-
   int MONERO_Wallet_daemonBlockChainTargetHeight(
     ffi.Pointer<ffi.Void> wallet_ptr,
   ) {
@@ -4911,14 +4878,14 @@ class MoneroC {
           bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Char>, bool, int)>();
 
-  bool MONERO_WalletManager_queryWalletDevice(
-    int device_type,
+  int MONERO_WalletManager_queryWalletDevice(
+    ffi.Pointer<ffi.Void> wm_ptr,
     ffi.Pointer<ffi.Char> keys_file_name,
     ffi.Pointer<ffi.Char> password,
     int kdf_rounds,
   ) {
     return _MONERO_WalletManager_queryWalletDevice(
-      device_type,
+      wm_ptr,
       keys_file_name,
       password,
       kdf_rounds,
@@ -4927,15 +4894,15 @@ class MoneroC {
 
   late final _MONERO_WalletManager_queryWalletDevicePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Int,
+          ffi.Int Function(
+              ffi.Pointer<ffi.Void>,
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Char>,
               ffi.Uint64)>>('MONERO_WalletManager_queryWalletDevice');
   late final _MONERO_WalletManager_queryWalletDevice =
       _MONERO_WalletManager_queryWalletDevicePtr.asFunction<
-          bool Function(
-              int, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>, int)>();
+          int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>, int)>();
 
   ffi.Pointer<ffi.Char> MONERO_WalletManager_findWallets(
     ffi.Pointer<ffi.Void> wm_ptr,

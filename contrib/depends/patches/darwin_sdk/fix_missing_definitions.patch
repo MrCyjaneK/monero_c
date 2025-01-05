@@ -1,0 +1,18 @@
+--- a/usr/include/sys/ucred.h   2024-11-15 15:03:31.037756112 +0000
++++ b/usr/include/sys/ucred.h     2024-11-15 15:03:35.337755945 +0000
+@@ -70,6 +70,15 @@
+ #ifndef _SYS_UCRED_H_
+ #define _SYS_UCRED_H_
+ 
++#ifndef u_int
++typedef unsigned int u_int;
++#endif
++#ifndef u_char
++typedef unsigned char u_char;
++#endif
++#ifndef u_short
++typedef unsigned short u_short;
++#endif
+ #include <sys/appleapiopts.h>
+ #include <sys/cdefs.h>
+ #include <sys/param.h>
