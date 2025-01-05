@@ -76,8 +76,7 @@ fn main() {
 
     println!("cargo:rustc-link-search=native={}", lib_path.display());
     println!("cargo:rustc-link-lib=dylib=monero_libwallet2_api_c");
-    println!("cargo:rustc-link-lib=dylib=stdc++");
-    println!("cargo:rustc-link-lib=dylib=hidapi-hidraw");
+    // println!("cargo:rustc-link-lib=dylib=libc++");
     println!("cargo:rustc-link-arg=-Wl,-rpath,{}", lib_path.display());
 
     // Generate bindings using bindgen.

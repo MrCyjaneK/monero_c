@@ -136,6 +136,7 @@ impl WalletManager {
     /// ```
     pub fn new() -> WalletResult<Arc<Self>> {
         unsafe {
+            bindings::MONERO_WalletManagerFactory_setLogLevel(4);
             let ptr = bindings::MONERO_WalletManagerFactory_getWalletManager();
             let ptr = NonNull::new(ptr).ok_or(WalletError::NullPointer)?;
             Ok(Arc::new(WalletManager { ptr }))
@@ -1032,6 +1033,16 @@ impl Wallet {
             .map_err(|_| WalletError::FfiError("Invalid proxy address".to_string()))?;
 
         unsafe {
+            let c_empty = CString::new("").unwrap();
+            let c_log_tag = CString::new("moneroc").unwrap();
+            bindings::MONERO_Wallet_init3(
+                self.ptr.as_ptr(),
+                c_empty.as_ptr(),
+                c_log_tag.as_ptr(),
+                c_empty.as_ptr(),
+                true,
+            );
+
             let result = bindings::MONERO_Wallet_init(
                 self.ptr.as_ptr(),
                 c_daemon_address.as_ptr(),
@@ -1042,7 +1053,7 @@ impl Wallet {
                 config.light_wallet,
                 c_proxy_address.as_ptr(),
             );
-
+            
             if result {
                 Ok(())
             } else {
@@ -1114,6 +1125,13 @@ impl Wallet {
                 // Retrieve the last error from the wallet
                 Err(self.get_last_error())
             }
+        }
+    }
+
+    pub fn refresh_async(&self) -> WalletResult<Refreshed> {
+        unsafe {
+            bindings::MONERO_Wallet_refreshAsync(self.ptr.as_ptr());
+            return Ok(Refreshed)
         }
     }
 

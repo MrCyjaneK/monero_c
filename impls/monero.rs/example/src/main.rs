@@ -13,7 +13,7 @@ fn main() -> Result<(), WalletError> {
         "password".to_string(),
         "capital chief route liar question fix clutch water outside pave hamster occur always learn license knife".to_string(),
         NetworkType::Mainnet,
-        0, // Restore from the beginning of the blockchain.
+        3, // Restore from the beginning of the blockchain.
         1, // Default KDF rounds.
         "".to_string(), // No seed offset.
         true, // Create a new wallet.
@@ -26,11 +26,11 @@ fn main() -> Result<(), WalletError> {
 
     // Initialize the wallet.
     let config = WalletConfig {
-        daemon_address: "https://monero.stackwallet.com:18081".to_string(),
+        daemon_address: "xmr-node.cakewallet.com:18081".to_string(),
         upper_transaction_size_limit: 10000, // TODO: use sane value.
         daemon_username: "".to_string(),
         daemon_password: "".to_string(),
-        use_ssl: true,
+        use_ssl: false,
         light_wallet: false,
         proxy_address: "".to_string(),
     };
@@ -41,6 +41,7 @@ fn main() -> Result<(), WalletError> {
 
     // Refresh the wallet.
     wallet.refresh()?;
+    // wallet.refresh_async()?;
     wallet.throw_if_error()?;
 
     // Wait for the refresh to complete.
