@@ -1,4 +1,6 @@
-use monero_c_rust::{WalletManager, NetworkType, WalletConfig, WalletError, WalletResult, WalletStatus_Ok};
+use monero_c_rust::{
+    NetworkType, WalletConfig, WalletError, WalletManager, WalletResult, WalletStatus_Ok,
+};
 use std::fs;
 use std::sync::Arc;
 use std::time::Instant;
@@ -22,7 +24,10 @@ fn check_and_delete_existing_wallets(temp_dir: &TempDir) -> std::io::Result<()> 
         // Delete wallet file if it exists.
         if wallet_file.exists() {
             if let Err(e) = fs::remove_file(&wallet_file) {
-                println!("Warning: Failed to delete wallet file {:?}: {}", wallet_file, e);
+                println!(
+                    "Warning: Failed to delete wallet file {:?}: {}",
+                    wallet_file, e
+                );
             } else {
                 println!("Deleted existing wallet file: {:?}", wallet_file);
             }
@@ -40,7 +45,10 @@ fn check_and_delete_existing_wallets(temp_dir: &TempDir) -> std::io::Result<()> 
         // Delete address file if it exists.
         if address_file.exists() {
             if let Err(e) = fs::remove_file(&address_file) {
-                println!("Warning: Failed to delete address file {:?}: {}", address_file, e);
+                println!(
+                    "Warning: Failed to delete address file {:?}: {}",
+                    address_file, e
+                );
             } else {
                 println!("Deleted existing address file: {:?}", address_file);
             }
@@ -86,10 +94,16 @@ fn test_wallet_manager_creation() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
-    let wallet_result = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
-    assert!(wallet_result.is_ok(), "WalletManager creation seems to have failed");
+    let wallet_result =
+        manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
+    assert!(
+        wallet_result.is_ok(),
+        "WalletManager creation seems to have failed"
+    );
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
@@ -99,12 +113,17 @@ fn test_wallet_creation() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
     assert!(wallet.is_ok(), "Failed to create wallet");
     let wallet = wallet.unwrap();
-    assert!(wallet.is_deterministic().is_ok(), "Wallet creation seems to have failed");
+    assert!(
+        wallet.is_deterministic().is_ok(),
+        "Wallet creation seems to have failed"
+    );
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
@@ -114,7 +133,10 @@ fn test_restore_mnemonic_integration() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string")
+        .to_string();
     let mnemonic_seed = "hemlock jubilee eden hacksaw boil superior inroads epoxy exhale orders cavernous second brunt saved richly lower upgrade hitched launching deepest mostly playful layout lower eden".to_string();
 
     let restored_wallet = manager.restore_mnemonic(
@@ -122,21 +144,35 @@ fn test_restore_mnemonic_integration() {
         "password".to_string(),
         mnemonic_seed,
         NetworkType::Mainnet,
-        0, // Restore from the beginning of the blockchain.
-        1, // Default KDF rounds.
+        0,              // Restore from the beginning of the blockchain.
+        1,              // Default KDF rounds.
         "".to_string(), // No seed offset.
     );
 
-    assert!(restored_wallet.is_ok(), "Failed to restore wallet: {:?}", restored_wallet.err());
+    assert!(
+        restored_wallet.is_ok(),
+        "Failed to restore wallet: {:?}",
+        restored_wallet.err()
+    );
 
     // Check that the wallet is deterministic.
     let wallet = restored_wallet.unwrap();
-    assert!(wallet.is_deterministic().is_ok(), "Restored wallet seems to have failed");
-    assert!(wallet.is_deterministic().unwrap(), "Restored wallet should be deterministic");
+    assert!(
+        wallet.is_deterministic().is_ok(),
+        "Restored wallet seems to have failed"
+    );
+    assert!(
+        wallet.is_deterministic().unwrap(),
+        "Restored wallet should be deterministic"
+    );
 
     // Optionally, verify the address if applicable.
     let address_result = wallet.get_address(0, 0);
-    assert!(address_result.is_ok(), "Failed to retrieve address: {:?}", address_result.err());
+    assert!(
+        address_result.is_ok(),
+        "Failed to retrieve address: {:?}",
+        address_result.err()
+    );
     let address = address_result.unwrap();
     assert_eq!(
         address,
@@ -154,7 +190,10 @@ fn test_restore_polyseed_integration() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string")
+        .to_string();
     let mnemonic_seed = "capital chief route liar question fix clutch water outside pave hamster occur always learn license knife".to_string();
 
     let restored_wallet = manager.restore_polyseed(
@@ -162,22 +201,36 @@ fn test_restore_polyseed_integration() {
         "password".to_string(),
         mnemonic_seed,
         NetworkType::Mainnet,
-        0, // Restore from the beginning of the blockchain.
-        1, // Default KDF rounds.
+        0,              // Restore from the beginning of the blockchain.
+        1,              // Default KDF rounds.
         "".to_string(), // No seed offset.
-        true, // Create a new wallet.
+        true,           // Create a new wallet.
     );
 
-    assert!(restored_wallet.is_ok(), "Failed to restore wallet: {:?}", restored_wallet.err());
+    assert!(
+        restored_wallet.is_ok(),
+        "Failed to restore wallet: {:?}",
+        restored_wallet.err()
+    );
 
     // Check that the wallet is deterministic.
     let wallet = restored_wallet.unwrap();
-    assert!(wallet.is_deterministic().is_ok(), "Restored wallet seems to have failed");
-    assert!(wallet.is_deterministic().unwrap(), "Restored wallet should be deterministic");
+    assert!(
+        wallet.is_deterministic().is_ok(),
+        "Restored wallet seems to have failed"
+    );
+    assert!(
+        wallet.is_deterministic().unwrap(),
+        "Restored wallet should be deterministic"
+    );
 
     // Optionally, verify the address if applicable.
     let address_result = wallet.get_address(0, 0);
-    assert!(address_result.is_ok(), "Failed to retrieve address: {:?}", address_result.err());
+    assert!(
+        address_result.is_ok(),
+        "Failed to retrieve address: {:?}",
+        address_result.err()
+    );
     let address = address_result.unwrap();
     assert_eq!(
         address,
@@ -195,7 +248,9 @@ fn test_generate_from_keys_integration() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     let wallet = manager.generate_from_keys(
         wallet_str.to_string(),
@@ -209,7 +264,11 @@ fn test_generate_from_keys_integration() {
         1, // KDF rounds.
     );
 
-    assert!(wallet.is_ok(), "Failed to generate wallet from keys: {:?}", wallet.err());
+    assert!(
+        wallet.is_ok(),
+        "Failed to generate wallet from keys: {:?}",
+        wallet.err()
+    );
 
     // Verify that the wallet was generated correctly.
     let wallet = wallet.expect("Failed to create wallet");
@@ -224,14 +283,21 @@ fn test_generate_from_keys_integration() {
 
     // The address should be "45wsWad9...".
     let address_result = wallet.get_address(0, 0);
-    assert!(address_result.is_ok(), "Failed to get address: {:?}", address_result.err());
+    assert!(
+        address_result.is_ok(),
+        "Failed to get address: {:?}",
+        address_result.err()
+    );
     let address = address_result.unwrap();
     assert_eq!(address, "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi");
 
     // Get the seed.  It should be "hemlock jubilee...".
     let seed_result = wallet.get_seed(None);
-    assert!(seed_result.is_ok(), "Failed to get seed: {:?}",
-            seed_result.err());
+    assert!(
+        seed_result.is_ok(),
+        "Failed to get seed: {:?}",
+        seed_result.err()
+    );
     let seed = seed_result.unwrap();
     assert_eq!(seed, "hemlock jubilee eden hacksaw boil superior inroads epoxy exhale orders cavernous second brunt saved richly lower upgrade hitched launching deepest mostly playful layout lower eden");
 
@@ -245,7 +311,9 @@ fn test_generate_view_only_from_keys_integration() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     let wallet = manager.generate_from_keys(
         wallet_str.to_string(),
@@ -259,7 +327,11 @@ fn test_generate_view_only_from_keys_integration() {
         1, // KDF rounds.
     );
 
-    assert!(wallet.is_ok(), "Failed to generate wallet from keys: {:?}", wallet.err());
+    assert!(
+        wallet.is_ok(),
+        "Failed to generate wallet from keys: {:?}",
+        wallet.err()
+    );
 
     // Verify that the wallet was generated correctly.
     let wallet = wallet.expect("Failed to create wallet");
@@ -274,7 +346,11 @@ fn test_generate_view_only_from_keys_integration() {
 
     // The address should be "45wsWad9...".
     let address_result = wallet.get_address(0, 0);
-    assert!(address_result.is_ok(), "Failed to get address: {:?}", address_result.err());
+    assert!(
+        address_result.is_ok(),
+        "Failed to get address: {:?}",
+        address_result.err()
+    );
     let address = address_result.unwrap();
     assert_eq!(address, "45wsWad9EwZgF3VpxQumrUCRaEtdyyh6NG8sVD3YRVVJbK1jkpJ3zq8WHLijVzodQ22LxwkdWx7fS2a6JzaRGzkNU8K2Dhi");
 
@@ -285,7 +361,10 @@ fn test_generate_view_only_from_keys_integration() {
         "Failed to check if wallet is deterministic: {:?}",
         is_deterministic_result.err()
     );
-    assert!(!is_deterministic_result.unwrap(), "Wallet should not be deterministic");
+    assert!(
+        !is_deterministic_result.unwrap(),
+        "Wallet should not be deterministic"
+    );
 
     // Clean up wallet files.
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -298,7 +377,9 @@ fn test_get_seed() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     let wallet = manager
         .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
@@ -317,8 +398,15 @@ fn test_get_seed() {
     let start = Instant::now();
     let result_with_offset = wallet.get_seed(Some("example_offset"));
     println!("get_seed with offset took {:?}", start.elapsed());
-    assert!(result_with_offset.is_ok(), "Failed to get seed with offset: {:?}", result_with_offset.err());
-    assert!(!result_with_offset.unwrap().is_empty(), "Seed with offset is empty");
+    assert!(
+        result_with_offset.is_ok(),
+        "Failed to get seed with offset: {:?}",
+        result_with_offset.err()
+    );
+    assert!(
+        !result_with_offset.unwrap().is_empty(),
+        "Seed with offset is empty"
+    );
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
@@ -330,7 +418,9 @@ fn test_get_address() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     let wallet = manager
         .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
@@ -352,7 +442,9 @@ fn test_is_deterministic() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     let wallet = manager
         .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
@@ -361,7 +453,11 @@ fn test_is_deterministic() {
     let start = Instant::now();
     let result = wallet.is_deterministic();
     println!("is_deterministic check took {:?}", start.elapsed());
-    assert!(result.is_ok(), "Failed to check if wallet is deterministic: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Failed to check if wallet is deterministic: {:?}",
+        result.err()
+    );
     assert!(result.unwrap(), "Wallet should be deterministic");
 
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -384,7 +480,9 @@ fn test_wallet_creation_with_different_networks() {
 
         // Construct the full path for each wallet within temp_dir.
         let wallet_path = temp_dir.path().join(name);
-        let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+        let wallet_str = wallet_path
+            .to_str()
+            .expect("Failed to convert wallet path to string");
 
         let wallet = manager.create_wallet(wallet_str, "password", "English", net_type);
         assert!(wallet.is_ok(), "Failed to create wallet: {}", name);
@@ -400,7 +498,9 @@ fn test_multiple_address_generation() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     let wallet = manager
         .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
@@ -411,7 +511,12 @@ fn test_multiple_address_generation() {
         let start = Instant::now();
         let result = wallet.get_address(0, i);
         println!("Address generation took {:?}", start.elapsed());
-        assert!(result.is_ok(), "Failed to get address {}: {:?}", i, result.err());
+        assert!(
+            result.is_ok(),
+            "Failed to get address {}: {:?}",
+            i,
+            result.err()
+        );
         assert!(!result.unwrap().is_empty(), "Address {} is empty", i);
     }
 
@@ -442,7 +547,7 @@ fn test_wallet_error_display() {
         WalletError::WalletErrorCode(code, msg) => {
             assert_eq!(code, 2);
             assert_eq!(msg, "Sample wallet error");
-        },
+        }
         _ => panic!("Expected WalletErrorCode variant"),
     }
 }
@@ -453,13 +558,20 @@ fn test_wallet_status_integration() {
 
     // Create a wallet.
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
-    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
 
     // Check the status of the wallet.
     let status = manager.get_status(wallet.ptr.as_ptr());
-    assert!(status.is_ok(), "Expected status OK, got error: {:?}", status.err());
+    assert!(
+        status.is_ok(),
+        "Expected status OK, got error: {:?}",
+        status.err()
+    );
 
     // Clean up.
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -471,7 +583,9 @@ fn test_open_wallet_integration() {
 
     // Create a wallet.
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     let wallet = manager
         .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
@@ -482,7 +596,11 @@ fn test_open_wallet_integration() {
 
     // Try opening the wallet.
     let open_result = manager.open_wallet(wallet_str, "password", NetworkType::Mainnet);
-    assert!(open_result.is_ok(), "Failed to open wallet: {:?}", open_result.err());
+    assert!(
+        open_result.is_ok(),
+        "Failed to open wallet: {:?}",
+        open_result.err()
+    );
 
     // Clean up.
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -493,10 +611,18 @@ fn test_open_wallet_invalid_password() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create a wallet with a valid password.
-    let wallet = manager.create_wallet(wallet_str, "correct_password", "English", NetworkType::Mainnet)
+    let wallet = manager
+        .create_wallet(
+            wallet_str,
+            "correct_password",
+            "English",
+            NetworkType::Mainnet,
+        )
         .expect("Failed to create wallet");
 
     // Drop the wallet
@@ -504,7 +630,10 @@ fn test_open_wallet_invalid_password() {
 
     // Attempt to open the wallet with an incorrect password.
     let open_result = manager.open_wallet(wallet_str, "wrong_password", NetworkType::Mainnet);
-    assert!(open_result.is_err(), "Expected an error when opening wallet with incorrect password");
+    assert!(
+        open_result.is_err(),
+        "Expected an error when opening wallet with incorrect password"
+    );
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
@@ -527,7 +656,8 @@ fn test_open_wallet_invalid_path() {
                     "Expected a non-OK status code, got OK instead."
                 );
                 assert!(
-                    error_message.contains("file not found") || error_message.contains("openWallet"),
+                    error_message.contains("file not found")
+                        || error_message.contains("openWallet"),
                     "Unexpected error message: {}",
                     error_message
                 );
@@ -546,7 +676,9 @@ fn test_get_balance_integration() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create the wallet.
     let wallet = manager
@@ -559,7 +691,11 @@ fn test_get_balance_integration() {
     let balance_result = wallet.get_balance(0); // Account index 0.
     println!("Fetching balance took {:?}", start.elapsed());
 
-    assert!(balance_result.is_ok(), "Failed to fetch balance: {:?}", balance_result.err());
+    assert!(
+        balance_result.is_ok(),
+        "Failed to fetch balance: {:?}",
+        balance_result.err()
+    );
 
     let balance = balance_result.unwrap();
     println!("Balance: {:?}", balance);
@@ -580,7 +716,9 @@ fn test_create_account_integration() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create the wallet.
     let wallet = manager
@@ -593,7 +731,11 @@ fn test_create_account_integration() {
     let result = wallet.create_account("Test Account Integration");
     println!("create_account took {:?}", start.elapsed());
 
-    assert!(result.is_ok(), "Failed to create account: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Failed to create account: {:?}",
+        result.err()
+    );
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
@@ -603,19 +745,29 @@ fn test_get_accounts_integration() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     let wallet = manager
         .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
 
     // Add multiple accounts.
-    wallet.create_account("Integration Account 1").expect("Failed to create account");
-    wallet.create_account("Integration Account 2").expect("Failed to create account");
+    wallet
+        .create_account("Integration Account 1")
+        .expect("Failed to create account");
+    wallet
+        .create_account("Integration Account 2")
+        .expect("Failed to create account");
 
     // Fetch accounts.
     let accounts_result = wallet.get_accounts();
-    assert!(accounts_result.is_ok(), "Failed to fetch accounts: {:?}", accounts_result.err());
+    assert!(
+        accounts_result.is_ok(),
+        "Failed to fetch accounts: {:?}",
+        accounts_result.err()
+    );
     let accounts = accounts_result.unwrap().accounts;
     assert_eq!(accounts.len(), 3, "Expected 3 accounts");
 
@@ -629,7 +781,9 @@ fn test_close_wallet_integration() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create the wallet.
     let mut wallet = manager
@@ -644,14 +798,22 @@ fn test_close_wallet_integration() {
     let start = Instant::now();
     let close_result = wallet.close_wallet();
     println!("close_wallet took {:?}", start.elapsed());
-    assert!(close_result.is_ok(), "Failed to close wallet: {:?}", close_result.err());
+    assert!(
+        close_result.is_ok(),
+        "Failed to close wallet: {:?}",
+        close_result.err()
+    );
 
     // Attempt to close the wallet again.
     println!("Attempting to close the wallet again...");
     let start = Instant::now();
     let close_again_result = wallet.close_wallet();
     println!("Second close_wallet call took {:?}", start.elapsed());
-    assert!(close_again_result.is_ok(), "Failed to close wallet a second time: {:?}", close_again_result.err());
+    assert!(
+        close_again_result.is_ok(),
+        "Failed to close wallet a second time: {:?}",
+        close_again_result.err()
+    );
 
     // Clean up.
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -664,7 +826,9 @@ fn test_get_height_integration() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("test_wallet_height");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create the wallet.
     let _wallet = manager
@@ -698,7 +862,9 @@ fn test_refresh_integration_success() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("refresh_integration_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create the wallet.
     let wallet = manager
@@ -724,7 +890,11 @@ fn test_refresh_integration_success() {
     let duration = start.elapsed();
     println!("Initialization took {:?}", duration);
 
-    assert!(init_result.is_ok(), "Failed to initialize wallet: {:?}", init_result.err());
+    assert!(
+        init_result.is_ok(),
+        "Failed to initialize wallet: {:?}",
+        init_result.err()
+    );
 
     // Perform a refresh operation after initialization.
     println!("Refreshing the wallet...");
@@ -733,7 +903,11 @@ fn test_refresh_integration_success() {
     let refresh_duration = refresh_start.elapsed();
     println!("Refresh operation took {:?}", refresh_duration);
 
-    assert!(refresh_result.is_ok(), "Failed to refresh wallet: {:?}", refresh_result.err());
+    assert!(
+        refresh_result.is_ok(),
+        "Failed to refresh wallet: {:?}",
+        refresh_result.err()
+    );
 
     // Clean up wallet files.
     fs::remove_file(wallet_str).expect("Failed to delete test wallet");
@@ -749,7 +923,9 @@ fn test_init_integration_success() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create the wallet.
     let wallet = manager
@@ -775,12 +951,20 @@ fn test_init_integration_success() {
     let duration = start.elapsed();
     println!("Initialization took {:?}", duration);
 
-    assert!(init_result.is_ok(), "Failed to initialize wallet: {:?}", init_result.err());
+    assert!(
+        init_result.is_ok(),
+        "Failed to initialize wallet: {:?}",
+        init_result.err()
+    );
 
     // Perform a refresh operation after initialization.
     println!("Refreshing the wallet...");
     let refresh_result = wallet.refresh();
-    assert!(refresh_result.is_ok(), "Failed to refresh wallet after initialization: {:?}", refresh_result.err());
+    assert!(
+        refresh_result.is_ok(),
+        "Failed to refresh wallet after initialization: {:?}",
+        refresh_result.err()
+    );
 
     // Clean up wallet files.
     fs::remove_file(wallet_str).expect("Failed to delete test wallet");
@@ -796,7 +980,9 @@ fn test_set_seed_language_integration() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("set_seed_language_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create the wallet.
     let wallet = manager

@@ -1,4 +1,4 @@
-use monero_c_rust::{NetworkType, WalletError, WalletManager, WalletConfig};
+use monero_c_rust::{NetworkType, WalletConfig, WalletError, WalletManager};
 use tempfile::TempDir;
 
 fn main() -> Result<(), WalletError> {
@@ -27,7 +27,7 @@ fn main() -> Result<(), WalletError> {
     // Initialize the wallet.
     let config = WalletConfig {
         daemon_address: "xmr-node.cakewallet.com:18081".to_string(),
-        upper_transaction_size_limit: 10000, // TODO: use sane value.
+        upper_transaction_size_limit: 0, // TODO: use sane value.
         daemon_username: "".to_string(),
         daemon_password: "".to_string(),
         use_ssl: false,
@@ -66,7 +66,8 @@ fn main() -> Result<(), WalletError> {
 
     // Clean up the wallet.
     std::fs::remove_file(wallet_str).expect("Failed to delete test wallet");
-    std::fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
+    std::fs::remove_file(format!("{}.keys", wallet_str))
+        .expect("Failed to delete test wallet keys");
 
     Ok(())
 }

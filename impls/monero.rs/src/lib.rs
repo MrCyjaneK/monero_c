@@ -4,9 +4,9 @@ use std::ptr::NonNull;
 use std::sync::Arc;
 
 pub mod bindings;
-pub use bindings::WalletStatus_Ok;
-pub use bindings::WalletStatus_Error;
 pub use bindings::WalletStatus_Critical;
+pub use bindings::WalletStatus_Error;
+pub use bindings::WalletStatus_Ok;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NetworkType {
@@ -171,7 +171,7 @@ impl WalletManager {
     /// ```
     pub fn get_status(&self, wallet_ptr: *mut c_void) -> WalletResult<()> {
         if wallet_ptr.is_null() {
-            return Err(WalletError::NullPointer);  // Ensure NullPointer is returned for null wallet
+            return Err(WalletError::NullPointer); // Ensure NullPointer is returned for null wallet
         }
 
         unsafe {
@@ -269,9 +269,12 @@ impl WalletManager {
         language: &str,
         network_type: NetworkType,
     ) -> WalletResult<Wallet> {
-        let c_path = CString::new(path).map_err(|_| WalletError::FfiError("Invalid path".to_string()))?;
-        let c_password = CString::new(password).map_err(|_| WalletError::FfiError("Invalid password".to_string()))?;
-        let c_language = CString::new(language).map_err(|_| WalletError::FfiError("Invalid language".to_string()))?;
+        let c_path =
+            CString::new(path).map_err(|_| WalletError::FfiError("Invalid path".to_string()))?;
+        let c_password = CString::new(password)
+            .map_err(|_| WalletError::FfiError("Invalid password".to_string()))?;
+        let c_language = CString::new(language)
+            .map_err(|_| WalletError::FfiError("Invalid language".to_string()))?;
 
         unsafe {
             let wallet_ptr = bindings::MONERO_WalletManager_createWallet(
@@ -580,8 +583,10 @@ impl WalletManager {
         password: &str,
         network_type: NetworkType,
     ) -> WalletResult<Wallet> {
-        let c_path = CString::new(path).map_err(|_| WalletError::FfiError("Invalid path".to_string()))?;
-        let c_password = CString::new(password).map_err(|_| WalletError::FfiError("Invalid password".to_string()))?;
+        let c_path =
+            CString::new(path).map_err(|_| WalletError::FfiError("Invalid path".to_string()))?;
+        let c_password = CString::new(password)
+            .map_err(|_| WalletError::FfiError("Invalid password".to_string()))?;
 
         unsafe {
             let wallet_ptr = bindings::MONERO_WalletManager_openWallet(
@@ -724,15 +729,14 @@ impl Wallet {
     /// ```
     pub fn get_address(&self, account_index: u64, address_index: u64) -> WalletResult<String> {
         unsafe {
-            let address_ptr = bindings::MONERO_Wallet_address(self.ptr.as_ptr(), account_index, address_index);
+            let address_ptr =
+                bindings::MONERO_Wallet_address(self.ptr.as_ptr(), account_index, address_index);
 
             self.throw_if_error()?;
             if address_ptr.is_null() {
                 Err(self.get_last_error())
             } else {
-                let address = CStr::from_ptr(address_ptr)
-                    .to_string_lossy()
-                    .into_owned();
+                let address = CStr::from_ptr(address_ptr).to_string_lossy().into_owned();
                 Ok(address)
             }
         }
@@ -796,9 +800,7 @@ impl Wallet {
             let error_msg = if error_ptr.is_null() {
                 "Unknown error".to_string()
             } else {
-                CStr::from_ptr(error_ptr)
-                    .to_string_lossy()
-                    .into_owned()
+                CStr::from_ptr(error_ptr).to_string_lossy().into_owned()
             };
 
             WalletError::WalletErrorCode(status, error_msg)
@@ -813,7 +815,7 @@ impl Wallet {
     pub fn throw_if_error(&self) -> WalletResult<()> {
         let status_result = self.manager.get_status(self.ptr.as_ptr());
         if status_result.is_err() {
-            return status_result;  // Return the error if the status is not OK.
+            return status_result; // Return the error if the status is not OK.
         }
         Ok(())
     }
@@ -845,10 +847,14 @@ impl Wallet {
             let balance = bindings::MONERO_Wallet_balance(self.ptr.as_ptr(), account_index);
 
             self.throw_if_error()?;
-            let unlocked_balance = bindings::MONERO_Wallet_unlockedBalance(self.ptr.as_ptr(), account_index);
+            let unlocked_balance =
+                bindings::MONERO_Wallet_unlockedBalance(self.ptr.as_ptr(), account_index);
 
             self.throw_if_error()?;
-            Ok(GetBalance { balance, unlocked_balance })
+            Ok(GetBalance {
+                balance,
+                unlocked_balance,
+            })
         }
     }
 
@@ -881,7 +887,8 @@ impl Wallet {
     /// fs::remove_file(format!("{}.keys", wallet_str)).expect("Failed to delete test wallet keys");
     /// ```
     pub fn create_account(&self, label: &str) -> WalletResult<()> {
-        let c_label = CString::new(label).map_err(|_| WalletError::FfiError("Invalid label".to_string()))?;
+        let c_label =
+            CString::new(label).map_err(|_| WalletError::FfiError("Invalid label".to_string()))?;
 
         unsafe {
             bindings::MONERO_Wallet_addSubaddressAccount(self.ptr.as_ptr(), c_label.as_ptr());
@@ -943,7 +950,8 @@ impl Wallet {
                 };
 
                 let balance = bindings::MONERO_Wallet_balance(self.ptr.as_ptr(), i);
-                let unlocked_balance = bindings::MONERO_Wallet_unlockedBalance(self.ptr.as_ptr(), i);
+                let unlocked_balance =
+                    bindings::MONERO_Wallet_unlockedBalance(self.ptr.as_ptr(), i);
 
                 accounts.push(Account {
                     index: i,
@@ -1059,15 +1067,15 @@ impl Wallet {
 
             let result = bindings::MONERO_Wallet_init(
                 self.ptr.as_ptr(),
-                c_daemon_address.as_ptr(),
+                c_daemon_address.into_raw(),
                 config.upper_transaction_size_limit,
-                c_daemon_username.as_ptr(),
-                c_daemon_password.as_ptr(),
+                c_daemon_username.into_raw(),
+                c_daemon_password.into_raw(),
                 config.use_ssl,
                 config.light_wallet,
-                c_proxy_address.as_ptr(),
+                c_proxy_address.into_raw(),
             );
-            
+
             if result {
                 Ok(())
             } else {
@@ -1145,7 +1153,7 @@ impl Wallet {
     pub fn refresh_async(&self) -> WalletResult<Refreshed> {
         unsafe {
             bindings::MONERO_Wallet_refreshAsync(self.ptr.as_ptr());
-            return Ok(Refreshed)
+            return Ok(Refreshed);
         }
     }
 
@@ -1155,22 +1163,32 @@ impl Wallet {
     ///
     /// * `WalletResult<Transfer>` - On success, returns a `Transfer` struct containing transaction details.
     ///   On failure, returns a `WalletError`.
-    pub fn transfer(&self, account_index: u32, destinations: Vec<Destination>, get_tx_key: bool, sweep_all: bool) -> WalletResult<Transfer> {
+    pub fn transfer(
+        &self,
+        account_index: u32,
+        destinations: Vec<Destination>,
+        get_tx_key: bool,
+        sweep_all: bool,
+    ) -> WalletResult<Transfer> {
         // Define separators
         let separator = ";";
-        let separator_c = CString::new(separator).map_err(|_| WalletError::FfiError("Invalid separator".to_string()))?;
+        let separator_c = CString::new(separator)
+            .map_err(|_| WalletError::FfiError("Invalid separator".to_string()))?;
 
         // Concatenate destination addresses and amounts.
         let addresses: Vec<String> = destinations.iter().map(|d| d.address.clone()).collect();
         let address_list = addresses.join(separator);
-        let c_address_list = CString::new(address_list).map_err(|_| WalletError::FfiError("Invalid address list".to_string()))?;
+        let c_address_list = CString::new(address_list)
+            .map_err(|_| WalletError::FfiError("Invalid address list".to_string()))?;
 
         let amounts: Vec<String> = destinations.iter().map(|d| d.amount.to_string()).collect();
         let amount_list = amounts.join(separator);
-        let c_amount_list = CString::new(amount_list).map_err(|_| WalletError::FfiError("Invalid amount list".to_string()))?;
+        let c_amount_list = CString::new(amount_list)
+            .map_err(|_| WalletError::FfiError("Invalid amount list".to_string()))?;
 
         // TODO: Payment IDs.
-        let payment_id = CString::new("").map_err(|_| WalletError::FfiError("Invalid payment_id".to_string()))?;
+        let payment_id = CString::new("")
+            .map_err(|_| WalletError::FfiError("Invalid payment_id".to_string()))?;
         let mixin_count = 16;
 
         // Pending transaction priority - default to 0 (Default)
@@ -1180,10 +1198,12 @@ impl Wallet {
         let subaddr_account = account_index;
 
         // TODO: Preferred inputs.
-        let c_preferred_inputs = CString::new("").map_err(|_| WalletError::FfiError("Invalid preferred inputs".to_string()))?;
+        let c_preferred_inputs = CString::new("")
+            .map_err(|_| WalletError::FfiError("Invalid preferred inputs".to_string()))?;
 
         // Separator for preferred inputs
-        let preferred_inputs_separator = CString::new("").map_err(|_| WalletError::FfiError("Invalid preferred inputs separator".to_string()))?;
+        let preferred_inputs_separator = CString::new("")
+            .map_err(|_| WalletError::FfiError("Invalid preferred inputs separator".to_string()))?;
 
         unsafe {
             // Create the transaction with multiple destinations.
@@ -1212,7 +1232,9 @@ impl Wallet {
             // Get the transaction ID.
             let txid_ptr = bindings::MONERO_PendingTransaction_txid(tx_ptr, separator_c.as_ptr());
             if txid_ptr.is_null() {
-                return Err(WalletError::FfiError("Failed to get transaction ID".to_string()));
+                return Err(WalletError::FfiError(
+                    "Failed to get transaction ID".to_string(),
+                ));
             }
             let txid = CStr::from_ptr(txid_ptr).to_string_lossy().into_owned();
 
@@ -1221,8 +1243,10 @@ impl Wallet {
 
             // Optionally get the transaction key.
             let tx_key = if get_tx_key {
-                let c_txid = CString::new(txid.clone()).map_err(|_| WalletError::FfiError("Invalid txid".to_string()))?;
-                let tx_key_ptr = bindings::MONERO_Wallet_getTxKey(self.ptr.as_ptr(), c_txid.as_ptr());
+                let c_txid = CString::new(txid.clone())
+                    .map_err(|_| WalletError::FfiError("Invalid txid".to_string()))?;
+                let tx_key_ptr =
+                    bindings::MONERO_Wallet_getTxKey(self.ptr.as_ptr(), c_txid.as_ptr());
                 if tx_key_ptr.is_null() {
                     None
                 } else {
@@ -1236,12 +1260,12 @@ impl Wallet {
             //
             // TODO: Make submission optional.
             let tx_ptr_as_i8 = tx_ptr as *const i8;
-            let submit_result = bindings::MONERO_Wallet_submitTransaction(
-                self.ptr.as_ptr(),
-                tx_ptr_as_i8,
-            );
+            let submit_result =
+                bindings::MONERO_Wallet_submitTransaction(self.ptr.as_ptr(), tx_ptr_as_i8);
             if !submit_result {
-                return Err(WalletError::FfiError("Failed to submit transaction".to_string()));
+                return Err(WalletError::FfiError(
+                    "Failed to submit transaction".to_string(),
+                ));
             }
 
             Ok(Transfer {
@@ -1256,17 +1280,27 @@ impl Wallet {
     /// Sweep all funds from the specific account to the specified destination.
     ///
     /// TODO: Example / docs-tests.
-    pub fn sweep_all(&self, account_index: u32, destination: Destination, get_tx_key: bool) -> WalletResult<Transfer> {
+    pub fn sweep_all(
+        &self,
+        account_index: u32,
+        destination: Destination,
+        get_tx_key: bool,
+    ) -> WalletResult<Transfer> {
         // Convert the destination address to a CString.
-        let c_address = CString::new(destination.address.clone()).map_err(|_| WalletError::FfiError("Invalid address".to_string()))?;
+        let c_address = CString::new(destination.address.clone())
+            .map_err(|_| WalletError::FfiError("Invalid address".to_string()))?;
 
         // Placeholder values for fields not needed in sweep_all.
-        let empty_separator = CString::new("").map_err(|_| WalletError::FfiError("Invalid separator".to_string()))?;
-        let payment_id = CString::new("").map_err(|_| WalletError::FfiError("Invalid payment_id".to_string()))?;
+        let empty_separator =
+            CString::new("").map_err(|_| WalletError::FfiError("Invalid separator".to_string()))?;
+        let payment_id = CString::new("")
+            .map_err(|_| WalletError::FfiError("Invalid payment_id".to_string()))?;
         let mixin_count = 16;
         let pending_tx_priority = bindings::Priority_Default;
-        let c_preferred_inputs = CString::new("").map_err(|_| WalletError::FfiError("Invalid preferred inputs".to_string()))?;
-        let preferred_inputs_separator = CString::new("").map_err(|_| WalletError::FfiError("Invalid preferred inputs separator".to_string()))?;
+        let c_preferred_inputs = CString::new("")
+            .map_err(|_| WalletError::FfiError("Invalid preferred inputs".to_string()))?;
+        let preferred_inputs_separator = CString::new("")
+            .map_err(|_| WalletError::FfiError("Invalid preferred inputs separator".to_string()))?;
 
         unsafe {
             // Create the sweep transaction.
@@ -1293,9 +1327,12 @@ impl Wallet {
             }
 
             // Get the transaction ID.
-            let txid_ptr = bindings::MONERO_PendingTransaction_txid(tx_ptr, empty_separator.as_ptr());
+            let txid_ptr =
+                bindings::MONERO_PendingTransaction_txid(tx_ptr, empty_separator.as_ptr());
             if txid_ptr.is_null() {
-                return Err(WalletError::FfiError("Failed to get transaction ID".to_string()));
+                return Err(WalletError::FfiError(
+                    "Failed to get transaction ID".to_string(),
+                ));
             }
             let txid = CStr::from_ptr(txid_ptr).to_string_lossy().into_owned();
 
@@ -1304,8 +1341,10 @@ impl Wallet {
 
             // Optionally get the transaction key.
             let tx_key = if get_tx_key {
-                let c_txid = CString::new(txid.clone()).map_err(|_| WalletError::FfiError("Invalid txid".to_string()))?;
-                let tx_key_ptr = bindings::MONERO_Wallet_getTxKey(self.ptr.as_ptr(), c_txid.as_ptr());
+                let c_txid = CString::new(txid.clone())
+                    .map_err(|_| WalletError::FfiError("Invalid txid".to_string()))?;
+                let tx_key_ptr =
+                    bindings::MONERO_Wallet_getTxKey(self.ptr.as_ptr(), c_txid.as_ptr());
                 if tx_key_ptr.is_null() {
                     None
                 } else {
@@ -1319,12 +1358,12 @@ impl Wallet {
             //
             // TODO: Make submission optional.
             let tx_ptr_as_i8 = tx_ptr as *const i8;
-            let submit_result = bindings::MONERO_Wallet_submitTransaction(
-                self.ptr.as_ptr(),
-                tx_ptr_as_i8,
-            );
+            let submit_result =
+                bindings::MONERO_Wallet_submitTransaction(self.ptr.as_ptr(), tx_ptr_as_i8);
             if !submit_result {
-                return Err(WalletError::FfiError("Failed to submit sweep transaction".to_string()));
+                return Err(WalletError::FfiError(
+                    "Failed to submit sweep transaction".to_string(),
+                ));
             }
 
             Ok(Transfer {
@@ -1419,7 +1458,9 @@ impl Wallet {
             })
         } else {
             // Retrieve the last error.
-            Err(WalletError::FfiError("Transaction key is invalid.".to_string()))
+            Err(WalletError::FfiError(
+                "Transaction key is invalid.".to_string(),
+            ))
         }
     }
 }
@@ -1439,13 +1480,18 @@ impl Drop for Wallet {
 }
 
 #[cfg(test)]
-use tempfile::TempDir;
-#[cfg(test)]
 use std::fs;
+#[cfg(test)]
+use tempfile::TempDir;
 
 #[cfg(test)]
 fn check_and_delete_existing_wallets(temp_dir: &TempDir) -> std::io::Result<()> {
-    let test_wallet_names = &["test_wallet", "mainnet_wallet", "testnet_wallet", "stagenet_wallet"];
+    let test_wallet_names = &[
+        "test_wallet",
+        "mainnet_wallet",
+        "testnet_wallet",
+        "stagenet_wallet",
+    ];
 
     for name in test_wallet_names {
         let wallet_file = temp_dir.path().join(name);
@@ -1480,9 +1526,12 @@ fn test_wallet_manager_creation() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
-    let wallet_result = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
+    let wallet_result =
+        manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
     assert!(wallet_result.is_ok(), "WalletManager creation failed");
 
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -1493,14 +1542,19 @@ fn test_wallet_creation() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet);
     assert!(wallet.is_ok(), "Failed to create wallet");
 
     let wallet = wallet.unwrap();
 
-    assert!(wallet.is_deterministic().is_ok(), "Wallet creation seems to have failed");
+    assert!(
+        wallet.is_deterministic().is_ok(),
+        "Wallet creation seems to have failed"
+    );
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
@@ -1510,7 +1564,9 @@ fn test_get_seed() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create a new wallet.
     let wallet = manager
@@ -1519,13 +1575,24 @@ fn test_get_seed() {
 
     // Test getting seed with no offset (None).
     let result = wallet.get_seed(None);
-    assert!(result.is_ok(), "Failed to get seed without offset: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Failed to get seed without offset: {:?}",
+        result.err()
+    );
     assert!(!result.unwrap().is_empty(), "Seed without offset is empty");
 
     // Test getting seed with a specific offset (Some("offset")).
     let result_with_offset = wallet.get_seed(Some("offset"));
-    assert!(result_with_offset.is_ok(), "Failed to get seed with offset: {:?}", result_with_offset.err());
-    assert!(!result_with_offset.unwrap().is_empty(), "Seed with offset is empty");
+    assert!(
+        result_with_offset.is_ok(),
+        "Failed to get seed with offset: {:?}",
+        result_with_offset.err()
+    );
+    assert!(
+        !result_with_offset.unwrap().is_empty(),
+        "Seed with offset is empty"
+    );
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
@@ -1535,9 +1602,13 @@ fn test_get_address() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
-    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).expect("Failed to create wallet");
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
     let result = wallet.get_address(0, 0);
     assert!(result.is_ok(), "Failed to get address: {:?}", result.err());
     assert!(!result.unwrap().is_empty(), "Address is empty");
@@ -1550,11 +1621,19 @@ fn test_is_deterministic() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
-    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).expect("Failed to create wallet");
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
     let result = wallet.is_deterministic();
-    assert!(result.is_ok(), "Failed to check if wallet is deterministic: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Failed to check if wallet is deterministic: {:?}",
+        result.err()
+    );
     assert!(result.unwrap(), "Wallet should be deterministic");
 
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -1572,7 +1651,9 @@ fn test_wallet_creation_with_different_networks() {
 
     for (name, net_type) in wallets {
         let wallet_path = temp_dir.path().join(name);
-        let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+        let wallet_str = wallet_path
+            .to_str()
+            .expect("Failed to convert wallet path to string");
 
         let wallet = manager.create_wallet(wallet_str, "password", "English", net_type);
         assert!(wallet.is_ok(), "Failed to create wallet: {}", name);
@@ -1586,7 +1667,10 @@ fn test_restore_mnemonic_success() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string")
+        .to_string();
 
     // Example mnemonic seed (ensure this is a valid seed for your context).
     let mnemonic_seed = "hemlock jubilee eden hacksaw boil superior inroads epoxy exhale orders cavernous second brunt saved richly lower upgrade hitched launching deepest mostly playful layout lower eden".to_string();
@@ -1596,11 +1680,15 @@ fn test_restore_mnemonic_success() {
         "password".to_string(),
         mnemonic_seed,
         NetworkType::Mainnet,
-        0, // Restore from the beginning of the blockchain.
-        1, // Default KDF rounds.
+        0,              // Restore from the beginning of the blockchain.
+        1,              // Default KDF rounds.
         "".to_string(), // No seed offset.
     );
-    assert!(wallet.is_ok(), "Failed to restore wallet: {:?}", wallet.err());
+    assert!(
+        wallet.is_ok(),
+        "Failed to restore wallet: {:?}",
+        wallet.err()
+    );
 
     // Clean up wallet files.
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -1612,7 +1700,10 @@ fn test_restore_polyseed_success() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string")
+        .to_string();
     let polyseed = "capital chief route liar question fix clutch water outside pave hamster occur always learn license knife".to_string();
 
     let restored_wallet = manager.restore_polyseed(
@@ -1620,12 +1711,16 @@ fn test_restore_polyseed_success() {
         "password".to_string(),
         polyseed.clone(),
         NetworkType::Mainnet,
-        0, // Restore from the beginning of the blockchain.
-        1, // Default KDF rounds.
+        0,              // Restore from the beginning of the blockchain.
+        1,              // Default KDF rounds.
         "".to_string(), // No seed offset.
-        true, // Create a new wallet.
+        true,           // Create a new wallet.
     );
-    assert!(restored_wallet.is_ok(), "Failed to restore wallet from polyseed: {:?}", restored_wallet.err());
+    assert!(
+        restored_wallet.is_ok(),
+        "Failed to restore wallet from polyseed: {:?}",
+        restored_wallet.err()
+    );
 
     // Clean up wallet files.
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -1637,7 +1732,9 @@ fn test_generate_from_keys_unit() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("generated_wallet_unit");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Test parameters.
     //
@@ -1662,7 +1759,11 @@ fn test_generate_from_keys_unit() {
         network_type,
         kdf_rounds,
     );
-    assert!(result.is_ok(), "Failed to generate wallet from keys: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Failed to generate wallet from keys: {:?}",
+        result.err()
+    );
 
     // Clean up wallet files.
     teardown(&temp_dir).expect("Failed to clean up after test");
@@ -1673,13 +1774,22 @@ fn test_multiple_address_generation() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
-    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).expect("Failed to create wallet");
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
 
     for i in 0..5 {
         let result = wallet.get_address(0, i);
-        assert!(result.is_ok(), "Failed to get address {}: {:?}", i, result.err());
+        assert!(
+            result.is_ok(),
+            "Failed to get address {}: {:?}",
+            i,
+            result.err()
+        );
         assert!(!result.unwrap().is_empty(), "Address {} is empty", i);
     }
 
@@ -1708,7 +1818,7 @@ fn test_wallet_error_display() {
         WalletError::WalletErrorCode(code, msg) => {
             assert_eq!(code, 2);
             assert_eq!(msg, "Sample wallet error");
-        },
+        }
         _ => panic!("Expected WalletErrorCode variant"),
     }
 }
@@ -1718,7 +1828,9 @@ fn test_wallet_status() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create a wallet to use for status checking
     let wallet = manager
@@ -1727,7 +1839,11 @@ fn test_wallet_status() {
 
     // Check the status of the wallet, expecting it to be OK
     let status_result = manager.get_status(wallet.ptr.as_ptr());
-    assert!(status_result.is_ok(), "Failed to get status: {:?}", status_result.err());
+    assert!(
+        status_result.is_ok(),
+        "Failed to get status: {:?}",
+        status_result.err()
+    );
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
@@ -1737,10 +1853,13 @@ fn test_open_wallet() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create a wallet to be opened later
-    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
 
     // Drop the wallet so it can be opened later
@@ -1748,7 +1867,11 @@ fn test_open_wallet() {
 
     // Try to open the wallet
     let open_result = manager.open_wallet(wallet_str, "password", NetworkType::Mainnet);
-    assert!(open_result.is_ok(), "Failed to open wallet: {:?}", open_result.err());
+    assert!(
+        open_result.is_ok(),
+        "Failed to open wallet: {:?}",
+        open_result.err()
+    );
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
@@ -1758,12 +1881,20 @@ fn test_get_balance() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
-    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).unwrap();
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .unwrap();
 
     let balance_result = wallet.get_balance(0);
-    assert!(balance_result.is_ok(), "Failed to get balance: {:?}", balance_result.err());
+    assert!(
+        balance_result.is_ok(),
+        "Failed to get balance: {:?}",
+        balance_result.err()
+    );
 
     let _balance = balance_result.unwrap();
     // assert!(_balance.balance >= 0, "Balance should be non-negative");
@@ -1778,7 +1909,9 @@ fn test_create_account() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create a wallet.
     let wallet = manager
@@ -1787,7 +1920,11 @@ fn test_create_account() {
 
     // Create a new account.
     let result = wallet.create_account("Test Account");
-    assert!(result.is_ok(), "Failed to create account: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Failed to create account: {:?}",
+        result.err()
+    );
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
@@ -1797,13 +1934,21 @@ fn test_get_accounts() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
-    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet).expect("Failed to create wallet");
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+        .expect("Failed to create wallet");
 
     // Add two accounts for testing
-    wallet.create_account("Test Account 1").expect("Failed to create account 1");
-    wallet.create_account("Test Account 2").expect("Failed to create account 2");
+    wallet
+        .create_account("Test Account 1")
+        .expect("Failed to create account 1");
+    wallet
+        .create_account("Test Account 2")
+        .expect("Failed to create account 2");
 
     // Retrieve all accounts
     let accounts = wallet.get_accounts().expect("Failed to retrieve accounts");
@@ -1822,19 +1967,30 @@ fn test_close_wallet() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create a wallet.
-    let mut wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+    let mut wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
 
     // Close the wallet.
     let close_result = wallet.close_wallet();
-    assert!(close_result.is_ok(), "Failed to close wallet: {:?}", close_result.err());
+    assert!(
+        close_result.is_ok(),
+        "Failed to close wallet: {:?}",
+        close_result.err()
+    );
 
     // Attempt to close the wallet again.
     let close_again_result = wallet.close_wallet();
-    assert!(close_again_result.is_ok(), "Failed to close wallet a second time: {:?}", close_again_result.err());
+    assert!(
+        close_again_result.is_ok(),
+        "Failed to close wallet a second time: {:?}",
+        close_again_result.err()
+    );
 
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
@@ -1858,10 +2014,13 @@ fn test_init_success() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create a wallet.
-    let wallet = manager.create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
+    let wallet = manager
+        .create_wallet(wallet_str, "password", "English", NetworkType::Mainnet)
         .expect("Failed to create wallet");
 
     // Define initialization configuration.
@@ -1877,7 +2036,11 @@ fn test_init_success() {
 
     // Initialize the wallet.
     let init_result = wallet.init(config);
-    assert!(init_result.is_ok(), "Failed to initialize wallet: {:?}", init_result.err());
+    assert!(
+        init_result.is_ok(),
+        "Failed to initialize wallet: {:?}",
+        init_result.err()
+    );
 
     // Clean up wallet files.
     fs::remove_file(wallet_str).expect("Failed to delete test wallet");
@@ -1893,7 +2056,9 @@ fn test_refresh_success() {
 
     // Construct the full path for the wallet within temp_dir.
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create the wallet.
     let wallet = manager
@@ -1916,12 +2081,20 @@ fn test_refresh_success() {
     println!("Initializing the wallet...");
     let init_result = wallet.init(config);
 
-    assert!(init_result.is_ok(), "Failed to initialize wallet: {:?}", init_result.err());
+    assert!(
+        init_result.is_ok(),
+        "Failed to initialize wallet: {:?}",
+        init_result.err()
+    );
 
     // Perform a refresh operation after initialization.
     println!("Refreshing the wallet...");
     let refresh_result = wallet.refresh();
-    assert!(refresh_result.is_ok(), "Failed to refresh wallet: {:?}", refresh_result.err());
+    assert!(
+        refresh_result.is_ok(),
+        "Failed to refresh wallet: {:?}",
+        refresh_result.err()
+    );
 
     // Clean up wallet files.
     fs::remove_file(wallet_str).expect("Failed to delete test wallet");
@@ -1935,7 +2108,9 @@ fn test_set_seed_language() {
     let (manager, temp_dir) = setup().expect("Failed to set up test environment");
 
     let wallet_path = temp_dir.path().join("test_wallet_set_seed_language");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string");
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string");
 
     // Create a new wallet.
     let wallet = manager
@@ -1944,7 +2119,11 @@ fn test_set_seed_language() {
 
     // Set the seed language to Spanish.
     let result = wallet.set_seed_language("Spanish");
-    assert!(result.is_ok(), "Failed to set seed language: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Failed to set seed language: {:?}",
+        result.err()
+    );
 
     // Optionally, retrieve the seed language to verify it was set correctly.
     // This requires implementing a corresponding `get_seed_language` method.
@@ -1953,12 +2132,14 @@ fn test_set_seed_language() {
     teardown(&temp_dir).expect("Failed to clean up after test");
 }
 
-
 #[test]
 fn test_check_tx_key() {
     let temp_dir = TempDir::new().expect("Failed to create temporary directory");
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string")
+        .to_string();
 
     let mnemonic_seed = "capital chief route liar question fix clutch water outside pave hamster occur always learn license knife".to_string();
     let passphrase = "".to_string();
@@ -1974,16 +2155,20 @@ fn test_check_tx_key() {
             0,
             1,
             passphrase.clone(),
-            true
+            true,
         )
         .expect("Failed to restore wallet from polyseed");
 
     // Print the primary address.
-    println!("Primary address: {}", wallet.get_address(0, 0).expect("Failed to get address"));
+    println!(
+        "Primary address: {}",
+        wallet.get_address(0, 0).expect("Failed to get address")
+    );
 
     // Valid transaction details.
     let valid_txid = "b3f1b71f5127f9d655e58f7a2b324a64bfbc5a3ea1ce8846a0f4c51cbcb87ea6".to_string();
-    let valid_tx_key = "48ef9d8b772c4f5097e29a4ba413605497d978c74e879fda67545dddff312b0a".to_string();
+    let valid_tx_key =
+        "48ef9d8b772c4f5097e29a4ba413605497d978c74e879fda67545dddff312b0a".to_string();
     let valid_address = "465cUW8wTMSCV8oVVh7CuWWHs7yeB1oxhNPrsEM5FKSqadTXmobLqsNEtRnyGsbN1rbDuBtWdtxtXhTJda1Lm9vcH2ZdrD1".to_string();
 
     // Check the transaction key.
@@ -1999,24 +2184,31 @@ fn test_check_tx_key() {
     match valid_check {
         Ok(check) => {
             assert!(check.valid, "Valid transaction key should be valid.");
-            assert!(check.error.is_none(), "There should be no error for valid transaction key.");
+            assert!(
+                check.error.is_none(),
+                "There should be no error for valid transaction key."
+            );
             println!("Valid transaction key check passed.");
-        },
+        }
         Err(e) => {
             panic!("Error checking valid transaction key: {:?}", e);
-        },
+        }
     }
 
     // Clean up wallet files.
     fs::remove_file(&wallet_path).expect("Failed to delete test wallet");
-    fs::remove_file(format!("{}.keys", wallet_path.display())).expect("Failed to delete test wallet keys");
+    fs::remove_file(format!("{}.keys", wallet_path.display()))
+        .expect("Failed to delete test wallet keys");
 }
 
 #[test]
 fn test_invalid_check_tx_key() {
     let temp_dir = TempDir::new().expect("Failed to create temporary directory");
     let wallet_path = temp_dir.path().join("test_wallet");
-    let wallet_str = wallet_path.to_str().expect("Failed to convert wallet path to string").to_string();
+    let wallet_str = wallet_path
+        .to_str()
+        .expect("Failed to convert wallet path to string")
+        .to_string();
 
     let mnemonic_seed = "capital chief route liar question fix clutch water outside pave hamster occur always learn license knife".to_string();
     let passphrase = "".to_string();
@@ -2032,12 +2224,15 @@ fn test_invalid_check_tx_key() {
             0,
             1,
             passphrase.clone(),
-            true
+            true,
         )
         .expect("Failed to restore wallet from polyseed");
 
     // Print the primary address.
-    println!("Primary address: {}", wallet.get_address(0, 0).expect("Failed to get address"));
+    println!(
+        "Primary address: {}",
+        wallet.get_address(0, 0).expect("Failed to get address")
+    );
 
     // Invalid transaction details.
     let invalid_txid = "invalid_tx_id".to_string();
@@ -2057,15 +2252,19 @@ fn test_invalid_check_tx_key() {
     match invalid_check {
         Ok(check) => {
             assert!(!check.valid, "Invalid transaction key should be invalid.");
-            assert!(check.error.is_some(), "There should be an error message for invalid transaction key.");
+            assert!(
+                check.error.is_some(),
+                "There should be an error message for invalid transaction key."
+            );
             println!("Invalid transaction key check correctly identified as invalid.");
-        },
+        }
         Err(e) => {
             println!("Expected error for invalid transaction key: {:?}", e);
-        },
+        }
     }
 
     // Clean up wallet files.
     fs::remove_file(&wallet_path).expect("Failed to delete test wallet");
-    fs::remove_file(format!("{}.keys", wallet_path.display())).expect("Failed to delete test wallet keys");
+    fs::remove_file(format!("{}.keys", wallet_path.display()))
+        .expect("Failed to delete test wallet keys");
 }

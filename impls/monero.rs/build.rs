@@ -1,8 +1,8 @@
+use bindgen::EnumVariation;
 use std::env;
 use std::fs::{self, OpenOptions};
 use std::io::Write;
 use std::path::PathBuf;
-use bindgen::EnumVariation;
 
 #[cfg(unix)]
 use std::os::unix::fs as unix_fs;
@@ -100,7 +100,9 @@ fn main() {
         .blocklist_type("_.*")
         .blocklist_function("__.*")
         .layout_tests(false)
-        .default_enum_style(EnumVariation::Rust { non_exhaustive: false })
+        .default_enum_style(EnumVariation::Rust {
+            non_exhaustive: false,
+        })
         .derive_default(false)
         .conservative_inline_namespaces()
         .generate_comments(false)
@@ -129,7 +131,8 @@ fn main() {
                 .open(out_path.clone())
                 .expect("Failed to open bindings.rs");
 
-            file.write_all(new_contents.as_bytes()).expect("Failed to write to bindings.rs");
+            file.write_all(new_contents.as_bytes())
+                .expect("Failed to write to bindings.rs");
         }
     }
 }
