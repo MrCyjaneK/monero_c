@@ -1,4 +1,4 @@
-From 776d22d6dc47739074f004979894f3c62d43a0c9 Mon Sep 17 00:00:00 2001
+From a80b8f629790f624f3b8fa826927fcace348448b Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 24 Jun 2024 10:49:12 +0200
 Subject: [PATCH 06/15] use proper error handling in get_seed
@@ -38,10 +38,10 @@ index 899ef044a..e16d8f83f 100644
  
  std::string WalletImpl::getSeedLanguage() const
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 651161d14..1e527cf97 100644
+index 4e66cdeae..48267d647 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -1440,11 +1440,13 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
+@@ -1449,11 +1449,13 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
    bool keys_deterministic = is_deterministic();
    if (!keys_deterministic)
    {
@@ -55,7 +55,7 @@ index 651161d14..1e527cf97 100644
      std::cout << "seed_language not set" << std::endl;
      return false;
    }
-@@ -1454,8 +1456,9 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
+@@ -1463,8 +1465,9 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
      key = cryptonote::encrypt_key(key, passphrase);
    if (!crypto::ElectrumWords::bytes_to_words(key, electrum_words, seed_language))
    {
@@ -67,5 +67,5 @@ index 651161d14..1e527cf97 100644
  
    return true;
 -- 
-2.39.5 (Apple Git-154)
+2.48.0
 

@@ -1,4 +1,4 @@
-From 9dc9c8048d3918fe3615e91ab8be342471167c26 Mon Sep 17 00:00:00 2001
+From a7593f9adebe1a2e97c30885fbac11fd3402337e Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 11 May 2024 16:25:10 +0200
 Subject: [PATCH 04/15] store crash fix
@@ -36,12 +36,20 @@ would just wait for it to finish before actually storing).
 Also imo store() functin should store the wallet, no matter
 the current state.
 ---
+ external/randomwow        |  2 +-
  src/wallet/api/wallet.cpp | 25 ++++++++++++-------------
  src/wallet/api/wallet.h   |  1 -
  src/wallet/wallet2.cpp    | 12 +++++++++++-
  src/wallet/wallet2.h      |  3 +++
- 4 files changed, 26 insertions(+), 15 deletions(-)
+ 5 files changed, 27 insertions(+), 16 deletions(-)
 
+diff --git a/external/randomwow b/external/randomwow
+index c00685dad..27b099b6d 160000
+--- a/external/randomwow
++++ b/external/randomwow
+@@ -1 +1 @@
+-Subproject commit c00685dad575137caf4a9100ba08e77be376fa98
++Subproject commit 27b099b6dd6fef6e17f58c6dfe00009e9c5df587
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
 index e868fa039..899ef044a 100644
 --- a/src/wallet/api/wallet.cpp
@@ -147,7 +155,7 @@ index 1f199a72c..ac7ce2f6a 100644
      std::atomic<int>  m_refreshIntervalMillis;
      std::atomic<bool> m_refreshShouldRescan;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 8ce515c57..651161d14 100644
+index 535005ab1..4e66cdeae 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -1192,6 +1192,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
@@ -158,7 +166,7 @@ index 8ce515c57..651161d14 100644
    m_trusted_daemon(false),
    m_nettype(nettype),
    m_multisig_rounds_passed(0),
-@@ -1404,6 +1405,14 @@ bool wallet2::set_daemon(std::string daemon_address, boost::optional<epee::net_u
+@@ -1412,6 +1413,14 @@ bool wallet2::set_daemon(std::string daemon_address, boost::optional<epee::net_u
    return ret;
  }
  //----------------------------------------------------------------------------------------------------
@@ -173,7 +181,7 @@ index 8ce515c57..651161d14 100644
  bool wallet2::set_proxy(const std::string &address)
  {
    return m_http_client->set_proxy(address);
-@@ -4098,8 +4107,9 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
+@@ -4107,8 +4116,9 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
    // infer when we get an incoming output
  
    bool first = true, last = false;
@@ -185,19 +193,19 @@ index 8ce515c57..651161d14 100644
      std::vector<cryptonote::block_complete_entry> next_blocks;
      std::vector<parsed_block> next_parsed_blocks;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 295976b53..c07a47c11 100644
+index 632298726..022d0696f 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
-@@ -1071,6 +1071,8 @@ private:
-       boost::optional<epee::net_utils::http::login> daemon_login = boost::none, bool trusted_daemon = true,
-       epee::net_utils::ssl_options_t ssl_options = epee::net_utils::ssl_support_t::e_ssl_support_autodetect);
+@@ -1078,6 +1078,8 @@ private:
+       epee::net_utils::ssl_options_t ssl_options = epee::net_utils::ssl_support_t::e_ssl_support_autodetect,
+       const std::string &proxy = "");
      bool set_proxy(const std::string &address);
 +    bool get_refresh_enabled();
 +    void set_refresh_enabled(bool val);
  
      void stop() { m_run.store(false, std::memory_order_relaxed); m_message_store.stop(); }
  
-@@ -1981,6 +1983,7 @@ private:
+@@ -1989,6 +1991,7 @@ private:
  
      boost::recursive_mutex m_daemon_rpc_mutex;
  
@@ -206,5 +214,5 @@ index 295976b53..c07a47c11 100644
      i_wallet2_callback* m_callback;
      hw::device::device_type m_key_device_type;
 -- 
-2.39.5 (Apple Git-154)
+2.48.0
 

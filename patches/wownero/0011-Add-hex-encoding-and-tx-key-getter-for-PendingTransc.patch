@@ -1,4 +1,4 @@
-From 7c4f0b36d627bf4d1ce198240c1e974eff27bbec Mon Sep 17 00:00:00 2001
+From 572afcf8a0125418d11addd6f847ab85a58a9c7e Mon Sep 17 00:00:00 2001
 From: M <m@cakewallet.com>
 Date: Fri, 21 Apr 2023 15:43:47 -0400
 Subject: [PATCH 11/15] Add hex encoding and tx key getter for
@@ -64,5 +64,5 @@ index 013b5bcba..f421fdc05 100644
  
  /**
 -- 
-2.39.5 (Apple Git-154)
+2.48.0
 

@@ -1,4 +1,4 @@
-From f9bf382c57e4a36044e7a0697dc36073487eadd3 Mon Sep 17 00:00:00 2001
+From c164b53648c8203882212e92a95b767ff9d3de92 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 21 Nov 2024 06:05:03 -0500
 Subject: [PATCH 14/15] fix iOS depends build
@@ -11,7 +11,7 @@ Subject: [PATCH 14/15] fix iOS depends build
  4 files changed, 14 insertions(+), 10 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 763d240fc..e3a0faacd 100644
+index 1383e630a..b8782570d 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -39,10 +39,6 @@ include(CheckLibraryExists)
@@ -100,5 +100,5 @@ index 83bea8b5b..dfb4b5c5a 100644
        #if TARGET_OS_MAC && (!defined(MAC_OS_X_VERSION_MIN_REQUIRED) || MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7)
          return boost::logic::tribool(IOPSGetTimeRemainingEstimate() != kIOPSTimeRemainingUnlimited);
 -- 
-2.39.5 (Apple Git-154)
+2.48.0
 

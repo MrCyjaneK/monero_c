@@ -1,4 +1,4 @@
-From 298c7e0745306605d7ed1cee320b92eacf8aaeb6 Mon Sep 17 00:00:00 2001
+From aa69cd570e4a6f3ed184eb2ccbd537a429a8220c Mon Sep 17 00:00:00 2001
 From: Konstantin Ullrich <konstantinullrich12@gmail.com>
 Date: Wed, 11 Oct 2023 16:47:59 +0200
 Subject: [PATCH 12/15] Add recoverDeterministicWalletFromSpendKey
@@ -149,5 +149,5 @@ index 28fcd36c9..be3ff8184 100644
                                              const std::string &password,
                                              NetworkType nettype,
 -- 
-2.39.5 (Apple Git-154)
+2.48.0
 
