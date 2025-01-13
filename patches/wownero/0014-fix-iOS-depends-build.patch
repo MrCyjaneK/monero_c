@@ -1,4 +1,4 @@
-From c164b53648c8203882212e92a95b767ff9d3de92 Mon Sep 17 00:00:00 2001
+From a707d5fc2aa9d387857381e7ebc4a68c1d245a00 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 21 Nov 2024 06:05:03 -0500
 Subject: [PATCH 14/15] fix iOS depends build

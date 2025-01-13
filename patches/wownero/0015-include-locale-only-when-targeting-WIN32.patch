@@ -1,4 +1,4 @@
-From 7bd25d3540a96169ac8e0ac7438d76c0b10046fc Mon Sep 17 00:00:00 2001
+From eeb059ab8bff7e8614531565259ca66f6e6a8c7d Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 18 Nov 2024 10:57:37 -0500
 Subject: [PATCH 15/15] include locale only when targeting WIN32

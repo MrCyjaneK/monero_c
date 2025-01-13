@@ -1,4 +1,4 @@
-From a7593f9adebe1a2e97c30885fbac11fd3402337e Mon Sep 17 00:00:00 2001
+From 799d1825696483da743ff2f92a773fcfbef08557 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 11 May 2024 16:25:10 +0200
 Subject: [PATCH 04/15] store crash fix
@@ -36,20 +36,12 @@ would just wait for it to finish before actually storing).
 Also imo store() functin should store the wallet, no matter
 the current state.
 ---
- external/randomwow        |  2 +-
  src/wallet/api/wallet.cpp | 25 ++++++++++++-------------
  src/wallet/api/wallet.h   |  1 -
  src/wallet/wallet2.cpp    | 12 +++++++++++-
  src/wallet/wallet2.h      |  3 +++
- 5 files changed, 27 insertions(+), 16 deletions(-)
+ 4 files changed, 26 insertions(+), 15 deletions(-)
 
-diff --git a/external/randomwow b/external/randomwow
-index c00685dad..27b099b6d 160000
---- a/external/randomwow
-+++ b/external/randomwow
-@@ -1 +1 @@
--Subproject commit c00685dad575137caf4a9100ba08e77be376fa98
-+Subproject commit 27b099b6dd6fef6e17f58c6dfe00009e9c5df587
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
 index e868fa039..899ef044a 100644
 --- a/src/wallet/api/wallet.cpp

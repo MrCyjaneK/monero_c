@@ -1,4 +1,4 @@
-From aa69cd570e4a6f3ed184eb2ccbd537a429a8220c Mon Sep 17 00:00:00 2001
+From ad28016bf3cfd11242dc14472389f7a006c73dcf Mon Sep 17 00:00:00 2001
 From: Konstantin Ullrich <konstantinullrich12@gmail.com>
 Date: Wed, 11 Oct 2023 16:47:59 +0200
 Subject: [PATCH 12/15] Add recoverDeterministicWalletFromSpendKey
