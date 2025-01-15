@@ -238,11 +238,12 @@ Deno.test("0001-polyseed.patch", async (t) => {
   }
 });
 
-Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () => {
+Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch (close)", async () => {
   await clearWallets();
 
   const walletManager = await WalletManager.new();
   const wallet = await walletManager.createWallet("tests/wallets/squirrel", "belka");
+  await wallet.setRefreshFromBlockHeight(3310000n);
   await wallet.init({
     address: NODE_URL,
   });
@@ -287,6 +288,51 @@ Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch", async () =
   );
 
   await reopenedWallet.close(true);
+});
+
+Deno.test("0002-wallet-background-sync-with-just-the-view-key.patch (stopBackgroundSync)", async () => {
+  await clearWallets();
+
+  const walletManager = await WalletManager.new();
+  const wallet = await walletManager.createWallet("tests/wallets/squirrel", "belka");
+  await wallet.setRefreshFromBlockHeight(3310000n);
+  await wallet.init({
+    address: NODE_URL,
+  });
+
+
+  const walletInfo = {
+    address: await wallet.address(),
+    publicSpendKey: await wallet.publicSpendKey(),
+    secretSpendKey: await wallet.secretSpendKey(),
+    publicViewKey: await wallet.publicViewKey(),
+    secretViewKey: await wallet.secretViewKey(),
+  };
+
+  await wallet.setupBackgroundSync(2, "belka", "background-belka");
+  await wallet.startBackgroundSync();
+
+
+  await wallet.init({ address: NODE_URL });
+  await wallet.refreshAsync();
+
+  const blockChainHeight = await syncBlockchain(wallet);
+
+  await wallet.stopBackgroundSync("belka");
+
+  assertEquals(await wallet.blockChainHeight(), blockChainHeight);
+  assertEquals(
+    walletInfo,
+    {
+      address: await wallet.address(),
+      publicSpendKey: await wallet.publicSpendKey(),
+      secretSpendKey: await wallet.secretSpendKey(),
+      publicViewKey: await wallet.publicViewKey(),
+      secretViewKey: await wallet.secretViewKey(),
+    },
+  );
+
+  await wallet.close(true);
 });
 
 Deno.test("0004-coin-control.patch", {
