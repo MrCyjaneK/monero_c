@@ -1,4 +1,4 @@
-From 07a3019d94feb48f746dbc780db1e4d2e0d6080c Mon Sep 17 00:00:00 2001
+From 221fb7ed81aff1830b4bc2d7f9b73c94eb36924a Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
 Subject: [PATCH 08/15] add dummy device for ledger
@@ -21,10 +21,10 @@ Subject: [PATCH 08/15] add dummy device for ledger
  create mode 100644 src/device/device_io_dummy.hpp
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 8b81c7ab7..abe44eca5 100644
+index 88335ee9d..86000f811 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -709,8 +709,12 @@ include_directories(${LMDB_INCLUDE})
+@@ -693,8 +693,12 @@ include_directories(${LMDB_INCLUDE})
  include_directories(${LIBUNWIND_INCLUDE})
  link_directories(${LIBUNWIND_LIBRARY_DIRS})
  
@@ -600,5 +600,5 @@ index e81b8f83a..277be6ac9 100644
  
  std::vector<std::string> WalletManagerImpl::findWallets(const std::string &path)
 -- 
-2.39.5 (Apple Git-154)
+2.48.0
 
