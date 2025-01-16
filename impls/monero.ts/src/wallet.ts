@@ -111,6 +111,10 @@ export class Wallet {
     );
   }
 
+  async setRefreshFromBlockHeight(height = 0n): Promise<void> {
+    return await fns.Wallet_setRefreshFromBlockHeight(this.#ptr, height);
+  }
+
   async balance(accountIndex = 0): Promise<bigint> {
     return await fns.Wallet_balance(this.#ptr, accountIndex);
   }
