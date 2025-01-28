@@ -37,6 +37,7 @@ $(package)_config_opts_aarch64_linux=linux-generic64
 $(package)_config_opts_armv7a_android=--static android-arm
 $(package)_config_opts_aarch64_android=--static android-arm64
 $(package)_config_opts_aarch64_darwin=darwin64-arm64-cc
+$(package)_config_opts_aarch64_ios=darwin64-arm64-cc
 $(package)_config_opts_riscv64_linux=linux-generic64
 $(package)_config_opts_mipsel_linux=linux-generic32
 $(package)_config_opts_mips_linux=linux-generic32
