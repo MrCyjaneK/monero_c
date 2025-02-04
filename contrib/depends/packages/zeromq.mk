@@ -10,6 +10,7 @@ define $(package)_set_vars
   $(package)_config_opts_linux=--with-pic
   $(package)_config_opts_freebsd=--with-pic
   $(package)_config_opts_ios=--host=$(host_arch)-apple-darwin
+  $(package)_config_opts_iossimulator=--host=$(host_arch)-apple-darwin
   $(package)_cxxflags=-std=c++11
   $(package)_cxxflags_darwin=-std=c++11
   $(package)_cxxflags_ios=-std=c++11

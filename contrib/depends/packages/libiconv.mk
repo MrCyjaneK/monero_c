@@ -11,6 +11,7 @@ define $(package)_set_vars
   $(package)_config_opts_linux=--with-pic
   $(package)_config_opts_freebsd=--with-pic
   $(package)_ar_ios=$($(package)_ar)
+  $(package)_ar_iossimulator=$($(package)_ar)
 endef
 
 define $(package)_preprocess_cmds

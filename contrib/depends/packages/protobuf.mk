@@ -14,7 +14,13 @@ define $(package)_set_vars
 endef
 
 define $(package)_preprocess_cmds
-  patch -p0 < $($(package)_patch_dir)/visibility.patch
+  patch -p0 < $($(package)_patch_dir)/visibility.patch && \
+  cp -f $(BASEDIR)/config.guess config.guess &&\
+  cp -f $(BASEDIR)/config.sub config.sub &&\
+  cp -f $(BASEDIR)/config.guess third_party/googletest/googletest/build-aux/config.guess &&\
+  cp -f $(BASEDIR)/config.sub third_party/googletest/googletest/build-aux/config.sub &&\
+  cp -f $(BASEDIR)/config.guess third_party/googletest/googlemock/build-aux/config.guess &&\
+  cp -f $(BASEDIR)/config.sub third_party/googletest/googlemock/build-aux/config.sub
 endef
 
 define $(package)_config_cmds

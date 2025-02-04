@@ -1,6 +1,5 @@
 IOS_MIN_VERSION=12.0
 IOS_SDK=$(shell xcrun --sdk iphoneos --show-sdk-path)
-IOS_SIMULATOR_SDK=$(shell xcrun --sdk iphonesimulator --show-sdk-path)
 
 ifeq (aarch64, $(host_arch))
 CC_target_ios=arm64-apple-ios
