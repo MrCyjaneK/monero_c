@@ -17,6 +17,8 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_config_cmds
+  cp -f $(BASEDIR)/config.guess build-aux/config.guess &&\
+  cp -f $(BASEDIR)/config.sub build-aux/config.sub &&\
   $($(package)_autoconf)
 endef
 

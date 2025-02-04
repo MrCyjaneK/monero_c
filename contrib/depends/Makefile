@@ -91,6 +91,9 @@ endif
 ifeq ($(host_os),ios)
 host_cmake=iOS
 endif
+ifeq ($(host_os),iossimulator)
+host_cmake=iOS
+endif
 ifeq ($(host_os),android)
 host_cmake=Android
 endif

@@ -88,23 +88,23 @@ pushd release/$repo
         # cp ../../$repo/build/${HOST_ABI}/external/polyseed/libpolyseed.${APPENDIX} ${HOST_ABI}_libpolyseed.${APPENDIX}
         # rm ${HOST_ABI}_libpolyseed.${APPENDIX}.xz || true
         # xz -e ${HOST_ABI}_libpolyseed.${APPENDIX}
-    elif [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" || "${HOST_ABI}" == "host-apple-darwin" || "${HOST_ABI}" == "x86_64-host-apple-darwin" || "${HOST_ABI}" == "aarch64-apple-darwin"  || "${HOST_ABI}" == "x86_64-apple-darwin" || "${HOST_ABI}" == "host-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios" ]];
+    elif [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" || "${HOST_ABI}" == "host-apple-darwin" || "${HOST_ABI}" == "x86_64-host-apple-darwin" || "${HOST_ABI}" == "aarch64-apple-darwin"  || "${HOST_ABI}" == "x86_64-apple-darwin" || "${HOST_ABI}" == "host-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios" || "${HOST_ABI}" == "aarch64-apple-iossimulator" ]];
     then
         APPENDIX="${APPENDIX}dylib"
     else
         APPENDIX="${APPENDIX}so"
     fi
-    xz -e ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}
+    xz -ek ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}
     mv ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}.xz ${HOST_ABI}_libwallet2_api_c.${APPENDIX}.xz
     # Extra libraries
     if [[ "$HOST_ABI" == "x86_64-w64-mingw32" || "$HOST_ABI" == "i686-w64-mingw32" ]];
     then
         cp /usr/${HOST_ABI}/lib/libwinpthread-1.dll ${HOST_ABI}_libwinpthread-1.dll
         rm ${HOST_ABI}_libwinpthread-1.dll.xz || true
-        xz -e ${HOST_ABI}_libwinpthread-1.dll
+        xz -ek ${HOST_ABI}_libwinpthread-1.dll
         ####
         cp /usr/lib/gcc/${HOST_ABI}/*-posix/libssp-0.dll ${HOST_ABI}_libssp-0.dll
         rm ${HOST_ABI}_libssp-0.dll.xz || true
-        xz -e ${HOST_ABI}_libssp-0.dll
+        xz -ek ${HOST_ABI}_libssp-0.dll
     fi
 popd
