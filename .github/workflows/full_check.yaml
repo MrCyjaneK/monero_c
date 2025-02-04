@@ -297,9 +297,6 @@ jobs:
         run: |
           ./build_single.sh ${{ matrix.coin }} aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
 
-      - name: build (x86_64-apple-iossimulator)
-        run: |
-          ./build_single.sh ${{ matrix.coin }} x86_64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
       - name: rename artifacts
         run: |
           mkdir release/gh/
