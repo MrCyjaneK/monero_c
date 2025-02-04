@@ -7,11 +7,11 @@ $(package)_patches=fix_obj_order.patch
 
 define $(package)_preprocess_cmds
   patch -p0 < $($(package)_patch_dir)/fix_obj_order.patch
+  cp -f $(BASEDIR)/config.guess config/config.guess &&\
+  cp -f $(BASEDIR)/config.sub config/config.sub
 endef
 
 define $(package)_config_cmds
-  cp -f $(BASEDIR)/config.guess config/config.guess &&\
-  cp -f $(BASEDIR)/config.sub config/config.sub &&\
   $($(package)_autoconf) --disable-shared --enable-static --disable-tests --disable-documentation AR_FLAGS=$($(package)_arflags)
 endef
 

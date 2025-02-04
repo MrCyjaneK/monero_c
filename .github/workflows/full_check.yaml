@@ -303,7 +303,7 @@ jobs:
           for i in release/${{ matrix.coin }}/*
           do
               cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
-          doneŔ
+          done
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
