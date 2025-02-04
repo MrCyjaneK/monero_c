@@ -289,16 +289,24 @@ jobs:
           path: |
             contrib/depends/built/*
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
-      - name: build
+      - name: build (aarch64-apple-ios)
         run: |
           ./build_single.sh ${{ matrix.coin }} aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
+
+      - name: build (aarch64-apple-iossimulator)
+        run: |
+          ./build_single.sh ${{ matrix.coin }} aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
+
+      - name: build (x86_64-apple-iossimulator)
+        run: |
+          ./build_single.sh ${{ matrix.coin }} x86_64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
       - name: rename artifacts
         run: |
           mkdir release/gh/
           for i in release/${{ matrix.coin }}/*
           do
               cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
-          done
+          doneŔ
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
