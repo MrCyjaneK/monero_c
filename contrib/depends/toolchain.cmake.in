@@ -199,5 +199,9 @@ include_directories(@prefix@/include/wownero_seed)
 add_definitions(-DPOLYSEED_STATIC=ON)
 add_definitions(-DMOBILE_WALLET_BUILD)
 
+if (ANDROID OR IOS)
+  add_definitions(-DFORCE_USE_HEAP=1)
+endif()
+
 #Create a new global cmake flag that indicates building with depends
 set (DEPENDS true)
