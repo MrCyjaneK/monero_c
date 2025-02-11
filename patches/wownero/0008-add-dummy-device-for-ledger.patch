@@ -102,7 +102,7 @@ index e6cd358b6..777584c01 100644
                  MERROR(" - " << sm_pair.first);
              }
 -            throw std::runtime_error("device not found: " + device_descriptor);
-+            throw std::runtime_error("device not found: " + device_descriptor + "\nlalala\n" + ss.str());
++            throw std::runtime_error("device not found: " + device_descriptor + "\n" + ss.str());
          }
          return *device->second;
      }
