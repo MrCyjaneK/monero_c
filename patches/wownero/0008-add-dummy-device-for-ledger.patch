@@ -86,7 +86,7 @@ index e6cd358b6..777584c01 100644
      device_registry::device_registry(){
          hw::core::register_all(registry);
 -        #ifdef WITH_DEVICE_LEDGER
-+        #if defined(WITH_DEVICE_LEDGER) && !defined(HIDAPI_DUMMY)
++        #if defined(WITH_DEVICE_LEDGER) || defined(HIDAPI_DUMMY)
          hw::ledger::register_all(registry);
          #endif
          atexit(clear_device_registry);
@@ -102,7 +102,7 @@ index e6cd358b6..777584c01 100644
                  MERROR(" - " << sm_pair.first);
              }
 -            throw std::runtime_error("device not found: " + device_descriptor);
-+            throw std::runtime_error("device not found: " + device_descriptor + "\nlalala\n" + ss.str());
++            throw std::runtime_error("device not found: " + device_descriptor + "\n" + ss.str());
          }
          return *device->second;
      }
