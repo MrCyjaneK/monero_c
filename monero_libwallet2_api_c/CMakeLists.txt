@@ -39,7 +39,7 @@ if (${HOST_ABI} STREQUAL "host-apple-darwin" OR
     endif()
 endif()
 
-if(${HOST_ABI} STREQUAL "" OR
+if(${HOST_ABI} STREQUAL "x86_64-linux-android" OR
    ${HOST_ABI} STREQUAL "i686-linux-android" OR
    ${HOST_ABI} STREQUAL "aarch64-linux-android" OR
    ${HOST_ABI} STREQUAL "armv7a-linux-androideabi")
