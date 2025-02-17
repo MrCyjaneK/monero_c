@@ -91,33 +91,38 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - target: mingw
+        target:
+          - name: mingw
             os: ubuntu-latest
             container: ubuntu:24.04
             packages: pigz build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686
-          - target: android
+            coins: [monero, wownero]
+          - name: android
             os: ubuntu-22.04
             packages: llvm pigz build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo6 gperf unzip python-is-python3
-          - target: linux
+            coins: [monero, wownero, zano]
+          - name: linux
             os: ubuntu-latest
             container: debian:bullseye
             packages: pigz build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-i686-linux-gnu g++-i686-linux-gnu
-          - target: macos
+            coins: [monero, wownero, zano]
+          - name: macos
             os: macos-15
             packages: ccache binutils pigz autoconf automake libtool pkg-config
-          - target: ios
+            coins: [monero, wownero, zano]
+          - name: ios
             os: macos-15
             packages: ccache cmake autoconf automake libtool
-        coin: [monero, wownero, zano]
+            coins: [monero, wownero, zano]
+        coin:
+          - monero
+          - wownero
+          - zano
         exclude:
-          - coin: zano
-            target: mingw
-            os: ubuntu-latest
-            container: ubuntu:24.04
-            packages: pigz build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686
-    runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container }}
+          - target: {name: mingw}
+            coin: zano
+    runs-on: ${{ matrix.target.os }}
+    container: ${{ matrix.target.container }}
 
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -136,9 +141,9 @@ jobs:
         run: |
           if [ "$(uname)" = "Linux" ]; then
             apt update
-            apt install -y ${{ matrix.packages }}
+            apt install -y ${{ matrix.target.packages }}
           else
-            brew install ${{ matrix.packages }}
+            brew install ${{ matrix.target.packages }}
           fi
 
       - uses: actions/checkout@v4
@@ -147,9 +152,9 @@ jobs:
           submodules: recursive
 
       - uses: maxim-lobanov/setup-xcode@v1
-        if: ${{ matrix.target == 'macos' || matrix.target == 'ios' }}
+        if: ${{ matrix.target.os == 'macos' || matrix.target.os == 'ios' }}
         with:
-          xcode-version: ${{ matrix.target == 'macos' && '15.4' || '16.1' }}
+          xcode-version: ${{ matrix.target.os == 'macos' && '15.4' || '16.1' }}
 
       - name: Patch sources
         run: |
