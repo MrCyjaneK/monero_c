@@ -51,7 +51,7 @@ index 72af74d..b838e84 100644
 +	url = https://github.com/JuliaStrings/utf8proc.git
 +[submodule "external/polyseed"]
 +	path = external/polyseed
-+	url = https://github.com/tevador/polyseed.git
++	url = https://github.com/MrCyjaneK/polyseed.git
  [submodule "external/supercop"]
  	path = external/supercop
  	url = https://github.com/monero-project/supercop

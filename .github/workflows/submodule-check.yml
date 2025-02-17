@@ -1,0 +1,35 @@
+name: Submodule Check
+
+on: [ push ]
+
+jobs:
+  check-submodules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run submodule scanner
+        run: |
+          # Create baseline scan if it doesn't exist
+          if [ ! -f tools/mirror/submodule-list.txt ]; then
+            mkdir -p tools/mirror
+            touch tools/mirror/submodule-list.txt
+          fi
+          
+          # Save current list
+          cp tools/mirror/submodule-list.txt /tmp/original-submodules.txt
+          
+          # Run scanner
+          bash tools/mirror/submodule-scanner.sh
+          
+          # Compare files
+          if ! cmp -s /tmp/original-submodules.txt tools/mirror/submodule-list.txt; then
+            echo "Error: New submodules detected!"
+            echo "Diff between original and new submodules:"
+            diff /tmp/original-submodules.txt tools/mirror/submodule-list.txt || true
+            exit 1
+          fi
+          
+          echo "No new submodules detected." 

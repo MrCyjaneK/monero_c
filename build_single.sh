@@ -18,23 +18,11 @@ function verbose_copy() {
 
 set -e
 repo=$1
-if [[ "x$repo" == "x" ]];
-then
-    echo "Usage: $0 monero/wownero/zano $(gcc -dumpmachine) -j$proccount"
-    exit 1
-fi
 
 if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" && "x$repo" != "xzano" ]];
 then
     echo "Usage: $0 monero/wownero/zano $(gcc -dumpmachine) -j$proccount"
     echo "Invalid target given"
-    exit 1
-fi
-
-if [[ ! -d "$repo" ]]
-then
-    echo "no '$repo' directory found. clone with --recursive or run:"
-    echo "$ git submodule init && git submodule update --force";
     exit 1
 fi
 
@@ -54,13 +42,11 @@ then
 fi
 cd $(dirname $0)
 WDIR=$PWD
+
+./apply_patches.sh $repo
+
 pushd contrib/depends
-    if [[ -d $HOST_ABI ]];
-    then
-        echo "Not building depends, directory exists"
-    else
-        env -i PATH="$PATH" CC=gcc CXX=g++ make "$NPROC" HOST="$HOST_ABI"
-    fi
+    env -i PATH="$PATH" CC=gcc CXX=g++ make "$NPROC" HOST="$HOST_ABI"
 popd
 
 buildType=Debug
@@ -83,28 +69,18 @@ pushd release/$repo
     APPENDIX=""
     if [[ "${HOST_ABI}" == "x86_64-w64-mingw32" || "${HOST_ABI}" == "i686-w64-mingw32" ]];
     then
-        echo "TODO: check if it's still needed"
         APPENDIX="${APPENDIX}dll"
-        # cp ../../$repo/build/${HOST_ABI}/external/polyseed/libpolyseed.${APPENDIX} ${HOST_ABI}_libpolyseed.${APPENDIX}
-        # rm ${HOST_ABI}_libpolyseed.${APPENDIX}.xz || true
-        # xz -e ${HOST_ABI}_libpolyseed.${APPENDIX}
     elif [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" || "${HOST_ABI}" == "host-apple-darwin" || "${HOST_ABI}" == "x86_64-host-apple-darwin" || "${HOST_ABI}" == "aarch64-apple-darwin"  || "${HOST_ABI}" == "x86_64-apple-darwin" || "${HOST_ABI}" == "host-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios" || "${HOST_ABI}" == "aarch64-apple-iossimulator" ]];
     then
         APPENDIX="${APPENDIX}dylib"
     else
         APPENDIX="${APPENDIX}so"
     fi
-    xz -ek ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}
-    mv ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}.xz ${HOST_ABI}_libwallet2_api_c.${APPENDIX}.xz
+    cp ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX} ${HOST_ABI}_libwallet2_api_c.${APPENDIX}
     # Extra libraries
     if [[ "$HOST_ABI" == "x86_64-w64-mingw32" || "$HOST_ABI" == "i686-w64-mingw32" ]];
     then
         cp /usr/${HOST_ABI}/lib/libwinpthread-1.dll ${HOST_ABI}_libwinpthread-1.dll
-        rm ${HOST_ABI}_libwinpthread-1.dll.xz || true
-        xz -ek ${HOST_ABI}_libwinpthread-1.dll
-        ####
         cp /usr/lib/gcc/${HOST_ABI}/*-posix/libssp-0.dll ${HOST_ABI}_libssp-0.dll
-        rm ${HOST_ABI}_libssp-0.dll.xz || true
-        xz -ek ${HOST_ABI}_libssp-0.dll
     fi
 popd

@@ -2,3 +2,4 @@ release/
 build/
 tests/dependencies
 tests/wallets
+full-run

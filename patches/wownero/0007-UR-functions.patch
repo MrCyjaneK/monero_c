@@ -45,7 +45,7 @@ index 991071fbe..b24855d9b 100644
 +++ b/.gitmodules
 @@ -16,4 +16,7 @@
  	path = external/randomwow
- 	url = https://codeberg.org/wownero/RandomWOW
+ 	url = https://github.com/MrCyjaneK/RandomWOW
          branch = 1.2.1-wow
 -
 +[submodule "external/bc-ur"]

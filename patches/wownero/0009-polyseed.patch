@@ -61,7 +61,7 @@ index b24855d9b..589676649 100644
 +	url = https://github.com/JuliaStrings/utf8proc.git
 +[submodule "external/polyseed"]
 +	path = external/polyseed
-+	url = https://github.com/tevador/polyseed.git
++	url = https://github.com/MrCyjaneK/polyseed.git
 \ No newline at end of file
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 86000f811..96056e324 100644
