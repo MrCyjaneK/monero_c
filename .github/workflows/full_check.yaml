@@ -111,8 +111,11 @@ jobs:
             packages: ccache cmake autoconf automake libtool
         coin: [monero, wownero, zano]
         exclude:
-          - target: mingw
-            coin: zano
+          - coin: zano
+            target: mingw
+            os: ubuntu-latest
+            container: ubuntu:24.04
+            packages: pigz build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
 

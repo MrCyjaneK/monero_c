@@ -10,7 +10,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
       - uses: 8BitJonny/gh-get-current-pr@3.0.0
         id: PR
       - uses: subosito/flutter-action@v2
