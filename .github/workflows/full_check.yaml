@@ -75,9 +75,9 @@ jobs:
       - name: Build dependencies
         run: |
           for host in ${{ join(matrix.host_abi, ' ') }}; do
-            pushd contrib/depends
+            cd contrib/depends
             env -i PATH="$PATH" CC=gcc CXX=g++ make -j$(nproc || sysctl -n hw.logicalcpu) HOST="$host"
-            popd
+            cd ../..
           done
 
       - name: Cache dependencies
