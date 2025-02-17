@@ -53,8 +53,13 @@ jobs:
           if [ "$(uname)" = "Darwin" ]; then
             brew install ${{ matrix.packages }}
           else
-            apt update
-            apt install -y ${{ matrix.packages }}
+            if command -v sudo >/dev/null 2>&1; then
+              SUDO=sudo
+            else
+              SUDO=
+            fi
+            $SUDO apt update
+            $SUDO apt install -y ${{ matrix.packages }}
           fi
 
       - uses: actions/checkout@v4
@@ -140,8 +145,13 @@ jobs:
       - name: Install dependencies
         run: |
           if [ "$(uname)" = "Linux" ]; then
-            apt update
-            apt install -y ${{ matrix.target.packages }}
+            if command -v sudo >/dev/null 2>&1; then
+              SUDO=sudo
+            else
+              SUDO=
+            fi
+            $SUDO apt update
+            $SUDO apt install -y ${{ matrix.target.packages }}
           else
             brew install ${{ matrix.target.packages }}
           fi
