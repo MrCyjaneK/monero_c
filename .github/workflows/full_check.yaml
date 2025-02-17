@@ -186,7 +186,7 @@ jobs:
 
       - name: Build ${{ matrix.coin }}
         run: |
-          case ${{ matrix.target }} in
+          case ${{ matrix.target.name }} in
             mingw)
               ./build_single.sh ${{ matrix.coin }} x86_64-w64-mingw32 -j$(nproc)
               ./build_single.sh ${{ matrix.coin }} i686-w64-mingw32 -j$(nproc)
@@ -209,6 +209,9 @@ jobs:
               ./build_single.sh ${{ matrix.coin }} aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
               ./build_single.sh ${{ matrix.coin }} aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
               ;;
+            *)
+              echo "Unsupported target: ${{ matrix.target.name }}"
+              exit 1
           esac
 
       - name: rename artifacts
