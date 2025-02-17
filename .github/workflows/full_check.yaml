@@ -85,11 +85,12 @@ jobs:
             cd ../..
           done
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
+      - name: Upload dependencies
+        uses: actions/upload-artifact@v4
         with:
-          path: contrib/depends/built
-          key: deps-${{ matrix.target }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
+          name: deps-${{ matrix.target }}
+          path: contrib/depends
+          retention-days: 1
 
   build_coins:
     needs: build_deps
@@ -179,10 +180,10 @@ jobs:
           key: ${{ matrix.target }}-${{ matrix.coin }}
 
       - name: Restore dependencies
-        uses: actions/cache@v4
+        uses: actions/download-artifact@v4
         with:
-          path: contrib/depends/built
-          key: deps-${{ matrix.target }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
+          name: deps-${{ matrix.target.name }}
+          path: contrib/depends
 
       - name: Build ${{ matrix.coin }}
         run: |
