@@ -1,7 +1,7 @@
-From dcb483e5cb97c4e3c500355d8225bd49d3e0ae7f Mon Sep 17 00:00:00 2001
+From 53cc0482e55a39b5dbf2261fea11fcb160778800 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 21 Nov 2024 06:05:03 -0500
-Subject: [PATCH 13/14] fix iOS depends build
+Subject: [PATCH 12/14] fix iOS depends build
 
 ---
  CMakeLists.txt                      | 4 ----
@@ -11,7 +11,7 @@ Subject: [PATCH 13/14] fix iOS depends build
  4 files changed, 14 insertions(+), 10 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index b995a68..4e86328 100644
+index 9406e57b4..1eac121db 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -39,10 +39,6 @@ include(CheckLibraryExists)
@@ -26,7 +26,7 @@ index b995a68..4e86328 100644
  message(STATUS "CMake version ${CMAKE_VERSION}")
  
 diff --git a/src/checkpoints/CMakeLists.txt b/src/checkpoints/CMakeLists.txt
-index 665441f..841df32 100644
+index 665441f62..841df3256 100644
 --- a/src/checkpoints/CMakeLists.txt
 +++ b/src/checkpoints/CMakeLists.txt
 @@ -28,7 +28,11 @@
@@ -43,7 +43,7 @@ index 665441f..841df32 100644
      find_library(IOKIT_LIBRARY IOKit)
      mark_as_advanced(IOKIT_LIBRARY)
 diff --git a/src/cryptonote_basic/CMakeLists.txt b/src/cryptonote_basic/CMakeLists.txt
-index 414936a..81c8176 100644
+index 414936a05..81c81767f 100644
 --- a/src/cryptonote_basic/CMakeLists.txt
 +++ b/src/cryptonote_basic/CMakeLists.txt
 @@ -28,7 +28,11 @@
@@ -60,7 +60,7 @@ index 414936a..81c8176 100644
      find_library(IOKIT_LIBRARY IOKit)
      mark_as_advanced(IOKIT_LIBRARY)
 diff --git a/src/cryptonote_basic/miner.cpp b/src/cryptonote_basic/miner.cpp
-index 71b8f78..0f53f02 100644
+index 71b8f78cc..0f53f024e 100644
 --- a/src/cryptonote_basic/miner.cpp
 +++ b/src/cryptonote_basic/miner.cpp
 @@ -45,7 +45,7 @@
@@ -100,5 +100,5 @@ index 71b8f78..0f53f02 100644
        #if TARGET_OS_MAC && (!defined(MAC_OS_X_VERSION_MIN_REQUIRED) || MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7)
          return boost::logic::tribool(IOPSGetTimeRemainingEstimate() != kIOPSTimeRemainingUnlimited);
 -- 
-2.39.5 (Apple Git-154)
+2.48.1
 
