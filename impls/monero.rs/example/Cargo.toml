@@ -1,0 +1,9 @@
+[package]
+name = "monero_example"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+monero_c_rust = { path = ".." }
+tempfile = "3.13.0"
+# monero_c_rust = { git = "https://github.com/MrCyjaneK/monero_c" }

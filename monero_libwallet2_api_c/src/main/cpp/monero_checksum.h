@@ -1,6 +1,6 @@
 #ifndef MONEROC_CHECKSUMS
 #define MONEROC_CHECKSUMS
-const char * MONERO_wallet2_api_c_h_sha256 = "9e80c4b59a0509aa02fbf01e8df2881b89f82225d1765bfa7856cbdbaf7af116";
-const char * MONERO_wallet2_api_c_cpp_sha256 = "d229507db508e574bd2badf4819a38dbead8c16a84311ad32c22c887a6003439-b089f9ee69924882c5d14dd1a6991deb05d9d1cd";
+const char * MONERO_wallet2_api_c_h_sha256 = "6c1ba9b57cb185c6dad030b15bcffe8a4772f33930e7f1d62d23b33514ba6f62";
+const char * MONERO_wallet2_api_c_cpp_sha256 = "1d1deff340408541f5755b4838d06345f63dcdfffe26b14dbdce32a5de839c55-b089f9ee69924882c5d14dd1a6991deb05d9d1cd";
 const char * MONERO_wallet2_api_c_exp_sha256 = "d0f95f1f3bc49f1f59fe4eb0b61826128d7d3bb75405d5a01a252d02db03097d";
 #endif
