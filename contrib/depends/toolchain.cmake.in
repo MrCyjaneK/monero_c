@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.13)  # Ensure CMake version supports CMP0077
 cmake_policy(SET CMP0077 NEW)         # Ensure 'option' honors normal variables
+cmake_policy(SET CMP0148 OLD)         # Use FindPythonInterp
 
 # Set the system name to one of Android, Darwin, iOS, FreeBSD, Linux, or Windows
 SET(CMAKE_SYSTEM_NAME @depends@)
@@ -27,7 +28,7 @@ SET(ENV{PKG_CONFIG_PATH} @prefix@/lib/pkgconfig)
 SET(Readline_ROOT_DIR @prefix@)
 SET(Readline_INCLUDE_DIR @prefix@/include)
 SET(Readline_LIBRARY @prefix@/lib/libreadline.a)
-SET(Terminfo_LIBRARY @prefix@/lib/libtinfo.a)
+SET(Terminfo_LIBRARY @prefix@/lib/libtinfow.a)
 
 SET(UNBOUND_INCLUDE_DIR @prefix@/include)
 SET(UNBOUND_LIBRARIES @prefix@/lib/libunbound.a)

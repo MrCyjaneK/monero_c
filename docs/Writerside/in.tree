@@ -14,4 +14,5 @@
         <toc-element topic="Windows.md"/>
         <toc-element topic="macOS.md"/>
     </toc-element>
+    <toc-element topic="Building-Upstream.md"/>
 </instance-profile>
