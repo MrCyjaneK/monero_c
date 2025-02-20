@@ -21,7 +21,7 @@ index 1eac121db..3a4e8f7e1 100644
 +  set(BOOST_COMPONENTS filesystem thread date_time chrono serialization program_options)
 +
 +  if(WIN32)
-+    list(APPEND BOOST_LOCALE locale)
++    list(APPEND BOOST_COMPONENTS locale)
 +  endif()
  
    # Boost System is header-only since 1.69
