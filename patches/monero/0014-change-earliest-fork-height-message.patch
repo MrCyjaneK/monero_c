@@ -1,17 +1,17 @@
-From d47284456194c6d99698b28908d753acf1a64010 Mon Sep 17 00:00:00 2001
+From 2d31234e859bff817d30d91b21d9412375668aae Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 29 Jan 2025 16:13:28 +0100
-Subject: [PATCH] change earliest fork height message
+Subject: [PATCH 14/14] change earliest fork height message
 
 ---
  src/wallet/wallet2.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index d060bf95b..9c1574c02 100644
+index 8720e18b1..69da11d9c 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -12354,7 +12354,7 @@ bool wallet2::use_fork_rules(uint8_t version, int64_t early_blocks)
+@@ -12365,7 +12365,7 @@ bool wallet2::use_fork_rules(uint8_t version, int64_t early_blocks)
    boost::optional<std::string> result = m_node_rpc_proxy.get_height(height);
    THROW_WALLET_EXCEPTION_IF(result, error::wallet_internal_error, "Failed to get height");
    result = m_node_rpc_proxy.get_earliest_height(version, earliest_height);
