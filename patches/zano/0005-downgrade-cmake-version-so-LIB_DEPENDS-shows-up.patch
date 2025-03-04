@@ -1,7 +1,7 @@
-From e6201106cd09416f96c8d83270c94565583cd356 Mon Sep 17 00:00:00 2001
+From 00bfd0703db144cb51f667c183ff5d066dec2f9c Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 5 Dec 2024 09:36:34 -0600
-Subject: [PATCH] downgrade cmake version so LIB_DEPENDS shows up
+Subject: [PATCH 5/7] downgrade cmake version so LIB_DEPENDS shows up
 
 ---
  CMakeLists.txt | 2 +-
@@ -18,5 +18,5 @@ index 6ded9711..47d24a81 100644
  PROJECT(Zano)
  
 -- 
-2.39.5 (Apple Git-154)
+2.48.1
 

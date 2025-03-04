@@ -1,7 +1,7 @@
-From 2421d1fb4b4c50c1372361b1688f7d9fff9ef716 Mon Sep 17 00:00:00 2001
+From af034097788cb58518b794c1312f8a8df297dda7 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 18 Feb 2025 14:27:36 +0100
-Subject: [PATCH] relax mutex in invoke call
+Subject: [PATCH 7/7] relax mutex in invoke call
 
 ---
  src/common/error_codes.h       |  1 +
@@ -9,7 +9,7 @@ Subject: [PATCH] relax mutex in invoke call
  2 files changed, 34 insertions(+), 4 deletions(-)
 
 diff --git a/src/common/error_codes.h b/src/common/error_codes.h
-index 1e3dc2efc..4723afe40 100644
+index 1e3dc2ef..4723afe4 100644
 --- a/src/common/error_codes.h
 +++ b/src/common/error_codes.h
 @@ -45,3 +45,4 @@
@@ -19,10 +19,10 @@ index 1e3dc2efc..4723afe40 100644
 +#define API_RETURN_CODE_BAD_JSON                                "BAD_JSON"
 \ No newline at end of file
 diff --git a/src/wallet/wallets_manager.cpp b/src/wallet/wallets_manager.cpp
-index 7155771d2..3da57dc7a 100644
+index 5c8ef5c0..4b968a18 100644
 --- a/src/wallet/wallets_manager.cpp
 +++ b/src/wallet/wallets_manager.cpp
-@@ -1675,10 +1675,27 @@ std::string wallets_manager::get_wallet_status(uint64_t wallet_id)
+@@ -1678,10 +1678,27 @@ std::string wallets_manager::get_wallet_status(uint64_t wallet_id)
    return epee::serialization::store_t_to_json(wsi);
  }
  
@@ -50,7 +50,7 @@ index 7155771d2..3da57dc7a 100644
    CRITICAL_REGION_LOCAL1(wo.long_refresh_in_progress_lock);
    if (wo.long_refresh_in_progress)
    {
-@@ -1688,16 +1705,28 @@ std::string wallets_manager::invoke(uint64_t wallet_id, std::string params)
+@@ -1691,16 +1708,28 @@ std::string wallets_manager::invoke(uint64_t wallet_id, std::string params)
      return epee::serialization::store_t_to_json(error_response);
    }
  

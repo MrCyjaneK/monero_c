@@ -1,7 +1,7 @@
-From 20975fed75b7255f6cb6df74a17f1923f7159c09 Mon Sep 17 00:00:00 2001
+From 2eccbb7b4dfef6aef3de75ed843353343b2cc0c8 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 5 Nov 2024 16:52:23 +0100
-Subject: [PATCH 5/5] fix ios builds
+Subject: [PATCH 3/7] fix ios builds
 
 ---
  CMakeLists.txt | 6 +++---
@@ -39,5 +39,5 @@ index c480300f..7087d796 100644
  
  
 -- 
-2.39.5 (Apple Git-154)
+2.48.1
 
