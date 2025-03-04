@@ -21,7 +21,7 @@ async function syncBlockchain(wallet: Wallet): Promise<bigint> {
         clearTimeout(timeout);
         resolve(blockChainHeight);
       } else {
-        setTimeout(poll, 500);
+        timeout = setTimeout(poll, 500);
       }
     };
 

@@ -1,7 +1,7 @@
-From 627750b0f1471c5d34755ca446d452429945d5d6 Mon Sep 17 00:00:00 2001
+From 38da066606cb959497d9b8221bb29ee885bc7c31 Mon Sep 17 00:00:00 2001
 From: cyan <cyjan@mrcyjanek.net>
 Date: Sat, 2 Nov 2024 20:50:26 +0000
-Subject: [PATCH 2/5] fix build issues
+Subject: [PATCH 1/7] fix build issues
 
 ---
  contrib/db/libmdbx/CMakeLists.txt              | 2 +-
@@ -35,5 +35,5 @@ index 5949e9f0..e7b677bd 100644
  
  add_definitions(-DNDEBUG=1 -DMDBX_DEBUG=0 -DLIBMDBX_EXPORTS=1 -D_GNU_SOURCE=1)
 -- 
-2.39.5 (Apple Git-154)
+2.48.1
 

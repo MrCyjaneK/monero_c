@@ -1,7 +1,7 @@
-From 033d71f4a8623dee3508c493431402bbbe5a8b2d Mon Sep 17 00:00:00 2001
+From 1ba500f05c1b534c9fbec8d1dc534546febb5b43 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 4 Dec 2024 17:21:44 -0600
-Subject: [PATCH] use boost::filesystem instead of stdfs
+Subject: [PATCH 4/7] use boost::filesystem instead of stdfs
 
 ---
  CMakeLists.txt                       | 23 ++++-------------------
@@ -76,5 +76,5 @@ index bb21ae99..ced01092 100644
  					continue;
  				}
 -- 
-2.39.5 (Apple Git-154)
+2.48.1
 
