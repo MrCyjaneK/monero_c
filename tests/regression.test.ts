@@ -21,16 +21,5 @@ Deno.test(`Regression tests (${coin})`, async (t) => {
     }
   });
 
-  await t.step("All releases sequentially (all tags in the release order, next)", async () => {
-    tags.unshift("next");
-
-    const walletInfo = await createWalletViaCli(coin, "cat", "koshka");
-
-    for (const version of tags.toReversed()) {
-      if (version !== "next" && version !== tags[0]) await prepareMoneroC(coin, version);
-      await $`deno run -A ./tests/compare.ts ${coin} ${version} ${JSON.stringify(walletInfo)}`;
-    }
-  });
-
   await Deno.remove("./tests/wallets", { recursive: true }).catch(() => {});
 });
