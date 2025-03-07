@@ -29,15 +29,6 @@ index c480300f..7087d796 100644
      else()
        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
      endif()
-@@ -260,8 +262,6 @@ else()
-   find_package(Boost 1.70 REQUIRED COMPONENTS system filesystem thread timer date_time chrono regex serialization atomic program_options locale log)
- endif()
- 
--
--
- message(STATUS "Boost: ${Boost_VERSION} from ${Boost_LIBRARY_DIRS}")
- 
- 
 -- 
 2.48.1
 
