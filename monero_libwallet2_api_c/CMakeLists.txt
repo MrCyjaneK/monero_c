@@ -52,6 +52,21 @@ add_library( wallet2_api_c
              src/main/cpp/helpers.cpp
              src/main/cpp/wallet2_api_c.cpp )
 
+if(${HOST_ABI} STREQUAL "x86_64-linux-android" OR
+   ${HOST_ABI} STREQUAL "i686-linux-android" OR
+   ${HOST_ABI} STREQUAL "aarch64-linux-android" OR
+   ${HOST_ABI} STREQUAL "armv7a-linux-androideabi")
+    set_target_properties(wallet2_api_c PROPERTIES LINK_FLAGS "-Wl,-z,noexecstack")
+endif()
+
+if(${HOST_ABI} STREQUAL "x86_64-linux-gnu" OR
+   ${HOST_ABI} STREQUAL "i686-linux-gnu" OR
+   ${HOST_ABI} STREQUAL "aarch64-linux-gnu" OR
+   ${HOST_ABI} STREQUAL "armv7a-linux-gnu")
+    set_target_properties(wallet2_api_c PROPERTIES LINK_FLAGS "-Wl,-z,noexecstack")
+endif()
+
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
 
