@@ -1,8 +1,5 @@
 name: Check if checksums are in sync
 on: [push]
-permissions:
-  issues: write
-  pull-requests: write
 jobs:
   android:
     runs-on: ubuntu-latest

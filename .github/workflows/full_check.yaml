@@ -3,6 +3,7 @@ on: [push]
 permissions:
   issues: write
   pull-requests: write
+  contents: write
 jobs:
   lib_mingw:
     strategy:

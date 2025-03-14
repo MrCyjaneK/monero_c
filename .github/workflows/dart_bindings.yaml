@@ -1,8 +1,5 @@
 name: Check if dart bindings are in sync
 on: [push]
-permissions:
-  issues: write
-  pull-requests: write
 jobs:
   android:
     runs-on: ubuntu-latest
