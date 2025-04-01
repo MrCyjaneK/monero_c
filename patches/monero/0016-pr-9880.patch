@@ -1,0 +1,25 @@
+From 31ef09596a9d8d547905577823ff52d33e10a3d2 Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Tue, 1 Apr 2025 11:30:45 +0200
+Subject: [PATCH] pr-9880
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5938be6..1c47285 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -216,7 +216,7 @@ function(forbid_undefined_symbols)
+     file(MAKE_DIRECTORY "${TEST_PROJECT}")
+     file(WRITE "${TEST_PROJECT}/CMakeLists.txt"
+       [=[
+-cmake_minimum_required(VERSION 3.1)
++cmake_minimum_required(VERSION 3.5)
+ project(test)
+ option(EXPECT_SUCCESS "" ON)
+ file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/incorrect_source.cpp" "void undefined_symbol(); void symbol() { undefined_symbol(); }")
+-- 
+2.49.0
+
