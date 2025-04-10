@@ -1,0 +1,25 @@
+From b0d3cdc6d8a0089db64a0c0403e295c85b86f2fa Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Thu, 10 Apr 2025 13:28:06 +0200
+Subject: [PATCH] fix: unary_function -> __unary_function
+
+---
+ src/cryptonote_basic/cryptonote_basic_impl.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/cryptonote_basic/cryptonote_basic_impl.h b/src/cryptonote_basic/cryptonote_basic_impl.h
+index b423573..3858be3 100644
+--- a/src/cryptonote_basic/cryptonote_basic_impl.h
++++ b/src/cryptonote_basic/cryptonote_basic_impl.h
+@@ -40,7 +40,7 @@ namespace cryptonote {
+   /*                                                                      */
+   /************************************************************************/
+   template<class t_array>
+-  struct array_hasher: std::unary_function<t_array&, std::size_t>
++  struct array_hasher: std::__unary_function<t_array&, std::size_t>
+   {
+     std::size_t operator()(const t_array& val) const
+     {
+-- 
+2.49.0
+
