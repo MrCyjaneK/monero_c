@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 ghcr.io/cirruslabs/flutter:3.27.3
+FROM --platform=linux/amd64 ghcr.io/cirruslabs/flutter:3.29.3
 # FROM debian:bookworm
 SHELL ["/bin/bash", "-c"]
 
