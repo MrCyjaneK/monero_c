@@ -272,7 +272,7 @@ jobs:
           submodules: recursive
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.3'
+          xcode-version: '16.2'
       - name: install dependencies
         run: |
           brew install ccache binutils pigz autoconf automake libtool pkg-config
@@ -355,7 +355,7 @@ jobs:
           submodules: recursive
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.3'
+          xcode-version: '16.2'
       - name: install dependencies
         run: |
           brew install ccache cmake autoconf automake libtool
