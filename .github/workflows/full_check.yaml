@@ -7,8 +7,6 @@ jobs:
   lib_mingw:
     strategy:
       fail-fast: false
-      matrix:
-        coin: [monero, wownero]
     runs-on: ubuntu-latest
     container:
       image: ubuntu:24.04
@@ -26,11 +24,13 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh ${{ matrix.coin }}
+          ./apply_patches.sh monero
+          ./apply_patches.sh wownero
+          ./apply_patches.sh zano
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}-${{ matrix.coin }}
+          key: ${{ github.job }}
       - name: Cache built
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
@@ -38,16 +38,30 @@ jobs:
           path: |
             contrib/depends/built/*
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
-      - name: ${{ matrix.coin }}/x86_64-w64-mingw32
-        run: ./build_single.sh ${{ matrix.coin }} x86_64-w64-mingw32 -j$(nproc)
-      - name: ${{ matrix.coin }}/i686-w64-mingw32
-        run: ./build_single.sh ${{ matrix.coin }} i686-w64-mingw32 -j$(nproc)
+      - name: x86_64-w64-mingw32
+        run: |
+          ./build_single.sh monero x86_64-w64-mingw32 -j$(nproc)
+          ./build_single.sh wownero x86_64-w64-mingw32 -j$(nproc)
+          ./build_single.sh zano x86_64-w64-mingw32 -j$(nproc)
+      - name: i686-w64-mingw32
+        run: |
+          ./build_single.sh monero i686-w64-mingw32 -j$(nproc)
+          ./build_single.sh wownero i686-w64-mingw32 -j$(nproc)
+          ./build_single.sh zano i686-w64-mingw32 -j$(nproc)
       - name: rename artifacts
         run: |
           mkdir release/gh/
-          for i in release/${{ matrix.coin }}/*
+          for i in release/monero/*
           do
-              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              cp "$i" "release/gh/monero_$(basename $i)"
+          done
+          for i in release/wownero/*
+          do
+              cp "$i" "release/gh/wownero_$(basename $i)"
+          done
+          for i in release/zano/*
+          do
+              cp "$i" "release/gh/zano_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -58,13 +72,16 @@ jobs:
       - name: Upload lib
         uses: actions/upload-artifact@v4
         with:
-          name: mingw ${{ matrix.coin }}
-          path: release/${{ matrix.coin }}
+          name: mingw monero
+          path: release/monero
+      - name: Upload lib wownero
+        uses: actions/upload-artifact@v4
+        with:
+          name: mingw wownero
+          path: release/wownero
   lib_android:
     strategy:
       fail-fast: false
-      matrix:
-        coin: [monero, wownero, zano]
     runs-on: ubuntu-22.04
     # container:
     #   image: debian:bookworm
@@ -93,11 +110,13 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh ${{ matrix.coin }}
+          ./apply_patches.sh monero
+          ./apply_patches.sh wownero
+          ./apply_patches.sh zano
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}-${{ matrix.coin }}
+          key: ${{ github.job }}
       - name: Cache built
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
@@ -105,18 +124,35 @@ jobs:
           path: |
             contrib/depends/built/*
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
-      - name: ${{ matrix.coin }}/x86_64-linux-android
-        run: ./build_single.sh ${{ matrix.coin }} x86_64-linux-android -j$(nproc)
-      - name: ${{ matrix.coin }}/aarch64-linux-android
-        run: ./build_single.sh ${{ matrix.coin }} aarch64-linux-android -j$(nproc)
-      - name: ${{ matrix.coin }}/armv7a-linux-androideabi
-        run: ./build_single.sh ${{ matrix.coin }} armv7a-linux-androideabi -j$(nproc)
+      - name: monero
+        run: |
+          ./build_single.sh monero x86_64-linux-android -j$(nproc)
+          ./build_single.sh monero armv7a-linux-androideabi -j$(nproc)
+          ./build_single.sh monero aarch64-linux-android -j$(nproc)
+      - name: wownero
+        run: |
+          ./build_single.sh wownero aarch64-linux-android -j$(nproc)
+          ./build_single.sh wownero x86_64-linux-android -j$(nproc)
+          ./build_single.sh wownero armv7a-linux-androideabi -j$(nproc)
+      - name: zano
+        run: |
+          ./build_single.sh zano x86_64-linux-android -j$(nproc)
+          ./build_single.sh zano aarch64-linux-android -j$(nproc)
+          ./build_single.sh zano armv7a-linux-androideabi -j$(nproc)
       - name: rename artifacts
         run: |
           mkdir release/gh/
-          for i in release/${{ matrix.coin }}/*
+          for i in release/monero/*
           do
-              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              cp "$i" "release/gh/monero_$(basename $i)"
+          done
+          for i in release/wownero/*
+          do
+              cp "$i" "release/gh/wownero_$(basename $i)"
+          done
+          for i in release/zano/*
+          do
+              cp "$i" "release/gh/zano_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -124,11 +160,21 @@ jobs:
         with:
           files: release/gh/*
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
-      - name: Upload lib
+      - name: Upload lib monero
         uses: actions/upload-artifact@v4
         with:
-          name: android ${{ matrix.coin }}
-          path: release/${{ matrix.coin }}
+          name: android monero
+          path: release/monero
+      - name: Upload lib wownero
+        uses: actions/upload-artifact@v4
+        with:
+          name: android wownero
+          path: release/wownero
+      - name: Upload lib zano
+        uses: actions/upload-artifact@v4
+        with:
+          name: android zano
+          path: release/zano
       - name: remove android_ndk
         run: |
           rm -rf contrib/depends/built/*/android_ndk
@@ -136,8 +182,6 @@ jobs:
   lib_linux:
     strategy:
       fail-fast: false
-      matrix:
-        coin: [monero, wownero, zano]
     runs-on: ubuntu-latest
     container:
       image: debian:bullseye
@@ -155,11 +199,13 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh ${{ matrix.coin }}
+          ./apply_patches.sh monero
+          ./apply_patches.sh wownero
+          ./apply_patches.sh zano
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}-${{ matrix.coin }}
+          key: ${{ github.job }}
       - name: Cache built
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
@@ -167,18 +213,35 @@ jobs:
           path: |
             contrib/depends/built/*
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
-      - name: ${{ matrix.coin }}/x86_64-linux-gnu
-        run: ./build_single.sh ${{ matrix.coin }} x86_64-linux-gnu -j$(nproc)
-      - name: ${{ matrix.coin }}/aarch64-linux-gnu
-        run: ./build_single.sh ${{ matrix.coin }} aarch64-linux-gnu -j$(nproc)
-      - name: ${{ matrix.coin }}/i686-linux-gnu
-        run: ./build_single.sh ${{ matrix.coin }} i686-linux-gnu -j$(nproc)
+      - name: x86_64-linux-gnu
+        run: |
+          ./build_single.sh monero x86_64-linux-gnu -j$(nproc)
+          ./build_single.sh wownero x86_64-linux-gnu -j$(nproc)
+          ./build_single.sh zano x86_64-linux-gnu -j$(nproc)
+      - name: aarch64-linux-gnu
+        run: |
+          ./build_single.sh monero aarch64-linux-gnu -j$(nproc)
+          ./build_single.sh wownero aarch64-linux-gnu -j$(nproc)
+          ./build_single.sh zano aarch64-linux-gnu -j$(nproc)
+      - name: i686-linux-gnu
+        run: |
+          ./build_single.sh monero i686-linux-gnu -j$(nproc)
+          ./build_single.sh wownero i686-linux-gnu -j$(nproc)
+          ./build_single.sh zano i686-linux-gnu -j$(nproc)
       - name: rename artifacts
         run: |
           mkdir release/gh/
-          for i in release/${{ matrix.coin }}/*
+          for i in release/monero/*
           do
-              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              cp "$i" "release/gh/monero_$(basename $i)"
+          done
+          for i in release/wownero/*
+          do
+              cp "$i" "release/gh/wownero_$(basename $i)"
+          done
+          for i in release/zano/*
+          do
+              cp "$i" "release/gh/zano_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -189,13 +252,21 @@ jobs:
       - name: Upload lib
         uses: actions/upload-artifact@v4
         with:
-          name: linux ${{ matrix.coin }}
-          path: release/${{ matrix.coin }}
+          name: linux monero
+          path: release/monero
+      - name: Upload lib wownero
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux wownero
+          path: release/wownero
+      - name: Upload lib zano
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux zano
+          path: release/zano
   lib_macos:
     strategy:
       fail-fast: false
-      matrix:
-        coin: [monero, wownero, zano]
     name: macos build
     runs-on: macos-14
     steps:
@@ -207,7 +278,7 @@ jobs:
           submodules: recursive
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.4'
+          xcode-version: '16.3'
       - name: install dependencies
         run: |
           brew install ccache binutils pigz autoconf automake libtool pkg-config
@@ -216,11 +287,13 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh ${{ matrix.coin }}
+          ./apply_patches.sh monero
+          ./apply_patches.sh wownero
+          ./apply_patches.sh zano
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}-${{ matrix.coin }}
+          key: ${{ github.job }}
       - name: Cache built
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
@@ -230,16 +303,28 @@ jobs:
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: build (aarch64-apple-darwin)
         run: |
-          ./build_single.sh ${{ matrix.coin }} aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh monero aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh wownero aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh zano aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
       - name: build (x86_64-apple-darwin)
         run: |
-          ./build_single.sh ${{ matrix.coin }} x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh monero x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh wownero x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh zano x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
       - name: rename artifacts
         run: |
           mkdir release/gh/
-          for i in release/${{ matrix.coin }}/*
+          for i in release/monero/*
           do
-              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              cp "$i" "release/gh/monero_$(basename $i)"
+          done
+          for i in release/wownero/*
+          do
+              cp "$i" "release/gh/wownero_$(basename $i)"
+          done
+          for i in release/zano/*
+          do
+              cp "$i" "release/gh/zano_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -250,13 +335,21 @@ jobs:
       - name: Upload lib
         uses: actions/upload-artifact@v4
         with:
-          name: macos ${{ matrix.coin }}
-          path: release/${{ matrix.coin }}
+          name: macos monero
+          path: release/monero
+      - name: Upload lib wownero
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos wownero
+          path: release/wownero
+      - name: Upload lib zano
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos zano
+          path: release/zano
   lib_ios:
     strategy:
       fail-fast: false
-      matrix:
-        coin: [monero, wownero, zano]
     name: ios build
     runs-on: macos-15
     steps:
@@ -268,7 +361,7 @@ jobs:
           submodules: recursive
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.1'
+          xcode-version: '16.3'
       - name: install dependencies
         run: |
           brew install ccache cmake autoconf automake libtool
@@ -277,11 +370,13 @@ jobs:
           git config --global --add safe.directory '*'
           git config --global user.email "ci@mrcyjanek.net"
           git config --global user.name "CI mrcyjanek.net"
-          ./apply_patches.sh ${{ matrix.coin }}
+          ./apply_patches.sh monero
+          ./apply_patches.sh wownero
+          ./apply_patches.sh zano
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}-${{ matrix.coin }}
+          key: ${{ github.job }}
       - name: Cache built
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         uses: actions/cache@v4
@@ -291,18 +386,30 @@ jobs:
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: build (aarch64-apple-ios)
         run: |
-          ./build_single.sh ${{ matrix.coin }} aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh monero aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh wownero aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh zano aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
 
       - name: build (aarch64-apple-iossimulator)
         run: |
-          ./build_single.sh ${{ matrix.coin }} aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh monero aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh wownero aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
+          ./build_single.sh zano aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
 
       - name: rename artifacts
         run: |
           mkdir release/gh/
-          for i in release/${{ matrix.coin }}/*
+          for i in release/monero/*
           do
-              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
+              cp "$i" "release/gh/monero_$(basename $i)"
+          done
+          for i in release/wownero/*
+          do
+              cp "$i" "release/gh/wownero_$(basename $i)"
+          done
+          for i in release/zano/*
+          do
+              cp "$i" "release/gh/zano_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -313,8 +420,18 @@ jobs:
       - name: Upload lib
         uses: actions/upload-artifact@v4
         with:
-          name: ios ${{ matrix.coin }}
-          path: release/${{ matrix.coin }}
+          name: ios monero
+          path: release/monero
+      - name: Upload lib wownero
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios wownero
+          path: release/wownero
+      - name: Upload lib zano
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios zano
+          path: release/zano
   bulk_lib_release:
     name: create single release file
     runs-on: ubuntu-latest
