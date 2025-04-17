@@ -42,12 +42,10 @@ jobs:
         run: |
           ./build_single.sh monero x86_64-w64-mingw32 -j$(nproc)
           ./build_single.sh wownero x86_64-w64-mingw32 -j$(nproc)
-          ./build_single.sh zano x86_64-w64-mingw32 -j$(nproc)
       - name: i686-w64-mingw32
         run: |
           ./build_single.sh monero i686-w64-mingw32 -j$(nproc)
           ./build_single.sh wownero i686-w64-mingw32 -j$(nproc)
-          ./build_single.sh zano i686-w64-mingw32 -j$(nproc)
       - name: rename artifacts
         run: |
           mkdir release/gh/
@@ -58,10 +56,6 @@ jobs:
           for i in release/wownero/*
           do
               cp "$i" "release/gh/wownero_$(basename $i)"
-          done
-          for i in release/zano/*
-          do
-              cp "$i" "release/gh/zano_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
