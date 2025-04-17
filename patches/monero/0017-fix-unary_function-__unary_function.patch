@@ -1,22 +1,25 @@
-From 8bbaab4a476e1c15eb97761181f8eadab2e7ca8c Mon Sep 17 00:00:00 2001
+From 0a3a2df040e177b5741706e0a0c76fac585f0356 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 10 Apr 2025 13:28:05 +0200
 Subject: [PATCH] fix: unary_function -> __unary_function
 
 ---
- src/cryptonote_basic/cryptonote_basic_impl.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ src/cryptonote_basic/cryptonote_basic_impl.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/src/cryptonote_basic/cryptonote_basic_impl.h b/src/cryptonote_basic/cryptonote_basic_impl.h
-index b423573..3858be3 100644
+index b423573..a9aef7a 100644
 --- a/src/cryptonote_basic/cryptonote_basic_impl.h
 +++ b/src/cryptonote_basic/cryptonote_basic_impl.h
-@@ -40,7 +40,7 @@ namespace cryptonote {
+@@ -40,7 +40,11 @@ namespace cryptonote {
    /*                                                                      */
    /************************************************************************/
    template<class t_array>
--  struct array_hasher: std::unary_function<t_array&, std::size_t>
++#ifdef __APPLE__
 +  struct array_hasher: std::__unary_function<t_array&, std::size_t>
++#else
+   struct array_hasher: std::unary_function<t_array&, std::size_t>
++#endif
    {
      std::size_t operator()(const t_array& val) const
      {
