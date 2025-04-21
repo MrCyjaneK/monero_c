@@ -1649,6 +1649,11 @@ class WowneroWalletManager implements Wallet2WalletManager {
   bool walletExists(String path) {
     return wownero.WalletManager_walletExists(wmPtr, path);
   }
+ 
+  @override
+  void closeWallet(Wallet2Wallet wallet, bool store) {
+    wownero.WalletManager_closeWallet(wmPtr, Pointer.fromAddress(wallet.ffiAddress()), store);
+  }
 
   @override
   int ffiAddress() => wmPtr.address;

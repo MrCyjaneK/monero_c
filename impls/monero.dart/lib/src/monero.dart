@@ -1655,6 +1655,11 @@ class MoneroWalletManager implements Wallet2WalletManager {
 
   @override
   int ffiAddress() => wmPtr.address;
+  
+  @override
+  void closeWallet(Wallet2Wallet wallet, bool store) {
+    monero.WalletManager_closeWallet(wmPtr, Pointer.fromAddress(wallet.ffiAddress()), store);
+  }
 }
 
 class MoneroWalletManagerFactory implements Wallet2WalletManagerFactory {

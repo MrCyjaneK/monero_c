@@ -382,6 +382,7 @@ abstract class Wallet2WalletManager {
 
   Wallet2Wallet createWallet({ required String path, required String password, String language = "English", int networkType = 0, });
   Wallet2Wallet openWallet({ required String path, required String password, int networkType = 0, });
+  void closeWallet(Wallet2Wallet wallet, bool store);
   Wallet2Wallet recoveryWallet({ required String path, required String password, required String mnemonic, int networkType = 0, required int restoreHeight, int kdfRounds = 0, required String seedOffset, });
   Wallet2Wallet createWalletFromKeys({ required String path, required String password, String language = "English", int nettype = 1, required int restoreHeight, required String addressString, required String viewKeyString, required String spendKeyString, int kdf_rounds = 1, });
   Wallet2Wallet createDeterministicWalletFromSpendKey({ required String path, required String password, String language = "English", int networkType = 0, required String spendKeyString, required bool newWallet, required int restoreHeight, int kdfRounds = 1, });
