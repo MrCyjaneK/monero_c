@@ -15,9 +15,13 @@ abstract class Wallet2 {
   static set libPath(String path) {
     throw Exception('libPath is read-only, as isolates cannot be made aware of changes to this variable');
   }
+  
+  int ffiAddress();
 }
 
 abstract class Wallet2AddressBook {
+  int ffiAddress();
+
   int getAll_size();
   Wallet2AddressBookRow getAll_byIndex(int index);
   bool addRow({required String dstAddr, required String paymentId, required String description, });
@@ -29,6 +33,8 @@ abstract class Wallet2AddressBook {
 }
 
 abstract class Wallet2AddressBookRow {
+  int ffiAddress();
+
   String extra();
   String getAddress();
   String getDescription();
@@ -37,6 +43,8 @@ abstract class Wallet2AddressBookRow {
 }
 
 abstract class Wallet2Coins {
+  int ffiAddress();
+
   int count();
   Wallet2CoinsInfo coin(int index);
   int getAll_size();
@@ -50,6 +58,8 @@ abstract class Wallet2Coins {
 }
 
 abstract class Wallet2CoinsInfo {
+  int ffiAddress();
+
   int blockHeight();
   String hash();
   int internalOutputIndex();
@@ -74,11 +84,15 @@ abstract class Wallet2CoinsInfo {
 }
 
 abstract class Wallet2DeviceProgress {
+  int ffiAddress();
+
   bool progress();
   bool indeterminate();
 }
 
 abstract class Wallet2WalletListener {
+  int ffiAddress();
+
   void resetNeedToRefresh();
   bool isNeedToRefresh();
   bool isNewTransactionExist();
@@ -87,16 +101,22 @@ abstract class Wallet2WalletListener {
 }
 
 abstract class Wallet2Checksum {
+  int ffiAddress();
+
   String checksum_wallet2_api_c_h();
   String checksum_wallet2_api_c_cpp();
   String checksum_wallet2_api_c_exp();
 }
 
 abstract class Wallet2Free {
+  int ffiAddress();
+
   void free(Pointer<Void> wlptr);
 }
 
 abstract class Wallet2MultisigState {
+  int ffiAddress();
+
   bool isMultisig(Pointer<Void> ptr);
   bool isReady(Pointer<Void> ptr);
   int threshold(Pointer<Void> ptr);
@@ -104,6 +124,8 @@ abstract class Wallet2MultisigState {
 }
 
 abstract class Wallet2PendingTransaction {
+  int ffiAddress();
+
   int status();
   String errorString();
   bool commit({required String filename, required bool overwrite});
@@ -122,6 +144,8 @@ abstract class Wallet2PendingTransaction {
 }
 
 abstract class Wallet2Subaddress {
+  int ffiAddress();
+
   int getAll_size();
   Wallet2SubaddressRow getAll_byIndex(int index);
   void addRow({required int accountIndex, required String label});
@@ -130,6 +154,8 @@ abstract class Wallet2Subaddress {
 }
 
 abstract class Wallet2SubaddressAccount {
+  int ffiAddress();
+
   int getAll_size();
   Wallet2SubaddressAccountRow getAll_byIndex(int index);
   void addRow({required String label});
@@ -138,6 +164,8 @@ abstract class Wallet2SubaddressAccount {
 }
 
 abstract class Wallet2SubaddressAccountRow {
+  int ffiAddress();
+
   String extra();
   String getAddress();
   String getLabel();
@@ -147,6 +175,8 @@ abstract class Wallet2SubaddressAccountRow {
 }
 
 abstract class Wallet2SubaddressRow {
+  int ffiAddress();
+
   String extra();
   String getAddress();
   String getLabel();
@@ -154,6 +184,8 @@ abstract class Wallet2SubaddressRow {
 }
 
 abstract class Wallet2TransactionHistory {
+  int ffiAddress();
+
   int count();
   Wallet2TransactionInfo transaction(int index);
   Wallet2TransactionInfo transactionById(String txid);
@@ -162,6 +194,8 @@ abstract class Wallet2TransactionHistory {
 }
 
 abstract class Wallet2TransactionInfo {
+  int ffiAddress();
+
   int direction();
   bool isPending();
   bool isFailed();
@@ -184,6 +218,8 @@ abstract class Wallet2TransactionInfo {
 }
 
 abstract class Wallet2UnsignedTransaction {
+  int ffiAddress();
+
   int status();
   String errorString();
   String amount();
@@ -199,6 +235,8 @@ abstract class Wallet2UnsignedTransaction {
 }
 
 abstract class Wallet2Wallet {
+  int ffiAddress();
+
   String seed({required String seedOffset});
   String getSeedLanguage();
   void setSeedLanguage({required String language});
@@ -340,6 +378,8 @@ abstract class Wallet2Wallet {
 }
 
 abstract class Wallet2WalletManager {
+  int ffiAddress();
+
   Wallet2Wallet createWallet({ required String path, required String password, String language = "English", int networkType = 0, });
   Wallet2Wallet openWallet({ required String path, required String password, int networkType = 0, });
   Wallet2Wallet recoveryWallet({ required String path, required String password, required String mnemonic, int networkType = 0, required int restoreHeight, int kdfRounds = 0, required String seedOffset, });
@@ -366,6 +406,8 @@ abstract class Wallet2WalletManager {
 }
 
 abstract class Wallet2WalletManagerFactory {
+  int ffiAddress();
+
   void setLogLevel(int level);
   void setLogCategories(String categories);
   Wallet2WalletManager getWalletManager();

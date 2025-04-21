@@ -11,6 +11,8 @@ class Wownero implements Wallet2 {
     return WowneroWalletManagerFactory();
   }
 
+  @override
+  int ffiAddress() => 0;
 }
 
 class WowneroAddressBook implements Wallet2AddressBook {
@@ -58,6 +60,9 @@ class WowneroAddressBook implements Wallet2AddressBook {
   bool setDescription({required int rowId, required String description}) {
     return wownero.AddressBook_setDescription(addressBookPtr, rowId: rowId, description: description);
   }
+
+  @override
+  int ffiAddress() => addressBookPtr.address;
 }
 
 class WowneroAddressBookRow implements Wallet2AddressBookRow {
@@ -89,6 +94,9 @@ class WowneroAddressBookRow implements Wallet2AddressBookRow {
   int getRowId() {
     return wownero.AddressBookRow_getRowId(addressBookRowPtr);
   }
+
+  @override
+  int ffiAddress() => addressBookRowPtr.address;
 }
 
 class WowneroCoins implements Wallet2Coins {
@@ -147,6 +155,9 @@ class WowneroCoins implements Wallet2Coins {
   void thawByPublicKey({required String publicKey}) {
     wownero.Coins_thawByPublicKey(coinsPtr, publicKey: publicKey);
   }
+
+  @override
+  int ffiAddress() => coinsPtr.address;
 }
 
 class WowneroCoinsInfo implements Wallet2CoinsInfo {
@@ -258,6 +269,9 @@ class WowneroCoinsInfo implements Wallet2CoinsInfo {
   bool unlocked() {
     return wownero.CoinsInfo_unlocked(coinsInfoPtr);
   }
+
+  @override
+  int ffiAddress() => coinsInfoPtr.address;
 }
 
 class WowneroDeviceProgress implements Wallet2DeviceProgress {
@@ -274,6 +288,9 @@ class WowneroDeviceProgress implements Wallet2DeviceProgress {
   bool progress() {
     return wownero.DeviceProgress_progress(deviceProgressPtr);
   }
+
+  @override
+  int ffiAddress() => deviceProgressPtr.address;
 }
 
 class WowneroWalletListener implements Wallet2WalletListener {
@@ -305,6 +322,9 @@ class WowneroWalletListener implements Wallet2WalletListener {
   void resetNeedToRefresh() {
     wownero.WOWNERO_cw_WalletListener_resetNeedToRefresh(walletListenerPtr);
   }
+
+  @override
+  int ffiAddress() => walletListenerPtr.address;
 }
 
 class WowneroWalletChecksum implements Wallet2Checksum {
@@ -324,6 +344,9 @@ class WowneroWalletChecksum implements Wallet2Checksum {
   String checksum_wallet2_api_c_h() {
     return wownero.WOWNERO_checksum_wallet2_api_c_h();
   }
+
+  @override
+  int ffiAddress() => 0;
 }
 
 class WowneroFree implements Wallet2Free {
@@ -333,6 +356,9 @@ class WowneroFree implements Wallet2Free {
   void free(Pointer<Void> ptr) {
     wownero.WOWNERO_free(ptr);
   }
+
+  @override
+  int ffiAddress() => 0;
 }
 
 class WowneroMultisigState implements Wallet2MultisigState {
@@ -359,6 +385,9 @@ class WowneroMultisigState implements Wallet2MultisigState {
   int total(Pointer<Void> ptr) {
     return wownero.MultisigState_total(multisigStatePtr);
   }
+
+  @override
+  int ffiAddress() => multisigStatePtr.address;
 }
 
 class WowneroPendingTransaction implements Wallet2PendingTransaction {
@@ -440,6 +469,9 @@ class WowneroPendingTransaction implements Wallet2PendingTransaction {
   String txid(String separator) {
     return wownero.PendingTransaction_txid(pendingTransactionPtr, separator);
   }
+
+  @override
+  int ffiAddress() => pendingTransactionPtr.address;
 }
 
 class WowneroSubaddress implements Wallet2Subaddress {
@@ -472,6 +504,9 @@ class WowneroSubaddress implements Wallet2Subaddress {
   void setLabel({required int accountIndex, required int addressIndex, required String label}) {
     wownero.Subaddress_setLabel(subaddressPtr, accountIndex: accountIndex, addressIndex: addressIndex, label: label);
   }
+
+  @override
+  int ffiAddress() => subaddressPtr.address;
 }
 
 class WowneroSubaddressAccount implements Wallet2SubaddressAccount {
@@ -504,6 +539,9 @@ class WowneroSubaddressAccount implements Wallet2SubaddressAccount {
   void setLabel({required int accountIndex, required String label}) {
     wownero.SubaddressAccount_setLabel(subaddressAccountPtr, accountIndex: accountIndex, label: label);
   }
+
+  @override
+  int ffiAddress() => subaddressAccountPtr.address;
 }
 
 class WowneroSubaddressAccountRow implements Wallet2SubaddressAccountRow {
@@ -540,6 +578,9 @@ class WowneroSubaddressAccountRow implements Wallet2SubaddressAccountRow {
   String getUnlockedBalance() {
     return wownero.SubaddressAccountRow_getUnlockedBalance(subaddressAccountRowPtr);
   }
+
+  @override
+  int ffiAddress() => subaddressAccountRowPtr.address;
 }
 
 class WowneroSubaddressRow implements Wallet2SubaddressRow {
@@ -566,6 +607,9 @@ class WowneroSubaddressRow implements Wallet2SubaddressRow {
   int getRowId() {
     return wownero.SubaddressRow_getRowId(subaddressRowPtr);
   }
+
+  @override
+  int ffiAddress() => subaddressRowPtr.address;
 }
 
 class WowneroTransactionHistory implements Wallet2TransactionHistory {
@@ -599,6 +643,9 @@ class WowneroTransactionHistory implements Wallet2TransactionHistory {
     final tx = wownero.TransactionHistory_transactionById(transactionHistoryPtr, txid: txid);
     return WowneroTransactionInfo(tx);
   }
+
+  @override
+  int ffiAddress() => transactionHistoryPtr.address;
 }
 
 class WowneroTransactionInfo implements Wallet2TransactionInfo {
@@ -700,7 +747,9 @@ class WowneroTransactionInfo implements Wallet2TransactionInfo {
   int unlockTime() {
     return wownero.TransactionInfo_unlockTime(transactionInfoPtr);
   }
-  
+
+  @override
+  int ffiAddress() => transactionInfoPtr.address;
 }
 
 class WowneroUnsignedTransaction implements Wallet2UnsignedTransaction {
@@ -768,7 +817,8 @@ class WowneroUnsignedTransaction implements Wallet2UnsignedTransaction {
     return wownero.UnsignedTransaction_txCount(unsignedTransactionPtr);
   }
   
-  
+  @override
+  int ffiAddress() => unsignedTransactionPtr.address;
 }
 
 class WowneroWallet implements Wallet2Wallet {
@@ -1469,6 +1519,9 @@ class WowneroWallet implements Wallet2Wallet {
   bool watchOnly() {
     return wownero.Wallet_watchOnly(walletPtr);
   }
+
+  @override
+  int ffiAddress() => walletPtr.address;
 }
 
 class WowneroWalletManager implements Wallet2WalletManager {
@@ -1596,6 +1649,9 @@ class WowneroWalletManager implements Wallet2WalletManager {
   bool walletExists(String path) {
     return wownero.WalletManager_walletExists(wmPtr, path);
   }
+
+  @override
+  int ffiAddress() => wmPtr.address;
 }
 
 class WowneroWalletManagerFactory implements Wallet2WalletManagerFactory {
@@ -1613,4 +1669,7 @@ class WowneroWalletManagerFactory implements Wallet2WalletManagerFactory {
   void setLogLevel(int level) {
     wownero.WalletManagerFactory_setLogLevel(level);
   }
+
+  @override
+  int ffiAddress() => 0;
 }

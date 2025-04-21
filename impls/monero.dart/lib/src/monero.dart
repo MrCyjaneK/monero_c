@@ -10,7 +10,9 @@ class Monero implements Wallet2 {
   Wallet2WalletManagerFactory walletManagerFactory() {
     return MoneroWalletManagerFactory();
   }
-
+  
+  @override
+  int ffiAddress() => 0;
 }
 
 class MoneroAddressBook implements Wallet2AddressBook {
@@ -58,6 +60,9 @@ class MoneroAddressBook implements Wallet2AddressBook {
   bool setDescription({required int rowId, required String description}) {
     return monero.AddressBook_setDescription(addressBookPtr, rowId: rowId, description: description);
   }
+  
+  @override
+  int ffiAddress() => addressBookPtr.address;
 }
 
 class MoneroAddressBookRow implements Wallet2AddressBookRow {
@@ -89,6 +94,9 @@ class MoneroAddressBookRow implements Wallet2AddressBookRow {
   int getRowId() {
     return monero.AddressBookRow_getRowId(addressBookRowPtr);
   }
+
+  @override
+  int ffiAddress() => addressBookRowPtr.address;
 }
 
 class MoneroCoins implements Wallet2Coins {
@@ -147,6 +155,9 @@ class MoneroCoins implements Wallet2Coins {
   void thawByPublicKey({required String publicKey}) {
     monero.Coins_thawByPublicKey(coinsPtr, publicKey: publicKey);
   }
+
+  @override
+  int ffiAddress() => coinsPtr.address;
 }
 
 class MoneroCoinsInfo implements Wallet2CoinsInfo {
@@ -258,6 +269,9 @@ class MoneroCoinsInfo implements Wallet2CoinsInfo {
   bool unlocked() {
     return monero.CoinsInfo_unlocked(coinsInfoPtr);
   }
+
+  @override
+  int ffiAddress() => coinsInfoPtr.address;
 }
 
 class MoneroDeviceProgress implements Wallet2DeviceProgress {
@@ -274,6 +288,9 @@ class MoneroDeviceProgress implements Wallet2DeviceProgress {
   bool progress() {
     return monero.DeviceProgress_progress(deviceProgressPtr);
   }
+
+  @override
+  int ffiAddress() => deviceProgressPtr.address;
 }
 
 class MoneroWalletListener implements Wallet2WalletListener {
@@ -305,6 +322,9 @@ class MoneroWalletListener implements Wallet2WalletListener {
   void resetNeedToRefresh() {
     monero.MONERO_cw_WalletListener_resetNeedToRefresh(walletListenerPtr);
   }
+
+  @override
+  int ffiAddress() => walletListenerPtr.address;
 }
 
 class MoneroWalletChecksum implements Wallet2Checksum {
@@ -324,6 +344,9 @@ class MoneroWalletChecksum implements Wallet2Checksum {
   String checksum_wallet2_api_c_h() {
     return monero.MONERO_checksum_wallet2_api_c_h();
   }
+
+  @override
+  int ffiAddress() => 0;
 }
 
 class MoneroFree implements Wallet2Free {
@@ -333,6 +356,9 @@ class MoneroFree implements Wallet2Free {
   void free(Pointer<Void> ptr) {
     monero.MONERO_free(ptr);
   }
+
+  @override
+  int ffiAddress() => 0;
 }
 
 class MoneroMultisigState implements Wallet2MultisigState {
@@ -359,6 +385,9 @@ class MoneroMultisigState implements Wallet2MultisigState {
   int total(Pointer<Void> ptr) {
     return monero.MultisigState_total(multisigStatePtr);
   }
+
+  @override
+  int ffiAddress() => multisigStatePtr.address;
 }
 
 class MoneroPendingTransaction implements Wallet2PendingTransaction {
@@ -440,6 +469,9 @@ class MoneroPendingTransaction implements Wallet2PendingTransaction {
   String txid(String separator) {
     return monero.PendingTransaction_txid(pendingTransactionPtr, separator);
   }
+
+  @override
+  int ffiAddress() => pendingTransactionPtr.address;
 }
 
 class MoneroSubaddress implements Wallet2Subaddress {
@@ -472,6 +504,9 @@ class MoneroSubaddress implements Wallet2Subaddress {
   void setLabel({required int accountIndex, required int addressIndex, required String label}) {
     monero.Subaddress_setLabel(subaddressPtr, accountIndex: accountIndex, addressIndex: addressIndex, label: label);
   }
+
+  @override
+  int ffiAddress() => subaddressPtr.address;
 }
 
 class MoneroSubaddressAccount implements Wallet2SubaddressAccount {
@@ -504,6 +539,9 @@ class MoneroSubaddressAccount implements Wallet2SubaddressAccount {
   void setLabel({required int accountIndex, required String label}) {
     monero.SubaddressAccount_setLabel(subaddressAccountPtr, accountIndex: accountIndex, label: label);
   }
+
+  @override
+  int ffiAddress() => subaddressAccountPtr.address;
 }
 
 class MoneroSubaddressAccountRow implements Wallet2SubaddressAccountRow {
@@ -540,6 +578,9 @@ class MoneroSubaddressAccountRow implements Wallet2SubaddressAccountRow {
   String getUnlockedBalance() {
     return monero.SubaddressAccountRow_getUnlockedBalance(subaddressAccountRowPtr);
   }
+
+  @override
+  int ffiAddress() => subaddressAccountRowPtr.address;
 }
 
 class MoneroSubaddressRow implements Wallet2SubaddressRow {
@@ -566,6 +607,9 @@ class MoneroSubaddressRow implements Wallet2SubaddressRow {
   int getRowId() {
     return monero.SubaddressRow_getRowId(subaddressRowPtr);
   }
+
+  @override
+  int ffiAddress() => subaddressRowPtr.address;
 }
 
 class MoneroTransactionHistory implements Wallet2TransactionHistory {
@@ -599,6 +643,9 @@ class MoneroTransactionHistory implements Wallet2TransactionHistory {
     final tx = monero.TransactionHistory_transactionById(transactionHistoryPtr, txid: txid);
     return MoneroTransactionInfo(tx);
   }
+
+  @override
+  int ffiAddress() => transactionHistoryPtr.address;
 }
 
 class MoneroTransactionInfo implements Wallet2TransactionInfo {
@@ -701,6 +748,8 @@ class MoneroTransactionInfo implements Wallet2TransactionInfo {
     return monero.TransactionInfo_unlockTime(transactionInfoPtr);
   }
   
+  @override
+  int ffiAddress() => transactionInfoPtr.address;
 }
 
 class MoneroUnsignedTransaction implements Wallet2UnsignedTransaction {
@@ -768,7 +817,8 @@ class MoneroUnsignedTransaction implements Wallet2UnsignedTransaction {
     return monero.UnsignedTransaction_txCount(unsignedTransactionPtr);
   }
   
-  
+  @override
+  int ffiAddress() => unsignedTransactionPtr.address;
 }
 
 class MoneroWallet implements Wallet2Wallet {
@@ -1471,6 +1521,9 @@ class MoneroWallet implements Wallet2Wallet {
   bool watchOnly() {
     return monero.Wallet_watchOnly(walletPtr);
   }
+
+  @override
+  int ffiAddress() => walletPtr.address;
 }
 
 class MoneroWalletManager implements Wallet2WalletManager {
@@ -1599,6 +1652,9 @@ class MoneroWalletManager implements Wallet2WalletManager {
   bool walletExists(String path) {
     return monero.WalletManager_walletExists(wmPtr, path);
   }
+
+  @override
+  int ffiAddress() => wmPtr.address;
 }
 
 class MoneroWalletManagerFactory implements Wallet2WalletManagerFactory {
@@ -1616,4 +1672,7 @@ class MoneroWalletManagerFactory implements Wallet2WalletManagerFactory {
   void setLogLevel(int level) {
     monero.WalletManagerFactory_setLogLevel(level);
   }
+
+  @override
+  int ffiAddress() => 0;
 }
