@@ -135,7 +135,7 @@ void Function(String call)? debugEnd = (call) {
 void Function(String call, dynamic error)? errorHandler = (call, error) {
   print("$call: $error");
 };
-
+@Deprecated("TODO")
 int PendingTransaction_status(PendingTransaction ptr) {
   debugStart?.call('MONERO_PendingTransaction_status');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -144,6 +144,7 @@ int PendingTransaction_status(PendingTransaction ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 String PendingTransaction_errorString(PendingTransaction ptr) {
   lib ??= MoneroC(DynamicLibrary.open(libPath));
   debugStart?.call('MONERO_PendingTransaction_errorString');
@@ -160,6 +161,7 @@ String PendingTransaction_errorString(PendingTransaction ptr) {
   }
 }
 
+@Deprecated("TODO")
 bool PendingTransaction_commit(PendingTransaction ptr,
     {required String filename, required bool overwrite}) {
   debugStart?.call('MONERO_PendingTransaction_commit');
@@ -172,6 +174,7 @@ bool PendingTransaction_commit(PendingTransaction ptr,
   return result;
 }
 
+@Deprecated("TODO")
 String PendingTransaction_commitUR(
     PendingTransaction ptr, int max_fragment_length) {
   debugStart?.call('MONERO_PendingTransaction_commitUR');
@@ -192,6 +195,7 @@ String PendingTransaction_commitUR(
   }
 }
 
+@Deprecated("TODO")
 int PendingTransaction_amount(PendingTransaction ptr) {
   debugStart?.call('MONERO_PendingTransaction_amount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -200,6 +204,7 @@ int PendingTransaction_amount(PendingTransaction ptr) {
   return amount;
 }
 
+@Deprecated("TODO")
 int PendingTransaction_dust(PendingTransaction ptr) {
   debugStart?.call('MONERO_PendingTransaction_dust');
 
@@ -209,6 +214,7 @@ int PendingTransaction_dust(PendingTransaction ptr) {
   return dust;
 }
 
+@Deprecated("TODO")
 int PendingTransaction_fee(PendingTransaction ptr) {
   debugStart?.call('MONERO_PendingTransaction_fee');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -217,6 +223,7 @@ int PendingTransaction_fee(PendingTransaction ptr) {
   return fee;
 }
 
+@Deprecated("TODO")
 String PendingTransaction_txid(PendingTransaction ptr, String separator) {
   debugStart?.call('MONERO_PendingTransaction_txid');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -237,6 +244,7 @@ String PendingTransaction_txid(PendingTransaction ptr, String separator) {
   }
 }
 
+@Deprecated("TODO")
 int PendingTransaction_txCount(PendingTransaction ptr) {
   debugStart?.call('MONERO_PendingTransaction_txCount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -245,6 +253,7 @@ int PendingTransaction_txCount(PendingTransaction ptr) {
   return txCount;
 }
 
+@Deprecated("TODO")
 String PendingTransaction_subaddrAccount(
     PendingTransaction ptr, String separator) {
   debugStart?.call('MONERO_PendingTransaction_subaddrAccount');
@@ -266,6 +275,7 @@ String PendingTransaction_subaddrAccount(
   }
 }
 
+@Deprecated("TODO")
 String PendingTransaction_subaddrIndices(
     PendingTransaction ptr, String separator) {
   debugStart?.call('MONERO_PendingTransaction_subaddrIndices');
@@ -287,6 +297,7 @@ String PendingTransaction_subaddrIndices(
   }
 }
 
+@Deprecated("TODO")
 String PendingTransaction_multisigSignData(PendingTransaction ptr) {
   debugStart?.call('MONERO_PendingTransaction_multisigSignData');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -305,6 +316,7 @@ String PendingTransaction_multisigSignData(PendingTransaction ptr) {
   }
 }
 
+@Deprecated("TODO")
 void PendingTransaction_signMultisigTx(PendingTransaction ptr) {
   debugStart?.call('MONERO_PendingTransaction_signMultisigTx');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -313,6 +325,7 @@ void PendingTransaction_signMultisigTx(PendingTransaction ptr) {
   return ret;
 }
 
+@Deprecated("TODO")
 String PendingTransaction_signersKeys(
     PendingTransaction ptr, String separator) {
   debugStart?.call('MONERO_PendingTransaction_signersKeys');
@@ -334,6 +347,7 @@ String PendingTransaction_signersKeys(
   }
 }
 
+@Deprecated("TODO")
 String PendingTransaction_hex(PendingTransaction ptr, String separator) {
   debugStart?.call('MONERO_PendingTransaction_hex');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -358,6 +372,7 @@ String PendingTransaction_hex(PendingTransaction ptr, String separator) {
 
 typedef UnsignedTransaction = Pointer<Void>;
 
+@Deprecated("TODO")
 int UnsignedTransaction_status(UnsignedTransaction ptr) {
   debugStart?.call('MONERO_UnsignedTransaction_status');
 
@@ -367,6 +382,7 @@ int UnsignedTransaction_status(UnsignedTransaction ptr) {
   return dust;
 }
 
+@Deprecated("TODO")
 String UnsignedTransaction_errorString(UnsignedTransaction ptr) {
   debugStart?.call('MONERO_UnsignedTransaction_errorString');
 
@@ -385,6 +401,7 @@ String UnsignedTransaction_errorString(UnsignedTransaction ptr) {
   }
 }
 
+@Deprecated("TODO")
 String UnsignedTransaction_amount(UnsignedTransaction ptr) {
   debugStart?.call('MONERO_UnsignedTransaction_amount');
 
@@ -404,6 +421,7 @@ String UnsignedTransaction_amount(UnsignedTransaction ptr) {
   }
 }
 
+@Deprecated("TODO")
 String UnsignedTransaction_fee(UnsignedTransaction ptr) {
   debugStart?.call('MONERO_UnsignedTransaction_fee');
 
@@ -423,6 +441,7 @@ String UnsignedTransaction_fee(UnsignedTransaction ptr) {
   }
 }
 
+@Deprecated("TODO")
 String UnsignedTransaction_mixin(UnsignedTransaction ptr) {
   debugStart?.call('MONERO_UnsignedTransaction_mixin');
 
@@ -442,6 +461,7 @@ String UnsignedTransaction_mixin(UnsignedTransaction ptr) {
   }
 }
 
+@Deprecated("TODO")
 String UnsignedTransaction_confirmationMessage(UnsignedTransaction ptr) {
   debugStart?.call('MONERO_UnsignedTransaction_confirmationMessage');
 
@@ -460,6 +480,7 @@ String UnsignedTransaction_confirmationMessage(UnsignedTransaction ptr) {
   }
 }
 
+@Deprecated("TODO")
 String UnsignedTransaction_paymentId(UnsignedTransaction ptr) {
   debugStart?.call('MONERO_UnsignedTransaction_paymentId');
 
@@ -479,6 +500,7 @@ String UnsignedTransaction_paymentId(UnsignedTransaction ptr) {
   }
 }
 
+@Deprecated("TODO")
 String UnsignedTransaction_recipientAddress(UnsignedTransaction ptr) {
   debugStart?.call('MONERO_UnsignedTransaction_recipientAddress');
 
@@ -498,6 +520,7 @@ String UnsignedTransaction_recipientAddress(UnsignedTransaction ptr) {
   }
 }
 
+@Deprecated("TODO")
 int UnsignedTransaction_minMixinCount(UnsignedTransaction ptr) {
   debugStart?.call('MONERO_UnsignedTransaction_minMixinCount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -506,6 +529,7 @@ int UnsignedTransaction_minMixinCount(UnsignedTransaction ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 int UnsignedTransaction_txCount(UnsignedTransaction ptr) {
   debugStart?.call('MONERO_UnsignedTransaction_txCount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -514,6 +538,7 @@ int UnsignedTransaction_txCount(UnsignedTransaction ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 bool UnsignedTransaction_sign(UnsignedTransaction ptr, String signedFileName) {
   debugStart?.call('MONERO_UnsignedTransaction_sign');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -524,6 +549,7 @@ bool UnsignedTransaction_sign(UnsignedTransaction ptr, String signedFileName) {
   return v;
 }
 
+@Deprecated("TODO")
 String UnsignedTransaction_signUR(
     PendingTransaction ptr, int max_fragment_length) {
   debugStart?.call('MONERO_UnsignedTransaction_signUR');
@@ -549,6 +575,7 @@ typedef TransactionInfo = Pointer<Void>;
 
 enum TransactionInfo_Direction { In, Out }
 
+@Deprecated("TODO")
 TransactionInfo_Direction TransactionInfo_direction(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_direction');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -558,6 +585,7 @@ TransactionInfo_Direction TransactionInfo_direction(TransactionInfo ptr) {
   return tiDir;
 }
 
+@Deprecated("TODO")
 bool TransactionInfo_isPending(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_isPending');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -567,6 +595,7 @@ bool TransactionInfo_isPending(TransactionInfo ptr) {
   return isPending;
 }
 
+@Deprecated("TODO")
 bool TransactionInfo_isFailed(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_isFailed');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -575,6 +604,7 @@ bool TransactionInfo_isFailed(TransactionInfo ptr) {
   return isFailed;
 }
 
+@Deprecated("TODO")
 bool TransactionInfo_isCoinbase(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_isCoinbase');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -583,6 +613,7 @@ bool TransactionInfo_isCoinbase(TransactionInfo ptr) {
   return isCoinbase;
 }
 
+@Deprecated("TODO")
 int TransactionInfo_amount(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_amount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -591,6 +622,7 @@ int TransactionInfo_amount(TransactionInfo ptr) {
   return amount;
 }
 
+@Deprecated("TODO")
 int TransactionInfo_fee(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_fee');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -599,6 +631,7 @@ int TransactionInfo_fee(TransactionInfo ptr) {
   return fee;
 }
 
+@Deprecated("TODO")
 int TransactionInfo_blockHeight(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_blockHeight');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -607,6 +640,7 @@ int TransactionInfo_blockHeight(TransactionInfo ptr) {
   return blockHeight;
 }
 
+@Deprecated("TODO")
 String TransactionInfo_description(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_description');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -622,6 +656,7 @@ String TransactionInfo_description(TransactionInfo ptr) {
   }
 }
 
+@Deprecated("TODO")
 String TransactionInfo_subaddrIndex(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_subaddrIndex');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -639,6 +674,7 @@ String TransactionInfo_subaddrIndex(TransactionInfo ptr) {
   }
 }
 
+@Deprecated("TODO")
 int TransactionInfo_subaddrAccount(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_subaddrAccount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -647,6 +683,7 @@ int TransactionInfo_subaddrAccount(TransactionInfo ptr) {
   return subaddrAccount;
 }
 
+@Deprecated("TODO")
 String TransactionInfo_label(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_label');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -663,6 +700,7 @@ String TransactionInfo_label(TransactionInfo ptr) {
   }
 }
 
+@Deprecated("TODO")
 int TransactionInfo_confirmations(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_confirmations');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -671,6 +709,7 @@ int TransactionInfo_confirmations(TransactionInfo ptr) {
   return confirmations;
 }
 
+@Deprecated("TODO")
 int TransactionInfo_unlockTime(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_unlockTime');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -679,6 +718,7 @@ int TransactionInfo_unlockTime(TransactionInfo ptr) {
   return unlockTime;
 }
 
+@Deprecated("TODO")
 String TransactionInfo_hash(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_hash');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -695,6 +735,7 @@ String TransactionInfo_hash(TransactionInfo ptr) {
   }
 }
 
+@Deprecated("TODO")
 int TransactionInfo_timestamp(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_timestamp');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -703,6 +744,7 @@ int TransactionInfo_timestamp(TransactionInfo ptr) {
   return timestamp;
 }
 
+@Deprecated("TODO")
 String TransactionInfo_paymentId(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_paymentId');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -719,6 +761,7 @@ String TransactionInfo_paymentId(TransactionInfo ptr) {
   }
 }
 
+@Deprecated("TODO")
 int TransactionInfo_transfers_count(TransactionInfo ptr) {
   debugStart?.call('MONERO_TransactionInfo_transfers_count');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -727,6 +770,7 @@ int TransactionInfo_transfers_count(TransactionInfo ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 int TransactionInfo_transfers_amount(TransactionInfo ptr, int index) {
   debugStart?.call('MONERO_TransactionInfo_transfers_amount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -735,6 +779,7 @@ int TransactionInfo_transfers_amount(TransactionInfo ptr, int index) {
   return v;
 }
 
+@Deprecated("TODO")
 String TransactionInfo_transfers_address(TransactionInfo ptr, int index) {
   debugStart?.call('MONERO_TransactionInfo_transfers_address');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -756,6 +801,7 @@ String TransactionInfo_transfers_address(TransactionInfo ptr, int index) {
 
 typedef TransactionHistory = Pointer<Void>;
 
+@Deprecated("TODO")
 int TransactionHistory_count(TransactionHistory txHistory_ptr) {
   debugStart?.call('MONERO_TransactionHistory_count');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -764,6 +810,7 @@ int TransactionHistory_count(TransactionHistory txHistory_ptr) {
   return count;
 }
 
+@Deprecated("TODO")
 TransactionInfo TransactionHistory_transaction(TransactionHistory txHistory_ptr,
     {required int index}) {
   debugStart?.call('MONERO_TransactionHistory_transaction');
@@ -774,6 +821,7 @@ TransactionInfo TransactionHistory_transaction(TransactionHistory txHistory_ptr,
   return transaction;
 }
 
+@Deprecated("TODO")
 TransactionInfo TransactionHistory_transactionById(
     TransactionHistory txHistory_ptr,
     {required String txid}) {
@@ -787,11 +835,13 @@ TransactionInfo TransactionHistory_transactionById(
   return transaction;
 }
 
+@Deprecated("TODO")
 void TransactionHistory_refresh(TransactionHistory txHistory_ptr) {
   lib ??= MoneroC(DynamicLibrary.open(libPath));
   return lib!.MONERO_TransactionHistory_refresh(txHistory_ptr);
 }
 
+@Deprecated("TODO")
 void TransactionHistory_setTxNote(TransactionHistory txHistory_ptr,
     {required String txid, required String note}) {
   debugStart?.call('MONERO_TransactionHistory_setTxNote');
@@ -810,6 +860,7 @@ void TransactionHistory_setTxNote(TransactionHistory txHistory_ptr,
 
 typedef AddressBookRow = Pointer<Void>;
 
+@Deprecated("TODO")
 String AddressBookRow_extra(AddressBookRow addressBookRow_ptr) {
   debugStart?.call('MONERO_AddressBookRow_extra');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -827,6 +878,7 @@ String AddressBookRow_extra(AddressBookRow addressBookRow_ptr) {
   }
 }
 
+@Deprecated("TODO")
 String AddressBookRow_getAddress(AddressBookRow addressBookRow_ptr) {
   debugStart?.call('MONERO_AddressBookRow_getAddress');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -844,6 +896,7 @@ String AddressBookRow_getAddress(AddressBookRow addressBookRow_ptr) {
   }
 }
 
+@Deprecated("TODO")
 String AddressBookRow_getDescription(AddressBookRow addressBookRow_ptr) {
   debugStart?.call('MONERO_AddressBookRow_getDescription');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -862,6 +915,7 @@ String AddressBookRow_getDescription(AddressBookRow addressBookRow_ptr) {
   }
 }
 
+@Deprecated("TODO")
 String AddressBookRow_getPaymentId(AddressBookRow addressBookRow_ptr) {
   debugStart?.call('MONERO_AddressBookRow_getPaymentId');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -880,6 +934,7 @@ String AddressBookRow_getPaymentId(AddressBookRow addressBookRow_ptr) {
   }
 }
 
+@Deprecated("TODO")
 int AddressBookRow_getRowId(AddressBookRow addressBookRow_ptr) {
   debugStart?.call('MONERO_AddressBookRow_getRowId');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -892,6 +947,7 @@ int AddressBookRow_getRowId(AddressBookRow addressBookRow_ptr) {
 
 typedef AddressBook = Pointer<Void>;
 
+@Deprecated("TODO")
 int AddressBook_getAll_size(AddressBook addressBook_ptr) {
   debugStart?.call('MONERO_AddressBook_getAll_size');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -900,6 +956,7 @@ int AddressBook_getAll_size(AddressBook addressBook_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 AddressBookRow AddressBook_getAll_byIndex(AddressBook addressBook_ptr,
     {required int index}) {
   debugStart?.call('MONERO_AddressBook_getAll_byIndex');
@@ -909,6 +966,7 @@ AddressBookRow AddressBook_getAll_byIndex(AddressBook addressBook_ptr,
   return v;
 }
 
+@Deprecated("TODO")
 bool AddressBook_addRow(
   AddressBook addressBook_ptr, {
   required String dstAddr,
@@ -929,6 +987,7 @@ bool AddressBook_addRow(
   return v;
 }
 
+@Deprecated("TODO")
 bool AddressBook_deleteRow(AddressBook addressBook_ptr, {required int rowId}) {
   debugStart?.call('MONERO_AddressBook_deleteRow');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -937,6 +996,7 @@ bool AddressBook_deleteRow(AddressBook addressBook_ptr, {required int rowId}) {
   return v;
 }
 
+@Deprecated("TODO")
 bool AddressBook_setDescription(
   AddressBook addressBook_ptr, {
   required int rowId,
@@ -952,6 +1012,7 @@ bool AddressBook_setDescription(
   return v;
 }
 
+@Deprecated("TODO")
 void AddressBook_refresh(AddressBook addressBook_ptr) {
   debugStart?.call('MONERO_AddressBook_refresh');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -960,6 +1021,7 @@ void AddressBook_refresh(AddressBook addressBook_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 int AddressBook_errorCode(AddressBook addressBook_ptr) {
   debugStart?.call('MONERO_AddressBook_errorCode');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -968,6 +1030,7 @@ int AddressBook_errorCode(AddressBook addressBook_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 int AddressBook_lookupPaymentID(AddressBook addressBook_ptr,
     {required String paymentId}) {
   debugStart?.call('MONERO_AddressBook_lookupPaymentID');
@@ -983,6 +1046,7 @@ int AddressBook_lookupPaymentID(AddressBook addressBook_ptr,
 // CoinsInfo
 typedef CoinsInfo = Pointer<Void>;
 
+@Deprecated("TODO")
 int CoinsInfo_blockHeight(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_blockHeight');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -991,6 +1055,7 @@ int CoinsInfo_blockHeight(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 String CoinsInfo_hash(CoinsInfo addressBookRow_ptr) {
   debugStart?.call('MONERO_CoinsInfo_hash');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1007,6 +1072,7 @@ String CoinsInfo_hash(CoinsInfo addressBookRow_ptr) {
   }
 }
 
+@Deprecated("TODO")
 int CoinsInfo_internalOutputIndex(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_internalOutputIndex');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1015,6 +1081,7 @@ int CoinsInfo_internalOutputIndex(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 int CoinsInfo_globalOutputIndex(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_globalOutputIndex');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1023,6 +1090,7 @@ int CoinsInfo_globalOutputIndex(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 bool CoinsInfo_spent(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_spent');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1031,6 +1099,7 @@ bool CoinsInfo_spent(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 bool CoinsInfo_frozen(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_frozen');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1039,6 +1108,7 @@ bool CoinsInfo_frozen(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 int CoinsInfo_spentHeight(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_spentHeight');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1047,6 +1117,7 @@ int CoinsInfo_spentHeight(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 int CoinsInfo_amount(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_amount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1055,6 +1126,7 @@ int CoinsInfo_amount(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 bool CoinsInfo_rct(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_rct');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1063,6 +1135,7 @@ bool CoinsInfo_rct(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 bool CoinsInfo_keyImageKnown(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_keyImageKnown');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1071,6 +1144,7 @@ bool CoinsInfo_keyImageKnown(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 int CoinsInfo_pkIndex(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_pkIndex');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1079,6 +1153,7 @@ int CoinsInfo_pkIndex(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 int CoinsInfo_subaddrIndex(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_subaddrIndex');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1087,6 +1162,7 @@ int CoinsInfo_subaddrIndex(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 int CoinsInfo_subaddrAccount(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_subaddrAccount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1095,6 +1171,7 @@ int CoinsInfo_subaddrAccount(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 String CoinsInfo_address(CoinsInfo addressBookRow_ptr) {
   debugStart?.call('MONERO_CoinsInfo_address');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1112,6 +1189,7 @@ String CoinsInfo_address(CoinsInfo addressBookRow_ptr) {
   }
 }
 
+@Deprecated("TODO")
 String CoinsInfo_addressLabel(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_addressLabel');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1129,6 +1207,7 @@ String CoinsInfo_addressLabel(CoinsInfo coinsInfo_ptr) {
   }
 }
 
+@Deprecated("TODO")
 String CoinsInfo_keyImage(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_keyImage');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1145,6 +1224,7 @@ String CoinsInfo_keyImage(CoinsInfo coinsInfo_ptr) {
   }
 }
 
+@Deprecated("TODO")
 int CoinsInfo_unlockTime(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_unlockTime');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1153,6 +1233,7 @@ int CoinsInfo_unlockTime(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 bool CoinsInfo_unlocked(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_unlocked');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1161,6 +1242,7 @@ bool CoinsInfo_unlocked(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 String CoinsInfo_pubKey(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_pubKey');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1177,6 +1259,7 @@ String CoinsInfo_pubKey(CoinsInfo coinsInfo_ptr) {
   }
 }
 
+@Deprecated("TODO")
 bool CoinsInfo_coinbase(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_coinbase');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1185,6 +1268,7 @@ bool CoinsInfo_coinbase(CoinsInfo coinsInfo_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 String CoinsInfo_description(CoinsInfo coinsInfo_ptr) {
   debugStart?.call('MONERO_CoinsInfo_description');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1202,8 +1286,10 @@ String CoinsInfo_description(CoinsInfo coinsInfo_ptr) {
   }
 }
 
+@Deprecated("TODO")
 typedef Coins = Pointer<Void>;
 
+@Deprecated("TODO")
 int Coins_count(Coins coins_ptr) {
   debugStart?.call('MONERO_Coins_count');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1212,6 +1298,7 @@ int Coins_count(Coins coins_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 CoinsInfo Coins_coin(Coins coins_ptr, int index) {
   debugStart?.call('MONERO_Coins_coin');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1220,6 +1307,7 @@ CoinsInfo Coins_coin(Coins coins_ptr, int index) {
   return v;
 }
 
+@Deprecated("TODO")
 int Coins_getAll_size(Coins coins_ptr) {
   debugStart?.call('MONERO_Coins_getAll_size');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1228,6 +1316,7 @@ int Coins_getAll_size(Coins coins_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 CoinsInfo Coins_getAll_byIndex(Coins coins_ptr, int index) {
   debugStart?.call('MONERO_Coins_getAll_byIndex');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1236,6 +1325,7 @@ CoinsInfo Coins_getAll_byIndex(Coins coins_ptr, int index) {
   return v;
 }
 
+@Deprecated("TODO")
 void Coins_refresh(Coins coins_ptr) {
   debugStart?.call('MONERO_Coins_refresh');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1244,6 +1334,7 @@ void Coins_refresh(Coins coins_ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 void Coins_setFrozenByPublicKey(Coins coins_ptr, {required String publicKey}) {
   debugStart?.call('MONERO_Coins_setFrozenByPublicKey');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1254,6 +1345,7 @@ void Coins_setFrozenByPublicKey(Coins coins_ptr, {required String publicKey}) {
   return v;
 }
 
+@Deprecated("TODO")
 void Coins_setFrozen(Coins coins_ptr, {required int index}) {
   debugStart?.call('MONERO_Coins_setFrozen');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1262,6 +1354,7 @@ void Coins_setFrozen(Coins coins_ptr, {required int index}) {
   return v;
 }
 
+@Deprecated("TODO")
 void Coins_thaw(Coins coins_ptr, {required int index}) {
   debugStart?.call('MONERO_Coins_thaw');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1270,6 +1363,7 @@ void Coins_thaw(Coins coins_ptr, {required int index}) {
   return v;
 }
 
+@Deprecated("TODO")
 void Coins_thawByPublicKey(Coins coins_ptr, {required String publicKey}) {
   debugStart?.call('MONERO_Coins_thawByPublicKey');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1280,6 +1374,7 @@ void Coins_thawByPublicKey(Coins coins_ptr, {required String publicKey}) {
   return v;
 }
 
+@Deprecated("TODO")
 bool Coins_isTransferUnlocked(
   Coins coins_ptr, {
   required int unlockTime,
@@ -1293,10 +1388,12 @@ bool Coins_isTransferUnlocked(
   return v;
 }
 
+@Deprecated("TODO")
 // SubaddressRow
 
 typedef SubaddressRow = Pointer<Void>;
 
+@Deprecated("TODO")
 String SubaddressRow_extra(SubaddressRow subaddressBookRow_ptr) {
   debugStart?.call('MONERO_SubaddressRow_extra');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1314,6 +1411,7 @@ String SubaddressRow_extra(SubaddressRow subaddressBookRow_ptr) {
   }
 }
 
+@Deprecated("TODO")
 String SubaddressRow_getAddress(SubaddressRow subaddressBookRow_ptr) {
   debugStart?.call('MONERO_SubaddressRow_getAddress');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1332,6 +1430,7 @@ String SubaddressRow_getAddress(SubaddressRow subaddressBookRow_ptr) {
   }
 }
 
+@Deprecated("TODO")
 String SubaddressRow_getLabel(SubaddressRow subaddressBookRow_ptr) {
   debugStart?.call('MONERO_SubaddressRow_getLabel');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1349,6 +1448,7 @@ String SubaddressRow_getLabel(SubaddressRow subaddressBookRow_ptr) {
   }
 }
 
+@Deprecated("TODO")
 int SubaddressRow_getRowId(SubaddressRow subaddressBookRow_ptr) {
   debugStart?.call('MONERO_SubaddressRow_getRowId');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1361,6 +1461,7 @@ int SubaddressRow_getRowId(SubaddressRow subaddressBookRow_ptr) {
 
 typedef Subaddress = Pointer<Void>;
 
+@Deprecated("TODO")
 int Subaddress_getAll_size(SubaddressRow subaddressBookRow_ptr) {
   debugStart?.call('MONERO_Subaddress_getAll_size');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1369,6 +1470,7 @@ int Subaddress_getAll_size(SubaddressRow subaddressBookRow_ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 SubaddressRow Subaddress_getAll_byIndex(Subaddress subaddressRow_ptr,
     {required int index}) {
   debugStart?.call('MONERO_Subaddress_getAll_byIndex');
@@ -1379,6 +1481,7 @@ SubaddressRow Subaddress_getAll_byIndex(Subaddress subaddressRow_ptr,
   return status;
 }
 
+@Deprecated("TODO")
 void Subaddress_addRow(Subaddress ptr,
     {required int accountIndex, required String label}) {
   debugStart?.call('MONERO_Subaddress_addRow');
@@ -1390,6 +1493,7 @@ void Subaddress_addRow(Subaddress ptr,
   return status;
 }
 
+@Deprecated("TODO")
 void Subaddress_setLabel(Subaddress ptr,
     {required int accountIndex,
     required int addressIndex,
@@ -1404,6 +1508,7 @@ void Subaddress_setLabel(Subaddress ptr,
   return status;
 }
 
+@Deprecated("TODO")
 void Subaddress_refresh(Subaddress ptr,
     {required int accountIndex, required String label}) {
   debugStart?.call('MONERO_Subaddress_refresh');
@@ -1415,6 +1520,7 @@ void Subaddress_refresh(Subaddress ptr,
   return status;
 }
 
+@Deprecated("TODO")
 typedef SubaddressAccountRow = Pointer<Void>;
 
 String SubaddressAccountRow_extra(SubaddressAccountRow addressBookRow_ptr) {
@@ -1434,6 +1540,7 @@ String SubaddressAccountRow_extra(SubaddressAccountRow addressBookRow_ptr) {
   }
 }
 
+@Deprecated("TODO")
 String SubaddressAccountRow_getAddress(
     SubaddressAccountRow addressBookRow_ptr) {
   debugStart?.call('MONERO_SubaddressAccountRow_getAddress');
@@ -1453,6 +1560,7 @@ String SubaddressAccountRow_getAddress(
   }
 }
 
+@Deprecated("TODO")
 String SubaddressAccountRow_getLabel(SubaddressAccountRow addressBookRow_ptr) {
   debugStart?.call('MONERO_SubaddressAccountRow_getLabel');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1471,6 +1579,7 @@ String SubaddressAccountRow_getLabel(SubaddressAccountRow addressBookRow_ptr) {
   }
 }
 
+@Deprecated("TODO")
 String SubaddressAccountRow_getBalance(
     SubaddressAccountRow addressBookRow_ptr) {
   debugStart?.call('MONERO_SubaddressAccountRow_getBalance');
@@ -1490,6 +1599,7 @@ String SubaddressAccountRow_getBalance(
   }
 }
 
+@Deprecated("TODO")
 String SubaddressAccountRow_getUnlockedBalance(
     SubaddressAccountRow addressBookRow_ptr) {
   debugStart?.call('MONERO_SubaddressAccountRow_getUnlockedBalance');
@@ -1509,6 +1619,7 @@ String SubaddressAccountRow_getUnlockedBalance(
   }
 }
 
+@Deprecated("TODO")
 int SubaddressAccountRow_getRowId(SubaddressAccountRow ptr) {
   debugStart?.call('MONERO_SubaddressAccountRow_getRowId');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1517,6 +1628,7 @@ int SubaddressAccountRow_getRowId(SubaddressAccountRow ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 typedef SubaddressAccount = Pointer<Void>;
 
 int SubaddressAccount_getAll_size(SubaddressAccount ptr) {
@@ -1527,6 +1639,7 @@ int SubaddressAccount_getAll_size(SubaddressAccount ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 SubaddressAccountRow SubaddressAccount_getAll_byIndex(SubaddressAccount ptr,
     {required int index}) {
   debugStart?.call('MONERO_SubaddressAccount_getAll_byIndex');
@@ -1536,6 +1649,7 @@ SubaddressAccountRow SubaddressAccount_getAll_byIndex(SubaddressAccount ptr,
   return status;
 }
 
+@Deprecated("TODO")
 void SubaddressAccount_addRow(SubaddressAccount ptr, {required String label}) {
   debugStart?.call('MONERO_SubaddressAccount_addRow');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1546,6 +1660,7 @@ void SubaddressAccount_addRow(SubaddressAccount ptr, {required String label}) {
   return status;
 }
 
+@Deprecated("TODO")
 void SubaddressAccount_setLabel(SubaddressAccount ptr,
     {required int accountIndex, required String label}) {
   debugStart?.call('MONERO_SubaddressAccount_setLabel');
@@ -1558,6 +1673,7 @@ void SubaddressAccount_setLabel(SubaddressAccount ptr,
   return status;
 }
 
+@Deprecated("TODO")
 void SubaddressAccount_refresh(SubaddressAccount ptr) {
   debugStart?.call('MONERO_SubaddressAccount_refresh');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1566,10 +1682,12 @@ void SubaddressAccount_refresh(SubaddressAccount ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 // MultisigState
 
 typedef MultisigState = Pointer<Void>;
 
+@Deprecated("TODO")
 bool MultisigState_isMultisig(MultisigState ptr) {
   debugStart?.call('MONERO_MultisigState_isMultisig');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1578,6 +1696,7 @@ bool MultisigState_isMultisig(MultisigState ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 bool MultisigState_isReady(MultisigState ptr) {
   debugStart?.call('MONERO_MultisigState_isReady');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1586,6 +1705,7 @@ bool MultisigState_isReady(MultisigState ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 int MultisigState_threshold(MultisigState ptr) {
   debugStart?.call('MONERO_MultisigState_threshold');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1594,6 +1714,7 @@ int MultisigState_threshold(MultisigState ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 int MultisigState_total(MultisigState ptr) {
   debugStart?.call('MONERO_MultisigState_total');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1602,10 +1723,12 @@ int MultisigState_total(MultisigState ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 // DeviceProgress
 
 typedef DeviceProgress = Pointer<Void>;
 
+@Deprecated("TODO")
 bool DeviceProgress_progress(DeviceProgress ptr) {
   debugStart?.call('MONERO_DeviceProgress_progress');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1614,6 +1737,7 @@ bool DeviceProgress_progress(DeviceProgress ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 bool DeviceProgress_indeterminate(DeviceProgress ptr) {
   debugStart?.call('MONERO_DeviceProgress_indeterminate');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1621,10 +1745,13 @@ bool DeviceProgress_indeterminate(DeviceProgress ptr) {
   debugEnd?.call('MONERO_DeviceProgress_indeterminate');
   return status;
 }
+
+@Deprecated("TODO")
 // Wallet
 
 typedef wallet = Pointer<Void>;
 
+@Deprecated("TODO")
 String Wallet_seed(wallet ptr, {required String seedOffset}) {
   debugStart?.call('MONERO_Wallet_seed');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1643,6 +1770,7 @@ String Wallet_seed(wallet ptr, {required String seedOffset}) {
   }
 }
 
+@Deprecated("TODO")
 String Wallet_getSeedLanguage(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getSeedLanguage');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1659,6 +1787,7 @@ String Wallet_getSeedLanguage(wallet ptr) {
   }
 }
 
+@Deprecated("TODO")
 void Wallet_setSeedLanguage(wallet ptr, {required String language}) {
   debugStart?.call('MONERO_Wallet_setSeedLanguage');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1669,6 +1798,7 @@ void Wallet_setSeedLanguage(wallet ptr, {required String language}) {
   return status;
 }
 
+@Deprecated("TODO")
 int Wallet_status(wallet ptr) {
   debugStart?.call('MONERO_Wallet_status');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1677,6 +1807,7 @@ int Wallet_status(wallet ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 String Wallet_errorString(wallet ptr) {
   debugStart?.call('MONERO_Wallet_errorString');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1693,6 +1824,7 @@ String Wallet_errorString(wallet ptr) {
   }
 }
 
+@Deprecated("TODO")
 bool Wallet_setPassword(wallet ptr, {required String password}) {
   debugStart?.call('MONERO_Wallet_setPassword');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1703,6 +1835,7 @@ bool Wallet_setPassword(wallet ptr, {required String password}) {
   return status;
 }
 
+@Deprecated("TODO")
 String Wallet_getPassword(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getPassword');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1719,6 +1852,7 @@ String Wallet_getPassword(wallet ptr) {
   }
 }
 
+@Deprecated("TODO")
 bool Wallet_setDevicePin(wallet ptr, {required String passphrase}) {
   debugStart?.call('MONERO_Wallet_setDevicePin');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1729,6 +1863,7 @@ bool Wallet_setDevicePin(wallet ptr, {required String passphrase}) {
   return status;
 }
 
+@Deprecated("TODO")
 String Wallet_address(wallet ptr,
     {int accountIndex = 0, int addressIndex = 0}) {
   debugStart?.call('MONERO_Wallet_address');
@@ -1748,6 +1883,7 @@ String Wallet_address(wallet ptr,
   }
 }
 
+@Deprecated("TODO")
 String Wallet_path(wallet ptr) {
   debugStart?.call('MONERO_Wallet_path');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1764,6 +1900,7 @@ String Wallet_path(wallet ptr) {
   }
 }
 
+@Deprecated("TODO")
 int Wallet_nettype(wallet ptr) {
   debugStart?.call('MONERO_Wallet_nettype');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1772,6 +1909,7 @@ int Wallet_nettype(wallet ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 int Wallet_useForkRules(
   wallet ptr, {
   required int version,
@@ -1784,6 +1922,7 @@ int Wallet_useForkRules(
   return status;
 }
 
+@Deprecated("TODO")
 String Wallet_integratedAddress(wallet ptr, {required String paymentId}) {
   debugStart?.call('MONERO_Wallet_integratedAddress');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1803,6 +1942,7 @@ String Wallet_integratedAddress(wallet ptr, {required String paymentId}) {
   }
 }
 
+@Deprecated("TODO")
 String Wallet_secretViewKey(wallet ptr) {
   debugStart?.call('MONERO_Wallet_secretViewKey');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1819,6 +1959,7 @@ String Wallet_secretViewKey(wallet ptr) {
   }
 }
 
+@Deprecated("TODO")
 String Wallet_publicViewKey(wallet ptr) {
   debugStart?.call('MONERO_Wallet_publicViewKey');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1835,6 +1976,7 @@ String Wallet_publicViewKey(wallet ptr) {
   }
 }
 
+@Deprecated("TODO")
 String Wallet_secretSpendKey(wallet ptr) {
   debugStart?.call('MONERO_Wallet_secretSpendKey');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1851,6 +1993,7 @@ String Wallet_secretSpendKey(wallet ptr) {
   }
 }
 
+@Deprecated("TODO")
 String Wallet_publicSpendKey(wallet ptr) {
   debugStart?.call('MONERO_Wallet_publicSpendKey');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1867,6 +2010,7 @@ String Wallet_publicSpendKey(wallet ptr) {
   }
 }
 
+@Deprecated("TODO")
 String Wallet_publicMultisigSignerKey(wallet ptr) {
   debugStart?.call('MONERO_Wallet_publicMultisigSignerKey');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1883,6 +2027,7 @@ String Wallet_publicMultisigSignerKey(wallet ptr) {
   }
 }
 
+@Deprecated("TODO")
 void Wallet_stop(wallet ptr) {
   debugStart?.call('MONERO_Wallet_stop');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1891,6 +2036,7 @@ void Wallet_stop(wallet ptr) {
   return stop;
 }
 
+@Deprecated("TODO")
 bool Wallet_store(wallet ptr, {String path = ""}) {
   debugStart?.call('MONERO_Wallet_store');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1901,6 +2047,7 @@ bool Wallet_store(wallet ptr, {String path = ""}) {
   return s;
 }
 
+@Deprecated("TODO")
 String Wallet_filename(wallet ptr) {
   debugStart?.call('MONERO_Wallet_filename');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -1933,6 +2080,7 @@ String Wallet_keysFilename(wallet ptr) {
   }
 }
 
+@Deprecated("TODO")
 bool Wallet_init(
   wallet ptr, {
   required String daemonAddress,
@@ -1967,6 +2115,7 @@ bool Wallet_init(
   return s;
 }
 
+@Deprecated("TODO")
 bool Wallet_createWatchOnly(
   wallet ptr, {
   required String path,
@@ -1987,6 +2136,7 @@ bool Wallet_createWatchOnly(
   return getRefreshFromBlockHeight;
 }
 
+@Deprecated("TODO")
 void Wallet_setRefreshFromBlockHeight(wallet ptr,
     {required int refresh_from_block_height}) {
   debugStart?.call('MONERO_Wallet_setRefreshFromBlockHeight');
@@ -1997,6 +2147,7 @@ void Wallet_setRefreshFromBlockHeight(wallet ptr,
   return status;
 }
 
+@Deprecated("TODO")
 int Wallet_getRefreshFromBlockHeight(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getRefreshFromBlockHeight');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2006,6 +2157,7 @@ int Wallet_getRefreshFromBlockHeight(wallet ptr) {
   return getRefreshFromBlockHeight;
 }
 
+@Deprecated("TODO")
 void Wallet_setRecoveringFromSeed(wallet ptr,
     {required bool recoveringFromSeed}) {
   debugStart?.call('MONERO_Wallet_setRecoveringFromSeed');
@@ -2016,6 +2168,7 @@ void Wallet_setRecoveringFromSeed(wallet ptr,
   return status;
 }
 
+@Deprecated("TODO")
 void Wallet_setRecoveringFromDevice(wallet ptr,
     {required bool recoveringFromDevice}) {
   debugStart?.call('MONERO_Wallet_setRecoveringFromDevice');
@@ -2026,6 +2179,7 @@ void Wallet_setRecoveringFromDevice(wallet ptr,
   return status;
 }
 
+@Deprecated("TODO")
 void Wallet_setSubaddressLookahead(wallet ptr,
     {required int major, required int minor}) {
   debugStart?.call('MONERO_Wallet_setSubaddressLookahead');
@@ -2035,6 +2189,7 @@ void Wallet_setSubaddressLookahead(wallet ptr,
   return status;
 }
 
+@Deprecated("TODO")
 bool Wallet_connectToDaemon(wallet ptr) {
   debugStart?.call('MONERO_Wallet_connectToDaemon');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2043,6 +2198,7 @@ bool Wallet_connectToDaemon(wallet ptr) {
   return connectToDaemon;
 }
 
+@Deprecated("TODO")
 int Wallet_connected(wallet ptr) {
   debugStart?.call('MONERO_Wallet_connected');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2051,6 +2207,7 @@ int Wallet_connected(wallet ptr) {
   return connected;
 }
 
+@Deprecated("TODO")
 void Wallet_setTrustedDaemon(wallet ptr, {required bool arg}) {
   debugStart?.call('MONERO_Wallet_setTrustedDaemon');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2059,6 +2216,7 @@ void Wallet_setTrustedDaemon(wallet ptr, {required bool arg}) {
   return status;
 }
 
+@Deprecated("TODO")
 bool Wallet_trustedDaemon(wallet ptr) {
   debugStart?.call('MONERO_Wallet_trustedDaemon');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2067,6 +2225,7 @@ bool Wallet_trustedDaemon(wallet ptr) {
   return status;
 }
 
+@Deprecated("TODO")
 bool Wallet_setProxy(wallet ptr, {required String address}) {
   debugStart?.call('MONERO_Wallet_setProxy');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2077,6 +2236,7 @@ bool Wallet_setProxy(wallet ptr, {required String address}) {
   return s;
 }
 
+@Deprecated("TODO")
 int Wallet_balance(wallet ptr, {required int accountIndex}) {
   debugStart?.call('MONERO_Wallet_balance');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2085,6 +2245,7 @@ int Wallet_balance(wallet ptr, {required int accountIndex}) {
   return balance;
 }
 
+@Deprecated("TODO")
 int Wallet_unlockedBalance(wallet ptr, {required int accountIndex}) {
   debugStart?.call('MONERO_Wallet_unlockedBalance');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2093,6 +2254,7 @@ int Wallet_unlockedBalance(wallet ptr, {required int accountIndex}) {
   return unlockedBalance;
 }
 
+@Deprecated("TODO")
 int Wallet_viewOnlyBalance(wallet ptr, {required int accountIndex}) {
   debugStart?.call('MONERO_Wallet_viewOnlyBalance');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2101,6 +2263,7 @@ int Wallet_viewOnlyBalance(wallet ptr, {required int accountIndex}) {
   return unlockedBalance;
 }
 
+@Deprecated("TODO")
 bool Wallet_watchOnly(wallet ptr) {
   debugStart?.call('MONERO_Wallet_watchOnly');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2109,6 +2272,7 @@ bool Wallet_watchOnly(wallet ptr) {
   return watchOnly;
 }
 
+@Deprecated("TODO")
 int Wallet_blockChainHeight(wallet ptr) {
   debugStart?.call('MONERO_Wallet_blockChainHeight');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2117,6 +2281,7 @@ int Wallet_blockChainHeight(wallet ptr) {
   return blockChainHeight;
 }
 
+@Deprecated("TODO")
 int Wallet_approximateBlockChainHeight(wallet ptr) {
   debugStart?.call('MONERO_Wallet_approximateBlockChainHeight');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2126,6 +2291,7 @@ int Wallet_approximateBlockChainHeight(wallet ptr) {
   return approximateBlockChainHeight;
 }
 
+@Deprecated("TODO")
 int Wallet_estimateBlockChainHeight(wallet ptr) {
   debugStart?.call('MONERO_Wallet_estimateBlockChainHeight');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2143,6 +2309,7 @@ int Wallet_daemonBlockChainHeight(wallet ptr) {
   return daemonBlockChainHeight;
 }
 
+@Deprecated("TODO")
 bool Wallet_synchronized(wallet ptr) {
   debugStart?.call('MONERO_Wallet_synchronized');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2151,6 +2318,7 @@ bool Wallet_synchronized(wallet ptr) {
   return synchronized;
 }
 
+@Deprecated("TODO")
 String Wallet_displayAmount(int amount) {
   debugStart?.call('MONERO_Wallet_displayAmount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2167,6 +2335,7 @@ String Wallet_displayAmount(int amount) {
   }
 }
 
+@Deprecated("TODO")
 int Wallet_amountFromString(String amount) {
   debugStart?.call('MONERO_Wallet_amountFromString');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2178,6 +2347,7 @@ int Wallet_amountFromString(String amount) {
   return s;
 }
 
+@Deprecated("TODO")
 int Wallet_amountFromDouble(double amount) {
   debugStart?.call('MONERO_Wallet_amountFromDouble');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2187,6 +2357,7 @@ int Wallet_amountFromDouble(double amount) {
   return s;
 }
 
+@Deprecated("TODO")
 String Wallet_genPaymentId() {
   debugStart?.call('MONERO_Wallet_genPaymentId');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2203,6 +2374,7 @@ String Wallet_genPaymentId() {
   }
 }
 
+@Deprecated("TODO")
 bool Wallet_paymentIdValid(String paymentId) {
   debugStart?.call('MONERO_Wallet_paymentIdValid');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2214,6 +2386,7 @@ bool Wallet_paymentIdValid(String paymentId) {
   return s;
 }
 
+@Deprecated("TODO")
 bool Wallet_addressValid(String address, int networkType) {
   debugStart?.call('MONERO_Wallet_addressValid');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2225,6 +2398,7 @@ bool Wallet_addressValid(String address, int networkType) {
   return s;
 }
 
+@Deprecated("TODO")
 bool Wallet_keyValid(
     {required String secret_key_string,
     required String address_string,
@@ -2243,6 +2417,7 @@ bool Wallet_keyValid(
   return s;
 }
 
+@Deprecated("TODO")
 String Wallet_keyValid_error(
     {required String secret_key_string,
     required String address_string,
@@ -2269,6 +2444,7 @@ String Wallet_keyValid_error(
   }
 }
 
+@Deprecated("TODO")
 String Wallet_paymentIdFromAddress(
     {required String strarg, required int nettype}) {
   debugStart?.call('MONERO_Wallet_paymentIdFromAddress');
@@ -2288,6 +2464,7 @@ String Wallet_paymentIdFromAddress(
   }
 }
 
+@Deprecated("TODO")
 int Wallet_maximumAllowedAmount() {
   debugStart?.call('MONERO_Wallet_maximumAllowedAmount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2297,6 +2474,7 @@ int Wallet_maximumAllowedAmount() {
   return s;
 }
 
+@Deprecated("TODO")
 void Wallet_init3(
   wallet ptr, {
   required String argv0,
@@ -2319,6 +2497,7 @@ void Wallet_init3(
   return s;
 }
 
+@Deprecated("TODO")
 String Wallet_getPolyseed(wallet ptr, {required String passphrase}) {
   debugStart?.call('MONERO_Wallet_getPolyseed');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2338,6 +2517,7 @@ String Wallet_getPolyseed(wallet ptr, {required String passphrase}) {
   }
 }
 
+@Deprecated("TODO")
 String Wallet_createPolyseed({
   String language = "English",
 }) {
@@ -2359,6 +2539,7 @@ String Wallet_createPolyseed({
   }
 }
 
+@Deprecated("TODO")
 void Wallet_startRefresh(wallet ptr) {
   debugStart?.call('MONERO_Wallet_startRefresh');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2367,6 +2548,7 @@ void Wallet_startRefresh(wallet ptr) {
   return startRefresh;
 }
 
+@Deprecated("TODO")
 void Wallet_pauseRefresh(wallet ptr) {
   debugStart?.call('MONERO_Wallet_pauseRefresh');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2375,6 +2557,7 @@ void Wallet_pauseRefresh(wallet ptr) {
   return pauseRefresh;
 }
 
+@Deprecated("TODO")
 bool Wallet_refresh(wallet ptr) {
   debugStart?.call('MONERO_Wallet_refresh');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2383,6 +2566,7 @@ bool Wallet_refresh(wallet ptr) {
   return refresh;
 }
 
+@Deprecated("TODO")
 void Wallet_refreshAsync(wallet ptr) {
   debugStart?.call('MONERO_Wallet_refreshAsync');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2391,6 +2575,7 @@ void Wallet_refreshAsync(wallet ptr) {
   return refreshAsync;
 }
 
+@Deprecated("TODO")
 bool Wallet_rescanBlockchain(wallet ptr) {
   debugStart?.call('MONERO_Wallet_rescanBlockchain');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2399,6 +2584,7 @@ bool Wallet_rescanBlockchain(wallet ptr) {
   return rescanBlockchain;
 }
 
+@Deprecated("TODO")
 void Wallet_rescanBlockchainAsync(wallet ptr) {
   debugStart?.call('MONERO_Wallet_rescanBlockchainAsync');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2407,6 +2593,7 @@ void Wallet_rescanBlockchainAsync(wallet ptr) {
   return rescanBlockchainAsync;
 }
 
+@Deprecated("TODO")
 void Wallet_setAutoRefreshInterval(wallet ptr, {required int millis}) {
   debugStart?.call('MONERO_Wallet_setAutoRefreshInterval');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2416,6 +2603,7 @@ void Wallet_setAutoRefreshInterval(wallet ptr, {required int millis}) {
   return setAutoRefreshInterval;
 }
 
+@Deprecated("TODO")
 int Wallet_autoRefreshInterval(wallet ptr) {
   debugStart?.call('MONERO_Wallet_autoRefreshInterval');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2424,6 +2612,7 @@ int Wallet_autoRefreshInterval(wallet ptr) {
   return autoRefreshInterval;
 }
 
+@Deprecated("TODO")
 void Wallet_addSubaddress(wallet ptr,
     {required int accountIndex, String label = ""}) {
   debugStart?.call('MONERO_Wallet_addSubaddress');
@@ -2436,6 +2625,7 @@ void Wallet_addSubaddress(wallet ptr,
   return s;
 }
 
+@Deprecated("TODO")
 void Wallet_addSubaddressAccount(wallet ptr, {String label = ""}) {
   debugStart?.call('MONERO_Wallet_addSubaddressAccount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2447,6 +2637,7 @@ void Wallet_addSubaddressAccount(wallet ptr, {String label = ""}) {
   return s;
 }
 
+@Deprecated("TODO")
 int Wallet_numSubaddressAccounts(wallet ptr) {
   debugStart?.call('MONERO_Wallet_numSubaddressAccounts');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2455,6 +2646,7 @@ int Wallet_numSubaddressAccounts(wallet ptr) {
   return numSubaddressAccounts;
 }
 
+@Deprecated("TODO")
 int Wallet_numSubaddresses(wallet ptr, {required int accountIndex}) {
   debugStart?.call('MONERO_Wallet_numSubaddresses');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2463,6 +2655,7 @@ int Wallet_numSubaddresses(wallet ptr, {required int accountIndex}) {
   return numSubaddresses;
 }
 
+@Deprecated("TODO")
 String Wallet_getSubaddressLabel(wallet ptr,
     {required int accountIndex, required int addressIndex}) {
   debugStart?.call('MONERO_Wallet_getSubaddressLabel');
@@ -2482,6 +2675,7 @@ String Wallet_getSubaddressLabel(wallet ptr,
   }
 }
 
+@Deprecated("TODO")
 void Wallet_setSubaddressLabel(wallet ptr,
     {required int accountIndex,
     required int addressIndex,
@@ -2497,6 +2691,7 @@ void Wallet_setSubaddressLabel(wallet ptr,
   return s;
 }
 
+@Deprecated("TODO")
 MultisigState Wallet_multisig(wallet ptr) {
   debugStart?.call('MONERO_Wallet_multisig');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2505,6 +2700,7 @@ MultisigState Wallet_multisig(wallet ptr) {
   return s;
 }
 
+@Deprecated("TODO")
 String Wallet_getMultisigInfo(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getMultisigInfo');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2521,6 +2717,7 @@ String Wallet_getMultisigInfo(wallet ptr) {
   }
 }
 
+@Deprecated("TODO")
 String Wallet_makeMultisig(
   wallet ptr, {
   required List<String> info,
@@ -2550,6 +2747,7 @@ String Wallet_makeMultisig(
   }
 }
 
+@Deprecated("TODO")
 String Wallet_exchangeMultisigKeys(
   wallet ptr, {
   required List<String> info,
@@ -2579,6 +2777,7 @@ String Wallet_exchangeMultisigKeys(
   }
 }
 
+@Deprecated("TODO")
 List<String> Wallet_exportMultisigImages(
   wallet ptr, {
   required List<String> info,
@@ -2606,6 +2805,7 @@ List<String> Wallet_exportMultisigImages(
   }
 }
 
+@Deprecated("TODO")
 int Wallet_importMultisigImages(
   wallet ptr, {
   required List<String> info,
@@ -2623,6 +2823,7 @@ int Wallet_importMultisigImages(
   return ret;
 }
 
+@Deprecated("TODO")
 int Wallet_hasMultisigPartialKeyImages(wallet ptr) {
   debugStart?.call('MONERO_Wallet_hasMultisigPartialKeyImages');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2633,6 +2834,7 @@ int Wallet_hasMultisigPartialKeyImages(wallet ptr) {
   return ret;
 }
 
+@Deprecated("TODO")
 PendingTransaction Wallet_restoreMultisigTransaction(
   wallet ptr, {
   required String signData,
@@ -2649,6 +2851,7 @@ PendingTransaction Wallet_restoreMultisigTransaction(
   return ret;
 }
 
+@Deprecated("TODO")
 PendingTransaction Wallet_createTransactionMultDest(
   wallet wptr, {
   required List<String> dstAddr,
@@ -2690,6 +2893,7 @@ PendingTransaction Wallet_createTransactionMultDest(
   return ret;
 }
 
+@Deprecated("TODO")
 PendingTransaction Wallet_createTransaction(wallet ptr,
     {required String dst_addr,
     required String payment_id,
@@ -2723,6 +2927,7 @@ PendingTransaction Wallet_createTransaction(wallet ptr,
   return s;
 }
 
+@Deprecated("TODO")
 UnsignedTransaction Wallet_loadUnsignedTx(wallet ptr,
     {required String unsigned_filename}) {
   debugStart?.call('MONERO_Wallet_loadUnsignedTx');
@@ -2735,6 +2940,7 @@ UnsignedTransaction Wallet_loadUnsignedTx(wallet ptr,
   return s;
 }
 
+@Deprecated("TODO")
 UnsignedTransaction Wallet_loadUnsignedTxUR(wallet ptr,
     {required String input}) {
   debugStart?.call('MONERO_Wallet_loadUnsignedTxUR');
@@ -2747,6 +2953,7 @@ UnsignedTransaction Wallet_loadUnsignedTxUR(wallet ptr,
   return s;
 }
 
+@Deprecated("TODO")
 bool Wallet_submitTransaction(wallet ptr, String filename) {
   debugStart?.call('MONERO_Wallet_submitTransaction');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2758,6 +2965,7 @@ bool Wallet_submitTransaction(wallet ptr, String filename) {
   return s;
 }
 
+@Deprecated("TODO")
 bool Wallet_submitTransactionUR(wallet ptr, String input) {
   debugStart?.call('MONERO_Wallet_submitTransactionUR');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2769,6 +2977,7 @@ bool Wallet_submitTransactionUR(wallet ptr, String input) {
   return s;
 }
 
+@Deprecated("TODO")
 bool Wallet_hasUnknownKeyImages(wallet ptr) {
   debugStart?.call('MONERO_Wallet_hasUnknownKeyImages');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2777,6 +2986,7 @@ bool Wallet_hasUnknownKeyImages(wallet ptr) {
   return s;
 }
 
+@Deprecated("TODO")
 bool Wallet_exportKeyImages(wallet ptr, String filename, {required bool all}) {
   debugStart?.call('MONERO_Wallet_exportKeyImages');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2788,6 +2998,7 @@ bool Wallet_exportKeyImages(wallet ptr, String filename, {required bool all}) {
   return s;
 }
 
+@Deprecated("TODO")
 String Wallet_exportKeyImagesUR(
   wallet ptr, {
   int max_fragment_length = 130,
@@ -2810,6 +3021,7 @@ String Wallet_exportKeyImagesUR(
   }
 }
 
+@Deprecated("TODO")
 bool Wallet_importKeyImages(wallet ptr, String filename) {
   debugStart?.call('MONERO_Wallet_importKeyImages');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2821,6 +3033,7 @@ bool Wallet_importKeyImages(wallet ptr, String filename) {
   return s;
 }
 
+@Deprecated("TODO")
 bool Wallet_importKeyImagesUR(wallet ptr, String input) {
   debugStart?.call('MONERO_Wallet_importKeyImagesUR');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2832,6 +3045,7 @@ bool Wallet_importKeyImagesUR(wallet ptr, String input) {
   return s;
 }
 
+@Deprecated("TODO")
 bool Wallet_exportOutputs(wallet ptr, String filename, {required bool all}) {
   debugStart?.call('MONERO_Wallet_exportOutputs');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2843,6 +3057,7 @@ bool Wallet_exportOutputs(wallet ptr, String filename, {required bool all}) {
   return s;
 }
 
+@Deprecated("TODO")
 String Wallet_exportOutputsUR(
   wallet ptr, {
   int max_fragment_length = 130,
@@ -2865,6 +3080,7 @@ String Wallet_exportOutputsUR(
   }
 }
 
+@Deprecated("TODO")
 bool Wallet_importOutputs(wallet ptr, String filename) {
   debugStart?.call('MONERO_Wallet_importOutputs');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2876,6 +3092,7 @@ bool Wallet_importOutputs(wallet ptr, String filename) {
   return s;
 }
 
+@Deprecated("TODO")
 bool Wallet_importOutputsUR(wallet ptr, String input) {
   debugStart?.call('MONERO_Wallet_importOutputsUR');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2887,6 +3104,7 @@ bool Wallet_importOutputsUR(wallet ptr, String input) {
   return s;
 }
 
+@Deprecated("TODO")
 bool Wallet_setupBackgroundSync(
   wallet ptr, {
   required int backgroundSyncType,
@@ -2907,6 +3125,7 @@ bool Wallet_setupBackgroundSync(
   return s;
 }
 
+@Deprecated("TODO")
 int Wallet_getBackgroundSyncType(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getBackgroundSyncType');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2915,6 +3134,7 @@ int Wallet_getBackgroundSyncType(wallet ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 bool Wallet_startBackgroundSync(wallet ptr) {
   debugStart?.call('MONERO_Wallet_startBackgroundSync');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2923,6 +3143,7 @@ bool Wallet_startBackgroundSync(wallet ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 bool Wallet_stopBackgroundSync(wallet ptr, String walletPassword) {
   debugStart?.call('MONERO_Wallet_stopBackgroundSync');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2933,6 +3154,7 @@ bool Wallet_stopBackgroundSync(wallet ptr, String walletPassword) {
   return v;
 }
 
+@Deprecated("TODO")
 bool Wallet_isBackgroundSyncing(wallet ptr) {
   debugStart?.call('MONERO_Wallet_isBackgroundSyncing');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2941,6 +3163,7 @@ bool Wallet_isBackgroundSyncing(wallet ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 bool Wallet_isBackgroundWallet(wallet ptr) {
   debugStart?.call('MONERO_Wallet_isBackgroundWallet');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2949,6 +3172,7 @@ bool Wallet_isBackgroundWallet(wallet ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 TransactionHistory Wallet_history(wallet ptr) {
   debugStart?.call('MONERO_Wallet_history');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2957,6 +3181,7 @@ TransactionHistory Wallet_history(wallet ptr) {
   return history;
 }
 
+@Deprecated("TODO")
 AddressBook Wallet_addressBook(wallet ptr) {
   debugStart?.call('MONERO_Wallet_addressBook');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2965,6 +3190,7 @@ AddressBook Wallet_addressBook(wallet ptr) {
   return history;
 }
 
+@Deprecated("TODO")
 AddressBook Wallet_coins(wallet ptr) {
   debugStart?.call('MONERO_Wallet_coins');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2973,6 +3199,7 @@ AddressBook Wallet_coins(wallet ptr) {
   return history;
 }
 
+@Deprecated("TODO")
 AddressBook Wallet_subaddress(wallet ptr) {
   debugStart?.call('MONERO_Wallet_subaddress');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2981,6 +3208,7 @@ AddressBook Wallet_subaddress(wallet ptr) {
   return history;
 }
 
+@Deprecated("TODO")
 AddressBook Wallet_subaddressAccount(wallet ptr) {
   debugStart?.call('MONERO_Wallet_subaddressAccount');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2989,6 +3217,7 @@ AddressBook Wallet_subaddressAccount(wallet ptr) {
   return history;
 }
 
+@Deprecated("TODO")
 int Wallet_defaultMixin(wallet ptr) {
   debugStart?.call('MONERO_Wallet_defaultMixin');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -2997,6 +3226,7 @@ int Wallet_defaultMixin(wallet ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 void Wallet_setDefaultMixin(wallet ptr, int arg) {
   debugStart?.call('MONERO_Wallet_setDefaultMixin');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3005,6 +3235,7 @@ void Wallet_setDefaultMixin(wallet ptr, int arg) {
   return v;
 }
 
+@Deprecated("TODO")
 bool Wallet_setCacheAttribute(wallet ptr,
     {required String key, required String value}) {
   debugStart?.call('MONERO_Wallet_setCacheAttribute');
@@ -3018,6 +3249,7 @@ bool Wallet_setCacheAttribute(wallet ptr,
   return v;
 }
 
+@Deprecated("TODO")
 String Wallet_getCacheAttribute(wallet ptr, {required String key}) {
   debugStart?.call('MONERO_Wallet_getCacheAttribute');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3036,6 +3268,7 @@ String Wallet_getCacheAttribute(wallet ptr, {required String key}) {
   }
 }
 
+@Deprecated("TODO")
 bool Wallet_setUserNote(wallet ptr,
     {required String txid, required String note}) {
   debugStart?.call('MONERO_Wallet_setUserNote');
@@ -3049,6 +3282,7 @@ bool Wallet_setUserNote(wallet ptr,
   return v;
 }
 
+@Deprecated("TODO")
 String Wallet_getUserNote(wallet ptr, {required String txid}) {
   debugStart?.call('MONERO_Wallet_getUserNote');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3067,6 +3301,7 @@ String Wallet_getUserNote(wallet ptr, {required String txid}) {
   }
 }
 
+@Deprecated("TODO")
 String Wallet_getTxKey(wallet ptr, {required String txid}) {
   debugStart?.call('MONERO_Wallet_getTxKey');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3085,6 +3320,7 @@ String Wallet_getTxKey(wallet ptr, {required String txid}) {
   }
 }
 
+@Deprecated("TODO")
 String Wallet_signMessage(
   wallet ptr, {
   required String message,
@@ -3110,6 +3346,7 @@ String Wallet_signMessage(
   }
 }
 
+@Deprecated("TODO")
 bool Wallet_verifySignedMessage(
   wallet ptr, {
   required String message,
@@ -3130,6 +3367,7 @@ bool Wallet_verifySignedMessage(
   return v;
 }
 
+@Deprecated("TODO")
 bool Wallet_rescanSpent(wallet ptr) {
   debugStart?.call('MONERO_Wallet_rescanSpent');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3138,6 +3376,7 @@ bool Wallet_rescanSpent(wallet ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 void Wallet_setOffline(wallet ptr, {required bool offline}) {
   debugStart?.call('MONERO_Wallet_setOffline');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3146,6 +3385,7 @@ void Wallet_setOffline(wallet ptr, {required bool offline}) {
   return setOffline;
 }
 
+@Deprecated("TODO")
 bool Wallet_isOffline(wallet ptr) {
   debugStart?.call('MONERO_Wallet_isOffline');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3154,6 +3394,7 @@ bool Wallet_isOffline(wallet ptr) {
   return isOffline;
 }
 
+@Deprecated("TODO")
 void Wallet_segregatePreForkOutputs(wallet ptr, {required bool segregate}) {
   debugStart?.call('MONERO_Wallet_segregatePreForkOutputs');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3162,6 +3403,7 @@ void Wallet_segregatePreForkOutputs(wallet ptr, {required bool segregate}) {
   return v;
 }
 
+@Deprecated("TODO")
 void Wallet_segregationHeight(wallet ptr, {required int height}) {
   debugStart?.call('MONERO_Wallet_segregationHeight');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3170,6 +3412,7 @@ void Wallet_segregationHeight(wallet ptr, {required int height}) {
   return v;
 }
 
+@Deprecated("TODO")
 void Wallet_keyReuseMitigation2(wallet ptr, {required bool mitigation}) {
   debugStart?.call('MONERO_Wallet_keyReuseMitigation2');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3178,6 +3421,7 @@ void Wallet_keyReuseMitigation2(wallet ptr, {required bool mitigation}) {
   return v;
 }
 
+@Deprecated("TODO")
 bool Wallet_lockKeysFile(wallet ptr) {
   debugStart?.call('MONERO_Wallet_lockKeysFile');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3186,6 +3430,7 @@ bool Wallet_lockKeysFile(wallet ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 bool Wallet_unlockKeysFile(wallet ptr) {
   debugStart?.call('MONERO_Wallet_unlockKeysFile');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3194,6 +3439,7 @@ bool Wallet_unlockKeysFile(wallet ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 bool Wallet_isKeysFileLocked(wallet ptr) {
   debugStart?.call('MONERO_Wallet_isKeysFileLocked');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3202,6 +3448,7 @@ bool Wallet_isKeysFileLocked(wallet ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 int Wallet_getDeviceType(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getDeviceType');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3210,6 +3457,7 @@ int Wallet_getDeviceType(wallet ptr) {
   return v;
 }
 
+@Deprecated("TODO")
 int Wallet_coldKeyImageSync(wallet ptr,
     {required int spent, required int unspent}) {
   debugStart?.call('MONERO_Wallet_coldKeyImageSync');
@@ -3219,6 +3467,7 @@ int Wallet_coldKeyImageSync(wallet ptr,
   return v;
 }
 
+@Deprecated("TODO")
 String Wallet_deviceShowAddress(wallet ptr,
     {required int accountIndex, required int addressIndex}) {
   debugStart?.call('MONERO_Wallet_deviceShowAddress');
@@ -3238,6 +3487,7 @@ String Wallet_deviceShowAddress(wallet ptr,
   }
 }
 
+@Deprecated("TODO")
 bool Wallet_reconnectDevice(wallet ptr) {
   debugStart?.call('MONERO_Wallet_reconnectDevice');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3246,6 +3496,7 @@ bool Wallet_reconnectDevice(wallet ptr) {
   return ret;
 }
 
+@Deprecated("TODO")
 int Wallet_getBytesReceived(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getBytesReceived');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3254,6 +3505,7 @@ int Wallet_getBytesReceived(wallet ptr) {
   return getBytesReceived;
 }
 
+@Deprecated("TODO")
 int MONERO_Wallet_getBytesSent(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getBytesSent');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3262,6 +3514,7 @@ int MONERO_Wallet_getBytesSent(wallet ptr) {
   return getBytesSent;
 }
 
+@Deprecated("TODO")
 bool Wallet_getStateIsConnected(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getStateIsConnected');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3270,6 +3523,7 @@ bool Wallet_getStateIsConnected(wallet ptr) {
   return ret;
 }
 
+@Deprecated("TODO")
 Pointer<UnsignedChar> Wallet_getSendToDevice(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getSendToDevice');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3278,6 +3532,7 @@ Pointer<UnsignedChar> Wallet_getSendToDevice(wallet ptr) {
   return ret;
 }
 
+@Deprecated("TODO")
 int Wallet_getSendToDeviceLength(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getSendToDeviceLength');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3286,6 +3541,7 @@ int Wallet_getSendToDeviceLength(wallet ptr) {
   return ret;
 }
 
+@Deprecated("TODO")
 Pointer<UnsignedChar> Wallet_getReceivedFromDevice(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getReceivedFromDevice');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3294,6 +3550,7 @@ Pointer<UnsignedChar> Wallet_getReceivedFromDevice(wallet ptr) {
   return ret;
 }
 
+@Deprecated("TODO")
 int Wallet_getReceivedFromDeviceLength(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getReceivedFromDeviceLength');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3302,6 +3559,7 @@ int Wallet_getReceivedFromDeviceLength(wallet ptr) {
   return ret;
 }
 
+@Deprecated("TODO")
 bool Wallet_getWaitsForDeviceSend(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getWaitsForDeviceSend');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3310,6 +3568,7 @@ bool Wallet_getWaitsForDeviceSend(wallet ptr) {
   return ret;
 }
 
+@Deprecated("TODO")
 bool Wallet_getWaitsForDeviceReceive(wallet ptr) {
   debugStart?.call('MONERO_Wallet_getWaitsForDeviceReceive');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3318,6 +3577,7 @@ bool Wallet_getWaitsForDeviceReceive(wallet ptr) {
   return ret;
 }
 
+@Deprecated("TODO")
 void Wallet_setDeviceReceivedData(
     wallet ptr, Pointer<UnsignedChar> data, int len) {
   debugStart?.call('MONERO_Wallet_setDeviceReceivedData');
@@ -3327,6 +3587,7 @@ void Wallet_setDeviceReceivedData(
   return ret;
 }
 
+@Deprecated("TODO")
 void Wallet_setDeviceSendData(wallet ptr, Pointer<UnsignedChar> data, int len) {
   debugStart?.call('MONERO_Wallet_setDeviceSendData');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3334,11 +3595,12 @@ void Wallet_setDeviceSendData(wallet ptr, Pointer<UnsignedChar> data, int len) {
   debugEnd?.call('MONERO_Wallet_setDeviceSendData');
   return ret;
 }
-
+  
 // WalletManager
-
+@Deprecated("TODO")
 typedef WalletManager = Pointer<Void>;
 
+@Deprecated("TODO")
 wallet WalletManager_createWallet(
   WalletManager wm_ptr, {
   required String path,
@@ -3360,6 +3622,7 @@ wallet WalletManager_createWallet(
   return w;
 }
 
+@Deprecated("TODO")
 wallet WalletManager_openWallet(
   WalletManager wm_ptr, {
   required String path,
@@ -3378,6 +3641,7 @@ wallet WalletManager_openWallet(
   return w;
 }
 
+@Deprecated("TODO")
 wallet WalletManager_recoveryWallet(
   WalletManager wm_ptr, {
   required String path,
@@ -3404,6 +3668,7 @@ wallet WalletManager_recoveryWallet(
   return w;
 }
 
+@Deprecated("TODO")
 wallet WalletManager_createWalletFromKeys(
   WalletManager wm_ptr, {
   required String path,
@@ -3448,6 +3713,7 @@ wallet WalletManager_createWalletFromKeys(
   return w;
 }
 
+@Deprecated("TODO")
 wallet WalletManager_createDeterministicWalletFromSpendKey(
   WalletManager wm_ptr, {
   required String path,
@@ -3483,6 +3749,7 @@ wallet WalletManager_createDeterministicWalletFromSpendKey(
   return w;
 }
 
+@Deprecated("TODO")
 wallet WalletManager_createWalletFromDevice(
   WalletManager wm_ptr, {
   required String path,
@@ -3518,6 +3785,7 @@ wallet WalletManager_createWalletFromDevice(
   return w;
 }
 
+@Deprecated("TODO")
 wallet WalletManager_createWalletFromPolyseed(
   WalletManager wm_ptr, {
   required String path,
@@ -3553,6 +3821,7 @@ wallet WalletManager_createWalletFromPolyseed(
   return w;
 }
 
+@Deprecated("TODO")
 bool WalletManager_closeWallet(WalletManager wm_ptr, wallet ptr, bool store) {
   debugStart?.call('MONERO_WalletManager_closeWallet');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3561,6 +3830,7 @@ bool WalletManager_closeWallet(WalletManager wm_ptr, wallet ptr, bool store) {
   return closeWallet;
 }
 
+@Deprecated("TODO")
 bool WalletManager_walletExists(WalletManager wm_ptr, String path) {
   debugStart?.call('MONERO_WalletManager_walletExists');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3571,6 +3841,7 @@ bool WalletManager_walletExists(WalletManager wm_ptr, String path) {
   return s;
 }
 
+@Deprecated("TODO")
 bool WalletManager_verifyWalletPassword(
   WalletManager wm_ptr, {
   required String keysFileName,
@@ -3590,6 +3861,7 @@ bool WalletManager_verifyWalletPassword(
   return s;
 }
 
+@Deprecated("TODO")
 int WalletManager_queryWalletDevice(
     WalletManager wm_ptr, {
       required String keysFileName,
@@ -3608,6 +3880,7 @@ int WalletManager_queryWalletDevice(
   return s;
 }
 
+@Deprecated("TODO")
 List<String> WalletManager_findWallets(WalletManager wm_ptr,
     {required String path}) {
   debugStart?.call('MONERO_WalletManager_findWallets');
@@ -3631,6 +3904,7 @@ List<String> WalletManager_findWallets(WalletManager wm_ptr,
   }
 }
 
+@Deprecated("TODO")
 String WalletManager_errorString(WalletManager wm_ptr) {
   debugStart?.call('MONERO_WalletManager_errorString');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3647,6 +3921,7 @@ String WalletManager_errorString(WalletManager wm_ptr) {
   }
 }
 
+@Deprecated("TODO")
 void WalletManager_setDaemonAddress(WalletManager wm_ptr, String address) {
   debugStart?.call('MONERO_WalletManager_setDaemonAddress');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3658,6 +3933,7 @@ void WalletManager_setDaemonAddress(WalletManager wm_ptr, String address) {
   return s;
 }
 
+@Deprecated("TODO")
 int WalletManager_blockchainHeight(WalletManager wm_ptr) {
   debugStart?.call('MONERO_WalletManager_blockchainHeight');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3666,6 +3942,7 @@ int WalletManager_blockchainHeight(WalletManager wm_ptr) {
   return s;
 }
 
+@Deprecated("TODO")
 int WalletManager_blockchainTargetHeight(WalletManager wm_ptr) {
   debugStart?.call('MONERO_WalletManager_blockchainTargetHeight');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3674,6 +3951,7 @@ int WalletManager_blockchainTargetHeight(WalletManager wm_ptr) {
   return s;
 }
 
+@Deprecated("TODO")
 int WalletManager_networkDifficulty(WalletManager wm_ptr) {
   debugStart?.call('MONERO_WalletManager_networkDifficulty');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3682,6 +3960,7 @@ int WalletManager_networkDifficulty(WalletManager wm_ptr) {
   return s;
 }
 
+@Deprecated("TODO")
 double WalletManager_miningHashRate(WalletManager wm_ptr) {
   debugStart?.call('MONERO_WalletManager_miningHashRate');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3690,6 +3969,7 @@ double WalletManager_miningHashRate(WalletManager wm_ptr) {
   return s;
 }
 
+@Deprecated("TODO")
 int WalletManager_blockTarget(WalletManager wm_ptr) {
   debugStart?.call('MONERO_WalletManager_blockTarget');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3698,6 +3978,7 @@ int WalletManager_blockTarget(WalletManager wm_ptr) {
   return s;
 }
 
+@Deprecated("TODO")
 bool WalletManager_isMining(WalletManager wm_ptr) {
   debugStart?.call('MONERO_WalletManager_isMining');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3706,6 +3987,7 @@ bool WalletManager_isMining(WalletManager wm_ptr) {
   return s;
 }
 
+@Deprecated("TODO")
 bool WalletManager_startMining(
   WalletManager wm_ptr, {
   required String address,
@@ -3723,6 +4005,7 @@ bool WalletManager_startMining(
   return s;
 }
 
+@Deprecated("TODO")
 bool WalletManager_stopMining(WalletManager wm_ptr, String address) {
   debugStart?.call('MONERO_WalletManager_stopMining');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3733,6 +4016,7 @@ bool WalletManager_stopMining(WalletManager wm_ptr, String address) {
   return s;
 }
 
+@Deprecated("TODO")
 String WalletManager_resolveOpenAlias(
   WalletManager wm_ptr, {
   required String address,
@@ -3757,6 +4041,7 @@ String WalletManager_resolveOpenAlias(
   }
 }
 
+@Deprecated("TODO")
 bool WalletManager_setProxy(WalletManager wm_ptr, String address) {
   debugStart?.call('MONERO_WalletManager_setProxy');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3768,6 +4053,7 @@ bool WalletManager_setProxy(WalletManager wm_ptr, String address) {
   return s;
 }
 
+@Deprecated("TODO")
 void WalletManagerFactory_setLogLevel(int level) {
   debugStart?.call('MONERO_WalletManagerFactory_setLogLevel');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3776,6 +4062,7 @@ void WalletManagerFactory_setLogLevel(int level) {
   return s;
 }
 
+@Deprecated("TODO")
 void WalletManagerFactory_setLogCategories(String categories) {
   debugStart?.call('MONERO_WalletManagerFactory_setLogCategories');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3786,6 +4073,7 @@ void WalletManagerFactory_setLogCategories(String categories) {
   return s;
 }
 
+@Deprecated("TODO")
 WalletManager WalletManagerFactory_getWalletManager() {
   debugStart?.call('MONERO_WalletManagerFactory_getWalletManager');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3813,6 +4101,7 @@ WalletManager WalletManagerFactory_getWalletManager() {
 
 // DEBUG
 
+@Deprecated("TODO")
 class libOk {
   libOk(
     this.test1,
@@ -3874,6 +4163,7 @@ class libOk {
   }
 }
 
+@Deprecated("TODO")
 libOk isLibOk() {
   lib ??= MoneroC(DynamicLibrary.open(libPath));
   lib!.MONERO_DEBUG_test0();
@@ -3888,8 +4178,10 @@ libOk isLibOk() {
 
 // cake world
 
+@Deprecated("TODO")
 typedef WalletListener = Pointer<Void>;
 
+@Deprecated("TODO")
 WalletListener MONERO_cw_getWalletListener(wallet wptr) {
   debugStart?.call('MONERO_cw_getWalletListener');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3908,6 +4200,7 @@ void MONERO_cw_WalletListener_resetNeedToRefresh(WalletListener wlptr) {
   return s;
 }
 
+@Deprecated("TODO")
 bool MONERO_cw_WalletListener_isNeedToRefresh(WalletListener wlptr) {
   debugStart?.call('MONERO_cw_WalletListener_isNeedToRefresh');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3917,6 +4210,7 @@ bool MONERO_cw_WalletListener_isNeedToRefresh(WalletListener wlptr) {
   return s;
 }
 
+@Deprecated("TODO")
 bool MONERO_cw_WalletListener_isNewTransactionExist(WalletListener wlptr) {
   debugStart?.call('MONERO_cw_WalletListener_isNewTransactionExist');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3926,6 +4220,7 @@ bool MONERO_cw_WalletListener_isNewTransactionExist(WalletListener wlptr) {
   return s;
 }
 
+@Deprecated("TODO")
 void MONERO_cw_WalletListener_resetIsNewTransactionExist(WalletListener wlptr) {
   debugStart?.call('MONERO_cw_WalletListener_resetIsNewTransactionExist');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3935,6 +4230,7 @@ void MONERO_cw_WalletListener_resetIsNewTransactionExist(WalletListener wlptr) {
   return s;
 }
 
+@Deprecated("TODO")
 int MONERO_cw_WalletListener_height(WalletListener wlptr) {
   debugStart?.call('MONERO_cw_WalletListener_height');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3944,6 +4240,7 @@ int MONERO_cw_WalletListener_height(WalletListener wlptr) {
   return s;
 }
 
+@Deprecated("TODO")
 String MONERO_checksum_wallet2_api_c_h() {
   debugStart?.call('MONERO_checksum_wallet2_api_c_h');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3953,6 +4250,7 @@ String MONERO_checksum_wallet2_api_c_h() {
   return s.cast<Utf8>().toDartString();
 }
 
+@Deprecated("TODO")
 String MONERO_checksum_wallet2_api_c_cpp() {
   debugStart?.call('MONERO_checksum_wallet2_api_c_cpp');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3962,6 +4260,7 @@ String MONERO_checksum_wallet2_api_c_cpp() {
   return s.cast<Utf8>().toDartString();
 }
 
+@Deprecated("TODO")
 String MONERO_checksum_wallet2_api_c_exp() {
   debugStart?.call('MONERO_checksum_wallet2_api_c_exp');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3971,6 +4270,7 @@ String MONERO_checksum_wallet2_api_c_exp() {
   return s.cast<Utf8>().toDartString();
 }
 
+@Deprecated("TODO")
 void MONERO_free(Pointer<Void> wlptr) {
   debugStart?.call('MONERO_free');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
