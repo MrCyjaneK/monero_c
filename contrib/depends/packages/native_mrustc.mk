@@ -1,9 +1,9 @@
 package=native_mrustc
-$(package)_version=0.11
+$(package)_version=0.11.0
 $(package)_download_path=https://github.com/thepowersgang/mrustc/archive
-$(package)_download_file=b6754f574f8846eb842feba4ccbeeecb10bdfacc.tar.gz
+$(package)_download_file=44013560b99ee8f351807d5ad4b64ba36bfe7d01.tar.gz
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
-$(package)_sha256_hash=4b006089cf770fd31971ac93d690bf485483a4a309460a6ef41fa64cf1f87649
+$(package)_sha256_hash=a723f4f0fd63d0950ca6f8d0dcaf35fb1f34d5c683e552d44c7553ffdb57a343
 $(package)_dependencies=native_ccache
 
 define $(package)_set_vars
@@ -31,9 +31,9 @@ define $(package)_build_cmds
 endef
 
 define $(package)_stage_cmds
-  mkdir -p $($(package)_staging_dir)/native/bin $($(package)_staging_dir)/native/lib && \
-  cp bin/mrustc bin/minicargo $($(package)_staging_dir)/native/bin && \
-  cp -r output-1.54.0 $($(package)_staging_dir)/native/lib
+  mkdir -p $($(package)_staging_dir)/$(host_prefix)/native/bin $($(package)_staging_dir)/$(host_prefix)/native/lib && \
+  cp bin/mrustc bin/minicargo $($(package)_staging_dir)/$(host_prefix)/native/bin && \
+  cp -r output-1.54.0 $($(package)_staging_dir)/$(host_prefix)/native
 endef
 
 define $(package)_postprocess_cmds

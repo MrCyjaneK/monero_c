@@ -9,9 +9,16 @@ SHELL ["/bin/bash", "-c"]
 SHELL ["/bin/bash", "-c"]
 
 RUN apt update \
-    && apt install -y pigz wget build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo6 gperf gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686 build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf unzip python-is-python3 build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-i686-linux-gnu g++-i686-linux-gnu pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf python-is-python3 zsh llvm libclang1-18 libc++-18-dev clang zlib1g-dev
+    && apt install -y sudo pigz wget build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo6 gperf unzip python-is-python3 zsh llvm libclang1-18 libc++-18-dev clang zlib1g-dev
 
-RUN bash -c 'if [[ "$(uname -m)" == "aarch64" || "$(uname -m)" == "arm64" ]] then sudo rm -rf /opt/android-sdk-linux/platform-tools; fi'
+# Install architecture-specific packages
+RUN if [[ "$(uname -m)" == "x86_64" || "$(uname -m)" == "amd64" ]]; then \
+        apt install -y gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686 gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-i686-linux-gnu g++-i686-linux-gnu; \
+    elif [[ "$(uname -m)" == "aarch64" || "$(uname -m)" == "arm64" ]]; then \
+        apt install -y gcc-x86-64-linux-gnu g++-x86-64-linux-gnu gcc-i686-linux-gnu g++-i686-linux-gnu; \
+    fi
+
+RUN bash -c 'if [[ "$(uname -m)" == "aarch64" || "$(uname -m)" == "arm64" ]] then rm -rf /opt/android-sdk-linux/platform-tools; fi'
 
 
 ENV DENO_VERSION=v2.0.3
@@ -22,6 +29,9 @@ RUN if [[ "$(uname -m)" == "aarch64" || "$(uname -m)" == "arm64" ]] then export 
     unzip /tmp/deno.zip && \
     mv deno /usr/local/bin && \
     rm -rf deno deno.zip
+
+RUN apt install -y sudo && \
+    echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/ubuntu
 
 USER ubuntu
 
