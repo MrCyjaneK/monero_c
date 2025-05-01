@@ -13,7 +13,7 @@ define $(package)_config_cmds
 endef
 
 define $(package)_build_cmds
-  cmake --build build --parallel
+  cmake --build build --parallel $(shell nproc)
 endef
 
 define $(package)_stage_cmds
