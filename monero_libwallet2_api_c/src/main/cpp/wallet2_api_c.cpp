@@ -2102,62 +2102,63 @@ uint64_t MONERO_Wallet_getBytesSent(void* wallet_ptr) {
     DEBUG_END()
 }
 
-bool MONERO_Wallet_getStateIsConnected(void* wallet_ptr) {
+bool MONERO_Wallet_getStateIsConnected() {
     DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getStateIsConnected();
+    return Monero::Wallet::getStateIsConnected();
     DEBUG_END()
 }
 
-unsigned char* MONERO_Wallet_getSendToDevice(void* wallet_ptr) {
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getSendToDevice();
-}
-
-size_t MONERO_Wallet_getSendToDeviceLength(void* wallet_ptr) {
+unsigned char* MONERO_Wallet_getSendToDevice() {
     DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getSendToDeviceLength();
+    return Monero::Wallet::getSendToDevice();
     DEBUG_END()
 }
 
-unsigned char* MONERO_Wallet_getReceivedFromDevice(void* wallet_ptr) {
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getReceivedFromDevice();
-}
-
-size_t MONERO_Wallet_getReceivedFromDeviceLength(void* wallet_ptr) {
+size_t MONERO_Wallet_getSendToDeviceLength() {
     DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getReceivedFromDeviceLength();
+    return Monero::Wallet::getSendToDeviceLength();
     DEBUG_END()
 }
 
-bool MONERO_Wallet_getWaitsForDeviceSend(void* wallet_ptr) {
+unsigned char* MONERO_Wallet_getReceivedFromDevice() {
     DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getWaitsForDeviceSend();
+    return Monero::Wallet::getReceivedFromDevice();
     DEBUG_END()
 }
 
-bool MONERO_Wallet_getWaitsForDeviceReceive(void* wallet_ptr) {
+size_t MONERO_Wallet_getReceivedFromDeviceLength() {
     DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getWaitsForDeviceReceive();
+    return Monero::Wallet::getReceivedFromDeviceLength();
     DEBUG_END()
 }
 
-void MONERO_Wallet_setDeviceReceivedData(void* wallet_ptr, unsigned char* data, size_t len) {
+bool MONERO_Wallet_getWaitsForDeviceSend() {
     DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->setDeviceReceivedData(data, len);
+    return Monero::Wallet::getWaitsForDeviceSend();
     DEBUG_END()
 }
 
-void MONERO_Wallet_setDeviceSendData(void* wallet_ptr, unsigned char* data, size_t len) {
+bool MONERO_Wallet_getWaitsForDeviceReceive() {
     DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->setDeviceSendData(data, len);
+    return Monero::Wallet::getWaitsForDeviceReceive();
+    DEBUG_END()
+}
+
+void MONERO_Wallet_setDeviceReceivedData(unsigned char* data, size_t len) {
+    DEBUG_START()
+    Monero::Wallet::setDeviceReceivedData(data, len);
+    DEBUG_END()
+}
+
+void MONERO_Wallet_setDeviceSendData(unsigned char* data, size_t len) {
+    DEBUG_START()
+    Monero::Wallet::setDeviceSendData(data, len);
+    DEBUG_END()
+}
+
+void MONERO_Wallet_setLedgerCallback(int (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len)) {
+    DEBUG_START()
+    Monero::Wallet::setLedgerCallback(sendToLedgerDevice);
     DEBUG_END()
 }
 

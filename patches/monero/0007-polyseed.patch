@@ -1,7 +1,7 @@
-From c54ab3f0984159bd47c63b78074caaaac082727a Mon Sep 17 00:00:00 2001
+From 3c3d441cabcaae9eb5d3db2f5cd6c506feb97168 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 09:42:37 +0100
-Subject: [PATCH 07/14] polyseed
+Subject: [PATCH 07/17] polyseed
 
 Co-authored-by: Czarek Nakamoto <cyjan@mrcyjanek.net>
 ---
@@ -814,7 +814,7 @@ index 000000000..2c8c777a7
 +#endif //POLYSEED_HPP
 \ No newline at end of file
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 25ade04a7..51911bf99 100644
+index 844a1c451..050212ff7 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -728,6 +728,28 @@ bool WalletImpl::recoverFromDevice(const std::string &path, const std::string &p
@@ -902,7 +902,7 @@ index 25ade04a7..51911bf99 100644
  {
      return m_wallet->get_seed_language();
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 4e9c21ecb..32e12284b 100644
+index 6bfb61cb8..e7873dd78 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -79,9 +79,19 @@ public:
@@ -926,7 +926,7 @@ index 4e9c21ecb..32e12284b 100644
      void setSeedLanguage(const std::string &arg) override;
      // void setListener(Listener *) {}
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 53ec4abfc..be1c3704e 100644
+index a48a6be54..8fa0bbd42 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -709,6 +709,10 @@ struct Wallet
@@ -940,7 +940,7 @@ index 53ec4abfc..be1c3704e 100644
     /**
      * @brief StartRefresh - Start/resume refresh thread (refresh every 10 seconds)
      */
-@@ -1320,6 +1324,27 @@ struct WalletManager
+@@ -1321,6 +1325,27 @@ struct WalletManager
                                              uint64_t kdf_rounds = 1,
                                              WalletListener * listener = nullptr) = 0;
  
@@ -1282,5 +1282,5 @@ index a752f15b9..a619bdd15 100644
      uint32_t m_multisig_threshold;
      std::vector<crypto::public_key> m_multisig_signers;
 -- 
-2.48.1
+2.49.0
 

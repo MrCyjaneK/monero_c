@@ -1,7 +1,7 @@
-From b4f4b38af1ab974872862fc20735e41941b955e9 Mon Sep 17 00:00:00 2001
+From 459ac9f7a64cc527528a41dc45ed4cefe83091cb Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 11 May 2024 16:25:10 +0200
-Subject: [PATCH 02/14] store crash fix
+Subject: [PATCH 02/17] store crash fix
 
 Monero wallet crashes (sometimes) when it is syncing,
 while the proper solution (that can be seen in feather)
@@ -204,5 +204,5 @@ index 2f4ad52f1..daad1e940 100644
      i_wallet2_callback* m_callback;
      hw::device::device_type m_key_device_type;
 -- 
-2.48.1
+2.49.0
 

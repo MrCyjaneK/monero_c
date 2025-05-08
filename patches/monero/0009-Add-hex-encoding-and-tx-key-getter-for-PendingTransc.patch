@@ -1,7 +1,7 @@
-From 0ba0339b11d8f7f66f2d5cd27075d438a76351b4 Mon Sep 17 00:00:00 2001
+From f386189cf3c5b433251b2cf493ba264a1a79fb7e Mon Sep 17 00:00:00 2001
 From: M <m@cakewallet.com>
 Date: Fri, 21 Apr 2023 15:43:47 -0400
-Subject: [PATCH 09/14] Add hex encoding and tx key getter for
+Subject: [PATCH 09/17] Add hex encoding and tx key getter for
  PendingTransction in wallet api.
 
 ---
@@ -51,7 +51,7 @@ index 403bfe281..0cc6c58e9 100644
  private:
      friend class WalletImpl;
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 013b5bcba..f421fdc05 100644
+index 7e67f02fd..7f1462a44 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -127,6 +127,8 @@ struct PendingTransaction
@@ -64,5 +64,5 @@ index 013b5bcba..f421fdc05 100644
  
  /**
 -- 
-2.48.1
+2.49.0
 

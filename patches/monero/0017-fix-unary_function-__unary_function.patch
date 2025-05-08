@@ -1,14 +1,14 @@
-From 0a3a2df040e177b5741706e0a0c76fac585f0356 Mon Sep 17 00:00:00 2001
+From 32f2e6cc2e184bfdaa92a5d45a15983c896f6816 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 10 Apr 2025 13:28:05 +0200
-Subject: [PATCH] fix: unary_function -> __unary_function
+Subject: [PATCH 17/17] fix: unary_function -> __unary_function
 
 ---
  src/cryptonote_basic/cryptonote_basic_impl.h | 4 ++++
  1 file changed, 4 insertions(+)
 
 diff --git a/src/cryptonote_basic/cryptonote_basic_impl.h b/src/cryptonote_basic/cryptonote_basic_impl.h
-index b423573..a9aef7a 100644
+index b423573c5..a9aef7a2a 100644
 --- a/src/cryptonote_basic/cryptonote_basic_impl.h
 +++ b/src/cryptonote_basic/cryptonote_basic_impl.h
 @@ -40,7 +40,11 @@ namespace cryptonote {

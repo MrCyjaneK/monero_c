@@ -1,7 +1,7 @@
-From ff70c74c8b331758ace1f14df0ca107731dda49d Mon Sep 17 00:00:00 2001
+From 467ee9154b5c1b903559bf1dbe848cbabc62ba7d Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 10:09:50 +0100
-Subject: [PATCH 05/14] UR functions
+Subject: [PATCH 05/17] UR functions
 
 This commit adds UR functions for UR tasks,
 I believe that the right place to get
@@ -1006,5 +1006,5 @@ index daad1e940..a752f15b9 100644
      bool import_key_images(signed_tx_set & signed_tx, size_t offset=0, bool only_selected_transfers=false);
      crypto::public_key get_tx_pub_key_from_received_outs(const tools::wallet2::transfer_details &td) const;
 -- 
-2.48.1
+2.49.0
 
