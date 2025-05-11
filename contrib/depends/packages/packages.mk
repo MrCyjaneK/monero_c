@@ -2,8 +2,14 @@ packages:=boost openssl zeromq libiconv expat unbound polyseed
 
 # ccache is useless in gitian builds
 ifneq ($(GITIAN),1)
-native_packages := native_ccache native_mrustc
+native_packages := native_ccache
 endif
+
+rust_packages := native_mrustc native_rust_1_55_0 native_rust_1_56_1 native_rust_1_57_0 native_rust_1_58_1 native_rust_1_59_0 native_rust_1_60_0 native_rust_1_61_0 native_rust_1_62_1 native_rust_1_63_0 native_rust_1_64_0 native_rust_1_65_0 native_rust_1_66_1 native_rust_1_67_1 native_rust_1_68_2 native_rust_1_69_0 native_rust_1_70_0 native_rust_1_71_1 native_rust_1_72_1 native_rust_1_73_0 native_rust_1_74_1 native_rust_1_75_0 native_rust_1_76_0 native_rust_1_77_1 native_rust_1_78_0 native_rust_1_79_0 native_rust_1_80_1 native_rust_1_81_0 native_rust_1_82_0
+
+packages := $(rust_packages)
+
+native_packages += $(native_rust_packages)
 
 hardware_packages := hidapi protobuf libusb
 hardware_native_packages := native_protobuf

@@ -8,7 +8,7 @@ BUILD = $(shell ./config.guess)
 HOST ?= $(BUILD)
 PATCHES_PATH = $(BASEDIR)/patches
 BASEDIR = $(CURDIR)
-HASH_LENGTH:=11
+HASH_LENGTH:=16
 DOWNLOAD_CONNECT_TIMEOUT:=30
 DOWNLOAD_RETRIES:=5
 HOST_ID_SALT ?= salt
@@ -205,7 +205,7 @@ define check_or_remove_cached
   mkdir -p $(BASE_CACHE)/$(host)/$(package) && cd $(BASE_CACHE)/$(host)/$(package); \
   $(build_SHA256SUM) -c $($(package)_cached_checksum) >/dev/null 2>/dev/null || \
   ( rm -f $($(package)_cached_checksum); \
-    if test -f "$($(package)_cached)"; then echo "Checksum mismatch for $(package). Forcing rebuild.."; rm -f $($(package)_cached_checksum) $($(package)_cached); fi )
+    if test -f "$($(package)_cached)"; then echo "Checksum mismatch for $(package). Forcing rebuild.."; echo rm -f $($(package)_cached_checksum) $($(package)_cached); fi )
 endef
 
 define check_or_remove_sources
