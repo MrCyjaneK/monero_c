@@ -28,8 +28,8 @@ define $(package)_build_cmds
 endef
 
 define $(package)_stage_cmds
-    mkdir -p $($(package)_staging_prefix_dir)/rust_1_54_0/bin && \
-    cp -a run_rustc/output-1.54.0/prefix-2/bin/rustc $($(package)_staging_prefix_dir)/rust_1_54_0/bin && \
-    cp -a run_rustc/output-1.54.0/prefix/bin/cargo $($(package)_staging_prefix_dir)/rust_1_54_0/bin && \
-    cp -a run_rustc/output-1.54.0/prefix-2/lib $($(package)_staging_prefix_dir)/rust_1_54_0/lib
+    mkdir -p $($(package)_staging_prefix_dir)/native/rust_1_54_0/bin && \
+    cp -a run_rustc/output-1.54.0/prefix-2/bin/rustc $($(package)_staging_prefix_dir)/native/rust_1_54_0/bin && \
+    cp -a run_rustc/output-1.54.0/prefix/bin/cargo $($(package)_staging_prefix_dir)/native/rust_1_54_0/bin && \
+    cp -a run_rustc/output-1.54.0/prefix-2/lib $($(package)_staging_prefix_dir)/native/rust_1_54_0/lib
 endef
