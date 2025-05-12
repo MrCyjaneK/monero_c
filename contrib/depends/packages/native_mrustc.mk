@@ -10,7 +10,11 @@ define $(package)_preprocess_cmds
   cd $($(package)_extract_dir) && \
   if [ -f script-overrides/stable-1.54.0-macos/build_std.txt ]; then \
     ARCH=`uname -m | sed 's/arm64/aarch64/'` && \
-    sed -i.bak "s/STD_ENV_ARCH=[a-zA-Z0-9_]*/STD_ENV_ARCH=$$ARCH/" script-overrides/stable-1.54.0-macos/build_std.txt; \
+    sed -i.bak "s/STD_ENV_ARCH=[a-zA-Z0-9_]*/STD_ENV_ARCH=$$$$ARCH/" script-overrides/stable-1.54.0-macos/build_std.txt; \
+  fi && \
+  if [ -f script-overrides/stable-1.54.0-linux/build_std.txt ]; then \
+    ARCH=`uname -m | sed 's/arm64/aarch64/'` && \
+    sed -i.bak "s/STD_ENV_ARCH=[a-zA-Z0-9_]*/STD_ENV_ARCH=$$$$ARCH/" script-overrides/stable-1.54.0-linux/build_std.txt; \
   fi && \
   if [ `uname -s` = "Darwin" ]; then \
     echo 'Patching mrustc to work with clang on macOS' && \
