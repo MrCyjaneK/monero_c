@@ -1,8 +1,8 @@
 package=native_rust_1_56_1
 $(package)_version=1.56.1
 $(package)_download_path=https://static.rust-lang.org/dist
-$(package)_download_file=rustc-$($(package)_version)-src.tar.gz
-$(package)_file_name=$(package)-$($(package)_version).tar.gz
+$(package)_file_name=rustc-$($(package)_version)-src.tar.gz
+$(package)_download_file=$($(package)_file_name)
 $(package)_sha256_hash=c3898dfaadaa193dc88ddbc5345946a163211b58621df1cfff70186b4fc79511
 $(package)_dependencies=native_rust_1_55_0
 
