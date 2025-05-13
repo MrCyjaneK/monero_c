@@ -39,13 +39,6 @@ index c73b813d8..5c0f31cb8 100644
    message(STATUS "Using HIDAPI include dir at ${HIDAPI_INCLUDE_DIR}")
    add_definitions(-DHAVE_HIDAPI)
    include_directories(${HIDAPI_INCLUDE_DIR})
-diff --git a/external/randomx b/external/randomx
-index ce72c9bb9..102f8acf9 160000
---- a/external/randomx
-+++ b/external/randomx
-@@ -1 +1 @@
--Subproject commit ce72c9bb9cb799e0d9171094b9abb009e04c5bfc
-+Subproject commit 102f8acf90a7649ada410de5499a7ec62e49e1da
 diff --git a/src/device/CMakeLists.txt b/src/device/CMakeLists.txt
 index e4f1159b5..14d398f87 100644
 --- a/src/device/CMakeLists.txt
