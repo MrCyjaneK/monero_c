@@ -197,7 +197,7 @@ index 000000000..01e6fc7b7
 +size_t hw::io::device_io_dummy::receivedFromDeviceLength = 0;
 +bool hw::io::device_io_dummy::waitsForDeviceSend = false;
 +bool hw::io::device_io_dummy::waitsForDeviceReceive = false;
-+int (*hw::io::device_io_dummy::sendToLedgerDeviceCallback)(unsigned char *command, unsigned int cmd_len) = nullptr;
++void (*hw::io::device_io_dummy::sendToLedgerDeviceCallback)(unsigned char *command, unsigned int cmd_len) = nullptr;
 +std::mutex hw::io::device_io_dummy::mutex;
 +std::condition_variable hw::io::device_io_dummy::cv_send;
 +std::condition_variable hw::io::device_io_dummy::cv_receive;
@@ -249,25 +249,25 @@ index 000000000..01e6fc7b7
 +            if (sendToLedgerDeviceCallback != nullptr) {
 +                MDEBUG("exchange(): calling sendToLedgerDeviceCallback");
 +                sendToLedgerDeviceCallback(command, cmd_len);
-+            }
++            } else {
++                MDEBUG("exchange(): waitsForDeviceSend");
++                // Wait for the send flag to be cleared by external code
++                while (waitsForDeviceSend) {
++                    cv_send.wait(lock);
++                    MDEBUG("exchange(): waitsForDeviceSend notified");
++                }
 +
-+            MDEBUG("exchange(): waitsForDeviceSend");
-+            // Wait for the send flag to be cleared by external code
-+            while (waitsForDeviceSend) {
-+                cv_send.wait(lock);
-+                MDEBUG("exchange(): waitsForDeviceSend notified");
-+            }
++                MDEBUG("exchange(): waitsForDeviceReceive");
++                // Wait for the receive flag to be cleared by external code
++                while (waitsForDeviceReceive) {
++                    cv_receive.wait(lock);
++                    MDEBUG("exchange(): waitsForDeviceReceive notified");
++                }
 +
-+            MDEBUG("exchange(): waitsForDeviceReceive");
-+            // Wait for the receive flag to be cleared by external code
-+            while (waitsForDeviceReceive) {
-+                cv_receive.wait(lock);
-+                MDEBUG("exchange(): waitsForDeviceReceive notified");
-+            }
-+
-+            if (receivedFromDeviceLength > max_resp_len) {
-+                MDEBUG("exchange(): receivedFromDeviceLength ("<<receivedFromDeviceLength<<") is larger than max_resp_len ("<<max_resp_len<<")");
-+                return 1;
++                if (receivedFromDeviceLength > max_resp_len) {
++                    MDEBUG("exchange(): receivedFromDeviceLength ("<<receivedFromDeviceLength<<") is larger than max_resp_len ("<<max_resp_len<<")");
++                    return 1;
++                }
 +            }
 +
 +            memset(response, 0, max_resp_len);
@@ -283,7 +283,7 @@ index 000000000..01e6fc7b7
 +            MDEBUG("release()");
 +        }
 +
-+        void device_io_dummy::setLedgerCallback(int (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len)) {
++        void device_io_dummy::setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len)) {
 +            MDEBUG("setLedgerCallback()");
 +            sendToLedgerDeviceCallback = sendToLedgerDevice;
 +        }
@@ -370,7 +370,7 @@ index 000000000..1128b9c1d
 +            static size_t receivedFromDeviceLength;
 +            static bool waitsForDeviceSend;
 +            static bool waitsForDeviceReceive;
-+            static int (*sendToLedgerDeviceCallback)(unsigned char *command, unsigned int cmd_len);
++            static void (*sendToLedgerDeviceCallback)(unsigned char *command, unsigned int cmd_len);
 +
 +            device_io_dummy()  = default;
 +            device_io_dummy(int a, int b, int c, int d);
@@ -386,7 +386,7 @@ index 000000000..1128b9c1d
 +
 +            int exchange(unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len, bool user_input);
 +
-+            static void setLedgerCallback(int (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
++            static void setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
 +            static void setDeviceReceivedData(unsigned char* data, size_t len);
 +        };
 +    };
@@ -564,7 +564,7 @@ index 3fcd6f332..844a1c451 100644
 +    #endif
 +}
 +
-+void Wallet::setLedgerCallback(int (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len)) {
++void Wallet::setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len)) {
 +    #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))
 +    MERROR("MONERO compiled with #if !(defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI))");
 +    return;
@@ -619,7 +619,7 @@ index 764adbfbf..a48a6be54 100644
 +
 +    static void setDeviceReceivedData(unsigned char* data, size_t len);
 +    static void setDeviceSendData(unsigned char* data, size_t len);
-+    static void setLedgerCallback(int (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
++    static void setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
  };
  
  /**

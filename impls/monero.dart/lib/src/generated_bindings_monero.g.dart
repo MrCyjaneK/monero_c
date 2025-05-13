@@ -4462,7 +4462,7 @@ class MoneroC {
   void MONERO_Wallet_setLedgerCallback(
     ffi.Pointer<
             ffi.NativeFunction<
-                ffi.Int Function(ffi.Pointer<ffi.UnsignedChar> command,
+                ffi.Void Function(ffi.Pointer<ffi.UnsignedChar> command,
                     ffi.UnsignedInt cmd_len)>>
         sendToLedgerDevice,
   ) {
@@ -4476,7 +4476,7 @@ class MoneroC {
               ffi.Void Function(
                   ffi.Pointer<
                       ffi.NativeFunction<
-                          ffi.Int Function(
+                          ffi.Void Function(
                               ffi.Pointer<ffi.UnsignedChar> command,
                               ffi.UnsignedInt cmd_len)>>)>>(
       'MONERO_Wallet_setLedgerCallback');
@@ -4485,7 +4485,7 @@ class MoneroC {
           void Function(
               ffi.Pointer<
                   ffi.NativeFunction<
-                      ffi.Int Function(ffi.Pointer<ffi.UnsignedChar> command,
+                      ffi.Void Function(ffi.Pointer<ffi.UnsignedChar> command,
                           ffi.UnsignedInt cmd_len)>>)>();
 
   ffi.Pointer<ffi.Void> MONERO_WalletManager_createWallet(

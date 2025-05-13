@@ -841,7 +841,7 @@ extern ADDAPI bool MONERO_Wallet_getWaitsForDeviceSend();
 extern ADDAPI bool MONERO_Wallet_getWaitsForDeviceReceive();
 extern ADDAPI void MONERO_Wallet_setDeviceReceivedData(unsigned char* data, size_t len);
 extern ADDAPI void MONERO_Wallet_setDeviceSendData(unsigned char* data, size_t len);
-extern ADDAPI void MONERO_Wallet_setLedgerCallback(int (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
+extern ADDAPI void MONERO_Wallet_setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
 // };
 
 // struct WalletManager

@@ -2156,7 +2156,7 @@ void MONERO_Wallet_setDeviceSendData(unsigned char* data, size_t len) {
     DEBUG_END()
 }
 
-void MONERO_Wallet_setLedgerCallback(int (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len)) {
+void MONERO_Wallet_setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len)) {
     DEBUG_START()
     Monero::Wallet::setLedgerCallback(sendToLedgerDevice);
     DEBUG_END()
