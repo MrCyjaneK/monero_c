@@ -2,6 +2,7 @@ package=native_rust_1_55_0
 $(package)_version=1.55.0
 $(package)_download_path=https://static.rust-lang.org/dist
 $(package)_file_name=rustc-$($(package)_version)-src.tar.gz
+$(package)_download_file=$($(package)_file_name)
 $(package)_sha256_hash=b2379ac710f5f876ee3c3e03122fe33098d6765d371cac6c31b1b6fc8e43821e
 $(package)_dependencies=native_mrustc
 

@@ -3,7 +3,7 @@ $(package)_version=1.77.1
 $(package)_download_path=https://static.rust-lang.org/dist
 $(package)_file_name=rustc-$($(package)_version)-src.tar.gz
 $(package)_download_file=$($(package)_file_name)
-$(package)_sha256_hash=d23af19ad537dd5ddb38cd7873663d5e8f1c542a14ecb5602f7b23f676a09662
+$(package)_sha256_hash=ee106e4c569f52dba3b5b282b105820f86bd8f6b3d09c06b8dce82fb1bb3a4a1
 $(package)_dependencies=native_rust_1_76_0
 
 define $(package)_preprocess_cmds
