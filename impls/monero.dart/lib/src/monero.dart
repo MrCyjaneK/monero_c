@@ -1033,14 +1033,12 @@ class MoneroWallet implements Wallet2Wallet {
     return monero.Wallet_getPolyseed(walletPtr, passphrase: passphrase);
   }
   
-  @override
-  Pointer<UnsignedChar> getReceivedFromDevice() {
-    return monero.Wallet_getReceivedFromDevice(walletPtr);
+  static Pointer<UnsignedChar> getReceivedFromDevice() {
+    return monero.Wallet_getReceivedFromDevice();
   }
   
-  @override
-  int getReceivedFromDeviceLength() {
-    return monero.Wallet_getReceivedFromDeviceLength(walletPtr);
+  static int getReceivedFromDeviceLength() {
+    return monero.Wallet_getReceivedFromDeviceLength();
   }
   
   @override
@@ -1052,20 +1050,17 @@ class MoneroWallet implements Wallet2Wallet {
   String getSeedLanguage() {
     return monero.Wallet_getSeedLanguage(walletPtr);
   }
-  
-  @override
-  Pointer<UnsignedChar> getSendToDevice() {
-    return monero.Wallet_getSendToDevice(walletPtr);
+
+  static Pointer<UnsignedChar> getSendToDevice() {
+    return monero.Wallet_getSendToDevice();
   }
   
-  @override
-  int getSendToDeviceLength() {
-    return monero.Wallet_getSendToDeviceLength(walletPtr);
+  static int getSendToDeviceLength() {
+    return monero.Wallet_getSendToDeviceLength();
   }
   
-  @override
-  bool getStateIsConnected() {
-    return monero.Wallet_getStateIsConnected(walletPtr);
+  static bool getStateIsConnected() {
+    return monero.Wallet_getStateIsConnected();
   }
   
   @override
@@ -1083,14 +1078,12 @@ class MoneroWallet implements Wallet2Wallet {
     return monero.Wallet_getUserNote(walletPtr, txid: txid);
   }
   
-  @override
-  bool getWaitsForDeviceReceive() {
-    return monero.Wallet_getWaitsForDeviceReceive(walletPtr);
+  static bool getWaitsForDeviceReceive() {
+    return monero.Wallet_getWaitsForDeviceReceive();
   }
   
-  @override
-  bool getWaitsForDeviceSend() {
-    return monero.Wallet_getWaitsForDeviceSend(walletPtr);
+  static bool getWaitsForDeviceSend() {
+    return monero.Wallet_getWaitsForDeviceSend();
   }
   
   @override
@@ -1357,14 +1350,12 @@ class MoneroWallet implements Wallet2Wallet {
     return monero.Wallet_setDevicePin(walletPtr, passphrase: passphrase);
   }
   
-  @override
-  void setDeviceReceivedData(Pointer<UnsignedChar> data, int len) {
-    monero.Wallet_setDeviceReceivedData(walletPtr, data, len);
+  static void setDeviceReceivedData(Pointer<UnsignedChar> data, int len) {
+    monero.Wallet_setDeviceReceivedData(data, len);
   }
   
-  @override
-  void setDeviceSendData(Pointer<UnsignedChar> data, int len) {
-    monero.Wallet_setDeviceSendData(walletPtr, data, len);
+  static void setDeviceSendData(Pointer<UnsignedChar> data, int len) {
+    monero.Wallet_setDeviceSendData(data, len);
   }
   
   @override

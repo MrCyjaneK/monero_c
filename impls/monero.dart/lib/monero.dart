@@ -3515,83 +3515,82 @@ int MONERO_Wallet_getBytesSent(wallet ptr) {
 }
 
 @Deprecated("TODO")
-bool Wallet_getStateIsConnected(wallet ptr) {
+bool Wallet_getStateIsConnected() {
   debugStart?.call('MONERO_Wallet_getStateIsConnected');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final ret = lib!.MONERO_Wallet_getStateIsConnected(ptr);
+  final ret = lib!.MONERO_Wallet_getStateIsConnected();
   debugEnd?.call('MONERO_Wallet_getStateIsConnected');
   return ret;
 }
 
 @Deprecated("TODO")
-Pointer<UnsignedChar> Wallet_getSendToDevice(wallet ptr) {
+Pointer<UnsignedChar> Wallet_getSendToDevice() {
   debugStart?.call('MONERO_Wallet_getSendToDevice');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final ret = lib!.MONERO_Wallet_getSendToDevice(ptr);
+  final ret = lib!.MONERO_Wallet_getSendToDevice();
   debugEnd?.call('MONERO_Wallet_getSendToDevice');
   return ret;
 }
 
 @Deprecated("TODO")
-int Wallet_getSendToDeviceLength(wallet ptr) {
+int Wallet_getSendToDeviceLength() {
   debugStart?.call('MONERO_Wallet_getSendToDeviceLength');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final ret = lib!.MONERO_Wallet_getSendToDeviceLength(ptr);
+  final ret = lib!.MONERO_Wallet_getSendToDeviceLength();
   debugEnd?.call('MONERO_Wallet_getSendToDeviceLength');
   return ret;
 }
 
 @Deprecated("TODO")
-Pointer<UnsignedChar> Wallet_getReceivedFromDevice(wallet ptr) {
+Pointer<UnsignedChar> Wallet_getReceivedFromDevice() {
   debugStart?.call('MONERO_Wallet_getReceivedFromDevice');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final ret = lib!.MONERO_Wallet_getReceivedFromDevice(ptr);
+  final ret = lib!.MONERO_Wallet_getReceivedFromDevice();
   debugEnd?.call('MONERO_Wallet_getReceivedFromDevice');
   return ret;
 }
 
 @Deprecated("TODO")
-int Wallet_getReceivedFromDeviceLength(wallet ptr) {
+int Wallet_getReceivedFromDeviceLength() {
   debugStart?.call('MONERO_Wallet_getReceivedFromDeviceLength');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final ret = lib!.MONERO_Wallet_getReceivedFromDeviceLength(ptr);
+  final ret = lib!.MONERO_Wallet_getReceivedFromDeviceLength();
   debugEnd?.call('MONERO_Wallet_getReceivedFromDeviceLength');
   return ret;
 }
 
 @Deprecated("TODO")
-bool Wallet_getWaitsForDeviceSend(wallet ptr) {
+bool Wallet_getWaitsForDeviceSend() {
   debugStart?.call('MONERO_Wallet_getWaitsForDeviceSend');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final ret = lib!.MONERO_Wallet_getWaitsForDeviceSend(ptr);
+  final ret = lib!.MONERO_Wallet_getWaitsForDeviceSend();
   debugEnd?.call('MONERO_Wallet_getWaitsForDeviceSend');
   return ret;
 }
 
 @Deprecated("TODO")
-bool Wallet_getWaitsForDeviceReceive(wallet ptr) {
+bool Wallet_getWaitsForDeviceReceive() {
   debugStart?.call('MONERO_Wallet_getWaitsForDeviceReceive');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final ret = lib!.MONERO_Wallet_getWaitsForDeviceReceive(ptr);
+  final ret = lib!.MONERO_Wallet_getWaitsForDeviceReceive();
   debugEnd?.call('MONERO_Wallet_getWaitsForDeviceReceive');
   return ret;
 }
 
 @Deprecated("TODO")
-void Wallet_setDeviceReceivedData(
-    wallet ptr, Pointer<UnsignedChar> data, int len) {
+void Wallet_setDeviceReceivedData(Pointer<UnsignedChar> data, int len) {
   debugStart?.call('MONERO_Wallet_setDeviceReceivedData');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final ret = lib!.MONERO_Wallet_setDeviceReceivedData(ptr, data, len);
+  final ret = lib!.MONERO_Wallet_setDeviceReceivedData(data, len);
   debugEnd?.call('MONERO_Wallet_setDeviceReceivedData');
   return ret;
 }
 
 @Deprecated("TODO")
-void Wallet_setDeviceSendData(wallet ptr, Pointer<UnsignedChar> data, int len) {
+void Wallet_setDeviceSendData(Pointer<UnsignedChar> data, int len) {
   debugStart?.call('MONERO_Wallet_setDeviceSendData');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
-  final ret = lib!.MONERO_Wallet_setDeviceSendData(ptr, data, len);
+  final ret = lib!.MONERO_Wallet_setDeviceSendData(data, len);
   debugEnd?.call('MONERO_Wallet_setDeviceSendData');
   return ret;
 }
