@@ -242,26 +242,26 @@ index 000000000..01e6fc7b7
 +            if (sendToLedgerDeviceCallback != nullptr) {
 +                MDEBUG("exchange(): calling sendToLedgerDeviceCallback");
 +                sendToLedgerDeviceCallback(command, cmd_len);
-+            } else {
-+                MDEBUG("exchange(): waitsForDeviceSend");
-+                // Wait for the send flag to be cleared by external code
-+                while (waitsForDeviceSend) {
-+                    cv_send.wait(lock);
-+                    MDEBUG("exchange(): waitsForDeviceSend notified");
-+                }
-+
-+                MDEBUG("exchange(): waitsForDeviceReceive");
-+                // Wait for the receive flag to be cleared by external code
-+                while (waitsForDeviceReceive) {
-+                    cv_receive.wait(lock);
-+                    MDEBUG("exchange(): waitsForDeviceReceive notified");
-+                }
-+
-+                if (receivedFromDeviceLength > max_resp_len) {
-+                    MDEBUG("exchange(): receivedFromDeviceLength ("<<receivedFromDeviceLength<<") is larger than max_resp_len ("<<max_resp_len<<")");
-+                    return 1;
-+                }
 +            }
++            MDEBUG("exchange(): waitsForDeviceSend");
++            // Wait for the send flag to be cleared by external code
++            while (waitsForDeviceSend) {
++                cv_send.wait(lock);
++                MDEBUG("exchange(): waitsForDeviceSend notified");
++            }
++
++            MDEBUG("exchange(): waitsForDeviceReceive");
++            // Wait for the receive flag to be cleared by external code
++            while (waitsForDeviceReceive) {
++                cv_receive.wait(lock);
++                MDEBUG("exchange(): waitsForDeviceReceive notified");
++            }
++
++            if (receivedFromDeviceLength > max_resp_len) {
++                MDEBUG("exchange(): receivedFromDeviceLength ("<<receivedFromDeviceLength<<") is larger than max_resp_len ("<<max_resp_len<<")");
++                return 1;
++            }
++
 +
 +            memset(response, 0, max_resp_len);
 +            memcpy(response, receivedFromDevice, receivedFromDeviceLength);
