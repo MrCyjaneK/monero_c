@@ -239,7 +239,7 @@ $($(1)_configured): | $($(1)_preprocessed)
 	$(AT)echo "  Build directory: $($(1)_build_dir)"
 	$(AT)echo "  Host prefix: $(host_prefix)"
 	$(AT)echo "  All dependencies: $($(1)_all_dependencies)"
-	$(AT)rm -rf $(host_prefix); mkdir -p $(host_prefix)/lib; cd $(host_prefix); $(foreach package,$($(1)_all_dependencies), tar xf $($(package)_cached); )
+	$(AT)rm -rf $(host_prefix); mkdir -p $(host_prefix)/lib; cd $(host_prefix); $(foreach package,$($(1)_all_dependencies), tar -xf $($(package)_cached); )
 	$(AT)mkdir -p $$(@D)
 	$(AT)+cd $$(@D); $($(1)_config_env) $(call $(1)_config_cmds, $(1))
 	$(AT)echo "  Configuration completed: $$@"
