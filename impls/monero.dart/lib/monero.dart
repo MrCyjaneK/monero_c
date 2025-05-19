@@ -3594,7 +3594,16 @@ void Wallet_setDeviceSendData(Pointer<UnsignedChar> data, int len) {
   debugEnd?.call('MONERO_Wallet_setDeviceSendData');
   return ret;
 }
-  
+
+@Deprecated("TODO")
+void Wallet_setLedgerCallback(Pointer<NativeFunction<Void Function(Pointer<UnsignedChar>, UnsignedInt)>> callback) {
+  debugStart?.call('MONERO_Wallet_setDeviceSendData');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+  final ret = lib!.MONERO_Wallet_setLedgerCallback(callback);
+  debugEnd?.call('MONERO_Wallet_setDeviceSendData');
+  return ret;
+}
+
 // WalletManager
 @Deprecated("TODO")
 typedef WalletManager = Pointer<Void>;

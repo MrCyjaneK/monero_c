@@ -1357,6 +1357,10 @@ class MoneroWallet implements Wallet2Wallet {
   static void setDeviceSendData(Pointer<UnsignedChar> data, int len) {
     monero.Wallet_setDeviceSendData(data, len);
   }
+
+  static void serLedgerCallback(Pointer<NativeFunction<Void Function(Pointer<UnsignedChar>, UnsignedInt)>> callback) {
+    monero.Wallet_setLedgerCallback(callback);
+  }
   
   @override
   void setOffline({required bool offline}) {
