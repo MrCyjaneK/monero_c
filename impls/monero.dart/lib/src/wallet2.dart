@@ -364,15 +364,6 @@ abstract class Wallet2Wallet {
   String deviceShowAddress({required int accountIndex, required int addressIndex});
   bool reconnectDevice();
   int getBytesReceived();
-  bool getStateIsConnected();
-  Pointer<UnsignedChar> getSendToDevice();
-  int getSendToDeviceLength();
-  Pointer<UnsignedChar> getReceivedFromDevice();
-  int getReceivedFromDeviceLength();
-  bool getWaitsForDeviceSend();
-  bool getWaitsForDeviceReceive();
-  void setDeviceReceivedData(Pointer<UnsignedChar> data, int len);
-  void setDeviceSendData(Pointer<UnsignedChar> data, int len);
   int getBytesSent();
   Wallet2WalletListener getWalletListener();
 }

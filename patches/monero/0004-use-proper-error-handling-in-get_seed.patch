@@ -1,7 +1,7 @@
-From f9b222f1611d7cfbaf0ac52cd6194724c7554def Mon Sep 17 00:00:00 2001
+From 0c1524dd9a4f6b4450b277623ffa620f69931102 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 24 Jun 2024 10:49:12 +0200
-Subject: [PATCH 04/14] use proper error handling in get_seed
+Subject: [PATCH 04/17] use proper error handling in get_seed
 
 ---
  src/wallet/api/wallet.cpp | 17 ++++++++++++-----
@@ -67,5 +67,5 @@ index c9c2dbc82..b827b826f 100644
  
    return true;
 -- 
-2.48.1
+2.49.0
 

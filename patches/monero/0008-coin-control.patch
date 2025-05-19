@@ -1,7 +1,7 @@
-From 753d7eee48d8e9ab5950e48dc984cc1038c11dd1 Mon Sep 17 00:00:00 2001
+From 722abaf1f84d8444d40e277f8b97e54250195856 Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 11:07:57 +0100
-Subject: [PATCH 08/14] coin control
+Subject: [PATCH 08/17] coin control
 
 ---
  src/simplewallet/simplewallet.cpp |   2 +-
@@ -504,7 +504,7 @@ index 000000000..c43e45abd
 +
 +#endif //FEATHER_COINS_INFO_H
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 51911bf99..933cc2531 100644
+index 050212ff7..b259528ef 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -35,6 +35,7 @@
@@ -760,7 +760,7 @@ index 51911bf99..933cc2531 100644
  {
      return m_subaddress.get();
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 32e12284b..a82f270e4 100644
+index e7873dd78..bc782dd4a 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -46,6 +46,7 @@ class PendingTransactionImpl;
@@ -813,7 +813,7 @@ index 32e12284b..a82f270e4 100644
  
      // multi-threaded refresh stuff
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index be1c3704e..013b5bcba 100644
+index 8fa0bbd42..7e67f02fd 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -263,6 +263,51 @@ struct AddressBook
@@ -1095,5 +1095,5 @@ index a619bdd15..4f324c238 100644
      void set_unspent(size_t idx);
      bool is_spent(const transfer_details &td, bool strict = true) const;
 -- 
-2.48.1
+2.49.0
 

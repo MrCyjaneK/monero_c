@@ -1,14 +1,14 @@
-From 31ef09596a9d8d547905577823ff52d33e10a3d2 Mon Sep 17 00:00:00 2001
+From ab4e853571329b3ccb745c393220c047b03f2b2c Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 1 Apr 2025 11:30:45 +0200
-Subject: [PATCH] pr-9880
+Subject: [PATCH 16/17] pr-9880
 
 ---
  CMakeLists.txt | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 5938be6..1c47285 100644
+index 5938be622..1c4728578 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -216,7 +216,7 @@ function(forbid_undefined_symbols)

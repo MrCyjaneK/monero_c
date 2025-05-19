@@ -1,7 +1,7 @@
-From cb02355313d504e6a44f8f70b8eb2be64167ffd4 Mon Sep 17 00:00:00 2001
+From 55f5311122fb9d19e870fa4a330c59d76ca92aac Mon Sep 17 00:00:00 2001
 From: Konstantin Ullrich <konstantinullrich12@gmail.com>
 Date: Wed, 11 Oct 2023 16:47:59 +0200
-Subject: [PATCH 10/14] Add recoverDeterministicWalletFromSpendKey
+Subject: [PATCH 10/17] Add recoverDeterministicWalletFromSpendKey
 
 This function is used by Cake Wallet to enable polyseed (dart implementation)
 support.
@@ -19,7 +19,7 @@ Co-authored-by: Godwin Asuquo <godilite@gmail.com>
  5 files changed, 75 insertions(+)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 933cc2531..d8fe108b4 100644
+index b259528ef..20ccbfb35 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -824,6 +824,35 @@ bool WalletImpl::recover(const std::string &path, const std::string &password, c
@@ -59,7 +59,7 @@ index 933cc2531..d8fe108b4 100644
  {
  
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index a82f270e4..9e1fbb40b 100644
+index bc782dd4a..bfe81c590 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -77,6 +77,10 @@ public:
@@ -74,10 +74,10 @@ index a82f270e4..9e1fbb40b 100644
                             const std::string &password,
                             const std::string &device_name);
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index f421fdc05..c8d6bb179 100644
+index 7f1462a44..27e8b1426 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -1323,6 +1323,25 @@ struct WalletManager
+@@ -1324,6 +1324,25 @@ struct WalletManager
          return createWalletFromKeys(path, password, language, testnet ? TESTNET : MAINNET, restoreHeight, addressString, viewKeyString, spendKeyString);
      }
  
@@ -149,5 +149,5 @@ index 28fcd36c9..be3ff8184 100644
                                              const std::string &password,
                                              NetworkType nettype,
 -- 
-2.48.1
+2.49.0
 

@@ -1,7 +1,7 @@
-From 846d3f60093add6653d9102d841288066fc08311 Mon Sep 17 00:00:00 2001
+From ec93b6bf725eeff0999fdd9d603c4578cb19ae07 Mon Sep 17 00:00:00 2001
 From: cyan <cyjan@mrcyjanek.net>
 Date: Thu, 7 Nov 2024 16:46:24 +0000
-Subject: [PATCH 11/14] add monero submodule support
+Subject: [PATCH 11/17] add monero submodule support
 
 ---
  CMakeLists.txt                   | 6 +++---
@@ -61,5 +61,5 @@ index 3188c88db..9fbdb3c05 100644
        if (ptx_vector.empty())
        {
 -- 
-2.48.1
+2.49.0
 

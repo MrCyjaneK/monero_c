@@ -1,7 +1,7 @@
-From 53cc0482e55a39b5dbf2261fea11fcb160778800 Mon Sep 17 00:00:00 2001
+From 73d6ad9d513f776afb1c1f5f2d74e3b06fad7eeb Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 21 Nov 2024 06:05:03 -0500
-Subject: [PATCH 12/14] fix iOS depends build
+Subject: [PATCH 12/17] fix iOS depends build
 
 ---
  CMakeLists.txt                      | 4 ----
@@ -100,5 +100,5 @@ index 71b8f78cc..0f53f024e 100644
        #if TARGET_OS_MAC && (!defined(MAC_OS_X_VERSION_MIN_REQUIRED) || MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7)
          return boost::logic::tribool(IOPSGetTimeRemainingEstimate() != kIOPSTimeRemainingUnlimited);
 -- 
-2.48.1
+2.49.0
 

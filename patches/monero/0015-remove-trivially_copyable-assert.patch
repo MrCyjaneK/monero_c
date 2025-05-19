@@ -1,7 +1,7 @@
-From 71cf45cfbd571ec58e8b2a1d408ff74804bf7e1d Mon Sep 17 00:00:00 2001
+From b62446750e904978cd1a8f90d5f2d1437a3db5a9 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 20 Feb 2025 08:36:28 +0100
-Subject: [PATCH] remove trivially_copyable assert
+Subject: [PATCH 15/17] remove trivially_copyable assert
 
 ---
  contrib/epee/include/span.h | 1 -
@@ -20,5 +20,5 @@ index 01dc387d6..2ad733a2f 100644
      return {reinterpret_cast<const std::uint8_t*>(std::addressof(src)), sizeof(T)};
    }
 -- 
-2.48.1
+2.49.0
 
