@@ -285,12 +285,12 @@ index 000000000..01e6fc7b7
 +            MDEBUG("setDeviceReceivedData(len: " << len << ")");
 +            std::unique_lock<std::mutex> lock(mutex);
 +
-+            receivedFromDevice = data;
++            receivedFromDevice = static_cast<unsigned char *>(malloc(len));
 +            receivedFromDeviceLength = len;
-+
-+            waitsForDeviceSend = false;
++            memset(receivedFromDevice, 0, len);
++            memcpy(receivedFromDevice, data, len);
 +            waitsForDeviceReceive = false;
-+
++            waitsForDeviceSend = false;
 +            cv_send.notify_all();
 +            cv_receive.notify_all();
 +        }
