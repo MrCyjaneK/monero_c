@@ -1,0 +1,22 @@
+From 0e9441f532606a6dd6bd6e63d6daf3fd672316b1 Mon Sep 17 00:00:00 2001
+From: j-berman <justinberman@protonmail.com>
+Date: Fri, 16 May 2025 15:29:59 -0700
+Subject: [PATCH] wallet2: use IO tpool for pulling blocks from daemon
+
+---
+ src/wallet/wallet2.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
+index dd0ed39bfcf..d57a9130618 100644
+--- a/src/wallet/wallet2.cpp
++++ b/src/wallet/wallet2.cpp
+@@ -4017,7 +4017,7 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
+   size_t try_count = 0;
+   crypto::hash last_tx_hash_id = m_transfers.size() ? m_transfers.back().m_txid : null_hash;
+   std::list<crypto::hash> short_chain_history;
+-  tools::threadpool& tpool = tools::threadpool::getInstanceForCompute();
++  tools::threadpool& tpool = tools::threadpool::getInstanceForIO();
+   tools::threadpool::waiter waiter(tpool);
+   uint64_t blocks_start_height;
+   std::vector<cryptonote::block_complete_entry> blocks;
