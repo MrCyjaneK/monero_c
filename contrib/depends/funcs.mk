@@ -46,6 +46,8 @@ $(eval $(1)_all_dependencies:=$(call int_get_all_dependencies,$(1),$($($(1)_type
 $(foreach dep,$($(1)_all_dependencies),$(eval $(1)_build_id_deps+=$(dep)-$($(dep)_version)-$($(dep)_recipe_hash)))
 $(eval $(1)_build_id_long:=$(1)-$($(1)_version)-$($(1)_recipe_hash)-$(release_type) $($(1)_build_id_deps) $($($(1)_type)_id_string))
 $(eval $(1)_build_id:=$(shell echo -n "$($(1)_build_id_long)" | $(build_SHA256SUM) | cut -c-$(HASH_LENGTH)))
+$(eval $(1)_build_id_long_legacy:=$(1)-$($(1)_version)-$($(1)_recipe_hash)-$(release_type) $($(1)_build_id_deps) $($($(1)_type)_id_string_legacy))
+$(eval $(1)_build_id_legacy:=$(shell echo -n "$($(1)_build_id_long_legacy)" | $(build_SHA256SUM) | cut -c-$(HASH_LENGTH)))
 final_build_id_long+=$($(package)_build_id_long)
 
 #compute package-specific paths
@@ -59,6 +61,7 @@ $(1)_extract_dir:=$(base_build_dir)/$(host)/$(1)/$($(1)_version)-$($(1)_build_id
 $(1)_download_dir:=$(base_download_dir)/$(1)-$($(1)_version)
 $(1)_build_dir:=$$($(1)_extract_dir)/$$($(1)_build_subdir)
 $(1)_cached_checksum:=$(BASE_CACHE)/$(host)/$(1)/$(1)-$($(1)_version)-$($(1)_build_id).tar.gz.hash
+$(1)_cached_buildinfo:=$(BASE_CACHE)/$(host)/$(1)/$(1)-$($(1)_version)-$($(1)_build_id).tar.gz.txt
 $(1)_patch_dir:=$(base_build_dir)/$(host)/$(1)/$($(1)_version)-$($(1)_build_id)/.patches-$($(1)_build_id)
 $(1)_prefixbin:=$($($(1)_type)_prefix)/bin/
 $(1)_cached:=$(BASE_CACHE)/$(host)/$(1)/$(1)-$($(1)_version)-$($(1)_build_id).tar.gz
@@ -276,10 +279,53 @@ $($(1)_cached_checksum): $($(1)_cached)
 	$(AT)echo "  Checksum file: $$@"
 	$(AT)cd $$(@D); $(build_SHA256SUM) $$(<F) > $$(@)
 	$(AT)echo "  Checksum completed: $$@"
+	$(AT)echo "=== Generating build info for $(1) v$($(1)_version) ==="
+	$(AT)echo "  Build info file: $$($(1)_cached_buildinfo)"
+	$(AT)echo "# Build Info for $(1) v$($(1)_version)" > $$($(1)_cached_buildinfo)
+	$(AT)echo "# Generated on: $$(shell date)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Package: $(1)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Version: $($(1)_version)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Host: $(host)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Release Type: $(release_type)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Build ID (current): $($(1)_build_id)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Build ID (legacy): $($(1)_build_id_legacy)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Build ID String (current): $($(1)_build_id_long)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Build ID String (legacy): $($(1)_build_id_long_legacy)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Dependencies: $($(1)_dependencies)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "All Dependencies: $($(1)_all_dependencies)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Recipe Hash: $($(1)_recipe_hash)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Recipe Files: $($(1)_all_file_checksums)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Toolchain (current): $($($(1)_type)_id_string)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Toolchain (legacy): $($($(1)_type)_id_string_legacy)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Build Tools (current):" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  CC: $$(shell basename $($($(1)_type)_CC) 2>/dev/null || echo "unknown")" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  CXX: $$(shell basename $($($(1)_type)_CXX) 2>/dev/null || echo "unknown")" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  AR: $$(shell basename $($($(1)_type)_AR) 2>/dev/null || echo "unknown")" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  RANLIB: $$(shell basename $($($(1)_type)_RANLIB) 2>/dev/null || echo "unknown")" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  STRIP: $$(shell basename $($($(1)_type)_STRIP) 2>/dev/null || echo "unknown")" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Build Tools (legacy versions):" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  CC: $$(shell $($($(1)_type)_CC) --version 2>/dev/null | head -1 || echo "unknown")" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  CXX: $$(shell $($($(1)_type)_CXX) --version 2>/dev/null | head -1 || echo "unknown")" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  AR: $$(shell $($($(1)_type)_AR) --version 2>/dev/null | head -1 || echo "unknown")" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  RANLIB: $$(shell $($($(1)_type)_RANLIB) --version 2>/dev/null | head -1 || echo "unknown")" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  STRIP: $$(shell $($($(1)_type)_STRIP) --version 2>/dev/null | head -1 || echo "unknown")" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "Salt Values:" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  BUILD_ID_SALT: $(BUILD_ID_SALT)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  HOST_ID_SALT: $(HOST_ID_SALT)" >> $$($(1)_cached_buildinfo)
+	$(AT)echo "  Build info completed: $$($(1)_cached_buildinfo)"
 
 .PHONY: $(1)
 $(1): | $($(1)_cached_checksum)
-.SECONDARY: $($(1)_cached) $($(1)_postprocessed) $($(1)_staged) $($(1)_built) $($(1)_configured) $($(1)_preprocessed) $($(1)_extracted) $($(1)_fetched)
+.SECONDARY: $($(1)_cached) $($(1)_postprocessed) $($(1)_staged) $($(1)_built) $($(1)_configured) $($(1)_preprocessed) $($(1)_extracted) $($(1)_fetched) $($(1)_cached_buildinfo)
 
 endef
 
