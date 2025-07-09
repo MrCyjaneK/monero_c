@@ -36,7 +36,7 @@ define fetch_file
 endef
 
 define int_get_build_recipe_hash
-$(eval $(1)_all_file_checksums:=$(shell $(build_SHA256SUM) $(meta_depends) packages/$(1).mk $(addprefix $(PATCHES_PATH)/$(1)/,$($(1)_patches)) | cut -d" " -f1))
+$(eval $(1)_all_file_checksums:=$(shell cd $(BASEDIR) && $(build_SHA256SUM) $(subst $(BASEDIR)/,,$(meta_depends)) packages/$(1).mk $(addprefix patches/$(1)/,$($(1)_patches)) 2>/dev/null | cut -d" " -f1))
 $(eval $(1)_recipe_hash:=$(shell echo -n "$($(1)_all_file_checksums)" | $(build_SHA256SUM) | cut -d" " -f1))
 endef
 
@@ -198,53 +198,84 @@ COMPRESS_CMD := $(shell if command -v pigz >/dev/null 2>&1; then echo "pigz"; el
 
 define int_add_cmds
 $($(1)_fetched):
+	$(AT)echo "=== Fetching $(1) v$($(1)_version) ==="
+	$(AT)echo "  Source directory: $($(1)_source_dir)"
+	$(AT)echo "  Download file: $($(1)_download_file)"
 	$(AT)mkdir -p $$(@D) $(SOURCES_PATH)
 	$(AT)rm -f $$@
 	$(AT)touch $$@
 	$(AT)cd $$(@D); $(call $(1)_fetch_cmds,$(1))
 	$(AT)cd $($(1)_source_dir); $(foreach source,$($(1)_all_sources),$(build_SHA256SUM) $(source) >> $$(@);)
+	$(AT)echo "  Fetch completed: $$@"
 	$(AT)touch $$@
 $($(1)_extracted): | $($(1)_fetched)
-	$(AT)echo Extracting $(1)...
+	$(AT)echo "=== Extracting $(1) v$($(1)_version) ==="
+	$(AT)echo "  Build ID: $($(1)_build_id)"
+	$(AT)echo "  Extract directory: $($(1)_extract_dir)"
 	$(AT)mkdir -p $$(@D)
 	$(AT)cd $$(@D); $(call $(1)_extract_cmds,$(1))
+	$(AT)echo "  Extract completed: $$@"
 	$(AT)touch $$@
 $($(1)_preprocessed): | $($(1)_dependencies) $($(1)_extracted)
-	$(AT)echo Preprocessing $(1)...
+	$(AT)echo "=== Preprocessing $(1) v$($(1)_version) ==="
+	$(AT)echo "  Dependencies: $($(1)_dependencies)"
+	$(AT)echo "  Patch directory: $($(1)_patch_dir)"
+	$(AT)echo "  Patches: $($(1)_patches)"
 	$(AT)mkdir -p $$(@D) $($(1)_patch_dir)
 	$(AT)$(foreach patch,$($(1)_patches),cd $(PATCHES_PATH)/$(1); cp $(patch) $($(1)_patch_dir) ;)
 	$(AT)cd $$(@D); $(call $(1)_preprocess_cmds, $(1))
+	$(AT)echo "  Preprocessing completed: $$@"
 	$(AT)touch $$@
 $($(1)_configured): | $($(1)_preprocessed)
-	$(AT)echo Configuring $(1)...
+	$(AT)echo "=== Configuring $(1) v$($(1)_version) ==="
+	$(AT)echo "  Build directory: $($(1)_build_dir)"
+	$(AT)echo "  Host prefix: $(host_prefix)"
+	$(AT)echo "  All dependencies: $($(1)_all_dependencies)"
 	$(AT)rm -rf $(host_prefix); mkdir -p $(host_prefix)/lib; cd $(host_prefix); $(foreach package,$($(1)_all_dependencies), tar xf $($(package)_cached); )
 	$(AT)mkdir -p $$(@D)
 	$(AT)+cd $$(@D); $($(1)_config_env) $(call $(1)_config_cmds, $(1))
+	$(AT)echo "  Configuration completed: $$@"
 	$(AT)touch $$@
 $($(1)_built): | $($(1)_configured)
-	$(AT)echo Building $(1)...
+	$(AT)echo "=== Building $(1) v$($(1)_version) ==="
+	$(AT)echo "  Build directory: $($(1)_build_dir)"
+	$(AT)echo "  Build environment: $($(1)_build_env)"
 	$(AT)mkdir -p $$(@D)
 	$(AT)+cd $$(@D); $($(1)_build_env) $(call $(1)_build_cmds, $(1))
+	$(AT)echo "  Build completed: $$@"
 	$(AT)touch $$@
 $($(1)_staged): | $($(1)_built)
-	$(AT)echo Staging $(1)...
+	$(AT)echo "=== Staging $(1) v$($(1)_version) ==="
+	$(AT)echo "  Staging directory: $($(1)_staging_dir)"
+	$(AT)echo "  Staging prefix: $($(1)_staging_prefix_dir)"
 	$(AT)mkdir -p $($(1)_staging_dir)/$(host_prefix)
 	$(AT)cd $($(1)_build_dir); $($(1)_stage_env) $(call $(1)_stage_cmds, $(1))
+	$(AT)echo "  Removing extract directory: $($(1)_extract_dir)"
 	$(AT)rm -rf $($(1)_extract_dir)
+	$(AT)echo "  Staging completed: $$@"
 	$(AT)touch $$@
 $($(1)_postprocessed): | $($(1)_staged)
-	$(AT)echo Postprocessing $(1)...
+	$(AT)echo "=== Postprocessing $(1) v$($(1)_version) ==="
+	$(AT)echo "  Postprocessing directory: $($(1)_staging_prefix_dir)"
 	$(AT)cd $($(1)_staging_prefix_dir); $(call $(1)_postprocess_cmds)
+	$(AT)echo "  Postprocessing completed: $$@"
 	$(AT)touch $$@
 $($(1)_cached): | $($(1)_dependencies) $($(1)_postprocessed)
-	$(AT)echo Caching $(1)...
+	$(AT)echo "=== Caching $(1) v$($(1)_version) ==="
+	$(AT)echo "  Build ID: $($(1)_build_id)"
+	$(AT)echo "  Cache file: $$@"
+	$(AT)echo "  Compression: $(COMPRESS_CMD)"
 	$(AT)cd $$($(1)_staging_dir)/$(host_prefix); find . | sort | tar --no-recursion --use-compress-program='$(COMPRESS_CMD)' -cf $$($(1)_staging_dir)/$$(@F) -T -
 	$(AT)mkdir -p $$(@D)
-	$(AT)rm -rf $$(@D) && mkdir -p $$(@D)
 	$(AT)mv $$($(1)_staging_dir)/$$(@F) $$(@)
+	$(AT)echo "  Removing staging directory: $($(1)_staging_dir)"
 	$(AT)rm -rf $($(1)_staging_dir)
+	$(AT)echo "  Caching completed: $$@"
 $($(1)_cached_checksum): $($(1)_cached)
+	$(AT)echo "=== Generating checksum for $(1) v$($(1)_version) ==="
+	$(AT)echo "  Checksum file: $$@"
 	$(AT)cd $$(@D); $(build_SHA256SUM) $$(<F) > $$(@)
+	$(AT)echo "  Checksum completed: $$@"
 
 .PHONY: $(1)
 $(1): | $($(1)_cached_checksum)

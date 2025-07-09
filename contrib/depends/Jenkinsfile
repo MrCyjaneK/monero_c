@@ -1,0 +1,94 @@
+pipeline {
+    agent none
+    
+    parameters {
+        string(
+            name: 'LINUX_TARGETS',
+            defaultValue: 'x86_64-linux-android,armv7a-linux-androideabi,aarch64-linux-android,x86_64-linux-gnu,aarch64-linux-gnu,i686-linux-gnu,x86_64-w64-mingw32,i686-w64-mingw32',
+            description: 'Comma-separated list of Linux targets to build'
+        )
+        string(
+            name: 'DARWIN_TARGETS', 
+            defaultValue: 'aarch64-apple-darwin,x86_64-apple-darwin,aarch64-apple-ios,aarch64-apple-iossimulator',
+            description: 'Comma-separated list of Darwin targets to build'
+        )
+    }
+    
+    stages {
+        stage('Build Dependencies') {
+            parallel {
+                stage('Linux Builds') {
+                    agent {
+                        dockerfile {
+                            filename '.devcontainer/Dockerfile'
+                            args '-v /opt/builds:/opt/builds'
+                            label 'linux && amd64'
+                        }
+                    }
+                    steps {
+                        script {
+                            def targets = params.LINUX_TARGETS.split(',').collect { it.trim() }
+                            
+                            checkout scm
+                            
+                            for (target in targets) {
+                                echo "Building dependencies for ${target}"
+                                
+                                dir('contrib/depends') {
+                                    sh "make HOST=${target}"
+                                }
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            script {
+                                def targets = params.LINUX_TARGETS.split(',').collect { it.trim() }
+                                for (target in targets) {
+                                    archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                stage('Darwin Builds') {
+                    agent {
+                        label 'darwin && arm64'
+                    }
+                    steps {
+                        script {
+                            def targets = params.DARWIN_TARGETS.split(',').collect { it.trim() }
+                            
+                            checkout scm
+                            
+                            for (target in targets) {
+                                echo "Building dependencies for ${target}"
+                                
+                                dir('contrib/depends') {
+                                    sh "make HOST=${target}"
+                                }
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            script {
+                                def targets = params.DARWIN_TARGETS.split(',').collect { it.trim() }
+                                for (target in targets) {
+                                    archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo "Build completed."
+        }
+    }
+} 
