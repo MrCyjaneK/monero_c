@@ -48,6 +48,8 @@ pipeline {
                                     archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
                                 }
                             }
+                            
+                            sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/home/mrcyjanek/web/static.mrcyjanek.net/public_html/lfs/depends', remoteDirectorySDF: false, sourceFiles: 'contrib/depends/built/*/*/*.tar.gz*')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                         }
                     }
                 }
@@ -79,6 +81,8 @@ pipeline {
                                     archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
                                 }
                             }
+                            
+                            sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: 'contrib/depends/built/*/*/*.tar.gz*')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                         }
                     }
                 }
