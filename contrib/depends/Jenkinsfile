@@ -35,7 +35,7 @@ pipeline {
                                 echo "Building dependencies for ${target}"
                                 
                                 dir('contrib/depends') {
-                                    sh "make HOST=${target}"
+                                    sh "make HOST=${target} DEPENDS_UNTRUSTED_FAST_BUILDS=yes"
                                 }
                             }
                         }
@@ -68,7 +68,7 @@ pipeline {
                                 echo "Building dependencies for ${target}"
                                 
                                 dir('contrib/depends') {
-                                    sh "make HOST=${target}"
+                                    sh "make HOST=${target} DEPENDS_UNTRUSTED_FAST_BUILDS=yes"
                                 }
                             }
                         }

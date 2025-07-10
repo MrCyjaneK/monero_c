@@ -40,12 +40,12 @@ jobs:
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: x86_64-w64-mingw32
         run: |
-          ./build_single.sh monero x86_64-w64-mingw32 -j$(nproc)
-          ./build_single.sh wownero x86_64-w64-mingw32 -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero x86_64-w64-mingw32 -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh wownero x86_64-w64-mingw32 -j$(nproc)
       - name: i686-w64-mingw32
         run: |
-          ./build_single.sh monero i686-w64-mingw32 -j$(nproc)
-          ./build_single.sh wownero i686-w64-mingw32 -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero i686-w64-mingw32 -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh wownero i686-w64-mingw32 -j$(nproc)
       - name: rename artifacts
         run: |
           mkdir release/gh/
@@ -120,19 +120,19 @@ jobs:
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: monero
         run: |
-          ./build_single.sh monero x86_64-linux-android -j$(nproc)
-          ./build_single.sh monero armv7a-linux-androideabi -j$(nproc)
-          ./build_single.sh monero aarch64-linux-android -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero x86_64-linux-android -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero armv7a-linux-androideabi -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero aarch64-linux-android -j$(nproc)
       - name: wownero
         run: |
-          ./build_single.sh wownero aarch64-linux-android -j$(nproc)
-          ./build_single.sh wownero x86_64-linux-android -j$(nproc)
-          ./build_single.sh wownero armv7a-linux-androideabi -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh wownero aarch64-linux-android -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh wownero x86_64-linux-android -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh wownero armv7a-linux-androideabi -j$(nproc)
       - name: zano
         run: |
-          ./build_single.sh zano x86_64-linux-android -j$(nproc)
-          ./build_single.sh zano aarch64-linux-android -j$(nproc)
-          ./build_single.sh zano armv7a-linux-androideabi -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh zano x86_64-linux-android -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh zano aarch64-linux-android -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh zano armv7a-linux-androideabi -j$(nproc)
       - name: rename artifacts
         run: |
           mkdir release/gh/
@@ -209,19 +209,19 @@ jobs:
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: x86_64-linux-gnu
         run: |
-          ./build_single.sh monero x86_64-linux-gnu -j$(nproc)
-          ./build_single.sh wownero x86_64-linux-gnu -j$(nproc)
-          ./build_single.sh zano x86_64-linux-gnu -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero x86_64-linux-gnu -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh wownero x86_64-linux-gnu -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh zano x86_64-linux-gnu -j$(nproc)
       - name: aarch64-linux-gnu
         run: |
-          ./build_single.sh monero aarch64-linux-gnu -j$(nproc)
-          ./build_single.sh wownero aarch64-linux-gnu -j$(nproc)
-          ./build_single.sh zano aarch64-linux-gnu -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero aarch64-linux-gnu -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh wownero aarch64-linux-gnu -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh zano aarch64-linux-gnu -j$(nproc)
       - name: i686-linux-gnu
         run: |
-          ./build_single.sh monero i686-linux-gnu -j$(nproc)
-          ./build_single.sh wownero i686-linux-gnu -j$(nproc)
-          ./build_single.sh zano i686-linux-gnu -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero i686-linux-gnu -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh wownero i686-linux-gnu -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh zano i686-linux-gnu -j$(nproc)
       - name: rename artifacts
         run: |
           mkdir release/gh/
@@ -297,14 +297,14 @@ jobs:
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: build (aarch64-apple-darwin)
         run: |
-          ./build_single.sh monero aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh wownero aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh zano aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh wownero aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh zano aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
       - name: build (x86_64-apple-darwin)
         run: |
-          ./build_single.sh monero x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh wownero x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh zano x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh wownero x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh zano x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
       - name: rename artifacts
         run: |
           mkdir release/gh/
@@ -380,15 +380,15 @@ jobs:
           key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: build (aarch64-apple-ios)
         run: |
-          ./build_single.sh monero aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh wownero aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh zano aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh wownero aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh zano aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
 
       - name: build (aarch64-apple-iossimulator)
         run: |
-          ./build_single.sh monero aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh wownero aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh zano aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh wownero aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh zano aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
 
       - name: rename artifacts
         run: |
