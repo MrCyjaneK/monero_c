@@ -180,7 +180,7 @@ jobs:
         coin: [monero, wownero, zano]
         target: [aarch64-apple-darwin, x86_64-apple-darwin]
     name: macos build
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout monero_c repo
         uses: actions/checkout@v4
@@ -190,7 +190,7 @@ jobs:
           submodules: recursive
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.2'
+          xcode-version: '16.4'
       - name: install dependencies
         run: |
           brew install ccache binutils pigz autoconf automake libtool pkg-config
@@ -245,7 +245,7 @@ jobs:
           submodules: recursive
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.2'
+          xcode-version: '16.4'
       - name: install dependencies
         run: |
           brew install ccache cmake autoconf automake libtool
@@ -466,7 +466,7 @@ jobs:
       matrix:
         coin: [monero, wownero]
     needs: [lib_macos]
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: denoland/setup-deno@v2
         with:
@@ -532,7 +532,7 @@ jobs:
       matrix:
         coin: [monero, wownero]
     needs: [lib_macos]
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: denoland/setup-deno@v2
         with:
