@@ -266,33 +266,4 @@ download: download-osx download-linux download-win
 
  $(foreach package,$(all_packages),$(eval $(call ext_add_stages,$(package))))
 
-clean:
-	@echo "=== Cleaning up contrib/depends ==="
-	
-	@echo "  Removing work/ directory..."
-	@rm -rf $(BASEDIR)/work/
-	
-	@echo "  Removing host triplet directories..."
-	@for dir in $(BASEDIR)/*-*-*/; do \
-		if [ -d "$$dir" ]; then \
-			dirname=$$(basename "$$dir"); \
-			rm -rf "$$dir"; \
-		fi; \
-	done
-	
-	@echo "  Cleaning built/ directory..."
-	@if [ -d "$(BASE_CACHE)" ]; then \
-		tmp_keep_list=$$(mktemp); \
-		$(foreach package,$(all_packages),echo "$($(package)_cached)" >> $$tmp_keep_list; echo "$($(package)_cached_checksum)" >> $$tmp_keep_list; echo "$($(package)_cached_buildinfo)" >> $$tmp_keep_list;) \
-		find "$(BASE_CACHE)" -name "*.tar.gz" -o -name "*.tar.gz.hash" -o -name "*.tar.gz.txt" | while read file; do \
-			if ! grep -Fxq "$$file" $$tmp_keep_list; then \
-				echo "    Removing outdated: $$file"; \
-				rm -f "$$file"; \
-			fi; \
-		done; \
-		rm -f $$tmp_keep_list; \
-	fi
-
-	@echo "  Cleanup completed"
-
-.PHONY: install cached download-one download-osx download-linux download-win download check-packages check-sources clean
+.PHONY: install cached download-one download-osx download-linux download-win download check-packages check-sources

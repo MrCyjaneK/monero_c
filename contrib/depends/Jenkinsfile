@@ -43,9 +43,6 @@ pipeline {
                     post {
                         always {
                             script {
-                                dir('contrib/depends') {
-                                    sh "make clean"
-                                }
                                 def targets = params.LINUX_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
                                     archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
@@ -79,9 +76,6 @@ pipeline {
                     post {
                         always {
                             script {
-                                dir('contrib/depends') {
-                                    sh "make clean"
-                                }
                                 def targets = params.DARWIN_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
                                     archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
