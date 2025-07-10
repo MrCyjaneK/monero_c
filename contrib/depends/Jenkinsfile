@@ -56,10 +56,9 @@ pipeline {
                                 def targets = params.LINUX_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
                                     archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
+                                    sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: "contrib/depends/built/${target}/*/*.tar.gz*")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                                 }
                             }
-                            
-                            sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: 'contrib/depends/built/*/*/*.tar.gz*')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                         }
                     }
                 }
@@ -93,10 +92,9 @@ pipeline {
                                 def targets = params.ANDROID_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
                                     archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
+                                    sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: "contrib/depends/built/${target}/*/*.tar.gz*")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                                 }
                             }
-                            
-                            sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: 'contrib/depends/built/*/*/*.tar.gz*')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                         }
                     }
                 }
@@ -130,10 +128,9 @@ pipeline {
                                 def targets = params.MINGW_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
                                     archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
+                                    sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: "contrib/depends/built/${target}/*/*.tar.gz*")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                                 }
                             }
-                            
-                            sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: 'contrib/depends/built/*/*/*.tar.gz*')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                         }
                     }
                 }
@@ -163,10 +160,9 @@ pipeline {
                                 def targets = params.DARWIN_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
                                     archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
+                                    sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: "contrib/depends/built/${target}/*/*.tar.gz*")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                                 }
                             }
-                            
-                            sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: 'contrib/depends/built/*/*/*.tar.gz*')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                         }
                     }
                 }
