@@ -71,6 +71,7 @@ pipeline {
                                 echo "Building Linux dependencies for ${target}"
                                 
                                 dir('contrib/depends') {
+                                    sh "rm -rf built/${target}/*"
                                     sh "make HOST=${target} DEPENDS_UNTRUSTED_FAST_BUILDS=yes"
                                 }
                             }
@@ -81,7 +82,7 @@ pipeline {
                             script {
                                 def targets = params.LINUX_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
-                                    archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
+                                    // archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
                                     sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: "contrib/depends/built/${target}/*/*.tar.gz*")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                                 }
                             }
@@ -107,6 +108,7 @@ pipeline {
                                 echo "Building Android dependencies for ${target}"
                                 
                                 dir('contrib/depends') {
+                                    sh "rm -rf built/${target}/*"
                                     sh "make HOST=${target} DEPENDS_UNTRUSTED_FAST_BUILDS=yes"
                                 }
                             }
@@ -117,7 +119,7 @@ pipeline {
                             script {
                                 def targets = params.ANDROID_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
-                                    archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
+                                    // archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
                                     sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: "contrib/depends/built/${target}/*/*.tar.gz*")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                                 }
                             }
@@ -143,6 +145,7 @@ pipeline {
                                 echo "Building MinGW dependencies for ${target}"
                                 
                                 dir('contrib/depends') {
+                                    sh "rm -rf built/${target}/*"
                                     sh "make HOST=${target} DEPENDS_UNTRUSTED_FAST_BUILDS=yes"
                                 }
                             }
@@ -153,7 +156,7 @@ pipeline {
                             script {
                                 def targets = params.MINGW_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
-                                    archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
+                                    // archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
                                     sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: "contrib/depends/built/${target}/*/*.tar.gz*")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                                 }
                             }
@@ -175,6 +178,7 @@ pipeline {
                                 echo "Building dependencies for ${target}"
                                 
                                 dir('contrib/depends') {
+                                    sh "rm -rf built/${target}/*"
                                     sh "make HOST=${target} DEPENDS_UNTRUSTED_FAST_BUILDS=yes"
                                 }
                             }
@@ -185,7 +189,7 @@ pipeline {
                             script {
                                 def targets = params.DARWIN_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
-                                    archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
+                                    // archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
                                     sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: "contrib/depends/built/${target}/*/*.tar.gz*")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                                 }
                             }
