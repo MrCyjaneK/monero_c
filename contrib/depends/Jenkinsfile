@@ -4,8 +4,18 @@ pipeline {
     parameters {
         string(
             name: 'LINUX_TARGETS',
-            defaultValue: 'x86_64-linux-android,armv7a-linux-androideabi,aarch64-linux-android,x86_64-linux-gnu,aarch64-linux-gnu,i686-linux-gnu,x86_64-w64-mingw32,i686-w64-mingw32',
+            defaultValue: 'x86_64-linux-gnu,aarch64-linux-gnu,i686-linux-gnu',
             description: 'Comma-separated list of Linux targets to build'
+        )
+        string(
+            name: 'ANDROID_TARGETS',
+            defaultValue: 'x86_64-linux-android,armv7a-linux-androideabi,aarch64-linux-android',
+            description: 'Comma-separated list of Android targets to build'
+        )
+        string(
+            name: 'MINGW_TARGETS',
+            defaultValue: 'x86_64-w64-mingw32,i686-w64-mingw32',
+            description: 'Comma-separated list of MinGW targets to build'
         )
         string(
             name: 'DARWIN_TARGETS', 
@@ -32,7 +42,7 @@ pipeline {
                             checkout scm
                             
                             for (target in targets) {
-                                echo "Building dependencies for ${target}"
+                                echo "Building Linux dependencies for ${target}"
                                 
                                 dir('contrib/depends') {
                                     sh "make HOST=${target} DEPENDS_UNTRUSTED_FAST_BUILDS=yes"
@@ -44,6 +54,80 @@ pipeline {
                         always {
                             script {
                                 def targets = params.LINUX_TARGETS.split(',').collect { it.trim() }
+                                for (target in targets) {
+                                    archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
+                                }
+                            }
+                            
+                            sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: 'contrib/depends/built/*/*/*.tar.gz*')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                        }
+                    }
+                }
+
+                stage('Android Builds') {
+                    agent {
+                        dockerfile {
+                            filename '.devcontainer/Dockerfile'
+                            args '-v /opt/builds:/opt/builds'
+                            label 'linux && amd64'
+                        }
+                    }
+                    steps {
+                        script {
+                            def targets = params.ANDROID_TARGETS.split(',').collect { it.trim() }
+                            
+                            checkout scm
+                            
+                            for (target in targets) {
+                                echo "Building Android dependencies for ${target}"
+                                
+                                dir('contrib/depends') {
+                                    sh "make HOST=${target} DEPENDS_UNTRUSTED_FAST_BUILDS=yes"
+                                }
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            script {
+                                def targets = params.ANDROID_TARGETS.split(',').collect { it.trim() }
+                                for (target in targets) {
+                                    archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
+                                }
+                            }
+                            
+                            sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: 'contrib/depends/built/*/*/*.tar.gz*')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                        }
+                    }
+                }
+
+                stage('MinGW Builds') {
+                    agent {
+                        dockerfile {
+                            filename '.devcontainer/Dockerfile'
+                            args '-v /opt/builds:/opt/builds'
+                            label 'linux && amd64'
+                        }
+                    }
+                    steps {
+                        script {
+                            def targets = params.MINGW_TARGETS.split(',').collect { it.trim() }
+                            
+                            checkout scm
+                            
+                            for (target in targets) {
+                                echo "Building MinGW dependencies for ${target}"
+                                
+                                dir('contrib/depends') {
+                                    sh "make HOST=${target} DEPENDS_UNTRUSTED_FAST_BUILDS=yes"
+                                }
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            script {
+                                def targets = params.MINGW_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
                                     archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
                                 }
