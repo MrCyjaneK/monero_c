@@ -66,6 +66,9 @@ $(1)_patch_dir:=$(base_build_dir)/$(host)/$(1)/$($(1)_version)-$($(1)_build_id)/
 $(1)_prefixbin:=$($($(1)_type)_prefix)/bin/
 $(1)_cached:=$(BASE_CACHE)/$(host)/$(1)/$(1)-$($(1)_version)-$($(1)_build_id).tar.gz
 $(1)_all_sources=$($(1)_file_name) $($(1)_extra_sources)
+$(1)_prebuilt_url:=$(PREBUILT_BASE_URL)/$(host)/$(1)/$(1)-$($(1)_version)-$($(1)_build_id).tar.gz
+$(1)_prebuilt_checksum_url:=$(PREBUILT_BASE_URL)/$(host)/$(1)/$(1)-$($(1)_version)-$($(1)_build_id).tar.gz.hash
+$(1)_prebuilt_buildinfo_url:=$(PREBUILT_BASE_URL)/$(host)/$(1)/$(1)-$($(1)_version)-$($(1)_build_id).tar.gz.txt
 
 #stamps
 $(1)_fetched=$(SOURCES_PATH)/download-stamps/.stamp_fetched-$(1)-$($(1)_file_name).hash
@@ -76,6 +79,8 @@ $(1)_built=$$($(1)_build_dir)/.stamp_built
 $(1)_configured=$$($(1)_build_dir)/.stamp_configured
 $(1)_staged=$$($(1)_staging_dir)/.stamp_staged
 $(1)_postprocessed=$$($(1)_staging_prefix_dir)/.stamp_postprocessed
+$(1)_prebuilt_downloaded:=$(BASE_CACHE)/$(host)/$(1)/.stamp_prebuilt_downloaded-$($(1)_build_id)
+$(1)_cached_or_prebuilt:=$(BASE_CACHE)/$(host)/$(1)/.stamp_cached_or_prebuilt-$($(1)_build_id)
 $(1)_download_path_fixed=$(subst :,\:,$$($(1)_download_path))
 
 
@@ -263,6 +268,36 @@ $($(1)_postprocessed): | $($(1)_staged)
 	$(AT)cd $($(1)_staging_prefix_dir); $(call $(1)_postprocess_cmds)
 	$(AT)echo "  Postprocessing completed: $$@"
 	$(AT)touch $$@
+$($(1)_prebuilt_downloaded): | $($(1)_dependencies)
+	$(AT)echo "=== Attempting to download prebuilt $(1) v$($(1)_version) ==="
+	$(AT)echo "  Build ID: $($(1)_build_id)"
+	$(AT)echo "  Download URL: $($(1)_prebuilt_url)"
+	$(AT)mkdir -p $$(@D)
+	$(AT)mkdir -p $(dir $($(1)_cached))
+	$(AT)( \
+		echo "  Downloading $(1) prebuilt files..." && \
+		$(build_DOWNLOAD) "$($(1)_cached).tmp" "$($(1)_prebuilt_url)" && \
+		$(build_DOWNLOAD) "$($(1)_cached_checksum).tmp" "$($(1)_prebuilt_checksum_url)" && \
+		$(build_DOWNLOAD) "$($(1)_cached_buildinfo).tmp" "$($(1)_prebuilt_buildinfo_url)" && \
+		echo "  Verifying checksum..." && \
+		cd $(dir $($(1)_cached)) && $(build_SHA256SUM) -c "$($(1)_cached_checksum).tmp" && \
+		echo "  Moving files to final location..." && \
+		mv "$($(1)_cached).tmp" "$($(1)_cached)" && \
+		mv "$($(1)_cached_checksum).tmp" "$($(1)_cached_checksum)" && \
+		mv "$($(1)_cached_buildinfo).tmp" "$($(1)_cached_buildinfo)" && \
+		echo "  Prebuilt download completed: $$@" && \
+		touch $$@ \
+	) || ( \
+		echo "  Download failed for $(1)" && \
+		rm -f "$($(1)_cached).tmp" "$($(1)_cached_checksum).tmp" "$($(1)_cached_buildinfo).tmp" && \
+		if [ "$(DEPENDS_UNTRUSTED_FAST_BUILDS)" = "forced" ]; then \
+			echo "  Error: DEPENDS_UNTRUSTED_FAST_BUILDS=forced but prebuilt download failed" && \
+			exit 1; \
+		else \
+			echo "  Falling back to building from source..." && \
+			exit 1; \
+		fi \
+	)
 $($(1)_cached): | $($(1)_dependencies) $($(1)_postprocessed)
 	$(AT)echo "=== Caching $(1) v$($(1)_version) ==="
 	$(AT)echo "  Build ID: $($(1)_build_id)"
@@ -323,13 +358,28 @@ $($(1)_cached_checksum): $($(1)_cached)
 	$(AT)echo "  HOST_ID_SALT: $(HOST_ID_SALT)" >> $$($(1)_cached_buildinfo)
 	$(AT)echo "  Build info completed: $$($(1)_cached_buildinfo)"
 
+$($(1)_cached_or_prebuilt): 
+	$(AT)mkdir -p $$(@D)
+	$(AT)if [ "$(DEPENDS_UNTRUSTED_FAST_BUILDS)" = "yes" ]; then \
+		echo "=== Trying prebuilt download for $(1) v$($(1)_version) ===" && \
+		($(MAKE) -f $(BASEDIR)/Makefile $($(1)_prebuilt_downloaded) && touch $$@) || \
+		(echo "  Prebuilt download failed, falling back to building from source..." && \
+		$(MAKE) -f $(BASEDIR)/Makefile $($(1)_cached_checksum) && touch $$@); \
+	elif [ "$(DEPENDS_UNTRUSTED_FAST_BUILDS)" = "forced" ]; then \
+		echo "=== Forced prebuilt download for $(1) v$($(1)_version) ===" && \
+		$(MAKE) -f $(BASEDIR)/Makefile $($(1)_prebuilt_downloaded) && touch $$@; \
+	else \
+		echo "=== Building from source for $(1) v$($(1)_version) ===" && \
+		$(MAKE) -f $(BASEDIR)/Makefile $($(1)_cached_checksum) && touch $$@; \
+	fi
+
 .PHONY: $(1)
-$(1): | $($(1)_cached_checksum)
-.SECONDARY: $($(1)_cached) $($(1)_postprocessed) $($(1)_staged) $($(1)_built) $($(1)_configured) $($(1)_preprocessed) $($(1)_extracted) $($(1)_fetched) $($(1)_cached_buildinfo)
+$(1): | $($(1)_cached_or_prebuilt)
+.SECONDARY: $($(1)_cached) $($(1)_postprocessed) $($(1)_staged) $($(1)_built) $($(1)_configured) $($(1)_preprocessed) $($(1)_extracted) $($(1)_fetched) $($(1)_cached_buildinfo) $($(1)_prebuilt_downloaded) $($(1)_cached_or_prebuilt)
 
 endef
 
-stages = fetched extracted preprocessed configured built staged postprocessed cached cached_checksum
+stages = fetched extracted preprocessed configured built staged postprocessed cached cached_checksum prebuilt_downloaded
 
 define ext_add_stages
 $(foreach stage,$(stages),

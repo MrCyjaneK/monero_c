@@ -13,6 +13,17 @@ DOWNLOAD_CONNECT_TIMEOUT:=30
 DOWNLOAD_RETRIES:=5
 HOST_ID_SALT ?= salt
 BUILD_ID_SALT ?= salt
+
+DEPENDS_UNTRUSTED_FAST_BUILDS ?= 
+PREBUILT_BASE_URL ?= https://static.mrcyjanek.net/lfs/depends/contrib/depends/built
+ifneq ($(DEPENDS_UNTRUSTED_FAST_BUILDS),)
+ifneq ($(DEPENDS_UNTRUSTED_FAST_BUILDS),yes)
+ifneq ($(DEPENDS_UNTRUSTED_FAST_BUILDS),forced)
+$(error DEPENDS_UNTRUSTED_FAST_BUILDS must be empty, "yes", or "forced", got "$(DEPENDS_UNTRUSTED_FAST_BUILDS)")
+endif
+endif
+endif
+
 # Detect the number of CPU cores
 ifeq ($(shell uname), Darwin)
     NUM_CORES := $(shell sysctl -n hw.ncpu)
@@ -125,7 +136,6 @@ $(host_arch)_$(host_os)_id_string_legacy+=$(shell $(host_CXX) --version 2>/dev/n
 $(host_arch)_$(host_os)_id_string_legacy+=$(shell $(host_RANLIB) --version 2>/dev/null)
 $(host_arch)_$(host_os)_id_string_legacy+=$(shell $(host_STRIP) --version 2>/dev/null)
 
-# Simplified build ID strings (more portable)
 build_id_string:=$(BUILD_ID_SALT)
 build_id_string+=$(shell basename $(build_CC) 2>/dev/null || echo "unknown")
 build_id_string+=$(shell basename $(build_AR) 2>/dev/null || echo "unknown")
