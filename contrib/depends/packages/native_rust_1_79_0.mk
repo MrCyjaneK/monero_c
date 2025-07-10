@@ -20,7 +20,7 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_build_cmds
-    python3 ./x.py build --stage 3
+    python3 ./x.py build --stage 3 -j $(NUM_PROC)
 endef
 
 define $(package)_stage_cmds

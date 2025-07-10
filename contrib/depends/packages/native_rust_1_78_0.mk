@@ -12,15 +12,15 @@ define $(package)_preprocess_cmds
     echo 'full-bootstrap = true' >> config.toml && \
     echo 'vendor = true' >> config.toml && \
     echo 'extended = true' >> config.toml && \
-    echo 'rustc = "$(host_prefix)/native/rust_1_77_0/bin/rustc"' >> config.toml && \
-    echo 'cargo = "$(host_prefix)/native/rust_1_77_0/bin/cargo"' >> config.toml && \
+    echo 'rustc = "$(host_prefix)/native/rust_1_77_1/bin/rustc"' >> config.toml && \
+    echo 'cargo = "$(host_prefix)/native/rust_1_77_1/bin/cargo"' >> config.toml && \
     echo '[llvm]' >> config.toml && \
     echo 'ninja = false' >> config.toml && \
     echo 'download-ci-llvm = false' >> config.toml
 endef
 
 define $(package)_build_cmds
-    python3 ./x.py build --stage 3
+    python3 ./x.py build --stage 3 -j $(NUM_PROC)
 endef
 
 define $(package)_stage_cmds
