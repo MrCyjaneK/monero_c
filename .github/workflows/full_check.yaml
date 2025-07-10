@@ -31,13 +31,6 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
-      - name: Cache built
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            contrib/depends/built/*
-          key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: x86_64-w64-mingw32
         run: |
           env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero x86_64-w64-mingw32 -j$(nproc)
@@ -111,13 +104,6 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
-      - name: Cache built
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            contrib/depends/built/*
-          key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: monero
         run: |
           env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero x86_64-linux-android -j$(nproc)
@@ -200,13 +186,6 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
-      - name: Cache built
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            contrib/depends/built/*
-          key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: x86_64-linux-gnu
         run: |
           env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero x86_64-linux-gnu -j$(nproc)
@@ -288,13 +267,6 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
-      - name: Cache built
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            contrib/depends/built/*
-          key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: build (aarch64-apple-darwin)
         run: |
           env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
@@ -371,13 +343,6 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: ${{ github.job }}
-      - name: Cache built
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            contrib/depends/built/*
-          key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
       - name: build (aarch64-apple-ios)
         run: |
           env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh monero aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
