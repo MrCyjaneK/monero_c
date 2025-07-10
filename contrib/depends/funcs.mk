@@ -280,7 +280,10 @@ $($(1)_prebuilt_downloaded): | $($(1)_dependencies)
 		$(build_DOWNLOAD) "$($(1)_cached_checksum).tmp" "$($(1)_prebuilt_checksum_url)" && \
 		$(build_DOWNLOAD) "$($(1)_cached_buildinfo).tmp" "$($(1)_prebuilt_buildinfo_url)" && \
 		echo "  Verifying checksum..." && \
-		cd $(dir $($(1)_cached)) && $(build_SHA256SUM) -c "$($(1)_cached_checksum).tmp" && \
+		cd $(dir $($(1)_cached)) && \
+		sed 's/$(notdir $($(1)_cached))/$(notdir $($(1)_cached)).tmp/' "$($(1)_cached_checksum).tmp" > "$($(1)_cached_checksum).tmp.verify" && \
+		$(build_SHA256SUM) -c "$($(1)_cached_checksum).tmp.verify" && \
+		rm -f "$($(1)_cached_checksum).tmp.verify" && \
 		echo "  Moving files to final location..." && \
 		mv "$($(1)_cached).tmp" "$($(1)_cached)" && \
 		mv "$($(1)_cached_checksum).tmp" "$($(1)_cached_checksum)" && \
