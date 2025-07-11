@@ -82,8 +82,7 @@ pipeline {
                             script {
                                 def targets = params.LINUX_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
-                                    // archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
-                                    sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: "contrib/depends/built/${target}/*/*.tar.gz*")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                                    uploadIfChanged(target)
                                 }
                             }
                         }
@@ -119,8 +118,7 @@ pipeline {
                             script {
                                 def targets = params.ANDROID_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
-                                    // archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
-                                    sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: "contrib/depends/built/${target}/*/*.tar.gz*")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                                    uploadIfChanged(target)
                                 }
                             }
                         }
@@ -156,8 +154,7 @@ pipeline {
                             script {
                                 def targets = params.MINGW_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
-                                    // archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
-                                    sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: "contrib/depends/built/${target}/*/*.tar.gz*")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                                    uploadIfChanged(target)
                                 }
                             }
                         }
@@ -189,8 +186,7 @@ pipeline {
                             script {
                                 def targets = params.DARWIN_TARGETS.split(',').collect { it.trim() }
                                 for (target in targets) {
-                                    // archiveArtifacts artifacts: "contrib/depends/built/${target}/*/*.tar.gz*", allowEmptyArchive: true
-                                    sshPublisher(publishers: [sshPublisherDesc(configName: 'static.mrcyjanek.net', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'depends', remoteDirectorySDF: false, sourceFiles: "contrib/depends/built/${target}/*/*.tar.gz*")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                                    uploadIfChanged(target)
                                 }
                             }
                         }
@@ -204,5 +200,66 @@ pipeline {
         always {
             echo "Build completed."
         }
+    }
+}
+
+def uploadIfChanged(target) {
+    withCredentials([sshUserPrivateKey(credentialsId: 'static-mrcyjanek-net-ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
+        sh """
+            set -e
+            upload_with_checksum() {
+                local file_path="\$1"
+                local remote_path="\$2"
+                local filename=\$(basename "\$file_path")
+                
+                if [ ! -f "\$file_path" ]; then
+                    echo "File \$file_path does not exist, skipping..."
+                    return 0
+                fi
+                
+                local_checksum=\$(sha256sum "\$file_path" | cut -d' ' -f1)
+                echo "Local checksum for \$filename: \$local_checksum"
+                
+                remote_checksum=\$(ssh -i "\$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "\$SSH_USER@static.mrcyjanek.net" "cd \$remote_path && sha256sum \$filename 2>/dev/null | cut -d' ' -f1 || echo 'FILE_NOT_FOUND'")
+                
+                echo "Remote checksum for \$filename: \$remote_checksum"
+                
+                if [ "\$local_checksum" != "\$remote_checksum" ]; then
+                    echo "Checksums differ, uploading \$filename..."
+                    
+                    ssh -i "\$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "\$SSH_USER@static.mrcyjanek.net" "mkdir -p \$remote_path"
+                    
+                    scp -i "\$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "\$file_path" "\$SSH_USER@static.mrcyjanek.net:\$remote_path/\$filename"
+                    
+                    uploaded_checksum=\$(ssh -i "\$SSH_KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "\$SSH_USER@static.mrcyjanek.net" "cd \$remote_path && sha256sum \$filename | cut -d' ' -f1")
+                    
+                    if [ "\$local_checksum" = "\$uploaded_checksum" ]; then
+                        echo "Upload successful for \$filename"
+                    else
+                        echo "Upload verification failed for \$filename"
+                        exit 1
+                    fi
+                else
+                    echo "Checksums match, skipping upload for \$filename"
+                fi
+            }
+            
+            echo "Processing target: ${target}"
+            
+            for package_dir in contrib/depends/built/${target}/*/; do
+                if [ -d "\$package_dir" ]; then
+                    package=\$(basename "\$package_dir")
+                    echo "Processing package: \$package"
+                    
+                    find "\$package_dir" -name '*.tar.gz*' -type f | while read -r file; do
+                        remote_dir_base="/home/mrcyjanek/web/static.mrcyjanek.net/public_html/lfs/depends/contrib/depends/built/${target}/\$package"
+                        echo "Uploading \$file to \$remote_dir_base"
+                        upload_with_checksum "\$file" "\$remote_dir_base"
+                    done
+                fi
+            done
+            
+            echo "Finished processing ${target}"
+        """
     }
 } 
