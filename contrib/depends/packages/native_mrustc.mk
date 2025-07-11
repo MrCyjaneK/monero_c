@@ -4,7 +4,7 @@ $(package)_download_path=https://github.com/thepowersgang/mrustc/archive
 $(package)_download_file=06b87d1af49d2db3bd850fdee8888055dd540dd1.tar.gz
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
 $(package)_sha256_hash=d3d3b84a100e71628afecf1125dbaa9bfc54ef9578c4fd81d75dca34c96f2565
-$(package)_dependencies=native_ccache
+$(package)_dependencies=native_ccache native_python3
 $(package)_patches=codegen_c.cpp.patch
 
 define $(package)_preprocess_cmds
