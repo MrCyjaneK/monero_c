@@ -11,7 +11,7 @@ packages := $(rust_packages)
 
 native_packages += $(native_rust_packages)
 
-native_packages += native_python3
+native_packages += native_python3 native_nproc
 
 hardware_packages := hidapi protobuf libusb
 hardware_native_packages := native_protobuf
