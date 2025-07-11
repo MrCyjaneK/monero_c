@@ -13,6 +13,17 @@ DOWNLOAD_CONNECT_TIMEOUT:=30
 DOWNLOAD_RETRIES:=5
 HOST_ID_SALT ?= salt
 BUILD_ID_SALT ?= salt
+
+DEPENDS_UNTRUSTED_FAST_BUILDS ?= 
+PREBUILT_BASE_URL ?= https://static.mrcyjanek.net/lfs/depends/contrib/depends/built
+ifneq ($(DEPENDS_UNTRUSTED_FAST_BUILDS),)
+ifneq ($(DEPENDS_UNTRUSTED_FAST_BUILDS),yes)
+ifneq ($(DEPENDS_UNTRUSTED_FAST_BUILDS),forced)
+$(error DEPENDS_UNTRUSTED_FAST_BUILDS must be empty, "yes", or "forced", got "$(DEPENDS_UNTRUSTED_FAST_BUILDS)")
+endif
+endif
+endif
+
 # Detect the number of CPU cores
 ifeq ($(shell uname), Darwin)
     NUM_CORES := $(shell sysctl -n hw.ncpu)
@@ -110,19 +121,34 @@ include builders/$(build_os).mk
 include builders/default.mk
 include packages/packages.mk
 
+# Legacy build ID strings (kept for debugging info)
+build_id_string_legacy:=$(BUILD_ID_SALT)
+build_id_string_legacy+=$(shell $(build_CC) --version 2>/dev/null)
+build_id_string_legacy+=$(shell $(build_AR) --version 2>/dev/null)
+build_id_string_legacy+=$(shell $(build_CXX) --version 2>/dev/null)
+build_id_string_legacy+=$(shell $(build_RANLIB) --version 2>/dev/null)
+build_id_string_legacy+=$(shell $(build_STRIP) --version 2>/dev/null)
+
+$(host_arch)_$(host_os)_id_string_legacy:=$(HOST_ID_SALT)
+$(host_arch)_$(host_os)_id_string_legacy+=$(shell $(host_CC) --version 2>/dev/null)
+$(host_arch)_$(host_os)_id_string_legacy+=$(shell $(host_AR) --version 2>/dev/null)
+$(host_arch)_$(host_os)_id_string_legacy+=$(shell $(host_CXX) --version 2>/dev/null)
+$(host_arch)_$(host_os)_id_string_legacy+=$(shell $(host_RANLIB) --version 2>/dev/null)
+$(host_arch)_$(host_os)_id_string_legacy+=$(shell $(host_STRIP) --version 2>/dev/null)
+
 build_id_string:=$(BUILD_ID_SALT)
-build_id_string+=$(shell $(build_CC) --version 2>/dev/null)
-build_id_string+=$(shell $(build_AR) --version 2>/dev/null)
-build_id_string+=$(shell $(build_CXX) --version 2>/dev/null)
-build_id_string+=$(shell $(build_RANLIB) --version 2>/dev/null)
-build_id_string+=$(shell $(build_STRIP) --version 2>/dev/null)
+build_id_string+=$(shell basename $(build_CC) 2>/dev/null || echo "unknown")
+build_id_string+=$(shell basename $(build_AR) 2>/dev/null || echo "unknown")
+build_id_string+=$(shell basename $(build_CXX) 2>/dev/null || echo "unknown")
+build_id_string+=$(shell basename $(build_RANLIB) 2>/dev/null || echo "unknown")
+build_id_string+=$(shell basename $(build_STRIP) 2>/dev/null || echo "unknown")
 
 $(host_arch)_$(host_os)_id_string:=$(HOST_ID_SALT)
-$(host_arch)_$(host_os)_id_string+=$(shell $(host_CC) --version 2>/dev/null)
-$(host_arch)_$(host_os)_id_string+=$(shell $(host_AR) --version 2>/dev/null)
-$(host_arch)_$(host_os)_id_string+=$(shell $(host_CXX) --version 2>/dev/null)
-$(host_arch)_$(host_os)_id_string+=$(shell $(host_RANLIB) --version 2>/dev/null)
-$(host_arch)_$(host_os)_id_string+=$(shell $(host_STRIP) --version 2>/dev/null)
+$(host_arch)_$(host_os)_id_string+=$(shell basename $(host_CC) 2>/dev/null || echo "unknown")
+$(host_arch)_$(host_os)_id_string+=$(shell basename $(host_AR) 2>/dev/null || echo "unknown")
+$(host_arch)_$(host_os)_id_string+=$(shell basename $(host_CXX) 2>/dev/null || echo "unknown")
+$(host_arch)_$(host_os)_id_string+=$(shell basename $(host_RANLIB) 2>/dev/null || echo "unknown")
+$(host_arch)_$(host_os)_id_string+=$(shell basename $(host_STRIP) 2>/dev/null || echo "unknown")
 
 packages += $($(host_arch)_$(host_os)_packages) $($(host_os)_packages)
 native_packages += $($(host_arch)_$(host_os)_native_packages) $($(host_os)_native_packages)
@@ -204,8 +230,8 @@ $(host_prefix)/share/toolchain.cmake : toolchain.cmake.in $(host_prefix)/.stamp_
 define check_or_remove_cached
   mkdir -p $(BASE_CACHE)/$(host)/$(package) && cd $(BASE_CACHE)/$(host)/$(package); \
   $(build_SHA256SUM) -c $($(package)_cached_checksum) >/dev/null 2>/dev/null || \
-  ( rm -f $($(package)_cached_checksum); \
-    if test -f "$($(package)_cached)"; then echo "Checksum mismatch for $(package). Forcing rebuild.."; rm -f $($(package)_cached_checksum) $($(package)_cached); fi )
+  ( rm -f $($(package)_cached_checksum) $($(package)_cached_buildinfo); \
+    if test -f "$($(package)_cached)"; then echo "Checksum mismatch for $(package). Forcing rebuild.."; rm -f $($(package)_cached_checksum) $($(package)_cached) $($(package)_cached_buildinfo); fi )
 endef
 
 define check_or_remove_sources

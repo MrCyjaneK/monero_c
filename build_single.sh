@@ -59,7 +59,7 @@ pushd contrib/depends
     then
         echo "Not building depends, directory exists"
     else
-        env -i PATH="$PATH" CC=gcc CXX=g++ make "$NPROC" HOST="$HOST_ABI"
+        env -i PATH="$PATH" CC=gcc CXX=g++ make "$NPROC" HOST="$HOST_ABI" DEPENDS_UNTRUSTED_FAST_BUILDS=$DEPENDS_UNTRUSTED_FAST_BUILDS
     fi
 popd
 

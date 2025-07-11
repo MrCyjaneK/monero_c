@@ -7,6 +7,9 @@ jobs:
   lib_mingw:
     strategy:
       fail-fast: false
+      matrix:
+        coin: [monero, wownero]
+        target: [x86_64-w64-mingw32, i686-w64-mingw32]
     runs-on: ubuntu-latest
     container:
       image: ubuntu:24.04
@@ -30,32 +33,16 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}
-      - name: Cache built
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            contrib/depends/built/*
-          key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
-      - name: x86_64-w64-mingw32
+          key: ${{ github.job }}-${{ matrix.coin }}-${{ matrix.target }}
+      - name: Build ${{ matrix.coin }} for ${{ matrix.target }}
         run: |
-          ./build_single.sh monero x86_64-w64-mingw32 -j$(nproc)
-          ./build_single.sh wownero x86_64-w64-mingw32 -j$(nproc)
-      - name: i686-w64-mingw32
-        run: |
-          ./build_single.sh monero i686-w64-mingw32 -j$(nproc)
-          ./build_single.sh wownero i686-w64-mingw32 -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh ${{ matrix.coin }} ${{ matrix.target }} -j$(nproc)
       - name: rename artifacts
         run: |
-          mkdir release/gh/
-          for i in release/monero/*
+          mkdir -p release/gh/
+          for i in release/${{ matrix.coin }}/*
           do
-              cp "$i" "release/gh/monero_$(basename $i)"
-          done
-          for i in release/wownero/*
-          do
-              cp "$i" "release/gh/wownero_$(basename $i)"
+              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -66,19 +53,16 @@ jobs:
       - name: Upload lib
         uses: actions/upload-artifact@v4
         with:
-          name: mingw monero
-          path: release/monero
-      - name: Upload lib wownero
-        uses: actions/upload-artifact@v4
-        with:
-          name: mingw wownero
-          path: release/wownero
+          name: mingw-${{ matrix.coin }}-${{ matrix.target }}
+          path: release/${{ matrix.coin }}
+
   lib_android:
     strategy:
       fail-fast: false
+      matrix:
+        coin: [monero, wownero, zano]
+        target: [x86_64-linux-android, armv7a-linux-androideabi, aarch64-linux-android]
     runs-on: ubuntu-22.04
-    # container:
-    #   image: debian:bookworm
     steps:
       - name: Free Disk Space
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
@@ -110,43 +94,16 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}
-      - name: Cache built
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            contrib/depends/built/*
-          key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
-      - name: monero
+          key: ${{ github.job }}-${{ matrix.coin }}-${{ matrix.target }}
+      - name: Build ${{ matrix.coin }} for ${{ matrix.target }}
         run: |
-          ./build_single.sh monero x86_64-linux-android -j$(nproc)
-          ./build_single.sh monero armv7a-linux-androideabi -j$(nproc)
-          ./build_single.sh monero aarch64-linux-android -j$(nproc)
-      - name: wownero
-        run: |
-          ./build_single.sh wownero aarch64-linux-android -j$(nproc)
-          ./build_single.sh wownero x86_64-linux-android -j$(nproc)
-          ./build_single.sh wownero armv7a-linux-androideabi -j$(nproc)
-      - name: zano
-        run: |
-          ./build_single.sh zano x86_64-linux-android -j$(nproc)
-          ./build_single.sh zano aarch64-linux-android -j$(nproc)
-          ./build_single.sh zano armv7a-linux-androideabi -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh ${{ matrix.coin }} ${{ matrix.target }} -j$(nproc)
       - name: rename artifacts
         run: |
-          mkdir release/gh/
-          for i in release/monero/*
+          mkdir -p release/gh/
+          for i in release/${{ matrix.coin }}/*
           do
-              cp "$i" "release/gh/monero_$(basename $i)"
-          done
-          for i in release/wownero/*
-          do
-              cp "$i" "release/gh/wownero_$(basename $i)"
-          done
-          for i in release/zano/*
-          do
-              cp "$i" "release/gh/zano_$(basename $i)"
+              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -154,28 +111,22 @@ jobs:
         with:
           files: release/gh/*
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
-      - name: Upload lib monero
+      - name: Upload lib
         uses: actions/upload-artifact@v4
         with:
-          name: android monero
-          path: release/monero
-      - name: Upload lib wownero
-        uses: actions/upload-artifact@v4
-        with:
-          name: android wownero
-          path: release/wownero
-      - name: Upload lib zano
-        uses: actions/upload-artifact@v4
-        with:
-          name: android zano
-          path: release/zano
+          name: android-${{ matrix.coin }}-${{ matrix.target }}
+          path: release/${{ matrix.coin }}
       - name: remove android_ndk
         run: |
           rm -rf contrib/depends/built/*/android_ndk
           rm -rf contrib/depends/sources/android-ndk-r26d-linux.zip
+
   lib_linux:
     strategy:
       fail-fast: false
+      matrix:
+        coin: [monero, wownero, zano]
+        target: [x86_64-linux-gnu, aarch64-linux-gnu, i686-linux-gnu]
     runs-on: ubuntu-latest
     container:
       image: debian:bullseye
@@ -199,43 +150,16 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}
-      - name: Cache built
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            contrib/depends/built/*
-          key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
-      - name: x86_64-linux-gnu
+          key: ${{ github.job }}-${{ matrix.coin }}-${{ matrix.target }}
+      - name: Build ${{ matrix.coin }} for ${{ matrix.target }}
         run: |
-          ./build_single.sh monero x86_64-linux-gnu -j$(nproc)
-          ./build_single.sh wownero x86_64-linux-gnu -j$(nproc)
-          ./build_single.sh zano x86_64-linux-gnu -j$(nproc)
-      - name: aarch64-linux-gnu
-        run: |
-          ./build_single.sh monero aarch64-linux-gnu -j$(nproc)
-          ./build_single.sh wownero aarch64-linux-gnu -j$(nproc)
-          ./build_single.sh zano aarch64-linux-gnu -j$(nproc)
-      - name: i686-linux-gnu
-        run: |
-          ./build_single.sh monero i686-linux-gnu -j$(nproc)
-          ./build_single.sh wownero i686-linux-gnu -j$(nproc)
-          ./build_single.sh zano i686-linux-gnu -j$(nproc)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh ${{ matrix.coin }} ${{ matrix.target }} -j$(nproc)
       - name: rename artifacts
         run: |
-          mkdir release/gh/
-          for i in release/monero/*
+          mkdir -p release/gh/
+          for i in release/${{ matrix.coin }}/*
           do
-              cp "$i" "release/gh/monero_$(basename $i)"
-          done
-          for i in release/wownero/*
-          do
-              cp "$i" "release/gh/wownero_$(basename $i)"
-          done
-          for i in release/zano/*
-          do
-              cp "$i" "release/gh/zano_$(basename $i)"
+              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -246,23 +170,17 @@ jobs:
       - name: Upload lib
         uses: actions/upload-artifact@v4
         with:
-          name: linux monero
-          path: release/monero
-      - name: Upload lib wownero
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux wownero
-          path: release/wownero
-      - name: Upload lib zano
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux zano
-          path: release/zano
+          name: linux-${{ matrix.coin }}-${{ matrix.target }}
+          path: release/${{ matrix.coin }}
+
   lib_macos:
     strategy:
       fail-fast: false
+      matrix:
+        coin: [monero, wownero, zano]
+        target: [aarch64-apple-darwin, x86_64-apple-darwin]
     name: macos build
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout monero_c repo
         uses: actions/checkout@v4
@@ -272,7 +190,7 @@ jobs:
           submodules: recursive
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.2'
+          xcode-version: '16.4'
       - name: install dependencies
         run: |
           brew install ccache binutils pigz autoconf automake libtool pkg-config
@@ -287,38 +205,16 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}
-      - name: Cache built
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            contrib/depends/built/*
-          key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
-      - name: build (aarch64-apple-darwin)
+          key: ${{ github.job }}-${{ matrix.coin }}-${{ matrix.target }}
+      - name: Build ${{ matrix.coin }} for ${{ matrix.target }}
         run: |
-          ./build_single.sh monero aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh wownero aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh zano aarch64-apple-darwin -j$(sysctl -n hw.logicalcpu)
-      - name: build (x86_64-apple-darwin)
-        run: |
-          ./build_single.sh monero x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh wownero x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh zano x86_64-apple-darwin -j$(sysctl -n hw.logicalcpu)
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh ${{ matrix.coin }} ${{ matrix.target }} -j$(sysctl -n hw.logicalcpu)
       - name: rename artifacts
         run: |
-          mkdir release/gh/
-          for i in release/monero/*
+          mkdir -p release/gh/
+          for i in release/${{ matrix.coin }}/*
           do
-              cp "$i" "release/gh/monero_$(basename $i)"
-          done
-          for i in release/wownero/*
-          do
-              cp "$i" "release/gh/wownero_$(basename $i)"
-          done
-          for i in release/zano/*
-          do
-              cp "$i" "release/gh/zano_$(basename $i)"
+              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -329,21 +225,15 @@ jobs:
       - name: Upload lib
         uses: actions/upload-artifact@v4
         with:
-          name: macos monero
-          path: release/monero
-      - name: Upload lib wownero
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos wownero
-          path: release/wownero
-      - name: Upload lib zano
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos zano
-          path: release/zano
+          name: macos-${{ matrix.coin }}-${{ matrix.target }}
+          path: release/${{ matrix.coin }}
+
   lib_ios:
     strategy:
       fail-fast: false
+      matrix:
+        coin: [monero, wownero, zano]
+        target: [aarch64-apple-ios, aarch64-apple-iossimulator]
     name: ios build
     runs-on: macos-15
     steps:
@@ -355,7 +245,7 @@ jobs:
           submodules: recursive
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.2'
+          xcode-version: '16.4'
       - name: install dependencies
         run: |
           brew install ccache cmake autoconf automake libtool
@@ -370,40 +260,16 @@ jobs:
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}
-      - name: Cache built
-        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            contrib/depends/built/*
-          key: depends-${{ github.job }}-${{ hashFiles('contrib/depends/packages/*.mk') }}
-      - name: build (aarch64-apple-ios)
+          key: ${{ github.job }}-${{ matrix.coin }}-${{ matrix.target }}
+      - name: Build ${{ matrix.coin }} for ${{ matrix.target }}
         run: |
-          ./build_single.sh monero aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh wownero aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh zano aarch64-apple-ios -j$(sysctl -n hw.logicalcpu)
-
-      - name: build (aarch64-apple-iossimulator)
-        run: |
-          ./build_single.sh monero aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh wownero aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
-          ./build_single.sh zano aarch64-apple-iossimulator -j$(sysctl -n hw.logicalcpu)
-
+          env DEPENDS_UNTRUSTED_FAST_BUILDS=forced ./build_single.sh ${{ matrix.coin }} ${{ matrix.target }} -j$(sysctl -n hw.logicalcpu)
       - name: rename artifacts
         run: |
-          mkdir release/gh/
-          for i in release/monero/*
+          mkdir -p release/gh/
+          for i in release/${{ matrix.coin }}/*
           do
-              cp "$i" "release/gh/monero_$(basename $i)"
-          done
-          for i in release/wownero/*
-          do
-              cp "$i" "release/gh/wownero_$(basename $i)"
-          done
-          for i in release/zano/*
-          do
-              cp "$i" "release/gh/zano_$(basename $i)"
+              cp "$i" "release/gh/${{ matrix.coin }}_$(basename $i)"
           done
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -414,100 +280,123 @@ jobs:
       - name: Upload lib
         uses: actions/upload-artifact@v4
         with:
-          name: ios monero
-          path: release/monero
-      - name: Upload lib wownero
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios wownero
-          path: release/wownero
-      - name: Upload lib zano
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios zano
-          path: release/zano
+          name: ios-${{ matrix.coin }}-${{ matrix.target }}
+          path: release/${{ matrix.coin }}
+
   bulk_lib_release:
     name: create single release file
     runs-on: ubuntu-latest
-    needs: [
-      lib_mingw, lib_android, lib_linux, lib_macos, lib_ios
-    ]
+    needs: [lib_mingw, lib_android, lib_linux, lib_macos, lib_ios]
+    strategy:
+      matrix:
+        coin: [monero, wownero, zano]
+        platform: [android, ios, linux, macos]
+        include:
+          - coin: monero
+            platform: mingw
+          - coin: wownero
+            platform: mingw
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Create release directory
+        run: mkdir -p release/${{ matrix.coin }}
+      
+      - name: Download Android artifacts
+        if: matrix.platform == 'android'
+        uses: actions/download-artifact@v4
         with:
-          name: android monero
-          path: release/monero
-      - uses: actions/download-artifact@v4
+          pattern: android-${{ matrix.coin }}-*
+          path: temp-android
+          merge-multiple: true
+      
+      - name: Download iOS artifacts
+        if: matrix.platform == 'ios'
+        uses: actions/download-artifact@v4
         with:
-          name: android wownero
-          path: release/wownero
-      - uses: actions/download-artifact@v4
+          pattern: ios-${{ matrix.coin }}-*
+          path: temp-ios
+          merge-multiple: true
+      
+      - name: Download Linux artifacts
+        if: matrix.platform == 'linux'
+        uses: actions/download-artifact@v4
         with:
-          name: android zano
-          path: release/zano
-      - uses: actions/download-artifact@v4
+          pattern: linux-${{ matrix.coin }}-*
+          path: temp-linux
+          merge-multiple: true
+      
+      - name: Download macOS artifacts
+        if: matrix.platform == 'macos'
+        uses: actions/download-artifact@v4
         with:
-          name: ios monero
-          path: release/monero
-      - uses: actions/download-artifact@v4
+          pattern: macos-${{ matrix.coin }}-*
+          path: temp-macos
+          merge-multiple: true
+      
+      - name: Download MinGW artifacts
+        if: matrix.platform == 'mingw' && (matrix.coin == 'monero' || matrix.coin == 'wownero')
+        uses: actions/download-artifact@v4
         with:
-          name: ios wownero
-          path: release/wownero
-      - uses: actions/download-artifact@v4
+          pattern: mingw-${{ matrix.coin }}-*
+          path: temp-mingw
+          merge-multiple: true
+      
+      - name: Copy artifacts to release directory
+        run: |
+          if [ -d "temp-${{ matrix.platform }}" ]; then
+            cp -r temp-${{ matrix.platform }}/* release/${{ matrix.coin }}/
+          fi
+      
+      - name: Upload consolidated artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: ios zano
-          path: release/zano
-      - uses: actions/download-artifact@v4
+          name: ${{ matrix.platform }}-${{ matrix.coin }}-all
+          path: release/${{ matrix.coin }}
+
+  final_bulk_release:
+    name: create final release bundle
+    runs-on: ubuntu-latest
+    needs: [bulk_lib_release]
+    steps:
+      - name: Create release directory
+        run: mkdir -p release/{monero,wownero,zano}
+      
+      - name: Download all consolidated artifacts
+        uses: actions/download-artifact@v4
         with:
-          name: linux monero
-          path: release/monero
-      - uses: actions/download-artifact@v4
-        with:
-          name: linux wownero
-          path: release/wownero
-      - uses: actions/download-artifact@v4
-        with:
-          name: linux zano
-          path: release/zano
-      - uses: actions/download-artifact@v4
-        with:
-          name: macos monero
-          path: release/monero
-      - uses: actions/download-artifact@v4
-        with:
-          name: macos wownero
-          path: release/wownero
-      - uses: actions/download-artifact@v4
-        with:
-          name: macos zano
-          path: release/zano
-      - uses: actions/download-artifact@v4
-        with:
-          name: mingw monero
-          path: release/monero
-      - uses: actions/download-artifact@v4
-        with:
-          name: mingw wownero
-          path: release/wownero
+          pattern: "*-all"
+          path: temp-all
+      
+      - name: Reorganize artifacts
+        run: |
+          # Move all artifacts to their respective coin directories
+          for coin in monero wownero zano; do
+            find temp-all -name "*-${coin}-all" -type d | while read dir; do
+              if [ -d "$dir" ]; then
+                cp -r "$dir"/* "release/${coin}/" 2>/dev/null || true
+              fi
+            done
+          done
+      
       - name: zip release dir
         run: zip -r release-bundle.zip release
+      
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: release-bundle.zip
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
-      - name: Upload lib
+      
+      - name: Upload final bundle
         uses: actions/upload-artifact@v4
         with:
           name: release-bulk
           path: release
+
   deno_monerots_test_linux:
     name: test ts library
     runs-on: ubuntu-24.04
-    needs: [
-      lib_linux
-    ]
+    needs: [lib_linux]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -515,10 +404,13 @@ jobs:
           submodules: recursive
       - uses: actions/download-artifact@v4
         with:
-          name: linux monero
-          path: release/monero
+          pattern: linux-monero-x86_64-linux-gnu
+          path: temp-linux-monero
+          merge-multiple: true
       - name: unpack and move monero_c
         run: |
+          mkdir -p release/monero
+          cp -r temp-linux-monero/* release/monero/
           unxz -f -k release/*/*.xz
       - uses: denoland/setup-deno@v1
         with:
@@ -542,9 +434,7 @@ jobs:
       fail-fast: false
       matrix:
         coin: [monero, wownero]
-    needs: [
-      lib_linux
-    ]
+    needs: [lib_linux]
     runs-on: ubuntu-24.04
     steps:
       - uses: denoland/setup-deno@v2
@@ -558,8 +448,14 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: linux ${{ matrix.coin }}
-          path: release/${{ matrix.coin }}
+          pattern: linux-${{ matrix.coin }}-*
+          path: temp-linux-${{ matrix.coin }}
+          merge-multiple: true
+
+      - name: Setup release directory
+        run: |
+          mkdir -p release/${{ matrix.coin }}
+          cp -r temp-linux-${{ matrix.coin }}/* release/${{ matrix.coin }}/
 
       - name: Run regression tests
         run: COIN="${{ matrix.coin }}" deno test -A tests/regression.test.ts
@@ -569,10 +465,8 @@ jobs:
     strategy:
       matrix:
         coin: [monero, wownero]
-    needs: [
-      lib_macos
-    ]
-    runs-on: macos-14
+    needs: [lib_macos]
+    runs-on: macos-15
     steps:
       - uses: denoland/setup-deno@v2
         with:
@@ -585,8 +479,14 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: macos ${{ matrix.coin }}
-          path: release/${{ matrix.coin }}
+          pattern: macos-${{ matrix.coin }}-*
+          path: temp-macos-${{ matrix.coin }}
+          merge-multiple: true
+
+      - name: Setup release directory
+        run: |
+          mkdir -p release/${{ matrix.coin }}
+          cp -r temp-macos-${{ matrix.coin }}/* release/${{ matrix.coin }}/
 
       - name: Run regression tests
         run: COIN="${{ matrix.coin }}" deno test -A tests/regression.test.ts
@@ -596,9 +496,7 @@ jobs:
     strategy:
       matrix:
         coin: [monero, wownero]
-    needs: [
-      lib_linux
-    ]
+    needs: [lib_linux]
     runs-on: ubuntu-24.04
     steps:
       - uses: denoland/setup-deno@v2
@@ -612,8 +510,14 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: linux ${{ matrix.coin }}
-          path: release/${{ matrix.coin }}
+          pattern: linux-${{ matrix.coin }}-*
+          path: temp-linux-${{ matrix.coin }}
+          merge-multiple: true
+
+      - name: Setup release directory
+        run: |
+          mkdir -p release/${{ matrix.coin }}
+          cp -r temp-linux-${{ matrix.coin }}/* release/${{ matrix.coin }}/
 
       - name: Run integration tests
         run: COIN="${{ matrix.coin }}" deno test -A tests/integration.test.ts
@@ -622,16 +526,13 @@ jobs:
           SECRET_WALLET_MNEMONIC: ${{ secrets.SECRET_WALLET_MNEMONIC }}
           SECRET_WALLET_RESTORE_HEIGHT: ${{ secrets.SECRET_WALLET_RESTORE_HEIGHT }}
 
-
   integration_tests_macos:
     name: macos integration tests
     strategy:
       matrix:
         coin: [monero, wownero]
-    needs: [
-      lib_macos
-    ]
-    runs-on: macos-14
+    needs: [lib_macos]
+    runs-on: macos-15
     steps:
       - uses: denoland/setup-deno@v2
         with:
@@ -644,8 +545,14 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: macos ${{ matrix.coin }}
-          path: release/${{ matrix.coin }}
+          pattern: macos-${{ matrix.coin }}-*
+          path: temp-macos-${{ matrix.coin }}
+          merge-multiple: true
+
+      - name: Setup release directory
+        run: |
+          mkdir -p release/${{ matrix.coin }}
+          cp -r temp-macos-${{ matrix.coin }}/* release/${{ matrix.coin }}/
 
       - name: Run integration tests
         run: COIN="${{ matrix.coin }}" deno test -A tests/integration.test.ts
@@ -654,13 +561,10 @@ jobs:
           SECRET_WALLET_MNEMONIC: ${{ secrets.SECRET_WALLET_MNEMONIC }}
           SECRET_WALLET_RESTORE_HEIGHT: ${{ secrets.SECRET_WALLET_RESTORE_HEIGHT }}
 
-
   comment_pr:
     name: comment on pr
     runs-on: ubuntu-latest
-    needs: [
-      lib_mingw, lib_android, lib_linux, lib_macos, lib_ios,
-    ]
+    needs: [lib_mingw, lib_android, lib_linux, lib_macos, lib_ios]
     steps:
       - uses: actions/github-script@v7
         continue-on-error: true
