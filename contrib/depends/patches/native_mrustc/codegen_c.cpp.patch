@@ -1,0 +1,17 @@
+--- a/src/trans/codegen_c.cpp   2025-07-08 00:17:10.022769383 +0200
++++ b/src/trans/codegen_c.cpp   2025-07-08 00:17:18.404645999 +0200
+@@ -1297,8 +1297,14 @@
+                 // HACK: Work around [https://gcc.gnu.org/bugzilla/show_bug.cgi?id=117423] by disabling an optimisation stage
+                 if( opt.opt_level > 0 )
+                 {
++                    #ifndef __clang__ // clang doesn't have this option.
+                     args.push_back("-fno-tree-sra");
++                    #endif
+                 }
++                #ifdef __APPLE__
++                args.push_back("-framework");
++                args.push_back("Security");
++                #endif
+                 if( opt.emit_debug_info )
+                 {
+                     args.push_back("-g");

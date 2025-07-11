@@ -5,9 +5,11 @@ $(package)_file_name=rustc-$($(package)_version)-src.tar.gz
 $(package)_download_file=$($(package)_file_name)
 $(package)_sha256_hash=b2379ac710f5f876ee3c3e03122fe33098d6765d371cac6c31b1b6fc8e43821e
 $(package)_dependencies=native_mrustc
+$(package)_patches=assembly.h.patch
 
 define $(package)_preprocess_cmds
-    sed -i '18i#include <cstdint>' src/llvm-project/llvm/include/llvm/Support/Signals.h || true && \
+    cd $($(package)_extract_dir) && \
+    patch -p1 < $($(package)_patch_dir)/assembly.h.patch && \
     echo '[build]' > config.toml && \
     echo 'full-bootstrap = true' >> config.toml && \
     echo 'vendor = true' >> config.toml && \
@@ -20,7 +22,7 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_build_cmds
-    python3 ./x.py build --stage 3
+    python3 ./x.py build --stage 3 --verbose -j $(NUM_PROC)
 endef
 
 define $(package)_stage_cmds

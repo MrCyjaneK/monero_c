@@ -1,0 +1,14 @@
+--- a/src/llvm-project/compiler-rt/lib/builtins/assembly.h	2021-07-12 08:53:30.000000000 +0200
++++ b/src/llvm-project/compiler-rt/lib/builtins/assembly.h	2025-07-08 21:51:23.202034452 +0200
+@@ -249,9 +249,10 @@
+   .globl name SEPARATOR                                                        \
+   SYMBOL_IS_FUNC(name) SEPARATOR                                               \
+   DECLARE_SYMBOL_VISIBILITY(name) SEPARATOR                                    \
++  name: SEPARATOR                                                              \
+   CFI_START SEPARATOR                                                          \
+   DECLARE_FUNC_ENCODING                                                        \
+-  name: SEPARATOR BTI_C
++  BTI_C
+ 
+ #define DEFINE_COMPILERRT_FUNCTION_ALIAS(name, target)                         \
+   .globl SYMBOL_NAME(name) SEPARATOR                                           \

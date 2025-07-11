@@ -1,4 +1,4 @@
-OSX_MIN_VERSION=10.14
+OSX_MIN_VERSION=10.15
 LD64_VERSION=609
 ifeq (aarch64, $(host_arch))
 CC_target=arm64-apple-$(host_os)
@@ -14,10 +14,10 @@ darwin_CFLAGS=-pipe
 darwin_CXXFLAGS=$(darwin_CFLAGS)
 darwin_ARFLAGS=cr
 
-darwin_release_CFLAGS=-O1
+darwin_release_CFLAGS=-O3
 darwin_release_CXXFLAGS=$(darwin_release_CFLAGS)
 
-darwin_debug_CFLAGS=-O1
+darwin_debug_CFLAGS=-O3
 darwin_debug_CXXFLAGS=$(darwin_debug_CFLAGS)
 
 darwin_native_toolchain=native_cctools darwin_sdk
