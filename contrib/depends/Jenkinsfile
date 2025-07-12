@@ -249,9 +249,9 @@ def uploadIfChanged(target) {
             for package_dir in contrib/depends/built/${target}/*/; do
                 if [ -d "\$package_dir" ]; then
                     package=\$(basename "\$package_dir")
-                    echo "Processing package: \$package"
+                    echo "Processing package: \$package: \$(ls -la "\$package_dir")"
                     
-                    find "\$package_dir" -name '*.tar.gz*' -type f | while read -r file; do
+                    for file in "\$package_dir"/*.tar.gz*; do
                         remote_dir_base="/home/mrcyjanek/web/static.mrcyjanek.net/public_html/lfs/depends/contrib/depends/built/${target}/\$package"
                         echo "Uploading \$file to \$remote_dir_base"
                         upload_with_checksum "\$file" "\$remote_dir_base"
