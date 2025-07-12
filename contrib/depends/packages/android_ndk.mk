@@ -1,8 +1,8 @@
 package=android_ndk
-$(package)_version=26d
+$(package)_version=28c
 $(package)_download_path=https://dl.google.com/android/repository/
 $(package)_file_name=android-ndk-r$($(package)_version)-linux.zip
-$(package)_sha256_hash=eefeafe7ccf177de7cc57158da585e7af119bb7504a63604ad719e4b2a328b54
+$(package)_sha256_hash=dfb20d396df28ca02a8c708314b814a4d961dc9074f9a161932746f815aa552f
 
 $(package)_version_apiversion=21
 
