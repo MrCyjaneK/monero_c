@@ -19,7 +19,9 @@ define $(package)_preprocess_cmds
     sed -i.bak "s/STD_ENV_ARCH=[a-zA-Z0-9_]*/STD_ENV_ARCH=$$$$ARCH/" script-overrides/stable-1.54.0-linux/build_std.txt; \
   fi && \
   sed -i.bak 's/^make$$$$/make $$$$@/' build-1.54.0.sh &&\
-  sed -i '' 's/^[[:space:]]*RUSTC_TARGET ?= x86_64-apple-darwin/RUSTC_TARGET ?= aarch64-apple-darwin/' run_rustc/Makefile && \
+  if [ `uname -s` = "Darwin" ]; then \
+  sed -i '' 's/^[[:space:]]*RUSTC_TARGET ?= x86_64-apple-darwin/RUSTC_TARGET ?= aarch64-apple-darwin/' run_rustc/Makefile; \
+  fi && \
   echo >> build-1.54.0.sh && \
   echo make -C run_rustc >> build-1.54.0.sh
 endef
