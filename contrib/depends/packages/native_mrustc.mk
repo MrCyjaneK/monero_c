@@ -7,8 +7,11 @@ $(package)_sha256_hash=d3d3b84a100e71628afecf1125dbaa9bfc54ef9578c4fd81d75dca34c
 $(package)_dependencies=native_ccache native_python3
 $(package)_patches=codegen_c.cpp.patch
 
+define $(package)_set_vars
+$(package)_build_env+=PARLEVEL=$(NUM_CORES)
+endef
+
 define $(package)_preprocess_cmds
-  cd $($(package)_extract_dir) && \
   patch -p1 < $($(package)_patch_dir)/codegen_c.cpp.patch && \
   if [ -f script-overrides/stable-1.54.0-macos/build_std.txt ]; then \
     ARCH=`uname -m | sed 's/arm64/aarch64/'` && \
@@ -19,16 +22,13 @@ define $(package)_preprocess_cmds
     sed -i.bak "s/STD_ENV_ARCH=[a-zA-Z0-9_]*/STD_ENV_ARCH=$$$$ARCH/" script-overrides/stable-1.54.0-linux/build_std.txt; \
   fi && \
   sed -i.bak 's/^make$$$$/make $$$$@/' build-1.54.0.sh &&\
-  if [ `uname -s` = "Darwin" ]; then \
-  sed -i '' 's/^[[:space:]]*RUSTC_TARGET ?= x86_64-apple-darwin/RUSTC_TARGET ?= aarch64-apple-darwin/' run_rustc/Makefile; \
-  fi && \
+  sed -i.bak 's/^[[:space:]]*RUSTC_TARGET ?= x86_64-apple-darwin/RUSTC_TARGET ?= aarch64-apple-darwin/' run_rustc/Makefile && \
   echo >> build-1.54.0.sh && \
   echo make -C run_rustc >> build-1.54.0.sh
 endef
 
 define $(package)_build_cmds
-  cd $($(package)_extract_dir) && \
-  $($(package)_build_env) PARLEVEL=$(shell nproc) ./build-1.54.0.sh -j$(shell nproc)
+  $($(package)_build_env) ./build-1.54.0.sh -j$(NUM_CORES)
 endef
 
 # FIXME bad dylib paths embedded in the rustc binary, forcing install_name_tool dark magic

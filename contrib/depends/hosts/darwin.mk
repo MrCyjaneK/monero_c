@@ -5,13 +5,12 @@ CC_target=arm64-apple-$(host_os)
 else
 CC_target=$(host)
 endif
-darwin_CC=clang -target $(CC_target) -mmacosx-version-min=$(OSX_MIN_VERSION) --sysroot $(host_prefix)/native/SDK/ -mlinker-version=$(LD64_VERSION) -B$(host_prefix)/native/bin/$(host)-
-darwin_CXX=clang++ -target $(CC_target) -mmacosx-version-min=$(OSX_MIN_VERSION) --sysroot $(host_prefix)/native/SDK/ -mlinker-version=$(LD64_VERSION) -stdlib=libc++ -B$(host_prefix)/native/bin/$(host)-
-
+darwin_CC=clang
+darwin_CXX=clang++
 darwin_RANLIB=$(host_prefix)/native/bin/$(host)-ranlib
 darwin_AR=$(host_prefix)/native/bin/$(host)-ar
-darwin_CFLAGS=-pipe
-darwin_CXXFLAGS=$(darwin_CFLAGS)
+darwin_CFLAGS=-pipe -target $(CC_target) -mmacosx-version-min=$(OSX_MIN_VERSION) --sysroot $(host_prefix)/native/SDK/ -mlinker-version=$(LD64_VERSION) -B$(host_prefix)/native/bin/$(host)-
+darwin_CXXFLAGS=$(darwin_CFLAGS) -stdlib=libc++
 darwin_ARFLAGS=cr
 
 darwin_release_CFLAGS=-O3
