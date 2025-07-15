@@ -15,10 +15,10 @@ define $(package)_config_cmds
   mkdir buildb &&\
   cd builda &&\
   sh ../source/runConfigureICU Linux &&\
-  make &&\
+  TARGET= make &&\
   cd ../buildb &&\
   sh ../source/runConfigureICU MinGW --enable-static=yes --disable-shared --disable-layout --disable-layoutex --disable-tests --disable-samples --prefix=$(host_prefix) --with-cross-build=`pwd`/../builda &&\
-  $(MAKE) -j$(NUM_CORES) $($(package)_build_opts)
+  TARGET= $(MAKE) -j$(NUM_CORES) $($(package)_build_opts)
 endef
 
 define $(package)_stage_cmds
