@@ -21,23 +21,38 @@ Subject: [PATCH 08/15] add dummy device for ledger
  create mode 100644 src/device/device_io_dummy.hpp
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 88335ee9d..86000f811 100644
+index c73b813d8..ce5ef4bab 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -693,8 +693,12 @@ include_directories(${LMDB_INCLUDE})
+@@ -692,16 +692,21 @@ include_directories(${LMDB_INCLUDE})
  include_directories(${LIBUNWIND_INCLUDE})
  link_directories(${LIBUNWIND_LIBRARY_DIRS})
  
+-# Final setup for hid
+-if (HIDAPI_FOUND) 
+-  message(STATUS "Using HIDAPI include dir at ${HIDAPI_INCLUDE_DIR}")
+-  add_definitions(-DHAVE_HIDAPI)
+-  include_directories(${HIDAPI_INCLUDE_DIR})
+-  link_directories(${LIBHIDAPI_LIBRARY_DIRS})
 +if (HIDAPI_DUMMY)
 +  add_definitions(-DHIDAPI_DUMMY)
-+endif()
+ else()
+-  message(STATUS "Could not find HIDAPI")
++  # Final setup for hid
++  if (HIDAPI_FOUND)
++    message(STATUS "Using HIDAPI include dir at ${HIDAPI_INCLUDE_DIR}")
++    add_definitions(-DHAVE_HIDAPI)
++    include_directories(${HIDAPI_INCLUDE_DIR})
++    link_directories(${LIBHIDAPI_LIBRARY_DIRS})
++  else()
++    message(STATUS "Could not find HIDAPI")
++  endif()
+ endif()
+ 
 +
- # Final setup for hid
--if (HIDAPI_FOUND) 
-+if (HIDAPI_FOUND)
-   message(STATUS "Using HIDAPI include dir at ${HIDAPI_INCLUDE_DIR}")
-   add_definitions(-DHAVE_HIDAPI)
-   include_directories(${HIDAPI_INCLUDE_DIR})
+ # Trezor support check
+ include(CheckTrezor)
+ 
 diff --git a/src/device/CMakeLists.txt b/src/device/CMakeLists.txt
 index e4f1159b5..14d398f87 100644
 --- a/src/device/CMakeLists.txt
@@ -235,13 +250,13 @@ index 000000000..edb4beea3
 +            MDEBUG("exchange(): waitsForDeviceSend");
 +            // NOTE: waitsForDeviceSend should be changed by external code
 +            while (waitsForDeviceSend) {
-+                usleep(1000);
++                std::this_thread::sleep_for(std::chrono::microseconds(1000));
 +                MDEBUG("exchange(): waitsForDeviceSend (still)");
 +            }
 +
 +            MDEBUG("exchange(): waitsForDeviceReceive");
 +            while (waitsForDeviceReceive) {
-+                usleep(1000);
++                std::this_thread::sleep_for(std::chrono::microseconds(1000));
 +                MDEBUG("exchange(): waitsForDeviceReceive (still)");
 +            }
 +
