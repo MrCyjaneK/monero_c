@@ -4488,6 +4488,22 @@ class MoneroC {
                       ffi.Void Function(ffi.Pointer<ffi.UnsignedChar> command,
                           ffi.UnsignedInt cmd_len)>>)>();
 
+  ffi.Pointer<ffi.Char> MONERO_Wallet_serializeCacheToJson(
+    ffi.Pointer<ffi.Void> wallet_ptr,
+  ) {
+    return _MONERO_Wallet_serializeCacheToJson(
+      wallet_ptr,
+    );
+  }
+
+  late final _MONERO_Wallet_serializeCacheToJsonPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<ffi.Void>)>>('MONERO_Wallet_serializeCacheToJson');
+  late final _MONERO_Wallet_serializeCacheToJson =
+      _MONERO_Wallet_serializeCacheToJsonPtr.asFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
+
   ffi.Pointer<ffi.Void> MONERO_WalletManager_createWallet(
     ffi.Pointer<ffi.Void> wm_ptr,
     ffi.Pointer<ffi.Char> path,

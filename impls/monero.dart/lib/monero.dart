@@ -3604,6 +3604,17 @@ void Wallet_setLedgerCallback(Pointer<NativeFunction<Void Function(Pointer<Unsig
   return ret;
 }
 
+@Deprecated("TODO")
+String MONERO_Wallet_serializeCacheToJson(wallet ptr) {
+  debugStart?.call('MONERO_Wallet_serializeCacheToJson');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+  final ret = lib!.MONERO_Wallet_serializeCacheToJson(ptr);
+  final str = ret.cast<Utf8>().toDartString();
+  MONERO_free(ret.cast());
+  debugEnd?.call('MONERO_Wallet_serializeCacheToJson');
+  return str;
+}
+
 // WalletManager
 @Deprecated("TODO")
 typedef WalletManager = Pointer<Void>;

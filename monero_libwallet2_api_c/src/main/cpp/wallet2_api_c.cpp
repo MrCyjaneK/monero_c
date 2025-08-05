@@ -2162,6 +2162,14 @@ void MONERO_Wallet_setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *c
     DEBUG_END()
 }
 
+const char* MONERO_Wallet_serializeCacheToJson(void* wallet_ptr) {
+    DEBUG_START()
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    std::string result = wallet->serializeCacheToJson();
+    return strdup(result.c_str());
+    DEBUG_END()
+}
+
 void* MONERO_WalletManager_createWallet(void* wm_ptr, const char* path, const char* password, const char* language, int networkType) {
     DEBUG_START()
     Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
