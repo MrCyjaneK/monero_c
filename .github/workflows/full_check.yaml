@@ -193,7 +193,8 @@ jobs:
           xcode-version: '16.4'
       - name: install dependencies
         run: |
-          brew install ccache binutils pigz autoconf automake libtool pkg-config
+          brew uninstall cmake
+          brew install cmake ccache binutils pigz autoconf automake libtool pkg-config
       - name: Patch sources
         run: |
           git config --global --add safe.directory '*'
@@ -248,7 +249,8 @@ jobs:
           xcode-version: '16.4'
       - name: install dependencies
         run: |
-          brew install ccache cmake autoconf automake libtool
+          brew uninstall cmake
+          brew install cmake ccache autoconf automake libtool
       - name: Patch sources
         run: |
           git config --global --add safe.directory '*'

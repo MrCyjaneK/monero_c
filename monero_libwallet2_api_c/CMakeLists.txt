@@ -164,6 +164,14 @@ endif()
 #                        ${EXTRA_LIBS_WOWNEROSEED}
 #                        ${EXTRA_LIBS_ANDROID}")
 
+
+if (${HOST_ABI} STREQUAL "x86_64-w64-mingw32" OR
+    ${HOST_ABI} STREQUAL "i686-w64-mingw32")
+    target_link_options(wallet2_api_c PRIVATE "-Wl,--section-alignment,16384")
+elseif(${HOST_ABI} MATCHES "-linux-")
+    target_link_options(wallet2_api_c PRIVATE "-Wl,-z,max-page-size=16384")
+endif()
+
 target_link_libraries(  wallet2_api_c
 
                         ${WALLET_TARGETS}
