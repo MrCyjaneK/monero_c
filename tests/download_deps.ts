@@ -31,7 +31,7 @@ export function getFileInfo(
   return fileInfo;
 }
 
-async function sha256(buffer: Uint8Array): Promise<string> {
+async function sha256(buffer: Uint8Array<ArrayBuffer>): Promise<string> {
   const hashed = new Uint8Array(await crypto.subtle.digest("SHA-256", buffer));
   return Array.from(hashed).map((i) => i.toString(16).padStart(2, "0")).join("");
 }
@@ -72,7 +72,7 @@ async function tryToDownloadFile(
 async function validFileExists(filePath: string, fileInfo: FileInfo): Promise<boolean> {
   const [mainFileName] = fileInfo.names;
 
-  let fileBuffer: Uint8Array;
+  let fileBuffer: Uint8Array<ArrayBuffer>;
   try {
     fileBuffer = await Deno.readFile(filePath);
   } catch {
