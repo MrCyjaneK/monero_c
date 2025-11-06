@@ -51,7 +51,7 @@ jobs:
           files: release/gh/*
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
       - name: Upload lib
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: mingw-${{ matrix.coin }}-${{ matrix.target }}
           path: release/${{ matrix.coin }}
@@ -112,7 +112,7 @@ jobs:
           files: release/gh/*
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
       - name: Upload lib
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: android-${{ matrix.coin }}-${{ matrix.target }}
           path: release/${{ matrix.coin }}
@@ -168,7 +168,7 @@ jobs:
           files: release/gh/*
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
       - name: Upload lib
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: linux-${{ matrix.coin }}-${{ matrix.target }}
           path: release/${{ matrix.coin }}
@@ -224,7 +224,7 @@ jobs:
           files: release/gh/*
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
       - name: Upload lib
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: macos-${{ matrix.coin }}-${{ matrix.target }}
           path: release/${{ matrix.coin }}
@@ -280,7 +280,7 @@ jobs:
           files: release/gh/*
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
       - name: Upload lib
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ios-${{ matrix.coin }}-${{ matrix.target }}
           path: release/${{ matrix.coin }}
@@ -349,7 +349,7 @@ jobs:
           fi
       
       - name: Upload consolidated artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.platform }}-${{ matrix.coin }}-all
           path: release/${{ matrix.coin }}
@@ -390,7 +390,7 @@ jobs:
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
       
       - name: Upload final bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: release-bulk
           path: release
