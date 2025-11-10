@@ -129,7 +129,7 @@ jobs:
         target: [x86_64-linux-gnu, aarch64-linux-gnu, i686-linux-gnu]
     runs-on: ubuntu-latest
     container:
-      image: debian:bookworm
+      image: debian:trixie
     steps:
       - name: Install dependencies
         run: |
