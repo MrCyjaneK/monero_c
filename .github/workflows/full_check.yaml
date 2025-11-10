@@ -568,7 +568,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lib_mingw, lib_android, lib_linux, lib_macos, lib_ios]
     steps:
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v8
         continue-on-error: true
         id: get_issue_number
         with:
