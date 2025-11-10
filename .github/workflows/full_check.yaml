@@ -18,7 +18,7 @@ jobs:
         run: |
           apt update
           apt install -y pigz build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 gperf gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-i686 g++-mingw-w64-i686
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           submodules: recursive
@@ -79,7 +79,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y llvm pigz build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo6 gperf unzip python-is-python3
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           submodules: recursive
@@ -135,7 +135,7 @@ jobs:
         run: |
           apt update
           apt install -y pigz build-essential pkg-config autoconf libtool ccache make cmake gcc g++ git curl lbzip2 libtinfo5 gperf gcc-aarch64-linux-gnu g++-aarch64-linux-gnu gcc-i686-linux-gnu g++-i686-linux-gnu
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           submodules: recursive
@@ -183,7 +183,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Checkout monero_c repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: MrCyjaneK/monero_c
           fetch-depth: 0
@@ -239,7 +239,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Checkout monero_c repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: MrCyjaneK/monero_c
           fetch-depth: 0
@@ -400,7 +400,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [lib_linux]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           submodules: recursive
@@ -443,7 +443,7 @@ jobs:
         with:
           deno-version: v2.x
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           submodules: recursive
@@ -474,7 +474,7 @@ jobs:
         with:
           deno-version: canary
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           submodules: recursive
@@ -505,7 +505,7 @@ jobs:
         with:
           deno-version: v2.x
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           submodules: recursive
@@ -540,7 +540,7 @@ jobs:
         with:
           deno-version: v2.x
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           submodules: recursive
