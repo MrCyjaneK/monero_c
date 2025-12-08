@@ -16,3 +16,7 @@
 	url = https://github.com/MrCyjaneK/wownero-seed
 	branch = cyjan-namespace2
 	shallow = true
+[submodule "beldex"]
+	path = beldex
+	url = https://github.com/victor-tucci/beldex
+	branch = bulletproofplus-integration
