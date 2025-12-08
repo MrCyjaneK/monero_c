@@ -1,0 +1,126 @@
+From 81bec0647b45f23f26483a56afec6068da7eb156 Mon Sep 17 00:00:00 2001
+From: victor-tucci <victor.tucci@beldex.io>
+Date: Tue, 2 Dec 2025 11:43:43 +0000
+Subject: [PATCH 12/13] add beldex submodule support
+
+---
+ CMakeLists.txt                   |  4 ++--
+ cmake/CheckLinkerFlag.cmake      |  2 +-
+ cmake/Version.cmake              |  6 +++---
+ src/wallet/api/CMakeLists.txt    | 14 +++++++++++++-
+ src/wallet/wallet_rpc_server.cpp |  2 +-
+ 5 files changed, 20 insertions(+), 8 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b9cb9b35d..fdfc91b42 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -32,7 +32,7 @@
+ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+ 
+ list(INSERT CMAKE_MODULE_PATH 0
+-  "${CMAKE_SOURCE_DIR}/cmake")
++  "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+ 
+ find_program(CCACHE_PROGRAM ccache)
+ if(CCACHE_PROGRAM)
+@@ -308,7 +308,7 @@ endif()
+ option(PER_BLOCK_CHECKPOINT "Enables per-block checkpointing" ON)
+ 
+ list(INSERT CMAKE_MODULE_PATH 0
+-  "${CMAKE_SOURCE_DIR}/cmake")
++  "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+ 
+ option(BOOST_IGNORE_SYSTEM_PATHS "Ignore boost system paths for local boost installation" OFF)
+ 
+diff --git a/cmake/CheckLinkerFlag.cmake b/cmake/CheckLinkerFlag.cmake
+index 2b507ab71..2169bf448 100755
+--- a/cmake/CheckLinkerFlag.cmake
++++ b/cmake/CheckLinkerFlag.cmake
+@@ -6,7 +6,7 @@ macro(CHECK_LINKER_FLAG flag VARIABLE)
+       message(STATUS "Looking for ${flag} linker flag")
+     endif()
+ 
+-    set(_cle_source ${CMAKE_SOURCE_DIR}/cmake/CheckLinkerFlag.c)
++    set(_cle_source ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckLinkerFlag.c)
+ 
+     set(saved_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+     set(CMAKE_C_FLAGS "${flag}")
+diff --git a/cmake/Version.cmake b/cmake/Version.cmake
+index 7d7a927dd..7cb0b5901 100755
+--- a/cmake/Version.cmake
++++ b/cmake/Version.cmake
+@@ -28,19 +28,19 @@
+ 
+ function (write_static_version_header hash)
+   set(VERSIONTAG "${hash}")
+-  configure_file("${CMAKE_SOURCE_DIR}/src/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp")
++  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp")
+ endfunction ()
+ 
+ find_package(Git QUIET)
+ if (GIT_FOUND OR Git_FOUND)
+   message(STATUS "Found Git: ${GIT_EXECUTABLE}")
+   set(VERSIONTAG "@VERSIONTAG@") # Will be replaced again by GenVersion.cmake, below.
+-  configure_file("${CMAKE_SOURCE_DIR}/src/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp.in")
++  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp.in")
+   add_custom_command(
+     OUTPUT            "${CMAKE_BINARY_DIR}/version.cpp"
+     COMMAND           "${CMAKE_COMMAND}"
+                       "-D" "GIT=${GIT_EXECUTABLE}"
+-                      "-P" "${CMAKE_SOURCE_DIR}/cmake/GenVersion.cmake"
++                      "-P" "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/GenVersion.cmake"
+     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+     DEPENDS           "${CMAKE_BINARY_DIR}/version.cpp.in")
+ else()
+diff --git a/src/wallet/api/CMakeLists.txt b/src/wallet/api/CMakeLists.txt
+index 83b64813a..0b3666770 100755
+--- a/src/wallet/api/CMakeLists.txt
++++ b/src/wallet/api/CMakeLists.txt
+@@ -42,9 +42,12 @@ add_library(wallet_api
+   subaddress_account.cpp
+   unsigned_transaction.cpp)
+ 
++find_package(OpenSSL REQUIRED)
++
+ target_link_libraries(wallet_api
+   PUBLIC
+     wallet
++    common
+     cryptonote_core
+     mnemonics
+     lmdb
+@@ -53,7 +56,16 @@ target_link_libraries(wallet_api
+     filesystem
+     Boost::thread
+   PRIVATE
+-    extra)
++    extra
++    OpenSSL::Crypto
++    OpenSSL::SSL
++    gssapi_krb5
++    ssh
++    brotlidec 
++    brotlicommon
++    idn2
++    psl
++    nghttp2)
+ 
+ set_property(TARGET wallet_api PROPERTY EXCLUDE_FROM_ALL TRUE)
+ 
+diff --git a/src/wallet/wallet_rpc_server.cpp b/src/wallet/wallet_rpc_server.cpp
+index c1f9d9e21..661ef1c99 100755
+--- a/src/wallet/wallet_rpc_server.cpp
++++ b/src/wallet/wallet_rpc_server.cpp
+@@ -1102,7 +1102,7 @@ namespace tools
+       if (!hf_version)
+         throw wallet_rpc_error{error_code::HF_QUERY_FAILED, tools::ERR_MSG_NETWORK_VERSION_QUERY_FAILED};
+       cryptonote::beldex_construct_tx_params tx_params = tools::wallet2::construct_params(*hf_version, cryptonote::txtype::standard, priority);
+-      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, cryptonote::TX_OUTPUT_DECOYS, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices, tx_params, req.subtract_fee_from_outputs);
++      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, cryptonote::TX_OUTPUT_DECOYS, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices, tx_params, req.subtract_fee_from_outputs, {});
+ 
+       if (ptx_vector.empty())
+         throw wallet_rpc_error{error_code::TX_NOT_POSSIBLE, "No transaction created"};
+-- 
+2.25.1
+

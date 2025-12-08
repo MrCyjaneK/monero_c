@@ -1,0 +1,6 @@
+#ifndef MONEROC_CHECKSUMS
+#define MONEROC_CHECKSUMS
+const char * BELDEX_wallet2_api_c_h_sha256 = "2f6add6cd0237e8e3eed5d7f98021a7cc0a00a74b170b048c595f74e6e7f282c";
+const char * BELDEX_wallet2_api_c_cpp_sha256 = "10478948bfe4214e09c34e1461a217ea9d29141bab051cdfb408e76098c36cc2-5d7a37c425d6f1f8823db69dc94a9e82e0b6012b";
+const char * BELDEX_wallet2_api_c_exp_sha256 = "a64b025fe551fb0eaeb285abd6384cdb278b6adc849ed4180b24842b880838e9";
+#endif

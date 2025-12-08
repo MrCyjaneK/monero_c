@@ -1,0 +1,212 @@
+From 00498f77756fc8e55b999a90350e81da0a066401 Mon Sep 17 00:00:00 2001
+From: victor-tucci <victor.tucci@beldex.io>
+Date: Tue, 11 Nov 2025 11:46:30 +0000
+Subject: [PATCH 04/13] store crash fix
+
+Beldex wallet crashes (sometimes) when it is syncing,
+while the proper solution (that can be seen in feather)
+is to not store wallet while it is being synced, this is not
+acceptable for mobile wallets where OS can just come
+and kill the wallet because it felt like it.
+
+This patch depends on the background-sync patch, but
+to use it as a standalone fix grabbing the definition for the
+LOCK_REFRESH macro should be enough.
+
+tobtoht suggested:
+_say you want to store every 15 minutes during background sync. you stop the refresh every 15 minutes. then do something like this in the callback:_
+
+```
+// Make sure this doesn't run in the refresh thread
+onRefreshed() {
+  if (hasItBeen15MinutesSinceWeStored()) {
+    store();
+  }
+
+  if (shouldWeContinueRefreshing()) {
+    startRefresh();
+  }
+}
+```
+
+which works for crashes after the wallet is initially synced
+but doesn't solve the issue for wallet that are syncing (it
+would just wait for it to finish before actually storing).
+
+Also imo store() functin should store the wallet, no matter
+the current state.
+---
+ src/wallet/api/wallet.cpp | 25 ++++++++++++-------------
+ src/wallet/api/wallet.h   |  1 -
+ src/wallet/wallet2.cpp    | 11 ++++++++++-
+ src/wallet/wallet2.h      |  3 +++
+ 4 files changed, 25 insertions(+), 15 deletions(-)
+
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index 512aa94e1..930f3e7a9 100755
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -60,8 +60,8 @@ using namespace cryptonote;
+ #define BELDEX_DEFAULT_LOG_CATEGORY "WalletAPI"
+ 
+ #define LOCK_REFRESH() \
+-    bool refresh_enabled = m_refreshEnabled; \
+-    m_refreshEnabled = false; \
++    bool refresh_enabled = wallet()->get_refresh_enabled(); \
++    wallet()->set_refresh_enabled(false); \
+     wallet()->stop(); \
+     m_refreshCV.notify_one(); \
+     std::scoped_lock lock(m_refreshMutex, m_refreshMutex2); \
+@@ -482,7 +482,7 @@ WalletImpl::WalletImpl(NetworkType nettype, uint64_t kdf_rounds)
+     m_wallet2Callback.reset(new Wallet2CallbackImpl(this));
+     m_wallet_ptr->callback(m_wallet2Callback.get());
+     m_refreshThreadDone = false;
+-    m_refreshEnabled = false;
++    wallet()->set_refresh_enabled(false);
+     m_addressBook.reset(new AddressBookImpl(this));
+     m_subaddress.reset(new SubaddressImpl(this));
+     m_subaddressAccount.reset(new SubaddressAccountImpl(this));
+@@ -498,7 +498,7 @@ WalletImpl::WalletImpl(NetworkType nettype, uint64_t kdf_rounds)
+         if (m_wallet_ptr->m_long_poll_disabled)
+           return true;
+         try {
+-          if (m_refreshEnabled && m_wallet_ptr->long_poll_pool_state())
++          if (wallet()->get_refresh_enabled() && m_wallet_ptr->long_poll_pool_state())
+             m_refreshCV.notify_one();
+         } catch (...) { /* ignore */ }
+ 
+@@ -1003,6 +1003,7 @@ bool WalletImpl::store(std::string_view path_)
+ {
+     auto path = fs::u8path(path_);
+     clearStatus();
++    LOCK_REFRESH();
+     try {
+         if (path.empty()) {
+             wallet()->store();
+@@ -3183,11 +3184,11 @@ void WalletImpl::refreshThreadFunc()
+         }
+ 
+         LOG_PRINT_L3(__FUNCTION__ << ": refresh lock acquired...");
+-        LOG_PRINT_L3(__FUNCTION__ << ": m_refreshEnabled: " << m_refreshEnabled);
++        LOG_PRINT_L3(__FUNCTION__ << ": m_refreshEnabled: " << wallet()->get_refresh_enabled());
+         auto st = status();
+         LOG_PRINT_L3(__FUNCTION__ << ": m_status: " << st.first << ": " << st.second);
+         LOG_PRINT_L3(__FUNCTION__ << ": m_refreshShouldRescan: " << m_refreshShouldRescan);
+-        if (m_refreshEnabled) {
++        if (wallet()->get_refresh_enabled()) {
+             LOG_PRINT_L3(__FUNCTION__ << ": refreshing...");
+             doRefresh();
+         }
+@@ -3226,7 +3227,7 @@ void WalletImpl::doRefresh()
+             setStatusError(e.what());
+             break;
+         }
+-    } while (!rescan && (rescan=m_refreshShouldRescan.exchange(false))); // repeat if not rescanned and rescan was requested
++    } while (wallet()->get_refresh_enabled() && !rescan && (rescan=m_refreshShouldRescan.exchange(false))); // repeat if not rescanned and rescan was requested
+ 
+     if (m_wallet2Callback->getListener()) {
+         m_wallet2Callback->getListener()->refreshed();
+@@ -3237,9 +3238,9 @@ void WalletImpl::doRefresh()
+ EXPORT
+ void WalletImpl::startRefresh()
+ {
+-    if (!m_refreshEnabled) {
++    if (!wallet()->get_refresh_enabled()) {
+         LOG_PRINT_L2(__FUNCTION__ << ": refresh started/resumed...");
+-        m_refreshEnabled = true;
++        wallet()->set_refresh_enabled(true);
+         m_refreshCV.notify_one();
+     }
+ }
+@@ -3250,7 +3251,7 @@ EXPORT
+ void WalletImpl::stopRefresh()
+ {
+     if (!m_refreshThreadDone) {
+-        m_refreshEnabled = false;
++        wallet()->set_refresh_enabled(false);
+         m_refreshThreadDone = true;
+         m_refreshCV.notify_one();
+         m_refreshThread.join();
+@@ -3262,9 +3263,7 @@ void WalletImpl::pauseRefresh()
+ {
+     LOG_PRINT_L2(__FUNCTION__ << ": refresh paused...");
+     // TODO synchronize access
+-    if (!m_refreshThreadDone) {
+-        m_refreshEnabled = false;
+-    }
++    wallet()->set_refresh_enabled(false);
+ }
+ 
+ 
+diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
+index 60bbffe8f..02f7de267 100755
+--- a/src/wallet/api/wallet.h
++++ b/src/wallet/api/wallet.h
+@@ -326,7 +326,6 @@ private:
+     std::unique_ptr<SubaddressAccountImpl>  m_subaddressAccount;
+ 
+     // multi-threaded refresh stuff
+-    std::atomic<bool> m_refreshEnabled;
+     std::atomic<bool> m_refreshThreadDone;
+     std::atomic<int>  m_refreshIntervalMillis;
+     std::atomic<bool> m_refreshShouldRescan;
+diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
+index c44b43339..413ec35cd 100755
+--- a/src/wallet/wallet2.cpp
++++ b/src/wallet/wallet2.cpp
+@@ -1094,6 +1094,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended):
+   m_upper_transaction_weight_limit(0),
+   m_run(true),
+   m_callback(0),
++  m_refreshEnabled(false),
+   m_trusted_daemon(false),
+   m_nettype(nettype),
+   m_multisig_rounds_passed(0),
+@@ -1343,6 +1344,14 @@ bool wallet2::init(std::string daemon_address, std::optional<tools::login> daemo
+   return true;
+ }
+ //----------------------------------------------------------------------------------------------------
++bool wallet2::get_refresh_enabled() {
++    return m_refreshEnabled;
++}
++//----------------------------------------------------------------------------------------------------
++void wallet2::set_refresh_enabled(bool val) {
++    m_refreshEnabled = val;
++}
++//----------------------------------------------------------------------------------------------------
+ bool wallet2::set_proxy(const std::string &address)
+ {
+   m_http_client.set_proxy(address);
+@@ -3653,7 +3662,7 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
+     process_pool_txs = get_pool_state(true /*refreshed*/);
+ 
+   bool first = true, last = false;
+-  while(m_run.load(std::memory_order_relaxed))
++  while(m_run.load(std::memory_order_relaxed) && m_refreshEnabled)
+   {
+     uint64_t next_blocks_start_height;
+     std::vector<cryptonote::block_complete_entry> next_blocks;
+diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
+index 823d18361..618696e1e 100755
+--- a/src/wallet/wallet2.h
++++ b/src/wallet/wallet2.h
+@@ -817,6 +817,8 @@ private:
+         std::string proxy = "",
+         bool trusted_daemon = true);
+     bool set_proxy(const std::string &address);
++    bool get_refresh_enabled();
++    void set_refresh_enabled(bool val);
+ 
+     void stop() { m_run.store(false, std::memory_order_relaxed); m_message_store.stop(); }
+ 
+@@ -1855,6 +1857,7 @@ private:
+ 
+     std::atomic<bool> m_run;
+ 
++    bool m_refreshEnabled;
+     bool m_trusted_daemon;
+     i_wallet2_callback* m_callback;
+     hw::device::type m_key_device_type;
+-- 
+2.25.1
+

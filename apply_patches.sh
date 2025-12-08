@@ -6,13 +6,13 @@ repo="$1"
 
 if [[ "x$repo" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero"
+    echo "Usage: $0 monero/wownero/beldex"
     exit 1
 fi
 
-if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" ]];
+if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" && "x$repo" != "xbeldex" ]];
 then
-    echo "Usage: $0 monero/wownero"
+    echo "Usage: $0 monero/wownero/beldex"
     echo "Invalid target given, only monero and wownero are supported targets"
 fi
 
@@ -44,21 +44,14 @@ then
          git remote set-url origin https://github.com/mrcyjanek/tor-connect.git
     popd
 fi
+if [[ "$repo" == "beldex" ]];
+then
+    echo "Applying beldex-specific setup..."
+    # example: adjust a submodule remote if needed
+    # pushd external/something && git remote set-url origin https://github.com/you/something.git && popd
+fi
 git submodule init
 git submodule update --init --recursive --force
-
-find . -name "*.S" -o -name "*.s" -type f | while read -r file; do
-    if ! grep -q "\.note\.GNU-stack" "$file"; then
-        echo "Adding conditional .note.GNU-stack section to: $file"
-        echo "" >> "$file"
-        echo "#ifdef __linux__" >> "$file"
-        echo ".section .note.GNU-stack,\"\",@progbits" >> "$file"
-        echo "#endif" >> "$file"
-        git add "$file" || true
-    fi
-done
-git commit -m "Add .note.GNU-stack section to assembly files"
-
 git am -3 <<EOF
 From e56dd6cd0fb1a5e55d3cb08691edf24b26d65299 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>

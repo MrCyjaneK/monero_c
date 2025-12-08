@@ -24,9 +24,9 @@ then
     exit 1
 fi
 
-if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" && "x$repo" != "xzano" ]];
+if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" && "x$repo" != "xzano" && "x$repo" != "xbeldex" ]];
 then
-    echo "Usage: $0 monero/wownero/zano $(gcc -dumpmachine) -j$proccount"
+    echo "Usage: $0 monero/wownero/zano/beldex $(gcc -dumpmachine) -j$proccount"
     echo "Invalid target given"
     exit 1
 fi
@@ -69,6 +69,10 @@ pushd ${repo}_libwallet2_api_c
     rm -rf build/${HOST_ABI} || true
     mkdir -p build/${HOST_ABI} -p
     if [[ "$repo" == "zano" ]];
+    then
+       EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
+    fi
+    if [[ "$repo" == "beldex" ]];
     then
        EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
     fi
