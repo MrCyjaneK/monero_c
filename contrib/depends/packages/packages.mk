@@ -1,4 +1,4 @@
-packages:=boost openssl zeromq libiconv expat unbound polyseed
+packages:=boost openssl zeromq libiconv expat unbound polyseed curl sqlite3
 
 # ccache is useless in gitian builds
 ifneq ($(GITIAN),1)
@@ -9,7 +9,7 @@ hardware_packages := hidapi protobuf libusb
 hardware_native_packages := native_protobuf
 
 android_native_packages = android_ndk
-android_packages = ncurses readline sodium
+android_packages = ncurses readline sodium curl sqlite3
 
 darwin_native_packages = $(hardware_native_packages)
 darwin_packages = ncurses readline sodium $(hardware_packages)
