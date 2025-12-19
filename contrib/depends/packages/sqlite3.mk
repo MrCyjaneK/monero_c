@@ -8,6 +8,7 @@ $(package)_sha256_hash=4f2445cd70479724d32ad015ec7fd37fbb6f6130013bd4bfbc80c32be
 
 # Detect Android target
 is_android := $(findstring android,$(HOST))
+is_mingw   := $(findstring mingw,$(HOST))
 
 ANDROID_API = 21
 
@@ -22,6 +23,10 @@ define $(package)_set_vars
     $(package)_ar      = $(HOST)-ar
     $(package)_ranlib  = $(HOST)-ranlib
     $(package)_ld      = $(HOST)-ld.lld
+  else ifneq ($(is_mingw),)
+    $(package)_cc     = $(HOST)-gcc
+    $(package)_ar     = $(HOST)-ar
+    $(package)_ranlib = $(HOST)-ranlib
   else
     $(package)_cc      = $(CC)
     $(package)_cxx     = $(CXX)
@@ -30,20 +35,19 @@ define $(package)_set_vars
     $(package)_ld      = $(LD)
   endif
 
-  $(package)_cflags = -fPIC -O2
+  $(package)_cflags = -fPIC -O2 \
+    -DSQLITE_ENABLE_COLUMN_METADATA \
+    -DSQLITE_ENABLE_FTS5 \
+    -DSQLITE_ENABLE_JSON1 \
+    -DSQLITE_ENABLE_RTREE \
+    -DSQLITE_THREADSAFE=1
 endef
-
 
 define $(package)_config_cmds
-  CC="$($(package)_cc)" \
-  CXX="$($(package)_cxx)" \
-  AR="$($(package)_ar)" \
-  RANLIB="$($(package)_ranlib)" \
-  LD="$($(package)_ld)" \
-  CFLAGS="$($(package)_cflags)" \
-  ./configure $($(package)_config_opts)
+  CC="$($(package)_cc)" CXX="$($(package)_cxx)" AR="$($(package)_ar)" RANLIB="$($(package)_ranlib)" \
+  CFLAGS="$($(package)_cflags) $($(package)_cflags_$(HOST_OS))" \
+  $($(package)_autoconf) $($(package)_config_opts)
 endef
-
 
 define $(package)_build_cmds
   $(MAKE) -j$(NUM_CORES)
