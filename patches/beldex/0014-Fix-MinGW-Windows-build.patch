@@ -1,0 +1,46 @@
+From 47d92441cc2aa9e8ff2798b8b1ab3a20bc53f8d3 Mon Sep 17 00:00:00 2001
+From: victor-tucci <victor.tucci@beldex.io>
+Date: Fri, 19 Dec 2025 10:24:06 +0000
+Subject: [PATCH 14/15] Fix MinGW Windows build
+
+---
+ CMakeLists.txt          | 6 ++++++
+ external/CMakeLists.txt | 5 +++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index bdf2b1791..a3e3c2f2a 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -75,6 +75,12 @@ set(CMAKE_C_STANDARD 11)
+ set(CMAKE_C_STANDARD_REQUIRED ON)
+ set(CMAKE_C_EXTENSIONS OFF)
+ 
++if(WIN32)
++    add_compile_options(-fno-stack-protector)
++    add_compile_options(-U_FORTIFY_SOURCE)
++    add_compile_definitions(_FORTIFY_SOURCE=0)
++endif()
++
+ # Add this line to suppress implicit-fallthrough warnings
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough")
+ 
+diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
+index 7e1d62cd5..bc45f05f0 100755
+--- a/external/CMakeLists.txt
++++ b/external/CMakeLists.txt
+@@ -146,6 +146,11 @@ add_library(cpr STATIC EXCLUDE_FROM_ALL ${cpr_sources})
+ target_link_libraries(cpr PUBLIC CURL::libcurl)
+ target_include_directories(cpr PUBLIC cpr/include)
+ target_compile_definitions(cpr PUBLIC CPR_CURL_NOSIGNAL)
++
++if(MINGW)
++    target_compile_definitions(cpr PUBLIC CURL_STATICLIB)
++endif()
++
+ add_library(cpr::cpr ALIAS cpr)
+ 
+ file(READ cpr/CMakeLists.txt cpr_cmake_head LIMIT 1000)
+-- 
+2.25.1
+

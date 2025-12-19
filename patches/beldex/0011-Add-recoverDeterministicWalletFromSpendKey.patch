@@ -1,7 +1,7 @@
-From 31f3afa190f731dfc591ab5cc1d32a60d37d3ee4 Mon Sep 17 00:00:00 2001
+From 8e44fc21e60c6eeacc89e959d95abc39362ff787 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Tue, 2 Dec 2025 11:39:39 +0000
-Subject: [PATCH 11/13] Add recoverDeterministicWalletFromSpendKey
+Date: Fri, 19 Dec 2025 08:05:20 +0000
+Subject: [PATCH 11/15] Add recoverDeterministicWalletFromSpendKey
 
 ---
  src/wallet/api/wallet.cpp         | 27 +++++++++++++++++++++++++++

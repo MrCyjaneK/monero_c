@@ -1,7 +1,7 @@
-From 3dd858bb10a6e71a43853a4eb0e27ea568f458d8 Mon Sep 17 00:00:00 2001
+From a0b4c1f60aaa1c481aaed366999553b761ace872 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 10 Nov 2025 12:16:07 +0000
-Subject: [PATCH 01/13] wallet enhancement
+Date: Fri, 19 Dec 2025 07:13:30 +0000
+Subject: [PATCH 01/15] wallet enhancement
 
 ---
  contrib/epee/include/epee/scope_leaver.h |  22 ++++
@@ -195,14 +195,14 @@ index 8e5090a66..3eed346df 100755
 +
  } // namespace
 diff --git a/src/wallet/api/transaction_history.h b/src/wallet/api/transaction_history.h
-index 52946fd96..69d3e81fd 100755
+index 52946fd96..b314c83e4 100755
 --- a/src/wallet/api/transaction_history.h
 +++ b/src/wallet/api/transaction_history.h
 @@ -45,6 +45,7 @@ public:
      TransactionInfo* transaction(std::string_view id) const override;
      std::vector<TransactionInfo*> getAll() const override;
      void refresh() override;
-+    virtual void setTxNote(const std::string &txid, const std::string &note);
++    void setTxNote(const std::string &txid, const std::string &note);
  
  private:
  

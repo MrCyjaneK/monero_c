@@ -1,7 +1,7 @@
-From 55bccb58729ccf78f307a2d958519ecb11e5c376 Mon Sep 17 00:00:00 2001
+From 8dc112ed5f885f855b0853d521054cc7c44e2543 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Tue, 2 Dec 2025 11:30:10 +0000
-Subject: [PATCH 08/13] polyseed
+Date: Fri, 19 Dec 2025 07:55:57 +0000
+Subject: [PATCH 08/15] polyseed
 
 ---
  .gitmodules                                 |   6 +
@@ -19,7 +19,7 @@ Subject: [PATCH 08/13] polyseed
  src/polyseed/CMakeLists.txt                 |  15 ++
  src/polyseed/pbkdf2.c                       |  84 +++++++++
  src/polyseed/pbkdf2.h                       |  45 +++++
- src/polyseed/polyseed.cpp                   | 182 ++++++++++++++++++++
+ src/polyseed/polyseed.cpp                   | 186 ++++++++++++++++++++
  src/polyseed/polyseed.hpp                   | 167 ++++++++++++++++++
  src/wallet/api/wallet.cpp                   |  75 ++++++++
  src/wallet/api/wallet.h                     |   9 +
@@ -28,7 +28,7 @@ Subject: [PATCH 08/13] polyseed
  src/wallet/api/wallet_manager.h             |  10 ++
  src/wallet/wallet2.cpp                      | 100 +++++++++--
  src/wallet/wallet2.h                        |  32 +++-
- 24 files changed, 811 insertions(+), 19 deletions(-)
+ 24 files changed, 815 insertions(+), 19 deletions(-)
  create mode 160000 external/polyseed
  create mode 160000 external/utf8proc
  create mode 100644 src/polyseed/CMakeLists.txt
@@ -159,11 +159,11 @@ index 000000000..dfb05d8ed
 +Subproject commit dfb05d8edb682b0e8f743b1b70c9131712ff4157
 diff --git a/external/utf8proc b/external/utf8proc
 new file mode 160000
-index 000000000..90daf9f39
+index 000000000..a36778dbe
 --- /dev/null
 +++ b/external/utf8proc
 @@ -0,0 +1 @@
-+Subproject commit 90daf9f396cfec91668758eb9cc54bd5248a6b89
++Subproject commit a36778dbe37f8fc86aae5ca37b68564f8f54353c
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index ff74933f1..b83c11eb0 100755
 --- a/src/CMakeLists.txt
@@ -458,10 +458,10 @@ index 000000000..08b8e1bc8
 \ No newline at end of file
 diff --git a/src/polyseed/polyseed.cpp b/src/polyseed/polyseed.cpp
 new file mode 100644
-index 000000000..ba1fe2fc4
+index 000000000..e510f4a67
 --- /dev/null
 +++ b/src/polyseed/polyseed.cpp
-@@ -0,0 +1,182 @@
+@@ -0,0 +1,186 @@
 +// Copyright (c) 2023, The Monero Project
 +// Copyright (c) 2021, tevador <tevador@gmail.com>
 +//
@@ -596,8 +596,12 @@ index 000000000..ba1fe2fc4
 +    };
 +
 +    static error get_error(polyseed_status status) {
-+        if (status > 0 && status < sizeof(error_desc) / sizeof(const char*)) {
-+            return error(error_desc[(int)status], status);
++        const size_t count = sizeof(error_desc) / sizeof(const char*);
++
++        const int idx = static_cast<int>(status);
++
++        if (idx > 0 && static_cast<size_t>(idx) < count) {
++            return error(error_desc[idx], status);
 +        }
 +        return error("Unknown error", status);
 +    }
@@ -1021,7 +1025,7 @@ index e57b9eda0..16b9adeeb 100755
      bool walletExists(std::string_view path) override;
      bool verifyWalletPassword(std::string_view keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const override;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index fa98c8285..4f6630cd5 100755
+index 8f13f3e97..61ab06435 100755
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -90,6 +90,7 @@

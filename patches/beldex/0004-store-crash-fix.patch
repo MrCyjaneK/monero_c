@@ -1,7 +1,7 @@
-From 00498f77756fc8e55b999a90350e81da0a066401 Mon Sep 17 00:00:00 2001
+From ec9dee4954cc4da8cf9ece1a328f49b0cadeb052 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Tue, 11 Nov 2025 11:46:30 +0000
-Subject: [PATCH 04/13] store crash fix
+Date: Fri, 19 Dec 2025 07:37:41 +0000
+Subject: [PATCH 04/15] store crash fix
 
 Beldex wallet crashes (sometimes) when it is syncing,
 while the proper solution (that can be seen in feather)
@@ -151,7 +151,7 @@ index 60bbffe8f..02f7de267 100755
      std::atomic<int>  m_refreshIntervalMillis;
      std::atomic<bool> m_refreshShouldRescan;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index c44b43339..413ec35cd 100755
+index 4ea9b2217..bb4c11f17 100755
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -1094,6 +1094,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended):

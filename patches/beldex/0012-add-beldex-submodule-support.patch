@@ -1,15 +1,15 @@
-From 81bec0647b45f23f26483a56afec6068da7eb156 Mon Sep 17 00:00:00 2001
+From 1e105986a72078ce33b5581bc673111a9ec091db Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Tue, 2 Dec 2025 11:43:43 +0000
-Subject: [PATCH 12/13] add beldex submodule support
+Date: Fri, 19 Dec 2025 08:11:41 +0000
+Subject: [PATCH 12/15] add beldex submodule support
 
 ---
- CMakeLists.txt                   |  4 ++--
- cmake/CheckLinkerFlag.cmake      |  2 +-
- cmake/Version.cmake              |  6 +++---
- src/wallet/api/CMakeLists.txt    | 14 +++++++++++++-
- src/wallet/wallet_rpc_server.cpp |  2 +-
- 5 files changed, 20 insertions(+), 8 deletions(-)
+ CMakeLists.txt                   | 4 ++--
+ cmake/CheckLinkerFlag.cmake      | 2 +-
+ cmake/Version.cmake              | 6 +++---
+ src/wallet/api/CMakeLists.txt    | 7 ++++++-
+ src/wallet/wallet_rpc_server.cpp | 2 +-
+ 5 files changed, 13 insertions(+), 8 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index b9cb9b35d..fdfc91b42 100755
@@ -74,7 +74,7 @@ index 7d7a927dd..7cb0b5901 100755
      DEPENDS           "${CMAKE_BINARY_DIR}/version.cpp.in")
  else()
 diff --git a/src/wallet/api/CMakeLists.txt b/src/wallet/api/CMakeLists.txt
-index 83b64813a..0b3666770 100755
+index 83b64813a..39cf759ee 100755
 --- a/src/wallet/api/CMakeLists.txt
 +++ b/src/wallet/api/CMakeLists.txt
 @@ -42,9 +42,12 @@ add_library(wallet_api
@@ -90,21 +90,14 @@ index 83b64813a..0b3666770 100755
      cryptonote_core
      mnemonics
      lmdb
-@@ -53,7 +56,16 @@ target_link_libraries(wallet_api
+@@ -53,7 +56,9 @@ target_link_libraries(wallet_api
      filesystem
      Boost::thread
    PRIVATE
 -    extra)
 +    extra
 +    OpenSSL::Crypto
-+    OpenSSL::SSL
-+    gssapi_krb5
-+    ssh
-+    brotlidec 
-+    brotlicommon
-+    idn2
-+    psl
-+    nghttp2)
++    OpenSSL::SSL)
  
  set_property(TARGET wallet_api PROPERTY EXCLUDE_FROM_ALL TRUE)
  

@@ -1,7 +1,7 @@
-From 4cf39e1997af6497f96ae813c13816eae346c66a Mon Sep 17 00:00:00 2001
+From 8f93a5b1bd14b1cd69e5994e127d341134e5c75b Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Tue, 11 Nov 2025 12:05:21 +0000
-Subject: [PATCH 06/13] UR functions
+Date: Fri, 19 Dec 2025 07:44:44 +0000
+Subject: [PATCH 06/15] UR functions
 
 This commit adds UR functions for UR tasks,
 I believe that the right place to get
@@ -721,7 +721,7 @@ index d8dd26365..f2c54d862 100755
      /*!
       * \brief setupBackgroundSync       - setup background sync mode with just a view key
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 6b54672e7..fa98c8285 100755
+index 04a2514e5..8f13f3e97 100755
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -885,6 +885,16 @@ uint32_t get_subaddress_clamped_sum(uint32_t idx, uint32_t extra)

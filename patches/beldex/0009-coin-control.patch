@@ -1,7 +1,7 @@
-From fc4c2053a2c1615f726a9e36937233d2055e843c Mon Sep 17 00:00:00 2001
+From cc0256b379e577584ae93fc8b5c74c6dcdec8d3c Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Tue, 2 Dec 2025 11:34:05 +0000
-Subject: [PATCH 09/13] coin control
+Date: Fri, 19 Dec 2025 07:57:09 +0000
+Subject: [PATCH 09/15] coin control
 
 ---
  src/simplewallet/simplewallet.cpp |   2 +-
@@ -848,7 +848,7 @@ index 6c5836e91..6208ed48c 100755
      virtual SubaddressAccount * subaddressAccount() = 0;
      virtual void setListener(WalletListener *) = 0;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 4f6630cd5..6ed45d6c5 100755
+index 61ab06435..1e8b18128 100755
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -1721,12 +1721,21 @@ bool wallet2::frozen(size_t idx) const

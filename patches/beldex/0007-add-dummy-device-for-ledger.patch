@@ -1,7 +1,7 @@
-From b9ea893466782f45fd0c1489cb3f420160a28df1 Mon Sep 17 00:00:00 2001
+From 8756b29adc583b4ddbc45f09f233baf4de663e81 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Tue, 2 Dec 2025 11:20:21 +0000
-Subject: [PATCH 07/13] add dummy device for ledger
+Date: Fri, 19 Dec 2025 07:50:19 +0000
+Subject: [PATCH 07/15] add dummy device for ledger
 
 ---
  src/device/CMakeLists.txt         |   4 +-
@@ -86,7 +86,7 @@ index 2809a2756..35554160a 100755
          return *device->second;
      }
 diff --git a/src/device/device.hpp b/src/device/device.hpp
-index 81a5e64e3..de5713267 100755
+index 81a5e64e3..002aaafea 100755
 --- a/src/device/device.hpp
 +++ b/src/device/device.hpp
 @@ -36,17 +36,7 @@
@@ -104,13 +104,13 @@ index 81a5e64e3..de5713267 100755
 -#endif
 -
 -#if USE_DEVICE_LEDGER
-+#if defined(HAVE_HIDAPI) || defined(HIDAPI_DUMMY)
++#if defined(HAVE_HIDAPI)
  #define WITH_DEVICE_LEDGER
  #endif
  
 diff --git a/src/device/device_io_dummy.cpp b/src/device/device_io_dummy.cpp
 new file mode 100644
-index 000000000..1b3e53444
+index 000000000..53a02802c
 --- /dev/null
 +++ b/src/device/device_io_dummy.cpp
 @@ -0,0 +1,159 @@
@@ -207,10 +207,10 @@ index 000000000..1b3e53444
 +            return stateIsConnected;
 +        }
 +
-+        int device_io_dummy::exchange(unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len, bool user_input)  {
++        int device_io_dummy::exchange(const unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len, bool user_input)  {
 +            MDEBUG("exchange(): locking mutex");
 +            std::unique_lock<std::mutex> lock(mutex);
-+            sendToDevice = command;
++            sendToDevice = const_cast<unsigned char*>(command);
 +            sendToDeviceLength = cmd_len;
 +            waitsForDeviceSend = true;
 +            waitsForDeviceReceive = true;
@@ -218,7 +218,7 @@ index 000000000..1b3e53444
 +            // Call the callback if it's set
 +            if (sendToLedgerDeviceCallback != nullptr) {
 +                MDEBUG("exchange(): calling sendToLedgerDeviceCallback");
-+                sendToLedgerDeviceCallback(command, cmd_len);
++                sendToLedgerDeviceCallback(const_cast<unsigned char*>(command), cmd_len);
 +            }
 +            MDEBUG("exchange(): waitsForDeviceSend");
 +            // Wait for the send flag to be cleared by external code
@@ -276,7 +276,7 @@ index 000000000..1b3e53444
 \ No newline at end of file
 diff --git a/src/device/device_io_dummy.hpp b/src/device/device_io_dummy.hpp
 new file mode 100644
-index 000000000..c33524e53
+index 000000000..c3de014ee
 --- /dev/null
 +++ b/src/device/device_io_dummy.hpp
 @@ -0,0 +1,81 @@
@@ -344,15 +344,15 @@ index 000000000..c33524e53
 +            device_io_dummy(int a, int b, int c, int d);
 +            ~device_io_dummy() = default;
 +
-+            void init();
-+            void release();
++            void init() override;
++            void release() override;
 +
 +            void connect(void *parms);
 +            void connect(const std::vector<hw::io::hid_conn_params_dummy>& known_devices);
-+            void disconnect();
-+            bool connected() const;
++            void disconnect() override;
++            bool connected() const override;
 +
-+            int exchange(unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len, bool user_input);
++            int exchange(const unsigned char *command, unsigned int cmd_len, unsigned char *response, unsigned int max_resp_len, bool user_input) override;
 +
 +            static void setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
 +            static void setDeviceReceivedData(unsigned char* data, size_t len);
@@ -363,7 +363,7 @@ index 000000000..c33524e53
 +#endif // HAVE_HIDAPI
 \ No newline at end of file
 diff --git a/src/device/device_ledger.cpp b/src/device/device_ledger.cpp
-index 7b8cdbda2..be818bd42 100755
+index 7b8cdbda2..2eeb54ee0 100755
 --- a/src/device/device_ledger.cpp
 +++ b/src/device/device_ledger.cpp
 @@ -47,7 +47,7 @@
@@ -371,7 +371,7 @@ index 7b8cdbda2..be818bd42 100755
    namespace hw::ledger {
  
 -  #ifdef WITH_DEVICE_LEDGER
-+  #if defined(WITH_DEVICE_LEDGER) || defined(HIDAPI_DUMMY)
++  #if defined(WITH_DEVICE_LEDGER)
  
      #undef BELDEX_DEFAULT_LOG_CATEGORY
      #define BELDEX_DEFAULT_LOG_CATEGORY "device.ledger"

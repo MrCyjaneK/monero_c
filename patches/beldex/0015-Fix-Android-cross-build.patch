@@ -1,0 +1,137 @@
+From 51714bf9ebb3ca99e9d1391df7c07daa3ee32994 Mon Sep 17 00:00:00 2001
+From: victor-tucci <victor.tucci@beldex.io>
+Date: Fri, 19 Dec 2025 10:28:01 +0000
+Subject: [PATCH 15/15] Fix Android cross-build
+
+---
+ CMakeLists.txt                                 |  4 ++++
+ contrib/epee/src/mlocker.cpp                   |  2 +-
+ .../cryptonote_format_utils.cpp                | 16 ++++++++--------
+ src/cryptonote_core/beldex_name_system.cpp     | 18 ++++++++++--------
+ src/cryptonote_core/beldex_name_system.h       |  2 +-
+ 5 files changed, 24 insertions(+), 18 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a3e3c2f2a..9bd3a29df 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -81,6 +81,10 @@ if(WIN32)
+     add_compile_definitions(_FORTIFY_SOURCE=0)
+ endif()
+ 
++if(ANDROID)
++  add_compile_options(-Wno-unused-command-line-argument -Wno-error -Wno-cpp -Wno-error=cpp -Wno-unused-private-field -Wno-unused-lambda-capture -Wno-unused-result -Wno-string-plus-int -fstack-clash-protection -Wno-shift-count-overflow -Wno-deprecated-copy)
++endif()
++
+ # Add this line to suppress implicit-fallthrough warnings
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough")
+ 
+diff --git a/contrib/epee/src/mlocker.cpp b/contrib/epee/src/mlocker.cpp
+index 1c3c527ef..10b1683bf 100755
+--- a/contrib/epee/src/mlocker.cpp
++++ b/contrib/epee/src/mlocker.cpp
+@@ -26,7 +26,7 @@
+ // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+-#if defined __GNUC__ && !defined _WIN32 && !defined __ANDROID__
++#if defined __GNUC__ && !defined _WIN32
+ #define HAVE_MLOCK 1
+ #endif
+ 
+diff --git a/src/cryptonote_basic/cryptonote_format_utils.cpp b/src/cryptonote_basic/cryptonote_format_utils.cpp
+index a35f2100d..6bc7a54b2 100755
+--- a/src/cryptonote_basic/cryptonote_format_utils.cpp
++++ b/src/cryptonote_basic/cryptonote_format_utils.cpp
+@@ -743,7 +743,7 @@ namespace cryptonote
+         for(const crypto::hash &cur_hash: b.tx_hashes) {
+             needed_size+=sizeof(cur_hash);
+         }
+-        char txhashbuf[needed_size];
++        std::vector<char> txhashbuf(needed_size);
+         char *txpointer=reinterpret_cast<char *>(&txhashbuf[0]);
+         for(const crypto::hash &cur_hash: b.tx_hashes) {
+             //LOG_PRINT_L0("TX hash added for signature:" << cur_hash);
+@@ -751,17 +751,17 @@ namespace cryptonote
+             txpointer+=sizeof(cur_hash);
+         }
+ 
+-        const int buf_size = sizeof(block_height) + sizeof(b.prev_id) + sizeof(txhashbuf)+sizeof(b.timestamp) ;
+-        char buf[buf_size];
++        const int buf_size = sizeof(block_height) + sizeof(b.prev_id) + txhashbuf.size()+sizeof(b.timestamp) ;
++        std::vector<char> buf(buf_size);
+         //LOG_PRINT_L0("hash buffer size:" << buf_size);
+ 
+-        memcpy(buf, reinterpret_cast<void *>(&block_height), sizeof(block_height));
+-        memcpy(buf + sizeof(block_height), reinterpret_cast<const char *>(&b.prev_id), sizeof(b.prev_id));
+-        memcpy(buf + sizeof(block_height) + sizeof(b.prev_id), txhashbuf, sizeof(txhashbuf));
+-        memcpy(buf + sizeof(block_height) + sizeof(b.prev_id)+ sizeof(txhashbuf), reinterpret_cast<const char *>(&b.timestamp), sizeof(b.timestamp));
++        memcpy(buf.data(), reinterpret_cast<void *>(&block_height), sizeof(block_height));
++        memcpy(buf.data() + sizeof(block_height), reinterpret_cast<const char *>(&b.prev_id), sizeof(b.prev_id));
++        memcpy(buf.data() + sizeof(block_height) + sizeof(b.prev_id), txhashbuf.data(), txhashbuf.size());
++        memcpy(buf.data() + sizeof(block_height) + sizeof(b.prev_id)+ txhashbuf.size(), reinterpret_cast<const char *>(&b.timestamp), sizeof(b.timestamp));
+ 
+         crypto::hash result;
+-        crypto::cn_fast_hash(buf, buf_size, result);
++        crypto::cn_fast_hash(buf.data(), buf_size, result);
+ 
+         return result;
+     }
+diff --git a/src/cryptonote_core/beldex_name_system.cpp b/src/cryptonote_core/beldex_name_system.cpp
+index d19e73fcf..31ee8aaba 100755
+--- a/src/cryptonote_core/beldex_name_system.cpp
++++ b/src/cryptonote_core/beldex_name_system.cpp
+@@ -93,14 +93,16 @@ enum struct mapping_record_column
+ };
+ 
+ static constexpr unsigned char OLD_ENCRYPTION_NONCE[crypto_secretbox_NONCEBYTES] = {};
+-std::pair<std::basic_string_view<unsigned char>, std::basic_string_view<unsigned char>> bns::mapping_value::value_nonce(mapping_type type) const
++std::pair<std::string_view, std::string_view> bns::mapping_value::value_nonce(mapping_type type) const
+ {
+-  std::pair<std::basic_string_view<unsigned char>, std::basic_string_view<unsigned char>> result;
++  std::pair<std::string_view, std::string_view> result;
+   auto& [head, tail] = result;
+-  head = {buffer.data(), len};
++  head = std::string_view(reinterpret_cast<const char*>(buffer.data()), len);
+   if ((type == mapping_type::bchat && len != BCHAT_PUBLIC_KEY_BINARY_LENGTH + crypto_aead_xchacha20poly1305_ietf_ABYTES + crypto_aead_xchacha20poly1305_ietf_NPUBBYTES)
+       || len < crypto_aead_xchacha20poly1305_ietf_NPUBBYTES /* shouldn't occur, but just in case */)
+-    tail = {OLD_ENCRYPTION_NONCE, sizeof(OLD_ENCRYPTION_NONCE)};
++    tail = std::string_view(reinterpret_cast<const char*>(OLD_ENCRYPTION_NONCE), sizeof(OLD_ENCRYPTION_NONCE)
++);
++
+   else
+   {
+     tail = head.substr(len - crypto_aead_xchacha20poly1305_ietf_NPUBBYTES);
+@@ -1555,12 +1557,12 @@ bool mapping_value::decrypt(std::string_view name, mapping_type type, const cryp
+     name_to_encryption_key(name, name_hash, skey);
+     unsigned long long actual_length;
+     encrypted = !(0 == crypto_aead_xchacha20poly1305_ietf_decrypt(
+-          dec_buffer.data(), &actual_length,
++          reinterpret_cast<unsigned char*>(dec_buffer.data()), &actual_length,
+           nullptr, // nsec (always null for this algo)
+-          enc.data(), enc.size(),
++          reinterpret_cast<const unsigned char*>(enc.data()), enc.size(),
+           nullptr, 0, // additional data
+-          nonce.data(),
+-          skey.data));
++          reinterpret_cast<const unsigned char*>(nonce.data()),
++          reinterpret_cast<const unsigned char*>(skey.data)));
+ 
+     if (!encrypted) assert(actual_length == dec_length);
+   }
+diff --git a/src/cryptonote_core/beldex_name_system.h b/src/cryptonote_core/beldex_name_system.h
+index 2200e0ae8..1e413b80b 100755
+--- a/src/cryptonote_core/beldex_name_system.h
++++ b/src/cryptonote_core/beldex_name_system.h
+@@ -62,7 +62,7 @@ struct mapping_value
+   // bchat values the nonce will be all 0 bytes *if* the encrypted value is not the proper length
+   // for an including-the-nonce value.  For newer bchat and all others the nonce is always
+   // present.
+-  std::pair<std::basic_string_view<unsigned char>, std::basic_string_view<unsigned char>> value_nonce(mapping_type type) const;
++  std::pair<std::string_view, std::string_view> value_nonce(mapping_type type) const;
+   bool operator==(mapping_value const &other) const { return encrypted == other.encrypted && other.to_view() == to_view(); }
+   bool operator==(std::string_view other)     const { return other == to_view(); }
+ 
+-- 
+2.25.1
+
