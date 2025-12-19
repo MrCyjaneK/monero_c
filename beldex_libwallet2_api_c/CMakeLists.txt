@@ -155,10 +155,17 @@ elseif(${MONERO_FLAVOR} STREQUAL "zano")
 elseif(${MONERO_FLAVOR} STREQUAL "beldex")
     find_package(Boost 1.71 REQUIRED COMPONENTS system filesystem thread timer date_time chrono regex serialization atomic program_options)
     find_package(OpenSSL REQUIRED)
+    if(MINGW AND TARGET OpenSSL::Crypto)
+        target_link_libraries(OpenSSL::Crypto
+            INTERFACE
+                ws2_32
+                iphlpapi
+                crypt32
+        )
+    endif()
 
     set(WALLET_TARGETS
         wallet_api
-        crypto
         common
         ${wallet_api_LIB_DEPENDS}
         ${Boost_LIBRARIES}
