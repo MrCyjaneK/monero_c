@@ -1,6 +1,6 @@
-From ec9dee4954cc4da8cf9ece1a328f49b0cadeb052 Mon Sep 17 00:00:00 2001
+From 94488131226e960e2126a5b11c4e50f1da9dcd0b Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Fri, 19 Dec 2025 07:37:41 +0000
+Date: Mon, 22 Dec 2025 07:32:17 +0000
 Subject: [PATCH 04/15] store crash fix
 
 Beldex wallet crashes (sometimes) when it is syncing,

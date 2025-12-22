@@ -1,6 +1,6 @@
-From 1e105986a72078ce33b5581bc673111a9ec091db Mon Sep 17 00:00:00 2001
+From 5169d834b2d5b685ae87bee2fb231bf06ca7fbd3 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Fri, 19 Dec 2025 08:11:41 +0000
+Date: Mon, 22 Dec 2025 08:18:48 +0000
 Subject: [PATCH 12/15] add beldex submodule support
 
 ---

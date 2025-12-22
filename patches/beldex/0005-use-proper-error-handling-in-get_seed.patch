@@ -1,6 +1,6 @@
-From bd2f53e1ee476572378cf9865d91143f8cc95776 Mon Sep 17 00:00:00 2001
+From 0736c0e830f6e719779f7d5c13b71b6f3ac7d3f4 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Fri, 19 Dec 2025 07:39:39 +0000
+Date: Mon, 22 Dec 2025 07:33:35 +0000
 Subject: [PATCH 05/15] use proper error handling in get_seed
 
 ---

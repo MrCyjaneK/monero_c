@@ -1,6 +1,6 @@
-From 8f93a5b1bd14b1cd69e5994e127d341134e5c75b Mon Sep 17 00:00:00 2001
+From aa2c45f786e72d7550a770f0fca47100f69d8355 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Fri, 19 Dec 2025 07:44:44 +0000
+Date: Mon, 22 Dec 2025 07:35:36 +0000
 Subject: [PATCH 06/15] UR functions
 
 This commit adds UR functions for UR tasks,

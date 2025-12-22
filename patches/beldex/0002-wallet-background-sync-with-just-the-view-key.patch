@@ -1,6 +1,6 @@
-From 693bd4201898599dbe1a71bcdac851843b5a9234 Mon Sep 17 00:00:00 2001
+From 79a68cc85f7281de44ff7180fa01dea27cc33676 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Fri, 19 Dec 2025 07:28:04 +0000
+Date: Mon, 22 Dec 2025 07:23:32 +0000
 Subject: [PATCH 02/15] wallet: background sync with just the view key
 
 - When background syncing, the wallet wipes the spend key

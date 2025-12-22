@@ -1,12 +1,13 @@
-From 47d92441cc2aa9e8ff2798b8b1ab3a20bc53f8d3 Mon Sep 17 00:00:00 2001
+From 1d6cd5e249048f0e814793f51ec7189f291cd7df Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Fri, 19 Dec 2025 10:24:06 +0000
+Date: Mon, 22 Dec 2025 08:52:26 +0000
 Subject: [PATCH 14/15] Fix MinGW Windows build
 
 ---
- CMakeLists.txt          | 6 ++++++
- external/CMakeLists.txt | 5 +++++
- 2 files changed, 11 insertions(+)
+ CMakeLists.txt            | 6 ++++++
+ external/CMakeLists.txt   | 5 +++++
+ src/wallet/api/wallet.cpp | 2 +-
+ 3 files changed, 12 insertions(+), 1 deletion(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index bdf2b1791..a3e3c2f2a 100755
@@ -41,6 +42,19 @@ index 7e1d62cd5..bc45f05f0 100755
  add_library(cpr::cpr ALIAS cpr)
  
  file(READ cpr/CMakeLists.txt cpr_cmake_head LIMIT 1000)
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index 239043964..6f5c3b344 100755
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -3863,7 +3863,7 @@ bool WalletImpl::parse_uri(const std::string &uri, std::string &address, std::st
+ EXPORT
+ std::string WalletImpl::getDefaultDataDir() const
+ {
+- return tools::get_default_data_dir();
++ return tools::get_default_data_dir().string();
+ }
+ 
+ EXPORT
 -- 
 2.25.1
 

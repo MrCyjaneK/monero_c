@@ -1,6 +1,6 @@
-From 8756b29adc583b4ddbc45f09f233baf4de663e81 Mon Sep 17 00:00:00 2001
+From 8e69cb53c9085e4c6455a751285bff5282c95006 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Fri, 19 Dec 2025 07:50:19 +0000
+Date: Mon, 22 Dec 2025 07:36:53 +0000
 Subject: [PATCH 07/15] add dummy device for ledger
 
 ---

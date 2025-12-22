@@ -1,6 +1,6 @@
-From a0b4c1f60aaa1c481aaed366999553b761ace872 Mon Sep 17 00:00:00 2001
+From 75e60ca07411e469deaefb597eb23e0f6f02a68c Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Fri, 19 Dec 2025 07:13:30 +0000
+Date: Mon, 22 Dec 2025 07:21:59 +0000
 Subject: [PATCH 01/15] wallet enhancement
 
 ---
@@ -195,14 +195,14 @@ index 8e5090a66..3eed346df 100755
 +
  } // namespace
 diff --git a/src/wallet/api/transaction_history.h b/src/wallet/api/transaction_history.h
-index 52946fd96..b314c83e4 100755
+index 52946fd96..d829c2393 100755
 --- a/src/wallet/api/transaction_history.h
 +++ b/src/wallet/api/transaction_history.h
 @@ -45,6 +45,7 @@ public:
      TransactionInfo* transaction(std::string_view id) const override;
      std::vector<TransactionInfo*> getAll() const override;
      void refresh() override;
-+    void setTxNote(const std::string &txid, const std::string &note);
++    void setTxNote(const std::string &txid, const std::string &note) override;
  
  private:
  

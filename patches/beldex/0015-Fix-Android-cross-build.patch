@@ -1,6 +1,6 @@
-From 51714bf9ebb3ca99e9d1391df7c07daa3ee32994 Mon Sep 17 00:00:00 2001
+From dbd55e4e8e21731994703dba3d314788412df398 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Fri, 19 Dec 2025 10:28:01 +0000
+Date: Mon, 22 Dec 2025 08:54:27 +0000
 Subject: [PATCH 15/15] Fix Android cross-build
 
 ---
