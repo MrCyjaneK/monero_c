@@ -1,5 +1,6 @@
 #!/bin/bash
 # Script to verify that all SHA256 checksums in native_rust.mk match upstream
+# Run this before merging to ensure supply-chain security.
 
 set -e
 
@@ -26,7 +27,7 @@ verify_hash() {
     local upstream=$(curl -s "$BASE_URL/$file.sha256" | awk '{print $1}')
     
     if [ -z "$upstream" ]; then
-        echo "  ❌ ERROR: Could not fetch upstream hash"
+        echo "  [FAIL] Could not fetch upstream hash"
         ((FAIL++))
         return 1
     fi
@@ -35,10 +36,10 @@ verify_hash() {
     echo "  Upstream (official): $upstream"
     
     if [ "$expected" = "$upstream" ]; then
-        echo "  ✅ MATCH"
+        echo "  [PASS] Match confirmed"
         ((PASS++))
     else
-        echo "  ❌ MISMATCH!"
+        echo "  [FAIL] Mismatch detected"
         ((FAIL++))
     fi
     echo ""
@@ -54,10 +55,15 @@ verify_hash "rust-1.75.0-x86_64-unknown-linux-gnu.tar.gz" \
     "473978b6f8ff216389f9e89315211c6b683cf95a966196e7914b46e8cf0d74f6" \
     "Linux x86_64 bootstrap"
 
-# Verify macOS bootstrap
+# Verify macOS ARM64 bootstrap
 verify_hash "rust-1.75.0-aarch64-apple-darwin.tar.gz" \
     "878ecf81e059507dd2ab256f59629a4fb00171035d2a2f5638cb582d999373b1" \
     "macOS ARM64 bootstrap"
+
+# Verify macOS x86_64 bootstrap
+verify_hash "rust-1.75.0-x86_64-apple-darwin.tar.gz" \
+    "ad066e4dec7ae5948c4e7afe68e250c336a5ab3d655570bb119b3eba9cf22851" \
+    "macOS x86_64 bootstrap"
 
 # Verify Android std
 verify_hash "rust-std-1.75.0-aarch64-linux-android.tar.gz" \
@@ -86,18 +92,18 @@ verify_hash "rust-std-1.75.0-aarch64-apple-ios.tar.gz" \
 
 echo "========================================="
 echo "RESULTS:"
-echo "  ✅ Passed: $PASS"
-echo "  ❌ Failed: $FAIL"
+echo "  Passed: $PASS"
+echo "  Failed: $FAIL"
 echo "========================================="
 
 if [ $FAIL -gt 0 ]; then
     echo ""
-    echo "⚠️  CRITICAL: Some checksums do not match upstream!"
+    echo "CRITICAL: Some checksums do not match upstream."
     echo "Do NOT merge until all checksums are verified."
     exit 1
 else
     echo ""
-    echo "✅ All checksums verified against upstream!"
+    echo "All checksums verified against upstream."
     echo "Safe to merge."
     exit 0
 fi
