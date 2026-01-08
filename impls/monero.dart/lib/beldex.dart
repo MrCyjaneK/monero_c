@@ -916,25 +916,6 @@ String AddressBookRow_getDescription(AddressBookRow addressBookRow_ptr) {
 }
 
 @Deprecated("TODO")
-String AddressBookRow_getPaymentId(AddressBookRow addressBookRow_ptr) {
-  debugStart?.call('BELDEX_AddressBookRow_getPaymentId');
-  lib ??= BeldexC(DynamicLibrary.open(libPath));
-  try {
-    final strPtr = lib!
-        .BELDEX_AddressBookRow_getPaymentId(addressBookRow_ptr)
-        .cast<Utf8>();
-    final str = strPtr.toDartString();
-    BELDEX_free(strPtr.cast());
-    debugEnd?.call('BELDEX_AddressBookRow_getPaymentId');
-    return str;
-  } catch (e) {
-    errorHandler?.call('BELDEX_AddressBookRow_getPaymentId', e);
-    debugEnd?.call('BELDEX_AddressBookRow_getPaymentId');
-    return "";
-  }
-}
-
-@Deprecated("TODO")
 int AddressBookRow_getRowId(AddressBookRow addressBookRow_ptr) {
   debugStart?.call('BELDEX_AddressBookRow_getRowId');
   lib ??= BeldexC(DynamicLibrary.open(libPath));
@@ -1027,19 +1008,6 @@ int AddressBook_errorCode(AddressBook addressBook_ptr) {
   lib ??= BeldexC(DynamicLibrary.open(libPath));
   final v = lib!.BELDEX_AddressBook_errorCode(addressBook_ptr);
   debugEnd?.call('BELDEX_AddressBook_errorCode');
-  return v;
-}
-
-@Deprecated("TODO")
-int AddressBook_lookupPaymentID(AddressBook addressBook_ptr,
-    {required String paymentId}) {
-  debugStart?.call('BELDEX_AddressBook_lookupPaymentID');
-  lib ??= BeldexC(DynamicLibrary.open(libPath));
-  final paymentId_ = paymentId.toNativeUtf8().cast<Char>();
-  final v =
-      lib!.BELDEX_AddressBook_lookupPaymentID(addressBook_ptr, paymentId_);
-  calloc.free(paymentId_);
-  debugEnd?.call('BELDEX_AddressBook_lookupPaymentID');
   return v;
 }
 
@@ -3980,84 +3948,12 @@ int WalletManager_networkDifficulty(WalletManager wm_ptr) {
 }
 
 @Deprecated("TODO")
-double WalletManager_miningHashRate(WalletManager wm_ptr) {
-  debugStart?.call('BELDEX_WalletManager_miningHashRate');
-  lib ??= BeldexC(DynamicLibrary.open(libPath));
-  final s = lib!.BELDEX_WalletManager_miningHashRate(wm_ptr);
-  debugEnd?.call('BELDEX_WalletManager_miningHashRate');
-  return s;
-}
-
-@Deprecated("TODO")
 int WalletManager_blockTarget(WalletManager wm_ptr) {
   debugStart?.call('BELDEX_WalletManager_blockTarget');
   lib ??= BeldexC(DynamicLibrary.open(libPath));
   final s = lib!.BELDEX_WalletManager_blockTarget(wm_ptr);
   debugEnd?.call('BELDEX_WalletManager_blockTarget');
   return s;
-}
-
-@Deprecated("TODO")
-bool WalletManager_isMining(WalletManager wm_ptr) {
-  debugStart?.call('BELDEX_WalletManager_isMining');
-  lib ??= BeldexC(DynamicLibrary.open(libPath));
-  final s = lib!.BELDEX_WalletManager_isMining(wm_ptr);
-  debugEnd?.call('BELDEX_WalletManager_isMining');
-  return s;
-}
-
-@Deprecated("TODO")
-bool WalletManager_startMining(
-  WalletManager wm_ptr, {
-  required String address,
-  required int threads,
-  required bool backgroundMining,
-  required bool ignoreBattery,
-}) {
-  debugStart?.call('BELDEX_WalletManager_startMining');
-  lib ??= BeldexC(DynamicLibrary.open(libPath));
-  final address_ = address.toNativeUtf8().cast<Char>();
-  final s = lib!.BELDEX_WalletManager_startMining(
-      wm_ptr, address_, threads, backgroundMining, ignoreBattery);
-  calloc.free(address_);
-  debugEnd?.call('BELDEX_WalletManager_startMining');
-  return s;
-}
-
-@Deprecated("TODO")
-bool WalletManager_stopMining(WalletManager wm_ptr, String address) {
-  debugStart?.call('BELDEX_WalletManager_stopMining');
-  lib ??= BeldexC(DynamicLibrary.open(libPath));
-  final address_ = address.toNativeUtf8().cast<Char>();
-  final s = lib!.BELDEX_WalletManager_stopMining(wm_ptr, address_);
-  calloc.free(address_);
-  debugEnd?.call('BELDEX_WalletManager_stopMining');
-  return s;
-}
-
-@Deprecated("TODO")
-String WalletManager_resolveOpenAlias(
-  WalletManager wm_ptr, {
-  required String address,
-  required bool dnssecValid,
-}) {
-  debugStart?.call('BELDEX_WalletManager_resolveOpenAlias');
-  lib ??= BeldexC(DynamicLibrary.open(libPath));
-  try {
-    final address_ = address.toNativeUtf8().cast<Char>();
-    final strPtr = lib!
-        .BELDEX_WalletManager_resolveOpenAlias(wm_ptr, address_, dnssecValid)
-        .cast<Utf8>();
-    final str = strPtr.toDartString();
-    BELDEX_free(strPtr.cast());
-    debugEnd?.call('BELDEX_WalletManager_resolveOpenAlias');
-    calloc.free(address_);
-    return str;
-  } catch (e) {
-    errorHandler?.call('BELDEX_WalletManager_resolveOpenAlias', e);
-    debugEnd?.call('BELDEX_WalletManager_resolveOpenAlias');
-    return "";
-  }
 }
 
 @Deprecated("TODO")
