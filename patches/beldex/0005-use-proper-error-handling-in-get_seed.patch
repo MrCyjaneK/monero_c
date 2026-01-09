@@ -1,7 +1,7 @@
-From 0736c0e830f6e719779f7d5c13b71b6f3ac7d3f4 Mon Sep 17 00:00:00 2001
+From a3f9b67ef192ed02313491e6e0e92d3def08bc0e Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 22 Dec 2025 07:33:35 +0000
-Subject: [PATCH 05/15] use proper error handling in get_seed
+Date: Thu, 8 Jan 2026 10:30:23 +0000
+Subject: [PATCH 05/16] use proper error handling in get_seed
 
 ---
  src/wallet/api/wallet.cpp | 17 ++++++++++++-----
@@ -38,7 +38,7 @@ index 930f3e7a9..e5082e899 100755
  
  EXPORT
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index bb4c11f17..04a2514e5 100755
+index a1b6b65c0..27b92a1bd 100755
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -1371,11 +1371,13 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab

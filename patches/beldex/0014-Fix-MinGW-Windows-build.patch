@@ -1,7 +1,7 @@
-From 1d6cd5e249048f0e814793f51ec7189f291cd7df Mon Sep 17 00:00:00 2001
+From 869cde1673d66a49079a44f6420a9083fdb6c8c4 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 22 Dec 2025 08:52:26 +0000
-Subject: [PATCH 14/15] Fix MinGW Windows build
+Date: Thu, 8 Jan 2026 10:59:20 +0000
+Subject: [PATCH 14/16] Fix MinGW Windows build
 
 ---
  CMakeLists.txt            | 6 ++++++

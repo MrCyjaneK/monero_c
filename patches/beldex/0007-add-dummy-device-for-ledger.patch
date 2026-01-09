@@ -1,7 +1,7 @@
-From 8e69cb53c9085e4c6455a751285bff5282c95006 Mon Sep 17 00:00:00 2001
+From 2b14e5b6da9c31ec3413dd4464c1d07cdd4d0c24 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 22 Dec 2025 07:36:53 +0000
-Subject: [PATCH 07/15] add dummy device for ledger
+Date: Thu, 8 Jan 2026 10:36:29 +0000
+Subject: [PATCH 07/16] add dummy device for ledger
 
 ---
  src/device/CMakeLists.txt         |   4 +-

@@ -1,7 +1,7 @@
-From 79a68cc85f7281de44ff7180fa01dea27cc33676 Mon Sep 17 00:00:00 2001
+From 83012ec10d8e402fc8a8c2a03222807ed59491e9 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 22 Dec 2025 07:23:32 +0000
-Subject: [PATCH 02/15] wallet: background sync with just the view key
+Date: Thu, 8 Jan 2026 10:17:45 +0000
+Subject: [PATCH 02/16] wallet: background sync with just the view key
 
 - When background syncing, the wallet wipes the spend key
 from memory and processes all new transactions. The wallet saves
@@ -1662,7 +1662,7 @@ index 392b98548..616460e03 100755
  
  EXPORT
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 5f5c22ef6..4ea9b2217 100755
+index 5f5c22ef6..4d5169cf1 100755
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -57,6 +57,7 @@
@@ -2606,8 +2606,8 @@ index 5f5c22ef6..4ea9b2217 100755
 +    // If the background wallet files don't exist, recreate them
 +    const std::string background_keys_file = make_background_keys_file_name(m_wallet_file.string());
 +    const std::string background_wallet_file = make_background_wallet_file_name(m_wallet_file.string());
-+    const bool background_keys_file_exists = std::filesystem::exists(background_keys_file);
-+    const bool background_wallet_exists = std::filesystem::exists(background_wallet_file);
++    const bool background_keys_file_exists = fs::exists(background_keys_file);
++    const bool background_wallet_exists = fs::exists(background_wallet_file);
  
 -  trim_hashchain();
 +    THROW_WALLET_EXCEPTION_IF(!lock_background_keys_file(background_keys_file), error::background_wallet_already_open, background_wallet_file);
@@ -2741,7 +2741,7 @@ index 5f5c22ef6..4ea9b2217 100755
  
 +bool wallet2::lock_background_keys_file(const std::string &background_keys_file)
 +{
-+  if (background_keys_file.empty() || !std::filesystem::exists(background_keys_file))
++  if (background_keys_file.empty() || !fs::exists(background_keys_file))
 +    return true;
 +  if (m_background_keys_file_locker && m_background_keys_file_locker->locked())
 +    return true;
@@ -2969,7 +2969,7 @@ index 5f5c22ef6..4ea9b2217 100755
 +
 +  // GUI uses the address file to differentiate non-mainnet wallets in the UI
 +  const std::string background_address_file = make_background_wallet_file_name(m_wallet_file.string()) + ".address.txt";
-+  if (m_nettype != MAINNET && !std::filesystem::exists(background_address_file))
++  if (m_nettype != MAINNET && !fs::exists(background_address_file))
 +  {
 +    r = tools::dump_file(background_address_file, m_account.get_public_address_str(m_nettype));
 +    if (!r) MERROR("String with address text not saved");
@@ -3035,16 +3035,16 @@ index 5f5c22ef6..4ea9b2217 100755
 +    THROW_WALLET_EXCEPTION_IF(!lock_background_keys_file(old_background_keys_file),
 +        error::background_wallet_already_open, old_background_wallet_file);
 +
-+    if (std::filesystem::exists(old_background_wallet_file))
-+      if (!std::filesystem::remove(old_background_wallet_file))
++    if (fs::exists(old_background_wallet_file))
++      if (!fs::remove(old_background_wallet_file))
 +        LOG_ERROR("Error deleting background wallet file: " << old_background_wallet_file);
 +
-+    if (std::filesystem::exists(old_background_keys_file))
-+      if (!std::filesystem::remove(old_background_keys_file))
++    if (fs::exists(old_background_keys_file))
++      if (!fs::remove(old_background_keys_file))
 +        LOG_ERROR("Error deleting background keys file: " << old_background_keys_file);
 +
-+    if (std::filesystem::exists(old_background_address_file))
-+      if (!std::filesystem::remove(old_background_address_file))
++    if (fs::exists(old_background_address_file))
++      if (!fs::remove(old_background_address_file))
 +        LOG_ERROR("Error deleting background address file: " << old_background_address_file);
 +  }
 +

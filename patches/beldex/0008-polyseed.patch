@@ -1,7 +1,7 @@
-From 6a24ac6897f69902aef0c888973632f2a4da016e Mon Sep 17 00:00:00 2001
+From cc07356215de4efdf2772bc3594e3abfb5930ff1 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 22 Dec 2025 07:39:35 +0000
-Subject: [PATCH 08/15] polyseed
+Date: Thu, 8 Jan 2026 10:52:05 +0000
+Subject: [PATCH 08/16] polyseed
 
 ---
  .gitmodules                                 |   6 +
@@ -159,11 +159,11 @@ index 000000000..dfb05d8ed
 +Subproject commit dfb05d8edb682b0e8f743b1b70c9131712ff4157
 diff --git a/external/utf8proc b/external/utf8proc
 new file mode 160000
-index 000000000..a36778dbe
+index 000000000..e5e799221
 --- /dev/null
 +++ b/external/utf8proc
 @@ -0,0 +1 @@
-+Subproject commit a36778dbe37f8fc86aae5ca37b68564f8f54353c
++Subproject commit e5e799221b45bbb90f5fdc5c69b6b8dfbf017e78
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index ff74933f1..b83c11eb0 100755
 --- a/src/CMakeLists.txt
@@ -1025,7 +1025,7 @@ index e57b9eda0..16b9adeeb 100755
      bool walletExists(std::string_view path) override;
      bool verifyWalletPassword(std::string_view keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const override;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 8f13f3e97..61ab06435 100755
+index a3568fa2f..a82ec93e0 100755
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
 @@ -90,6 +90,7 @@
@@ -1117,8 +1117,8 @@ index 8f13f3e97..61ab06435 100755
 +
 +  if (!wallet_.empty()) {
 +    std::error_code ignored_ec;
-+    THROW_WALLET_EXCEPTION_IF(std::filesystem::exists(m_wallet_file, ignored_ec), error::file_exists, m_wallet_file);
-+    THROW_WALLET_EXCEPTION_IF(std::filesystem::exists(m_keys_file,   ignored_ec), error::file_exists, m_keys_file);
++    THROW_WALLET_EXCEPTION_IF(fs::exists(m_wallet_file, ignored_ec), error::file_exists, m_wallet_file);
++    THROW_WALLET_EXCEPTION_IF(fs::exists(m_keys_file,   ignored_ec), error::file_exists, m_keys_file);
 +  }
 +
 +  m_account.create_from_polyseed(seed, passphrase);

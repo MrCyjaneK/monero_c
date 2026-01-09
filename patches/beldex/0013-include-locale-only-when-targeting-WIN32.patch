@@ -1,7 +1,7 @@
-From 4e3f82c99cae6ddd2529f18b6ebbd3e44b143e2d Mon Sep 17 00:00:00 2001
+From cd5566ec9bbd52ee6da2bc48866cec4e6bdf6cc8 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 22 Dec 2025 08:21:18 +0000
-Subject: [PATCH 13/15] include locale only when targeting WIN32
+Date: Thu, 8 Jan 2026 10:58:27 +0000
+Subject: [PATCH 13/16] include locale only when targeting WIN32
 
 ---
  CMakeLists.txt            | 4 ++++
