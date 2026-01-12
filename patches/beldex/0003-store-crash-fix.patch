@@ -1,7 +1,7 @@
-From 66e86fe4728cfac170d8efedb7eb7d23a2688b9f Mon Sep 17 00:00:00 2001
+From eb8972639727e82aa4a91496e35607804cfe40ef Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 8 Jan 2026 10:28:46 +0000
-Subject: [PATCH 04/16] store crash fix
+Date: Mon, 12 Jan 2026 05:54:05 +0000
+Subject: [PATCH 03/15] store crash fix
 
 Beldex wallet crashes (sometimes) when it is syncing,
 while the proper solution (that can be seen in feather)

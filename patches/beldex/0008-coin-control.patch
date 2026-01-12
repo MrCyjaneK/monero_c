@@ -1,7 +1,7 @@
-From d0f61abfcb6e719b873ee32929591b8662bb2f03 Mon Sep 17 00:00:00 2001
+From f396bc541d015e494128e313de45646f0122c16f Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 8 Jan 2026 10:53:58 +0000
-Subject: [PATCH 09/16] coin control
+Date: Mon, 12 Jan 2026 06:03:42 +0000
+Subject: [PATCH 08/15] coin control
 
 ---
  src/simplewallet/simplewallet.cpp |   2 +-

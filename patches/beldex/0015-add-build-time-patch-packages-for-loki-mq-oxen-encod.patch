@@ -1,7 +1,7 @@
-From 5c9c5a97f874f20f2651ecb32ffa570d071dd539 Mon Sep 17 00:00:00 2001
+From 084c276e65bf7f3b737238d131f69f2b5de59cac Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Fri, 9 Jan 2026 04:39:16 +0000
-Subject: [PATCH 16/16] cmake: add build-time patch packages for loki-mq,
+Date: Mon, 12 Jan 2026 06:11:19 +0000
+Subject: [PATCH 15/15] add build-time patch packages for loki-mq,
  oxen-encoding, and uSockets
 
 ---

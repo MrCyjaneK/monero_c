@@ -1,7 +1,7 @@
-From a61dae6520ca0a5855fdf452e193d09d34913432 Mon Sep 17 00:00:00 2001
+From eea951491d62bf0be6b2c3ae95b2fd0d0c36a5bc Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 8 Jan 2026 10:32:47 +0000
-Subject: [PATCH 06/16] UR functions
+Date: Mon, 12 Jan 2026 05:58:34 +0000
+Subject: [PATCH 05/15] UR functions
 
 This commit adds UR functions for UR tasks,
 I believe that the right place to get
@@ -29,10 +29,10 @@ Now we are fully in memory
  create mode 160000 external/bc-ur
 
 diff --git a/.gitmodules b/.gitmodules
-index 51a6a80fb..fc439fcde 100644
+index 088e5dba2..d641e29da 100644
 --- a/.gitmodules
 +++ b/.gitmodules
-@@ -41,3 +41,7 @@
+@@ -40,3 +40,7 @@
  [submodule "external/Catch2"]
  	path = external/Catch2
  	url = https://github.com/catchorg/Catch2

@@ -1,7 +1,7 @@
-From cc07356215de4efdf2772bc3594e3abfb5930ff1 Mon Sep 17 00:00:00 2001
+From b8208b9f2a05ee49825b9dc0cc183ddc3f95074a Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 8 Jan 2026 10:52:05 +0000
-Subject: [PATCH 08/16] polyseed
+Date: Mon, 12 Jan 2026 06:02:18 +0000
+Subject: [PATCH 07/15] polyseed
 
 ---
  .gitmodules                                 |   6 +
@@ -38,10 +38,10 @@ Subject: [PATCH 08/16] polyseed
  create mode 100644 src/polyseed/polyseed.hpp
 
 diff --git a/.gitmodules b/.gitmodules
-index fc439fcde..be7dd9755 100644
+index d641e29da..5da7353b8 100644
 --- a/.gitmodules
 +++ b/.gitmodules
-@@ -45,3 +45,9 @@
+@@ -44,3 +44,9 @@
  	path = external/bc-ur
  	url = https://github.com/MrCyjaneK/bc-ur
  	branch = misc

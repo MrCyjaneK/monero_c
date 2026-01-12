@@ -1,7 +1,7 @@
-From a3f9b67ef192ed02313491e6e0e92d3def08bc0e Mon Sep 17 00:00:00 2001
+From 1330d4ae9ea080379d51f7e369d1a83e02d7fe0a Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 8 Jan 2026 10:30:23 +0000
-Subject: [PATCH 05/16] use proper error handling in get_seed
+Date: Mon, 12 Jan 2026 05:56:19 +0000
+Subject: [PATCH 04/15] use proper error handling in get_seed
 
 ---
  src/wallet/api/wallet.cpp | 17 ++++++++++++-----

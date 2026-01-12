@@ -1,7 +1,7 @@
-From 5620585e8b67203cfff196d56d779a0b7e01d245 Mon Sep 17 00:00:00 2001
+From 7c25db599aafb82ca7045185f5848b3e389156f4 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 8 Jan 2026 10:54:39 +0000
-Subject: [PATCH 10/16] Add hex encoding and tx key getter for
+Date: Mon, 12 Jan 2026 06:05:01 +0000
+Subject: [PATCH 09/15] Add hex encoding and tx key getter for
  PendingTransction in wallet api
 
 ---
