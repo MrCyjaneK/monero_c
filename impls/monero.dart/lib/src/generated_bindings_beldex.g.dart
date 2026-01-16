@@ -4,18 +4,17 @@
 // ignore_for_file: type=lint
 import 'dart:ffi' as ffi;
 
-/// monero_c beldex bindings
-class FfiBeldexC {
+/// monero_c bindings
+class MoneroC {
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
       _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
-  FfiBeldexC(ffi.DynamicLibrary dynamicLibrary)
-      : _lookup = dynamicLibrary.lookup;
+  MoneroC(ffi.DynamicLibrary dynamicLibrary) : _lookup = dynamicLibrary.lookup;
 
   /// The symbols are looked up with [lookup].
-  FfiBeldexC.fromLookup(
+  MoneroC.fromLookup(
       ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
           lookup)
       : _lookup = lookup;

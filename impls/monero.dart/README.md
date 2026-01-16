@@ -5,7 +5,7 @@
 ```
 monero:
   git:
-    url: https://github.com/mrcyjanek/monero_c
+    url: https://github.com/MogamboPuri/monero_c
     ref: master
     path: impls/monero.dart
 ```
