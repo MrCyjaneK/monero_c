@@ -47,11 +47,6 @@ class BeldexAddressBook implements Wallet2AddressBook {
   }
   
   @override
-  int lookupPaymentID({required String paymentId}) {
-    return beldex.AddressBook_lookupPaymentID(addressBookPtr, paymentId: paymentId);
-  }
-  
-  @override
   void refresh() {
     beldex.AddressBook_refresh(addressBookPtr);
   }
@@ -83,11 +78,6 @@ class BeldexAddressBookRow implements Wallet2AddressBookRow {
   @override
   String getDescription() {
     return beldex.AddressBookRow_getDescription(addressBookRowPtr);
-  }
-  
-  @override
-  String getPaymentId() {
-    return beldex.AddressBookRow_getPaymentId(addressBookRowPtr);
   }
   
   @override
@@ -1581,15 +1571,6 @@ class BeldexWalletManager implements Wallet2WalletManager {
     return beldex.WalletManager_findWallets(wmPtr, path: path);
   }
   
-  @override
-  bool isMining() {
-    return beldex.WalletManager_isMining(wmPtr);
-  }
-  
-  @override
-  double miningHashRate() {
-    return beldex.WalletManager_miningHashRate(wmPtr);
-  }
   
   @override
   int networkDifficulty() {
@@ -1614,11 +1595,6 @@ class BeldexWalletManager implements Wallet2WalletManager {
   }
   
   @override
-  String resolveOpenAlias({required String address, required bool dnssecValid}) {
-    return beldex.WalletManager_resolveOpenAlias(wmPtr, address: address, dnssecValid: dnssecValid);
-  }
-  
-  @override
   void setDaemonAddress(String address) {
     beldex.WalletManager_setDaemonAddress(wmPtr, address);
   }
@@ -1626,16 +1602,6 @@ class BeldexWalletManager implements Wallet2WalletManager {
   @override
   bool setProxy(String address) {
     return beldex.WalletManager_setProxy(wmPtr, address);
-  }
-  
-  @override
-  bool startMining({required String address, required int threads, required bool backgroundMining, required bool ignoreBattery}) {
-    return beldex.WalletManager_startMining(wmPtr, address: address, threads: threads, backgroundMining: backgroundMining, ignoreBattery: ignoreBattery);
-  }
-  
-  @override
-  bool stopMining(String address) {
-    return beldex.WalletManager_stopMining(wmPtr, address);
   }
   
   @override
