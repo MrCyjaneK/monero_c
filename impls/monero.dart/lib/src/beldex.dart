@@ -814,7 +814,7 @@ class BeldexUnsignedTransaction implements Wallet2UnsignedTransaction {
 class BeldexWallet implements Wallet2Wallet {
   BeldexWallet(this.walletPtr);
 
-  final beldex.Wallet walletPtr;
+  final beldex.wallet walletPtr;
   
   @override
   void addSubaddress({required int accountIndex, String label = ""}) {
