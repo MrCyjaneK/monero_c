@@ -1,5 +1,5 @@
-name: MoneroC
-description: monero_c bindings
+name: BeldexC
+description: monero_c beldex bindings
 output: 'lib/src/generated_bindings_beldex.g.dart'
 headers:
   entry-points:

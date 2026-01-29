@@ -2,10 +2,10 @@
 
 import 'dart:ffi';
 
-import 'package:beldex/beldex.dart' as beldex;
-import 'package:beldex/src/wallet2.dart';
+import 'package:monero/beldex.dart' as beldex;
+import 'package:monero/src/wallet2.dart';
 
-class beldex implements Wallet2 {
+class Beldex implements Wallet2 {
   @override
   Wallet2WalletManagerFactory walletManagerFactory() {
     return BeldexWalletManagerFactory();

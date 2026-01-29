@@ -75,7 +75,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:ffi/ffi.dart';
-import 'package:beldex/src/generated_bindings_beldex.g.dart';
+import 'package:monero/src/generated_bindings_beldex.g.dart';
 
 export 'src/checksum_beldex.dart';
 
