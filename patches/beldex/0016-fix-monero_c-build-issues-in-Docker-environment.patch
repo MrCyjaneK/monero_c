@@ -1,0 +1,67 @@
+From 88b510c21ff533093e8712274ab9e50befa8240a Mon Sep 17 00:00:00 2001
+From: victor-tucci <victor.tucci@beldex.io>
+Date: Thu, 29 Jan 2026 11:07:07 +0000
+Subject: [PATCH 16/16] fix monero_c build issues in Docker environment
+
+---
+ CMakeLists.txt                | 6 ++++++
+ src/crypto/CMakeLists.txt     | 4 ++++
+ src/p2p/p2p_protocol_defs.cpp | 9 +++++++--
+ 3 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9bd3a29df..44d62b22a 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -85,6 +85,12 @@ if(ANDROID)
+   add_compile_options(-Wno-unused-command-line-argument -Wno-error -Wno-cpp -Wno-error=cpp -Wno-unused-private-field -Wno-unused-lambda-capture -Wno-unused-result -Wno-string-plus-int -fstack-clash-protection -Wno-shift-count-overflow -Wno-deprecated-copy)
+ endif()
+ 
++add_compile_options(
++  -Wno-dangling-reference
++  -Wno-tautological-compare
++  -Wno-unused-result
++)
++
+ # Add this line to suppress implicit-fallthrough warnings
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough")
+ 
+diff --git a/src/crypto/CMakeLists.txt b/src/crypto/CMakeLists.txt
+index 466cb1270..bdd6621ca 100755
+--- a/src/crypto/CMakeLists.txt
++++ b/src/crypto/CMakeLists.txt
+@@ -93,6 +93,10 @@ if(IPO_ENABLED AND (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQU
+   set_target_properties(cncrypto PROPERTIES INTERPROCEDURAL_OPTIMIZATION OFF)
+ endif()
+ 
++if (CMAKE_C_COMPILER_ID STREQUAL GNU OR CMAKE_C_COMPILER_ID MATCHES Clang)
++  target_compile_options(cncrypto PRIVATE -Wno-error=calloc-transposed-args)
++endif()
++
+ if (ARCH STREQUAL "armv8-a" AND (CMAKE_CXX_COMPILER_ID MATCHES Clang OR CMAKE_CXX_COMPILER_ID STREQUAL GNU))
+   # Similarly use +crypto extensions for the arm hash code (it also has a run-time check before
+   # enabling).
+diff --git a/src/p2p/p2p_protocol_defs.cpp b/src/p2p/p2p_protocol_defs.cpp
+index a5e0ba6de..e66c8d13a 100644
+--- a/src/p2p/p2p_protocol_defs.cpp
++++ b/src/p2p/p2p_protocol_defs.cpp
+@@ -12,9 +12,14 @@ namespace nodetool {
+     time_t now = time(nullptr);
+     std::string result;
+     for (const auto& pe : pl) {
++      const std::string adr_str = pe.adr.str();
++
++      const std::string last_seen_str =
++      pe.last_seen == 0
++        ? std::string{"never"}
++        : epee::misc_utils::get_time_interval_string(now - pe.last_seen);
+       result += fmt::format("{:016x}\t{}\tpruning seed {}\tlast_seen {}",
+-        pe.id, pe.adr.str(), pe.pruning_seed,
+-        (pe.last_seen == 0 ? std::string("never") : epee::misc_utils::get_time_interval_string(now - pe.last_seen)));
++        pe.id, adr_str, pe.pruning_seed, last_seen_str);
+     }
+     return result;
+   }
+-- 
+2.25.1
+

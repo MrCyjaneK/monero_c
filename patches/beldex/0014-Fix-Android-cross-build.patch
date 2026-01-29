@@ -1,7 +1,7 @@
 From ba7a6cb4d31bcd7d551daa6780ae4e03769482fb Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
 Date: Mon, 12 Jan 2026 06:10:25 +0000
-Subject: [PATCH 14/15] Fix Android cross-build
+Subject: [PATCH 14/16] Fix Android cross-build
 
 ---
  CMakeLists.txt                                 |  4 ++++
