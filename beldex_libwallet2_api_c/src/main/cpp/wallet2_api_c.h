@@ -817,6 +817,8 @@ extern ADDAPI bool BELDEX_Wallet_getWaitsForDeviceReceive();
 extern ADDAPI void BELDEX_Wallet_setDeviceReceivedData(unsigned char* data, size_t len);
 extern ADDAPI void BELDEX_Wallet_setDeviceSendData(unsigned char* data, size_t len);
 extern ADDAPI void BELDEX_Wallet_setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
+extern ADDAPI const char* BELDEX_Wallet_serializeCacheToJson(void* wallet_ptr);
+// };
 // struct WalletManager
 // {
 //     virtual Wallet * createWallet(const std::string &path, const std::string &password, const std::string &language, NetworkType nettype, uint64_t kdf_rounds = 1) = 0;

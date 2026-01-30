@@ -1030,7 +1030,7 @@ String CoinsInfo_hash(CoinsInfo addressBookRow_ptr) {
   try {
     final strPtr = lib!.BELDEX_CoinsInfo_hash(addressBookRow_ptr).cast<Utf8>();
     final str = strPtr.toDartString();
-    Beldex_free(strPtr.cast());
+    BELDEX_free(strPtr.cast());
     debugEnd?.call('BELDEX_CoinsInfo_hash');
     return str;
   } catch (e) {
@@ -1369,7 +1369,7 @@ String SubaddressRow_extra(SubaddressRow subaddressBookRow_ptr) {
     final strPtr =
         lib!.BELDEX_SubaddressRow_extra(subaddressBookRow_ptr).cast<Utf8>();
     final str = strPtr.toDartString();
-    BeldexC(DynamicLibrary.open(libPath)).free(strPtr.cast());
+    BELDEX_free(strPtr.cast());
     debugEnd?.call('BELDEX_SubaddressRow_extra');
     return str;
   } catch (e) {
@@ -1388,7 +1388,7 @@ String SubaddressRow_getAddress(SubaddressRow subaddressBookRow_ptr) {
         .BELDEX_SubaddressRow_getAddress(subaddressBookRow_ptr)
         .cast<Utf8>();
     final str = strPtr.toDartString();
-    BeldexC(DynamicLibrary.open(libPath)).free(strPtr.cast());
+    BELDEX_free(strPtr.cast());
     debugEnd?.call('BELDEX_SubaddressRow_getAddress');
     return str;
   } catch (e) {
@@ -1406,7 +1406,7 @@ String SubaddressRow_getLabel(SubaddressRow subaddressBookRow_ptr) {
     final strPtr =
         lib!.BELDEX_SubaddressRow_getLabel(subaddressBookRow_ptr).cast<Utf8>();
     final str = strPtr.toDartString();
-    BeldexC(DynamicLibrary.open(libPath)).free(strPtr.cast());
+    BELDEX_free(strPtr.cast());
     debugEnd?.call('BELDEX_SubaddressRow_getLabel');
     return str;
   } catch (e) {
@@ -1727,7 +1727,7 @@ String Wallet_seed(wallet ptr, {required String seedOffset}) {
     final seedOffset_ = seedOffset.toNativeUtf8().cast<Char>();
     final strPtr = lib!.BELDEX_Wallet_seed(ptr, seedOffset_).cast<Utf8>();
     final str = strPtr.toDartString();
-    Beldex_free(strPtr.cast());
+    BELDEX_free(strPtr.cast());
     calloc.free(seedOffset_);
     debugEnd?.call('BELDEX_Wallet_seed');
     return str;

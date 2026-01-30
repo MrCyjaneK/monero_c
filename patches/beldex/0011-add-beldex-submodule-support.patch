@@ -1,7 +1,7 @@
 From 713253bf3b88816d8f73208e1106275877c47ec8 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
 Date: Mon, 12 Jan 2026 06:08:13 +0000
-Subject: [PATCH 11/16] add beldex submodule support
+Subject: [PATCH 11/17] add beldex submodule support
 
 ---
  CMakeLists.txt                   | 4 ++--
