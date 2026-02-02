@@ -164,7 +164,7 @@ elseif(${MONERO_FLAVOR} STREQUAL "beldex")
         )
     endif()
 
-    if(ANDROID)
+    if(ANDROID OR APPLE)
         set(DEPENDS_ROOT
             "${CMAKE_SOURCE_DIR}/../contrib/depends/${HOST_ABI}"
         )
