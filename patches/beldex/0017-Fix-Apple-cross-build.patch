@@ -1,0 +1,58 @@
+From 12404f06942b5ccc28fca844ac5dd05a8e42fa1f Mon Sep 17 00:00:00 2001
+From: victor-tucci <victor.tucci@beldex.io>
+Date: Sat, 31 Jan 2026 12:06:19 +0000
+Subject: [PATCH 17/18] Fix Apple cross-build
+
+---
+ CMakeLists.txt            | 13 +++++++++++--
+ src/crypto/CMakeLists.txt |  1 +
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9bd3a29df..17ea15023 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -48,7 +48,7 @@ cmake_minimum_required(VERSION 3.10)
+ message(STATUS "CMake version ${CMAKE_VERSION}")
+ 
+ # Has to be set before `project()`, and ignored on non-macos:
+-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15 CACHE STRING "macOS deployment target (Apple clang only)")
++set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0 CACHE STRING "macOS deployment target (Apple clang only)")
+ 
+ project(beldex
+     VERSION 7.0.0
+@@ -828,9 +828,18 @@ elseif(DRAGONFLY)
+ elseif(CMAKE_SYSTEM_NAME MATCHES "(SunOS|Solaris)")
+   target_link_libraries(extra INTERFACE socket nsl resolv)
+ elseif(APPLE)
++  target_link_libraries(extra INTERFACE "-framework Foundation -framework SystemConfiguration -framework IOKit")
++  if (NOT IOS)
++    target_link_libraries(extra INTERFACE " -framework ApplicationServices -framework AppKit")
++  endif()
+   find_library(COREFOUNDATION CoreFoundation)
++  if (COREFOUNDATION)
++    target_link_libraries(extra INTERFACE ${COREFOUNDATION})
++  endif()
+   find_library(IOKIT IOKit)
+-  target_link_libraries(extra INTERFACE ${IOKIT} ${COREFOUNDATION})
++  if (IOKIT)
++    target_link_libraries(extra INTERFACE ${IOKIT})
++  endif()
+ elseif(NOT (MSVC OR APPLE OR OPENBSD OR ANDROID))
+   find_library(RT rt)
+   target_link_libraries(extra INTERFACE rt)
+diff --git a/src/crypto/CMakeLists.txt b/src/crypto/CMakeLists.txt
+index 466cb1270..a2bb8b0fd 100755
+--- a/src/crypto/CMakeLists.txt
++++ b/src/crypto/CMakeLists.txt
+@@ -101,6 +101,7 @@ if (ARCH STREQUAL "armv8-a" AND (CMAKE_CXX_COMPILER_ID MATCHES Clang OR CMAKE_CX
+   if (COMPILER_SUPPORTS_PLUS_CRYPTO)
+     set_source_files_properties(cn_heavy_hash_hard_arm.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+   endif()
++  set_source_files_properties(cn_heavy_hash_hard_arm.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+ endif()
+ 
+ 
+-- 
+2.25.1
+

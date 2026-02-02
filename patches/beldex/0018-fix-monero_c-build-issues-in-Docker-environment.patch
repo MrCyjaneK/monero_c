@@ -1,7 +1,7 @@
-From 0d9582d3e9393ddadb93ed30cd96a709a72a939b Mon Sep 17 00:00:00 2001
+From ecc8d38e8e6a10ea3e43051e1036550265481a3d Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Fri, 30 Jan 2026 10:22:10 +0000
-Subject: [PATCH 16/17] fix monero_c build issues in Docker environment
+Date: Sat, 31 Jan 2026 12:07:27 +0000
+Subject: [PATCH 18/18] fix monero_c build issues in Docker environment
 
 ---
  CMakeLists.txt                | 20 ++++++++++++++++++++
@@ -10,7 +10,7 @@ Subject: [PATCH 16/17] fix monero_c build issues in Docker environment
  3 files changed, 34 insertions(+), 2 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9bd3a29df..7fdc89600 100755
+index 17ea15023..f876f0ae1 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -85,6 +85,26 @@ if(ANDROID)
@@ -41,7 +41,7 @@ index 9bd3a29df..7fdc89600 100755
  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough")
  
 diff --git a/src/crypto/CMakeLists.txt b/src/crypto/CMakeLists.txt
-index 466cb1270..ec1028276 100755
+index a2bb8b0fd..d45b92b4f 100755
 --- a/src/crypto/CMakeLists.txt
 +++ b/src/crypto/CMakeLists.txt
 @@ -93,6 +93,13 @@ if(IPO_ENABLED AND (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQU
