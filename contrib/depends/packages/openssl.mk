@@ -3,6 +3,7 @@ $(package)_version=3.0.13
 $(package)_download_path=https://www.openssl.org/source
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
 $(package)_sha256_hash=88525753f79d3bec27d2fa7c66aa0b92b3aa9498dafd93d7cfa4b3780cdae313
+is_ios := $(findstring apple-ios,$(HOST))
 
 define $(package)_set_vars
 $(package)_config_env=AR="$($(package)_ar)" ARFLAGS=$($(package)_arflags) RANLIB="$($(package)_ranlib)" CC="$($(package)_cc)"
@@ -49,6 +50,27 @@ $(package)_config_opts_x86_64_darwin=darwin64-x86_64-cc
 $(package)_config_opts_x86_64_mingw32=mingw64
 $(package)_config_opts_i686_mingw32=mingw
 $(package)_config_opts_x86_64_freebsd=BSD-x86_64
+
+ifneq ($(is_ios),)
+
+  IOS_SDK := $(shell xcrun --sdk iphoneos --show-sdk-path)
+
+  $(package)_cflags = -O2 -fPIC \
+    -target aarch64-apple-ios \
+    -miphoneos-version-min=$(IOS_MIN_VERSION) \
+    -isysroot $(IOS_SDK)
+
+  $(package)_config_env = \
+    CC="clang $($(package)_cflags)" \
+    AR="$($(package)_ar)" \
+    RANLIB="$($(package)_ranlib)"
+
+  $(package)_config_opts += \
+    ios64-cross \
+    no-shared no-dso no-tests no-zlib
+
+endif
+
 endef
 
 define $(package)_preprocess_cmds
