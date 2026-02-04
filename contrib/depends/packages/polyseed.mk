@@ -5,9 +5,17 @@ $(package)_download_file=v$($(package)_version).tar.gz
 $(package)_file_name=$(package)-$($(package)_version).tar.gz
 $(package)_sha256_hash=7f5c583a1f48ee6d63174dd1f1485d00b02d76d6df0181bc42c54558502c8443
 
-define $(package)_config_cmds
-    CC="$($(package)_cc)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DSTATIC=ON .
-endef
+is_ios     := $(findstring apple-ios,$(HOST))
+
+ifneq ($(is_ios),)
+    define $(package)_config_cmds
+        CC="$($(package)_cc)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DCMAKE_OSX_SYSROOT=$(IOS_SDK) -DCMAKE_OSX_DEPLOYMENT_TARGET=$(IOS_MIN_VERSION) -DSTATIC=ON .
+    endef
+else
+    define $(package)_config_cmds
+        CC="$($(package)_cc)" cmake -DCMAKE_INSTALL_PREFIX="$(host_prefix)" -DSTATIC=ON .
+    endef
+endif
 
 define $(package)_set_vars
   $(package)_build_opts=CC="$($(package)_cc)"
