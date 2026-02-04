@@ -1,6 +1,6 @@
-From ecc8d38e8e6a10ea3e43051e1036550265481a3d Mon Sep 17 00:00:00 2001
+From 4f0df0a7320e7c4238ec60e98591d05a92243760 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Sat, 31 Jan 2026 12:07:27 +0000
+Date: Wed, 4 Feb 2026 05:51:39 +0000
 Subject: [PATCH 18/18] fix monero_c build issues in Docker environment
 
 ---
@@ -10,7 +10,7 @@ Subject: [PATCH 18/18] fix monero_c build issues in Docker environment
  3 files changed, 34 insertions(+), 2 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 17ea15023..f876f0ae1 100755
+index 495a018c5..8d8b1045e 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -85,6 +85,26 @@ if(ANDROID)

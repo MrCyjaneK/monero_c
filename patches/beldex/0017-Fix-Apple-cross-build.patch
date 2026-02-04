@@ -1,6 +1,6 @@
-From 12404f06942b5ccc28fca844ac5dd05a8e42fa1f Mon Sep 17 00:00:00 2001
+From bcc883785cf849f2604b461f8ef214d772a1187b Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Sat, 31 Jan 2026 12:06:19 +0000
+Date: Wed, 4 Feb 2026 05:50:04 +0000
 Subject: [PATCH 17/18] Fix Apple cross-build
 
 ---
@@ -9,7 +9,7 @@ Subject: [PATCH 17/18] Fix Apple cross-build
  2 files changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9bd3a29df..17ea15023 100755
+index 9bd3a29df..495a018c5 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -48,7 +48,7 @@ cmake_minimum_required(VERSION 3.10)
@@ -27,7 +27,7 @@ index 9bd3a29df..17ea15023 100755
  elseif(APPLE)
 +  target_link_libraries(extra INTERFACE "-framework Foundation -framework SystemConfiguration -framework IOKit")
 +  if (NOT IOS)
-+    target_link_libraries(extra INTERFACE " -framework ApplicationServices -framework AppKit")
++    target_link_libraries(extra INTERFACE "-framework ApplicationServices -framework AppKit")
 +  endif()
    find_library(COREFOUNDATION CoreFoundation)
 +  if (COREFOUNDATION)
