@@ -598,7 +598,7 @@ jobs:
       - name: Update comment
         continue-on-error: true
         if: steps.fc.outcome == 'success'
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{steps.get_issue_number.outputs.result}}
@@ -608,7 +608,7 @@ jobs:
       - name: Create comment
         continue-on-error: true
         if: steps.fc.outcome == 'failure'
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           issue-number: ${{steps.get_issue_number.outputs.result}}
           body: |
