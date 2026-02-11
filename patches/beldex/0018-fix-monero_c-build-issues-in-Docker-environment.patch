@@ -1,55 +1,48 @@
-From 4f0df0a7320e7c4238ec60e98591d05a92243760 Mon Sep 17 00:00:00 2001
+From 1e65d007f55981ea6ac019f548d20ecc87cca0d1 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Wed, 4 Feb 2026 05:51:39 +0000
+Date: Wed, 11 Feb 2026 13:16:39 +0000
 Subject: [PATCH 18/18] fix monero_c build issues in Docker environment
 
 ---
- CMakeLists.txt                | 20 ++++++++++++++++++++
- src/crypto/CMakeLists.txt     |  7 +++++++
+ CMakeLists.txt                | 12 ++++++++++++
+ src/crypto/CMakeLists.txt     |  8 ++++++++
  src/p2p/p2p_protocol_defs.cpp |  9 +++++++--
- 3 files changed, 34 insertions(+), 2 deletions(-)
+ 3 files changed, 27 insertions(+), 2 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 495a018c5..8d8b1045e 100755
+index 495a018c5..a8c170419 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -85,6 +85,26 @@ if(ANDROID)
+@@ -85,6 +85,18 @@ if(ANDROID)
    add_compile_options(-Wno-unused-command-line-argument -Wno-error -Wno-cpp -Wno-error=cpp -Wno-unused-private-field -Wno-unused-lambda-capture -Wno-unused-result -Wno-string-plus-int -fstack-clash-protection -Wno-shift-count-overflow -Wno-deprecated-copy)
  endif()
  
-+include(CheckCXXCompilerFlag)
-+include(CheckCCompilerFlag)
++if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
++    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14)
++        message(STATUS "GCC 14+ detected — applying compatibility flags")
 +
-+# ---- C++ flags ----
-+check_cxx_compiler_flag(-Wno-error=Wno-dangling-reference HAS_NO_DANGLING_REF)
-+if (HAS_NO_DANGLING_REF)
-+  add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-error=Wno-dangling-reference>)
-+endif()
-+
-+check_cxx_compiler_flag(-Wno-error=Wno-tautological-compare HAS_TAUTO_COMPARE)
-+if (HAS_TAUTO_COMPARE)
-+  add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-Wno-error=Wno-tautological-compare>)
-+endif()
-+
-+# ---- C flags ----
-+check_c_compiler_flag(-Wno-error=Wno-unused-result HAS_UNUSED_RESULT)
-+if (HAS_UNUSED_RESULT)
-+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wno-error=Wno-unused-result>)
++        add_compile_options(
++            -Wno-dangling-reference
++            -Wno-tautological-compare
++            -Wno-unused-result
++        )
++    endif()
 +endif()
 +
  # Add this line to suppress implicit-fallthrough warnings
  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough")
  
 diff --git a/src/crypto/CMakeLists.txt b/src/crypto/CMakeLists.txt
-index a2bb8b0fd..d45b92b4f 100755
+index a2bb8b0fd..37c20554b 100755
 --- a/src/crypto/CMakeLists.txt
 +++ b/src/crypto/CMakeLists.txt
-@@ -93,6 +93,13 @@ if(IPO_ENABLED AND (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQU
+@@ -93,6 +93,14 @@ if(IPO_ENABLED AND (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQU
    set_target_properties(cncrypto PROPERTIES INTERPROCEDURAL_OPTIMIZATION OFF)
  endif()
  
 +if (CMAKE_C_COMPILER_ID STREQUAL GNU OR CMAKE_C_COMPILER_ID MATCHES Clang)
-+  check_c_compiler_flag(-Wno-error=Wcalloc-transposed-args HAS_CALLOC_TRANSPOSED_ARGS)
++  include(CheckCCompilerFlag)
++  check_c_compiler_flag(-Wno-error=calloc-transposed-args HAS_CALLOC_TRANSPOSED_ARGS)
 +  if (HAS_CALLOC_TRANSPOSED_ARGS)
 +    target_compile_options(cncrypto PRIVATE -Wno-error=calloc-transposed-args)
 +  endif()
