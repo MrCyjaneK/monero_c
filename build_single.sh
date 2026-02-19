@@ -55,19 +55,16 @@ fi
 cd $(dirname $0)
 WDIR=$PWD
 pushd contrib/depends
-    if [[ -d $HOST_ABI ]];
-    then
-        echo "Not building depends, directory exists"
-    else
-        env -i PATH="$PATH" CC=gcc CXX=g++ make "$NPROC" HOST="$HOST_ABI" DEPENDS_UNTRUSTED_FAST_BUILDS=$DEPENDS_UNTRUSTED_FAST_BUILDS
-    fi
+    env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI"
 popd
+source contrib/depends/$HOST_ABI/_source_me
+export PATH="$(PWD)/contrib/depends/$HOST_ABI/native/bin:$PATH"
 
-buildType=Debug
+buildType=Release
 
 pushd ${repo}_libwallet2_api_c
     rm -rf build/${HOST_ABI} || true
-    mkdir -p build/${HOST_ABI} -p
+    mkdir -p build/${HOST_ABI}
     if [[ "$repo" == "zano" ]];
     then
        EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
@@ -94,17 +91,14 @@ pushd release/$repo
     else
         APPENDIX="${APPENDIX}so"
     fi
-    xz -ek ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}
-    mv ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX}.xz ${HOST_ABI}_libwallet2_api_c.${APPENDIX}.xz
+    mv ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX} ${HOST_ABI}_libwallet2_api_c.${APPENDIX}
     # Extra libraries
     if [[ "$HOST_ABI" == "x86_64-w64-mingw32" || "$HOST_ABI" == "i686-w64-mingw32" ]];
     then
         cp /usr/${HOST_ABI}/lib/libwinpthread-1.dll ${HOST_ABI}_libwinpthread-1.dll
         rm ${HOST_ABI}_libwinpthread-1.dll.xz || true
-        xz -ek ${HOST_ABI}_libwinpthread-1.dll
         ####
         cp /usr/lib/gcc/${HOST_ABI}/*-posix/libssp-0.dll ${HOST_ABI}_libssp-0.dll
         rm ${HOST_ABI}_libssp-0.dll.xz || true
-        xz -ek ${HOST_ABI}_libssp-0.dll
     fi
 popd

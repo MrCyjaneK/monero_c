@@ -1,8 +1,59 @@
+#!/bin/bash
+
+cd $(dirname $0);
+
+outfile="$1";
+
+function usage {
+    echo "Usage: HOST=$(gcc -dumpmachine) $0 outfile";
+}
+
+if [[ "x$outfile" == "x" ]];
+then
+    usage
+    echo "outfile not specified"
+    exit 1;
+fi
+
+if [[ "x$HOST" == "x" ]];
+then
+    usage
+    echo "HOST env missing"
+    exit 2
+fi
+
+outdir=$(dirname $outfile)
+if [[ ! -d "$outdir" ]];
+then
+    usage
+    echo "$outdir doesn't exist"
+    exit 3
+fi
+
+set -x
+source $HOST/_source_me
+
+sed -e "s|@HOST@|$TARGET|g" \
+    -e "s|@CC@|$CC|g" \
+    -e "s|@CXX@|$CXX|g" \
+    -e "s|@AR@|$AR|g" \
+    -e "s|@RANLIB@|$RANLIB|g" \
+    -e "s|@NM@|$NM|g" \
+    -e "s|@STRIP@|$STRIP|g" \
+    -e "s|@CFLAGS@|$CFLAGS|g" \
+    -e "s|@CXXFLAGS@|$CXXFLAGS|g" \
+    -e "s|@CPPFLAGS@|$CPPFLAGS|g" \
+    -e "s|@LDFLAGS@|$LDFLAGS|g" \
+    -e "s|@release_type@|Release|g" \
+    -e "s|@build_tests@|OFF|g" \
+    -e "s|@cmake_system_name@|$CMAKE_SYSTEM_NAME|g" \
+    -e "s|@prefix@|$PREFIX|g" \
+    -e "s|@arch@|$ARCH|g" > $outfile <<EOF
 cmake_minimum_required(VERSION 3.13)  # Ensure CMake version supports CMP0077
 cmake_policy(SET CMP0077 NEW)         # Ensure 'option' honors normal variables
 
 # Set the system name to one of Android, Darwin, iOS, FreeBSD, Linux, or Windows
-SET(CMAKE_SYSTEM_NAME @depends@)
+SET(CMAKE_SYSTEM_NAME @cmake_system_name@)
 SET(CMAKE_SYSTEM_PROCESSOR @arch@)
 SET(CMAKE_BUILD_TYPE @release_type@)
 
@@ -19,7 +70,7 @@ SET(ARCH "default")
 SET(BUILD_TESTS @build_tests@)
 SET(TREZOR_DEBUG @build_tests@)
 
-# where is the target environment 
+# where is the target environment
 SET(CMAKE_FIND_ROOT_PATH @prefix@ /usr)
 
 SET(ENV{PKG_CONFIG_PATH} @prefix@/lib/pkgconfig)
@@ -87,15 +138,15 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     SET(BUILD_TAG "mac-x64")
     SET(CMAKE_OSX_ARCHITECTURES "x86_64")
   endif()
-  SET(_CMAKE_TOOLCHAIN_PREFIX @prefix@/native/bin/${CONF_TRIPLE}-)
+  SET(_CMAKE_TOOLCHAIN_PREFIX @prefix@/native/bin/\${CONF_TRIPLE}-)
   SET(CMAKE_C_COMPILER @CC@)
-  SET(CMAKE_C_COMPILER_TARGET ${CLANG_TARGET})
-  SET(CMAKE_C_FLAGS_INIT -B${_CMAKE_TOOLCHAIN_PREFIX})
+  SET(CMAKE_C_COMPILER_TARGET \${CLANG_TARGET})
+  SET(CMAKE_C_FLAGS_INIT -B\${_CMAKE_TOOLCHAIN_PREFIX})
   SET(CMAKE_CXX_COMPILER @CXX@)
-  SET(CMAKE_CXX_COMPILER_TARGET ${CLANG_TARGET})
-  SET(CMAKE_CXX_FLAGS_INIT -B${_CMAKE_TOOLCHAIN_PREFIX})
-  SET(CMAKE_ASM_COMPILER_TARGET ${CLANG_TARGET})
-  SET(CMAKE_ASM-ATT_COMPILER_TARGET ${CLANG_TARGET})
+  SET(CMAKE_CXX_COMPILER_TARGET \${CLANG_TARGET})
+  SET(CMAKE_CXX_FLAGS_INIT -B\${_CMAKE_TOOLCHAIN_PREFIX})
+  SET(CMAKE_ASM_COMPILER_TARGET \${CLANG_TARGET})
+  SET(CMAKE_ASM-ATT_COMPILER_TARGET \${CLANG_TARGET})
   SET(APPLE True)
   SET(BUILD_64 ON)
   SET(BREW OFF)
@@ -206,3 +257,4 @@ endif()
 
 #Create a new global cmake flag that indicates building with depends
 set (DEPENDS true)
+EOF
