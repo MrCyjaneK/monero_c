@@ -231,7 +231,7 @@ jobs:
       fail-fast: false
       matrix:
         coin: [monero, wownero, zano]
-        target: [aarch64-apple-ios, aarch64-apple-iossimulator]
+        target: [aarch64-apple-ios, aarch64-apple-ios-simulator]
     name: ios build
     runs-on: macos-15
     steps:

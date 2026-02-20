@@ -85,7 +85,7 @@ pushd release/$repo
         # cp ../../$repo/build/${HOST_ABI}/external/polyseed/libpolyseed.${APPENDIX} ${HOST_ABI}_libpolyseed.${APPENDIX}
         # rm ${HOST_ABI}_libpolyseed.${APPENDIX}.xz || true
         # xz -e ${HOST_ABI}_libpolyseed.${APPENDIX}
-    elif [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" || "${HOST_ABI}" == "host-apple-darwin" || "${HOST_ABI}" == "x86_64-host-apple-darwin" || "${HOST_ABI}" == "aarch64-apple-darwin"  || "${HOST_ABI}" == "x86_64-apple-darwin" || "${HOST_ABI}" == "host-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios" || "${HOST_ABI}" == "aarch64-apple-iossimulator" ]];
+    elif [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" || "${HOST_ABI}" == "host-apple-darwin" || "${HOST_ABI}" == "x86_64-host-apple-darwin" || "${HOST_ABI}" == "aarch64-apple-darwin"  || "${HOST_ABI}" == "x86_64-apple-darwin" || "${HOST_ABI}" == "host-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios-simulator" ]];
     then
         APPENDIX="${APPENDIX}dylib"
     else
