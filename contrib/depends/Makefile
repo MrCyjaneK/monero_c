@@ -1,3 +1,5 @@
+.NOTPARALLEL:
+
 HOST ?=
 
 PACKAGES = native/cmake,native/python@3.14,native/git,native/_,boost,zeromq,zlib,unbound,sodium,openssl

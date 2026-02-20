@@ -1,0 +1,55 @@
+From d6679d3c35015fe6b32dd945f144edc4e5155515 Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Fri, 20 Feb 2026 08:03:01 +0100
+Subject: [PATCH] drop generate_translations_header.c requirement
+
+---
+ translations/CMakeLists.txt | 31 +++++++++++++++++++++++++------
+ 1 file changed, 25 insertions(+), 6 deletions(-)
+
+diff --git a/translations/CMakeLists.txt b/translations/CMakeLists.txt
+index 3b43360f8..55ba3cb96 100644
+--- a/translations/CMakeLists.txt
++++ b/translations/CMakeLists.txt
+@@ -69,13 +69,32 @@ else()
+   endif()
+ endif()
+ 
+-string(REPLACE ".ts" ".qm" qm_files "${ts_files}")
++file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/translation_files.h"
++"#ifndef TRANSLATION_FILES_H
++#define TRANSLATION_FILES_H
+ 
+-add_custom_command(TARGET generate_translations_header
+-  POST_BUILD
+-  COMMAND $<TARGET_FILE:generate_translations_header> ${qm_files}
+-  WORKING_DIRECTORY "${CMAKE_CURRENT_BIN_DIR}"
+-  COMMENT "Generating embedded translations header")
++#include <string>
++
++static const struct embedded_file {
++  const std::string *name;
++  const std::string *data;
++} embedded_files[] = {
++  {NULL, NULL}
++};
++
++static bool find_embedded_file(const std::string &name, std::string &data) {
++  const struct embedded_file *p;
++  for (p = embedded_files; p->name != NULL; p++) {
++    if (*p->name == name) {
++      data = *p->data;
++      return true;
++    }
++  }
++  return false;
++}
++
++#endif /* TRANSLATION_FILES_H */
++")
+ 
+ # export the generator target to a file, so it can be imported (see above) by another build
+ IF(NOT CMAKE_CROSSCOMPILING)
+-- 
+2.50.1 (Apple Git-155)
+
