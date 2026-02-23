@@ -1,7 +1,7 @@
 From 1e65d007f55981ea6ac019f548d20ecc87cca0d1 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
 Date: Wed, 11 Feb 2026 13:16:39 +0000
-Subject: [PATCH 18/18] fix monero_c build issues in Docker environment
+Subject: [PATCH 18/19] fix monero_c build issues in Docker environment
 
 ---
  CMakeLists.txt                | 12 ++++++++++++

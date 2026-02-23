@@ -1,7 +1,7 @@
 From 87b2ed587e18cb9eeafbf81019025ffb5c0f6f5c Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
 Date: Sat, 31 Jan 2026 11:40:32 +0000
-Subject: [PATCH 15/18] serialize cache to JSON
+Subject: [PATCH 15/19] serialize cache to JSON
 
 ---
  src/wallet/CMakeLists.txt           |  1 +

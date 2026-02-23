@@ -1,7 +1,7 @@
 From bcc883785cf849f2604b461f8ef214d772a1187b Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
 Date: Wed, 4 Feb 2026 05:50:04 +0000
-Subject: [PATCH 17/18] Fix Apple cross-build
+Subject: [PATCH 17/19] Fix Apple cross-build
 
 ---
  CMakeLists.txt            | 13 +++++++++++--

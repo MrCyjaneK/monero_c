@@ -1,7 +1,7 @@
 From 75e60ca07411e469deaefb597eb23e0f6f02a68c Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
 Date: Mon, 22 Dec 2025 07:21:59 +0000
-Subject: [PATCH 01/18] wallet enhancement
+Subject: [PATCH 01/19] wallet enhancement
 
 ---
  contrib/epee/include/epee/scope_leaver.h |  22 ++++

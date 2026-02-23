@@ -1,7 +1,7 @@
 From cf0dc51993e36c3daf4391c5ff3074fd15fb67d2 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
 Date: Sat, 31 Jan 2026 11:55:49 +0000
-Subject: [PATCH 16/18] add build-time patch packages for loki-mq,
+Subject: [PATCH 16/19] add build-time patch packages for loki-mq,
  oxen-encoding, and uSockets
 
 ---
