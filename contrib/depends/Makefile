@@ -3,7 +3,7 @@
 HOST ?=
 
 PACKAGES = native/cmake,native/python@3.14,native/git,native/_,native/make,native/cmake-toolchain,boost,zeromq,unbound,sodium,openssl,zlib
-SIMPLYBS_HASH = 9adf984c68dd37da38d4e9aa905610dda54be7a4
+SIMPLYBS_HASH = 70ca89de2de7a0683b43b8a2cf7d95f925edf85c
 
 all: simplybs $(if $(HOST),sbs-build-$(HOST),)
 	@if [ -z "$(HOST)" ]; then \
