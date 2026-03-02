@@ -3,7 +3,7 @@
 HOST ?=
 
 PACKAGES = native/cmake,native/python@3.14,native/git,native/_,native/make,native/cmake-toolchain,boost,zeromq,unbound,sodium,openssl,zlib
-SIMPLYBS_HASH = 70ca89de2de7a0683b43b8a2cf7d95f925edf85c
+SIMPLYBS_HASH = d1f3c85a5b2dd2e612a4d3e431d8d0bc2cb399fe
 
 all: simplybs $(if $(HOST),sbs-build-$(HOST),)
 	@if [ -z "$(HOST)" ]; then \
@@ -11,7 +11,15 @@ all: simplybs $(if $(HOST),sbs-build-$(HOST),)
 		exit 1; \
 	fi
 
-.PHONY: simplybs sbs-build-%
+.PHONY: simplybs sbs-build-% sps-cleanup
+
+sbs-cleanup:
+	@rm -rf simplybs/_
+	@rm -rf simplybs/_native
+	@rm -rf *-*-*
+	@rm -rf simplybs/.buildlib/*_*/work
+	@rm -rf simplybs/.buildlib/*_*/staging
+	@rm -rf simplybs/.buildlib/source
 
 simplybs:
 	git clone https://github.com/mrcyjanek/simplybs || true

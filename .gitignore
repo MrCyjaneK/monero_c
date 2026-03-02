@@ -3,3 +3,7 @@ build/
 tests/dependencies
 tests/wallets
 .DS_Store
+contrib/depends/*-*-*
+contrib/depends/_
+contrib/depends/simplybs
+*_libwallet2_api_c/build

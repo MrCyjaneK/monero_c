@@ -59,7 +59,7 @@ pushd contrib/depends
 popd
 source contrib/depends/$HOST_ABI/_source_me
 export PATH="$(PWD)/contrib/depends/$HOST_ABI/native/bin:$PATH"
-
+exit 13
 buildType=Release
 
 pushd ${repo}_libwallet2_api_c
