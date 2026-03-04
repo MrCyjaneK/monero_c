@@ -57,6 +57,7 @@ WDIR=$PWD
 pushd contrib/depends
     env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI"
 popd
+# source contrib/depends/_native/_source_me
 source contrib/depends/$HOST_ABI/_source_me
 export PATH="$(PWD)/contrib/depends/$HOST_ABI/native/bin:$PATH"
 exit 13

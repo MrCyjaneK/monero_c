@@ -2,8 +2,8 @@
 
 HOST ?=
 
-PACKAGES = native/cmake,native/python@3.14,native/git,native/_,native/make,native/cmake-toolchain,boost,zeromq,unbound,sodium,openssl,zlib
-SIMPLYBS_HASH = d1f3c85a5b2dd2e612a4d3e431d8d0bc2cb399fe
+PACKAGES = native/cmake,native/python@3.14,native/git,native/_,native/make,native/cmake-toolchain,icu4c,boost@1_90_0,zeromq,unbound,sodium,openssl,libiconv,zlib
+SIMPLYBS_HASH = 0414efe7204404aa50911eaaeab885910c1ef313
 
 all: simplybs $(if $(HOST),sbs-build-$(HOST),)
 	@if [ -z "$(HOST)" ]; then \
@@ -28,8 +28,8 @@ simplybs:
 	cd simplybs && git reset --hard
 
 sbs-build-%:
-	# cd simplybs && env SIMPLYBS_ENV_DIR=$(PWD)/$* go run . -cleanup
-	cd simplybs && env SIMPLYBS_ENV_DIR=$(PWD)/$* go run . -host $* -package $(PACKAGES) -build
+	# cd simplybs && env SIMPLYBS_ENV_NATIVE_DIR=$(PWD)/_native SIMPLYBS_ENV_DIR=$(PWD)/$* go run . -cleanup
+	cd simplybs && env SIMPLYBS_NATIVE_ENV_DIR=$(PWD)/_native SIMPLYBS_ENV_DIR=$(PWD)/$* go run . -host $* -package $(PACKAGES) -build
 	cd simplybs && rm -rf $(PWD)/$*
-	cd simplybs && env SIMPLYBS_ENV_DIR=$(PWD)/$* go run . -host $* -package $(PACKAGES) -extract
+	cd simplybs && env SIMPLYBS_NATIVE_ENV_DIR=$(PWD)/_native SIMPLYBS_ENV_DIR=$(PWD)/$* go run . -host $* -package $(PACKAGES) -extract
 	env HOST=$* ./gen_toolchain.cmake.sh $*/share/toolchain.cmake

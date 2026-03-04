@@ -56,6 +56,7 @@ cmake_policy(SET CMP0077 NEW)         # Ensure 'option' honors normal variables
 SET(CMAKE_SYSTEM_NAME @cmake_system_name@)
 SET(CMAKE_SYSTEM_PROCESSOR @arch@)
 SET(CMAKE_BUILD_TYPE @release_type@)
+SET(CMAKE_CXX_STANDARD 14)
 
 OPTION(STATIC "Link libraries statically" ON)
 OPTION(TREZOR_DEBUG "Main trezor debugging switch" OFF)
@@ -246,6 +247,9 @@ endif()
 
 link_directories(@prefix@/lib)
 include_directories(@prefix@/include)
+if(EXISTS "@prefix@/include/c++/15.2.0")
+    include_directories("@prefix@/include/c++/15.2.0")
+endif()
 include_directories(@prefix@/include/wownero_seed)
 
 add_definitions(-DPOLYSEED_STATIC=ON)
