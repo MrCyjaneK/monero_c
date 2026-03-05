@@ -1,6 +1,6 @@
-From 713253bf3b88816d8f73208e1106275877c47ec8 Mon Sep 17 00:00:00 2001
+From b832990ddeacaea8abb7436e56656bdc5f1b9ba6 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 12 Jan 2026 06:08:13 +0000
+Date: Thu, 5 Mar 2026 07:06:06 +0000
 Subject: [PATCH 11/19] add beldex submodule support
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH 11/19] add beldex submodule support
  5 files changed, 13 insertions(+), 8 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index b9cb9b35d..fdfc91b42 100755
+index 0b78a11d6..fe53b88fc 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -32,7 +32,7 @@
@@ -102,10 +102,10 @@ index 83b64813a..39cf759ee 100755
  set_property(TARGET wallet_api PROPERTY EXCLUDE_FROM_ALL TRUE)
  
 diff --git a/src/wallet/wallet_rpc_server.cpp b/src/wallet/wallet_rpc_server.cpp
-index c1f9d9e21..661ef1c99 100755
+index 5b02c868e..20d4c324f 100755
 --- a/src/wallet/wallet_rpc_server.cpp
 +++ b/src/wallet/wallet_rpc_server.cpp
-@@ -1102,7 +1102,7 @@ namespace tools
+@@ -1113,7 +1113,7 @@ namespace tools
        if (!hf_version)
          throw wallet_rpc_error{error_code::HF_QUERY_FAILED, tools::ERR_MSG_NETWORK_VERSION_QUERY_FAILED};
        cryptonote::beldex_construct_tx_params tx_params = tools::wallet2::construct_params(*hf_version, cryptonote::txtype::standard, priority);

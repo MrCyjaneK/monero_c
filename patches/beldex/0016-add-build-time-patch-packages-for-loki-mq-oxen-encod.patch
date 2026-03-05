@@ -1,6 +1,6 @@
-From cf0dc51993e36c3daf4391c5ff3074fd15fb67d2 Mon Sep 17 00:00:00 2001
+From 5839920c4785ef2e7b44109d9966fed9aa2892aa Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Sat, 31 Jan 2026 11:55:49 +0000
+Date: Thu, 5 Mar 2026 07:12:49 +0000
 Subject: [PATCH 16/19] add build-time patch packages for loki-mq,
  oxen-encoding, and uSockets
 

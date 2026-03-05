@@ -1,6 +1,6 @@
-From 83012ec10d8e402fc8a8c2a03222807ed59491e9 Mon Sep 17 00:00:00 2001
+From ea5dafb83881270a27d82c438ef435c40a47d820 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 8 Jan 2026 10:17:45 +0000
+Date: Thu, 5 Mar 2026 06:49:43 +0000
 Subject: [PATCH 02/19] wallet: background sync with just the view key
 
 - When background syncing, the wallet wipes the spend key
@@ -34,7 +34,7 @@ cache.
  src/serialization/binary_archive.h            |    6 +-
  src/serialization/container.h                 |    2 +-
  src/serialization/containers.h                |   63 +
- src/serialization/serialization.h             |  228 ++++
+ src/serialization/serialization.h             |  174 +++
  src/simplewallet/simplewallet.cpp             |  196 ++-
  src/simplewallet/simplewallet.h               |    1 +
  src/wallet/api/wallet.cpp                     |  208 +++-
@@ -42,7 +42,7 @@ cache.
  src/wallet/api/wallet2_api.h                  |   42 +
  src/wallet/api/wallet_manager.cpp             |    2 +-
  src/wallet/wallet2.cpp                        | 1079 +++++++++++++++--
- src/wallet/wallet2.h                          |  296 ++++-
+ src/wallet/wallet2.h                          |  298 ++++-
  src/wallet/wallet_errors.h                    |   39 +
  src/wallet/wallet_rpc_server.cpp              |  133 +-
  src/wallet/wallet_rpc_server.h                |    4 +-
@@ -53,7 +53,7 @@ cache.
  tests/functional_tests/wallet.py              |    3 +
  tests/unit_tests/wipeable_string.cpp          |   12 +
  utils/python-rpc/framework/wallet.py          |   42 +
- 26 files changed, 2774 insertions(+), 95 deletions(-)
+ 26 files changed, 2721 insertions(+), 96 deletions(-)
  create mode 100644 src/serialization/containers.h
 
 diff --git a/contrib/epee/include/epee/scope_leaver.h b/contrib/epee/include/epee/scope_leaver.h
@@ -233,7 +233,7 @@ index 000000000..f169f2344
 +    return serialization::detail::serialize_container(ar, c);
 +}
 diff --git a/src/serialization/serialization.h b/src/serialization/serialization.h
-index 9be9099a8..d82d98f6e 100755
+index 9be9099a8..158aa55c9 100755
 --- a/src/serialization/serialization.h
 +++ b/src/serialization/serialization.h
 @@ -154,6 +154,11 @@
@@ -342,75 +342,21 @@ index 9be9099a8..d82d98f6e 100755
  // Helper bool used in the serialize() fallback to annotate what went wrong.  (Templatized so that
  // the value relies on the dependent type T to defer a static_assert).
  template <typename T>
-@@ -346,6 +438,124 @@ void serialize(Archive& ar, T& v) {
+@@ -346,6 +438,70 @@ void serialize(Archive& ar, T& v) {
    done(ar);
  }
  
-+// generic serializer for unordered_map
++// serialize std::pair<K, V>
 +template <class Archive, class K, class V>
-+inline void serialize(Archive& ar, std::unordered_map<K, V>& m)
++void value(Archive &ar, std::pair<K, V> &p)
 +{
-+    size_t size = m.size();
-+    auto array_scope = ar.begin_array(size); // RAII handle for array
-+
-+    if constexpr (Archive::is_deserializer)
-+    {
-+        m.clear();
-+        for (size_t i = 0; i < size; ++i)
-+        {
-+            auto obj_scope = ar.begin_object();
-+            K k;
-+            V v;
-+            field(ar, "key", k);
-+            field(ar, "value", v);
-+            m.emplace(std::move(k), std::move(v));
-+        }
-+    }
-+    else
-+    {
-+        for (auto &kv : m)
-+        {
-+            auto obj_scope = ar.begin_object();
-+            field(ar, "key", const_cast<K&>(kv.first));
-+            field(ar, "value", kv.second);
-+        }
-+    }
-+}
-+
-+// generic serializer for unordered_multimap
-+template <class Archive, class K, class V>
-+inline void serialize(Archive& ar, std::unordered_multimap<K, V>& m)
-+{
-+    size_t size = m.size();
-+    auto array_scope = ar.begin_array(size); // RAII array handle
-+
-+    if constexpr (Archive::is_deserializer)
-+    {
-+        m.clear();
-+        for (size_t i = 0; i < size; ++i)
-+        {
-+            auto obj_scope = ar.begin_object();
-+            K k;
-+            V v;
-+            field(ar, "key", k);
-+            field(ar, "value", v);
-+            m.emplace(std::move(k), std::move(v));
-+        }
-+    }
-+    else
-+    {
-+        for (auto &kv : m)
-+        {
-+            auto obj_scope = ar.begin_object();
-+            field(ar, "key", const_cast<K&>(kv.first));
-+            field(ar, "value", kv.second);
-+        }
-+    }
++    value(ar, p.first);
++    value(ar, p.second);
 +}
 +
 +// serialize std::pair<const K, V>
 +template <class Archive, class K, class V>
-+inline void value(Archive &ar, std::pair<const K, V> &p)
++void value(Archive &ar, std::pair<const K, V> &p)
 +{
 +    K &key = const_cast<K &>(p.first);
 +    value(ar, key);
@@ -419,7 +365,7 @@ index 9be9099a8..d82d98f6e 100755
 +
 +// serialize std::map
 +template <class Archive, class K, class V>
-+inline void value(Archive &ar, std::map<K, V> &m)
++void value(Archive &ar, std::map<K, V> &m)
 +{
 +    size_t n = m.size();
 +    value(ar, n);
@@ -443,7 +389,7 @@ index 9be9099a8..d82d98f6e 100755
 +
 +// serialize std::multimap
 +template <class Archive, class K, class V>
-+inline void value(Archive &ar, std::multimap<K, V> &m)
++void value(Archive &ar, std::multimap<K, V> &m)
 +{
 +    size_t n = m.size();
 +    value(ar, n);
@@ -467,7 +413,7 @@ index 9be9099a8..d82d98f6e 100755
  
  constexpr int _serialization_macro /*[[deprecated]]*/ = 0;
  
-@@ -422,6 +632,24 @@ void serialize_value(Archive &ar) { \
+@@ -422,6 +578,24 @@ void serialize_value(Archive &ar) { \
   */
  #define VARINT_FIELD_N(tag, val) ((void) serialization::_serialization_macro, serialization::field_varint(ar, tag, val));
  
@@ -3195,16 +3141,17 @@ index 5f5c22ef6..4d5169cf1 100755
    }
  
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 42595cebc..823d18361 100755
+index 42595cebc..0b97a4f50 100755
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -57,7 +57,15 @@
  #include "ringct/rctTypes.h"
  #include "ringct/rctOps.h"
  #include "checkpoints/checkpoints.h"
+-#include "serialization/pair.h"
 +#include "serialization/crypto.h"
 +#include "serialization/string.h"
- #include "serialization/pair.h"
++// #include "serialization/pair.h"
 +#include "serialization/containers.h"
 +#include "serialization/set.h"
 +#include "serialization/vector.h"
@@ -3780,7 +3727,7 @@ index 54c19d773..2da774411 100755
      void throw_wallet_ex(std::string&& loc, TArgs&&... args)
      {
 diff --git a/src/wallet/wallet_rpc_server.cpp b/src/wallet/wallet_rpc_server.cpp
-index 078aeed88..c1f9d9e21 100755
+index 23071cb02..5b02c868e 100755
 --- a/src/wallet/wallet_rpc_server.cpp
 +++ b/src/wallet/wallet_rpc_server.cpp
 @@ -63,6 +63,30 @@
@@ -3814,7 +3761,7 @@ index 078aeed88..c1f9d9e21 100755
  namespace
  {
    constexpr auto DEFAULT_AUTO_REFRESH_PERIOD = 20s;
-@@ -717,6 +741,7 @@ namespace tools
+@@ -728,6 +752,7 @@ namespace tools
    CREATE_ADDRESS::response wallet_rpc_server::invoke(CREATE_ADDRESS::request&& req)
    {
      require_open();
@@ -3822,7 +3769,7 @@ index 078aeed88..c1f9d9e21 100755
      CREATE_ADDRESS::response res{};
      {
        if (req.count < 1 || req.count > 64)
-@@ -746,6 +771,7 @@ namespace tools
+@@ -757,6 +782,7 @@ namespace tools
    LABEL_ADDRESS::response wallet_rpc_server::invoke(LABEL_ADDRESS::request&& req)
    {
      require_open();
@@ -3830,7 +3777,7 @@ index 078aeed88..c1f9d9e21 100755
      LABEL_ADDRESS::response res{};
      {
        m_wallet->set_subaddress_label(req.index, req.label);
-@@ -789,6 +815,7 @@ namespace tools
+@@ -800,6 +826,7 @@ namespace tools
    CREATE_ACCOUNT::response wallet_rpc_server::invoke(CREATE_ACCOUNT::request&& req)
    {
      require_open();
@@ -3838,7 +3785,7 @@ index 078aeed88..c1f9d9e21 100755
      CREATE_ACCOUNT::response res{};
      {
        m_wallet->add_subaddress_account(req.label);
-@@ -801,6 +828,7 @@ namespace tools
+@@ -812,6 +839,7 @@ namespace tools
    LABEL_ACCOUNT::response wallet_rpc_server::invoke(LABEL_ACCOUNT::request&& req)
    {
      require_open();
@@ -3846,7 +3793,7 @@ index 078aeed88..c1f9d9e21 100755
      LABEL_ACCOUNT::response res{};
      {
        m_wallet->set_subaddress_label({req.account_index, 0}, req.label);
-@@ -811,6 +839,7 @@ namespace tools
+@@ -822,6 +850,7 @@ namespace tools
    GET_ACCOUNT_TAGS::response wallet_rpc_server::invoke(GET_ACCOUNT_TAGS::request&& req)
    {
      require_open();
@@ -3854,7 +3801,7 @@ index 078aeed88..c1f9d9e21 100755
      GET_ACCOUNT_TAGS::response res{};
      const std::pair<std::map<std::string, std::string>, std::vector<std::string>> account_tags = m_wallet->get_account_tags();
      for (const auto& p : account_tags.first)
-@@ -831,6 +860,7 @@ namespace tools
+@@ -842,6 +871,7 @@ namespace tools
    TAG_ACCOUNTS::response wallet_rpc_server::invoke(TAG_ACCOUNTS::request&& req)
    {
      require_open();
@@ -3862,7 +3809,7 @@ index 078aeed88..c1f9d9e21 100755
      TAG_ACCOUNTS::response res{};
      {
        m_wallet->set_account_tag(req.accounts, req.tag);
-@@ -841,6 +871,7 @@ namespace tools
+@@ -852,6 +882,7 @@ namespace tools
    UNTAG_ACCOUNTS::response wallet_rpc_server::invoke(UNTAG_ACCOUNTS::request&& req)
    {
      require_open();
@@ -3870,7 +3817,7 @@ index 078aeed88..c1f9d9e21 100755
      UNTAG_ACCOUNTS::response res{};
      {
        m_wallet->set_account_tag(req.accounts, "");
-@@ -851,6 +882,7 @@ namespace tools
+@@ -862,6 +893,7 @@ namespace tools
    SET_ACCOUNT_TAG_DESCRIPTION::response wallet_rpc_server::invoke(SET_ACCOUNT_TAG_DESCRIPTION::request&& req)
    {
      require_open();
@@ -3878,7 +3825,7 @@ index 078aeed88..c1f9d9e21 100755
      SET_ACCOUNT_TAG_DESCRIPTION::response res{};
      {
        m_wallet->set_account_tag_description(req.tag, req.description);
-@@ -890,6 +922,8 @@ namespace tools
+@@ -901,6 +933,8 @@ namespace tools
    //------------------------------------------------------------------------------------------------------------------------------
    void wallet_rpc_server::validate_transfer(const std::list<wallet::transfer_destination>& destinations, const std::string& payment_id, std::vector<cryptonote::tx_destination_entry>& dsts, std::vector<uint8_t>& extra, bool at_least_one_destination)
    {
@@ -3887,7 +3834,7 @@ index 078aeed88..c1f9d9e21 100755
      crypto::hash8 integrated_payment_id = crypto::null_hash8;
      std::string extra_nonce;
      for (auto it = destinations.begin(); it != destinations.end(); it++)
-@@ -1200,6 +1234,8 @@ namespace tools
+@@ -1211,6 +1245,8 @@ namespace tools
      if(m_wallet->watch_only())
        throw wallet_rpc_error{error_code::WATCH_ONLY, "command not supported by watch-only wallet"};
  
@@ -3896,7 +3843,7 @@ index 078aeed88..c1f9d9e21 100755
      if (!oxenc::is_hex(req.unsigned_txset))
        throw wallet_rpc_error{error_code::BAD_HEX, "Failed to parse hex."};
      auto blob = oxenc::from_hex(req.unsigned_txset);
-@@ -1246,6 +1282,7 @@ namespace tools
+@@ -1257,6 +1293,7 @@ namespace tools
        throw wallet_rpc_error{error_code::WATCH_ONLY, "command not supported by watch-only wallet"};
      if(req.unsigned_txset.empty() && req.multisig_txset.empty())
        throw wallet_rpc_error{error_code::UNKNOWN_ERROR, "no txset provided"};
@@ -3904,7 +3851,7 @@ index 078aeed88..c1f9d9e21 100755
  
      std::vector <wallet::tx_construction_data> tx_constructions;
      if (!req.unsigned_txset.empty()) {
-@@ -1423,6 +1460,7 @@ namespace tools
+@@ -1434,6 +1471,7 @@ namespace tools
      require_open();
      SWEEP_DUST::response res{};
  
@@ -3912,7 +3859,7 @@ index 078aeed88..c1f9d9e21 100755
      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_unmixable_sweep_transactions();
  
      fill_response(ptx_vector, req.get_tx_keys, res.tx_key_list, res.amount_list, res.amounts_by_dest_list, res.fee_list, res.multisig_txset, res.unsigned_txset, req.do_not_relay, false /*flash*/,
-@@ -1778,6 +1816,7 @@ namespace tools
+@@ -1789,6 +1827,7 @@ namespace tools
          {
            if (m_wallet->watch_only())
              throw wallet_rpc_error{error_code::WATCH_ONLY, "The wallet is watch-only. Cannot retrieve seed."};
@@ -3920,7 +3867,7 @@ index 078aeed88..c1f9d9e21 100755
            if (!m_wallet->is_deterministic())
              throw wallet_rpc_error{error_code::NON_DETERMINISTIC, "The wallet is non-deterministic. Cannot display seed."};
            if (!m_wallet->get_seed(seed))
-@@ -1795,6 +1834,7 @@ namespace tools
+@@ -1806,6 +1845,7 @@ namespace tools
        {
            if (m_wallet->watch_only())
              throw wallet_rpc_error{error_code::WATCH_ONLY, "The wallet is watch-only. Cannot retrieve spend key."};
@@ -3928,7 +3875,7 @@ index 078aeed88..c1f9d9e21 100755
            res.key.reserve(64);
            const auto& ssk_data = m_wallet->get_account().get_keys().m_spend_secret_key.data;
            oxenc::to_hex(std::begin(ssk_data), std::end(ssk_data), std::back_inserter(res.key));
-@@ -1808,9 +1848,80 @@ namespace tools
+@@ -1819,9 +1859,80 @@ namespace tools
    RESCAN_BLOCKCHAIN::response wallet_rpc_server::invoke(RESCAN_BLOCKCHAIN::request&& req)
    {
      require_open();
@@ -4009,7 +3956,7 @@ index 078aeed88..c1f9d9e21 100755
    //------------------------------------------------------------------------------------------------------------------------------
    SIGN::response wallet_rpc_server::invoke(SIGN::request&& req)
    {
-@@ -1818,6 +1929,7 @@ namespace tools
+@@ -1829,6 +1940,7 @@ namespace tools
      if (m_wallet->watch_only())
        throw wallet_rpc_error{error_code::WATCH_ONLY, "Unable to sign a value using a watch-only wallet."};
  
@@ -4017,7 +3964,7 @@ index 078aeed88..c1f9d9e21 100755
      SIGN::response res{};
  
      res.signature = m_wallet->sign(req.data, {req.account_index, req.address_index});
-@@ -1844,6 +1956,7 @@ namespace tools
+@@ -1855,6 +1967,7 @@ namespace tools
    SET_TX_NOTES::response wallet_rpc_server::invoke(SET_TX_NOTES::request&& req)
    {
      require_open();
@@ -4025,7 +3972,7 @@ index 078aeed88..c1f9d9e21 100755
  
      if (req.txids.size() != req.notes.size())
        throw wallet_rpc_error{error_code::UNKNOWN_ERROR, "Different amount of txids and notes"};
-@@ -1881,6 +1994,7 @@ namespace tools
+@@ -1892,6 +2005,7 @@ namespace tools
    SET_ATTRIBUTE::response wallet_rpc_server::invoke(SET_ATTRIBUTE::request&& req)
    {
      require_open();
@@ -4033,7 +3980,7 @@ index 078aeed88..c1f9d9e21 100755
      m_wallet->set_attribute(req.key, req.value);
      return {};
    }
-@@ -1897,6 +2011,7 @@ namespace tools
+@@ -1908,6 +2022,7 @@ namespace tools
    GET_TX_KEY::response wallet_rpc_server::invoke(GET_TX_KEY::request&& req)
    {
      require_open();
@@ -4041,7 +3988,7 @@ index 078aeed88..c1f9d9e21 100755
      GET_TX_KEY::response res{};
  
      crypto::hash txid;
-@@ -1945,6 +2060,7 @@ namespace tools
+@@ -1956,6 +2071,7 @@ namespace tools
    GET_TX_PROOF::response wallet_rpc_server::invoke(GET_TX_PROOF::request&& req)
    {
      require_open();
@@ -4049,7 +3996,7 @@ index 078aeed88..c1f9d9e21 100755
      GET_TX_PROOF::response res{};
  
      crypto::hash txid;
-@@ -2007,6 +2123,7 @@ namespace tools
+@@ -2018,6 +2134,7 @@ namespace tools
    GET_RESERVE_PROOF::response wallet_rpc_server::invoke(GET_RESERVE_PROOF::request&& req)
    {
      require_open();
@@ -4057,7 +4004,7 @@ index 078aeed88..c1f9d9e21 100755
      GET_RESERVE_PROOF::response res{};
  
      std::optional<std::pair<uint32_t, uint64_t>> account_minreserve;
-@@ -2179,6 +2296,7 @@ namespace tools
+@@ -2190,6 +2307,7 @@ namespace tools
    EXPORT_OUTPUTS::response wallet_rpc_server::invoke(EXPORT_OUTPUTS::request&& req)
    {
      require_open();
@@ -4065,7 +4012,7 @@ index 078aeed88..c1f9d9e21 100755
      EXPORT_OUTPUTS::response res{};
      if (m_wallet->key_on_device())
        throw wallet_rpc_error{error_code::UNKNOWN_ERROR, "command not supported by HW wallet"};
-@@ -2223,6 +2341,7 @@ namespace tools
+@@ -2234,6 +2352,7 @@ namespace tools
      IMPORT_OUTPUTS::response res{};
      if (m_wallet->key_on_device())
        throw wallet_rpc_error{error_code::UNKNOWN_ERROR, "command not supported by HW wallet"};
@@ -4073,7 +4020,7 @@ index 078aeed88..c1f9d9e21 100755
  
      if (!oxenc::is_hex(req.outputs_data_hex))
        throw wallet_rpc_error{error_code::BAD_HEX, "Failed to parse hex."};
-@@ -2235,6 +2354,7 @@ namespace tools
+@@ -2246,6 +2365,7 @@ namespace tools
    EXPORT_KEY_IMAGES::response wallet_rpc_server::invoke(EXPORT_KEY_IMAGES::request&& req)
    {
      require_open();
@@ -4081,7 +4028,7 @@ index 078aeed88..c1f9d9e21 100755
      EXPORT_KEY_IMAGES::response res{};
      {
        std::pair<size_t, std::vector<std::pair<crypto::key_image, crypto::signature>>> ski = m_wallet->export_key_images(req.requested_only);
-@@ -2256,6 +2376,7 @@ namespace tools
+@@ -2267,6 +2387,7 @@ namespace tools
      IMPORT_KEY_IMAGES::response res{};
      if (!m_wallet->is_trusted_daemon())
        throw wallet_rpc_error{error_code::UNKNOWN_ERROR, "This command requires a trusted daemon."};
@@ -4089,7 +4036,7 @@ index 078aeed88..c1f9d9e21 100755
      {
        std::vector<std::pair<crypto::key_image, crypto::signature>> ski;
        ski.resize(req.signed_key_images.size());
-@@ -2303,6 +2424,7 @@ namespace tools
+@@ -2314,6 +2435,7 @@ namespace tools
    {
      require_open();
      GET_ADDRESS_BOOK_ENTRY::response res{};
@@ -4097,7 +4044,7 @@ index 078aeed88..c1f9d9e21 100755
      const auto ab = m_wallet->get_address_book();
      if (req.entries.empty())
      {
-@@ -2338,6 +2460,7 @@ namespace tools
+@@ -2349,6 +2471,7 @@ namespace tools
    ADD_ADDRESS_BOOK_ENTRY::response wallet_rpc_server::invoke(ADD_ADDRESS_BOOK_ENTRY::request&& req)
    {
      require_open();
@@ -4105,7 +4052,7 @@ index 078aeed88..c1f9d9e21 100755
      ADD_ADDRESS_BOOK_ENTRY::response res{};
  
      cryptonote::address_parse_info info = extract_account_addr(m_wallet->nettype(), req.address);
-@@ -2351,7 +2474,8 @@ namespace tools
+@@ -2362,7 +2485,8 @@ namespace tools
    EDIT_ADDRESS_BOOK_ENTRY::response wallet_rpc_server::invoke(EDIT_ADDRESS_BOOK_ENTRY::request&& req)
    {
      require_open();
@@ -4115,7 +4062,7 @@ index 078aeed88..c1f9d9e21 100755
      const auto ab = m_wallet->get_address_book();
      if (req.index >= ab.size())
        throw wallet_rpc_error{error_code::WRONG_INDEX, "Index out of range: " + std::to_string(req.index)};
-@@ -2378,6 +2502,7 @@ namespace tools
+@@ -2389,6 +2513,7 @@ namespace tools
    DELETE_ADDRESS_BOOK_ENTRY::response wallet_rpc_server::invoke(DELETE_ADDRESS_BOOK_ENTRY::request&& req)
    {
      require_open();
@@ -4123,7 +4070,7 @@ index 078aeed88..c1f9d9e21 100755
  
      const auto ab = m_wallet->get_address_book();
      if (req.index >= ab.size())
-@@ -2405,6 +2530,7 @@ namespace tools
+@@ -2416,6 +2541,7 @@ namespace tools
    RESCAN_SPENT::response wallet_rpc_server::invoke(RESCAN_SPENT::request&& req)
    {
      require_open();
@@ -4131,7 +4078,7 @@ index 078aeed88..c1f9d9e21 100755
      m_wallet->rescan_spent();
      return {};
    }
-@@ -2576,6 +2702,7 @@ namespace {
+@@ -2587,6 +2713,7 @@ namespace {
    CHANGE_WALLET_PASSWORD::response wallet_rpc_server::invoke(CHANGE_WALLET_PASSWORD::request&& req)
    {
      require_open();
@@ -4139,7 +4086,7 @@ index 078aeed88..c1f9d9e21 100755
      if (m_wallet->verify_password(req.old_password))
      {
        m_wallet->change_password(m_wallet->get_wallet_file(), req.old_password, req.new_password);
-@@ -2766,6 +2893,7 @@ namespace {
+@@ -2777,6 +2904,7 @@ namespace {
        throw wallet_rpc_error{error_code::ALREADY_MULTISIG, "This wallet is already multisig"};
      if (m_wallet->watch_only())
        throw wallet_rpc_error{error_code::WATCH_ONLY, "wallet is watch-only and cannot be made multisig"};
@@ -4147,7 +4094,7 @@ index 078aeed88..c1f9d9e21 100755
  
      res.multisig_info = m_wallet->get_multisig_info();
      return res;
-@@ -2779,7 +2907,8 @@ namespace {
+@@ -2790,7 +2918,8 @@ namespace {
        throw wallet_rpc_error{error_code::ALREADY_MULTISIG, "This wallet is already multisig"};
      if (m_wallet->watch_only())
        throw wallet_rpc_error{error_code::WATCH_ONLY, "wallet is watch-only and cannot be made multisig"};

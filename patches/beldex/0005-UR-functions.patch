@@ -1,6 +1,6 @@
-From eea951491d62bf0be6b2c3ae95b2fd0d0c36a5bc Mon Sep 17 00:00:00 2001
+From 7e4262bab0e8bd496f1e72ebf6a0ec4a4cf6688a Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 12 Jan 2026 05:58:34 +0000
+Date: Thu, 5 Mar 2026 06:54:38 +0000
 Subject: [PATCH 05/19] UR functions
 
 This commit adds UR functions for UR tasks,
@@ -41,7 +41,7 @@ index 088e5dba2..d641e29da 100644
 +	url = https://github.com/MrCyjaneK/bc-ur
 +	branch = misc
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 617d5ee34..e8dcdf00e 100755
+index 8a92a650d..a1744b827 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -68,12 +68,16 @@ if(POLICY CMP0079)
@@ -907,7 +907,7 @@ index 27b92a1bd..a3568fa2f 100755
  
    return import_key_images(ski, offset, spent, unspent);
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 618696e1e..620c2c8ce 100755
+index 64cd27ff6..241a3fcf4 100755
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -899,6 +899,7 @@ private:

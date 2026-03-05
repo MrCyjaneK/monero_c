@@ -1,6 +1,6 @@
-From bcc883785cf849f2604b461f8ef214d772a1187b Mon Sep 17 00:00:00 2001
+From e647a6669b7a1cd1c371fb8c10421461d85ab411 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Wed, 4 Feb 2026 05:50:04 +0000
+Date: Thu, 5 Mar 2026 07:18:27 +0000
 Subject: [PATCH 17/19] Fix Apple cross-build
 
 ---
@@ -9,7 +9,7 @@ Subject: [PATCH 17/19] Fix Apple cross-build
  2 files changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9bd3a29df..495a018c5 100755
+index ab3b924ae..249afc0ca 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -48,7 +48,7 @@ cmake_minimum_required(VERSION 3.10)
@@ -20,7 +20,7 @@ index 9bd3a29df..495a018c5 100755
 +set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0 CACHE STRING "macOS deployment target (Apple clang only)")
  
  project(beldex
-     VERSION 7.0.0
+     VERSION 7.0.1
 @@ -828,9 +828,18 @@ elseif(DRAGONFLY)
  elseif(CMAKE_SYSTEM_NAME MATCHES "(SunOS|Solaris)")
    target_link_libraries(extra INTERFACE socket nsl resolv)

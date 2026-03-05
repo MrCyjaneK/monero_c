@@ -1,6 +1,6 @@
-From 3c0d52fb7d46c3650392f3c318836cd735d6babe Mon Sep 17 00:00:00 2001
+From 550ab96fcd7bda6ccee2f6c3a030fa73eccea17f Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 12 Jan 2026 06:09:03 +0000
+Date: Thu, 5 Mar 2026 07:07:09 +0000
 Subject: [PATCH 12/19] include locale only when targeting WIN32
 
 ---
@@ -9,7 +9,7 @@ Subject: [PATCH 12/19] include locale only when targeting WIN32
  2 files changed, 8 insertions(+)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index fdfc91b42..bdf2b1791 100755
+index fe53b88fc..a3b963468 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -780,6 +780,10 @@ else()

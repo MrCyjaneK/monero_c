@@ -1,6 +1,6 @@
-From 565de9be04d383cc5dd9d21a74e46a23c243e505 Mon Sep 17 00:00:00 2001
+From 5921cc906cc1e64e5bb220ce59de8711daa1c210 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 12 Jan 2026 06:09:43 +0000
+Date: Thu, 5 Mar 2026 07:08:15 +0000
 Subject: [PATCH 13/19] Fix MinGW Windows build
 
 ---
@@ -10,7 +10,7 @@ Subject: [PATCH 13/19] Fix MinGW Windows build
  3 files changed, 12 insertions(+), 1 deletion(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index bdf2b1791..a3e3c2f2a 100755
+index a3b963468..0e6d6f6ec 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -75,6 +75,12 @@ set(CMAKE_C_STANDARD 11)

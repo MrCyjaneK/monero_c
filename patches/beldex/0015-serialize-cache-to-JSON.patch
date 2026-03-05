@@ -1,6 +1,6 @@
-From 87b2ed587e18cb9eeafbf81019025ffb5c0f6f5c Mon Sep 17 00:00:00 2001
+From 8c7620ca83c949eb6028e5ea423844f3922ec84d Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Sat, 31 Jan 2026 11:40:32 +0000
+Date: Thu, 5 Mar 2026 07:10:30 +0000
 Subject: [PATCH 15/19] serialize cache to JSON
 
 ---
@@ -68,7 +68,7 @@ index 01127214a..f6d3242cf 100755
  
  /**
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 9a49fa734..8d9e10045 100755
+index 6505f9585..85922a9f5 100755
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -1218,6 +1218,12 @@ private:

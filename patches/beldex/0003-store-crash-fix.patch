@@ -1,6 +1,6 @@
-From eb8972639727e82aa4a91496e35607804cfe40ef Mon Sep 17 00:00:00 2001
+From 1c7b9348d7a9deb7ae52b5be1faeb3ecd6910305 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 12 Jan 2026 05:54:05 +0000
+Date: Thu, 5 Mar 2026 06:51:20 +0000
 Subject: [PATCH 03/19] store crash fix
 
 Beldex wallet crashes (sometimes) when it is syncing,
@@ -187,7 +187,7 @@ index 4d5169cf1..a1b6b65c0 100755
      uint64_t next_blocks_start_height;
      std::vector<cryptonote::block_complete_entry> next_blocks;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 823d18361..618696e1e 100755
+index 0b97a4f50..64cd27ff6 100755
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -817,6 +817,8 @@ private:
