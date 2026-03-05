@@ -1,7 +1,7 @@
-From ba7a6cb4d31bcd7d551daa6780ae4e03769482fb Mon Sep 17 00:00:00 2001
+From 2ca22bde2b5dac50d03fd5ed0d46a48bdd73f01a Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 12 Jan 2026 06:10:25 +0000
-Subject: [PATCH 14/15] Fix Android cross-build
+Date: Thu, 5 Mar 2026 07:09:09 +0000
+Subject: [PATCH 14/19] Fix Android cross-build
 
 ---
  CMakeLists.txt                                 |  4 ++++
@@ -12,7 +12,7 @@ Subject: [PATCH 14/15] Fix Android cross-build
  5 files changed, 24 insertions(+), 18 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index a3e3c2f2a..9bd3a29df 100755
+index 0e6d6f6ec..ab3b924ae 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -81,6 +81,10 @@ if(WIN32)

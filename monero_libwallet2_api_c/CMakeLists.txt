@@ -164,12 +164,33 @@ elseif(${MONERO_FLAVOR} STREQUAL "beldex")
         )
     endif()
 
+    if(ANDROID OR APPLE)
+        set(DEPENDS_ROOT
+            "${CMAKE_SOURCE_DIR}/../contrib/depends/${HOST_ABI}"
+        )
+
+        set(ZLIB_INCLUDE_DIR "${DEPENDS_ROOT}/include")
+        set(ZLIB_STATIC_LIB  "${DEPENDS_ROOT}/lib/libz.a")
+
+        if(NOT EXISTS "${ZLIB_STATIC_LIB}")
+            message(FATAL_ERROR "Static zlib not found at ${ZLIB_STATIC_LIB}")
+        endif()
+
+        target_include_directories(wallet2_api_c
+            PRIVATE
+                ${ZLIB_INCLUDE_DIR}
+        )
+
+        set(BELDEX_ZLIB_LIB ${ZLIB_STATIC_LIB})
+    endif()
+
     set(WALLET_TARGETS
         wallet_api
         common
         ${wallet_api_LIB_DEPENDS}
         ${Boost_LIBRARIES}
         ${OpenSSL_LIBRARIES}
+        ${BELDEX_ZLIB_LIB}
     )
 endif()
 
@@ -203,4 +224,3 @@ target_link_libraries(wallet2_api_c
         ${EXTRA_LIBS_WOWNEROSEED}
         ${EXTRA_LIBS_ANDROID}
 )
-

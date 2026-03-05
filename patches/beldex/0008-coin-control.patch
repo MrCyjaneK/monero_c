@@ -1,7 +1,7 @@
-From f396bc541d015e494128e313de45646f0122c16f Mon Sep 17 00:00:00 2001
+From 76d9bd161e04a9bc16719781cd84f616b60f82c7 Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 12 Jan 2026 06:03:42 +0000
-Subject: [PATCH 08/15] coin control
+Date: Thu, 5 Mar 2026 07:02:35 +0000
+Subject: [PATCH 08/19] coin control
 
 ---
  src/simplewallet/simplewallet.cpp |   2 +-
@@ -988,7 +988,7 @@ index a82ec93e0..a3b52fd03 100755
      {
        fund_found = true;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index f64e71657..9a49fa734 100755
+index dd1f3c69f..6505f9585 100755
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -40,6 +40,7 @@

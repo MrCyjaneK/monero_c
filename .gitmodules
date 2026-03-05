@@ -19,4 +19,4 @@
 [submodule "beldex"]
 	path = beldex
 	url = https://github.com/victor-tucci/beldex
-	branch = bulletproofplus-integration
+	branch = dev

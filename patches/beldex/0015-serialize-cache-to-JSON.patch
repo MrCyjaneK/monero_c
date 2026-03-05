@@ -1,0 +1,125 @@
+From 8c7620ca83c949eb6028e5ea423844f3922ec84d Mon Sep 17 00:00:00 2001
+From: victor-tucci <victor.tucci@beldex.io>
+Date: Thu, 5 Mar 2026 07:10:30 +0000
+Subject: [PATCH 15/19] serialize cache to JSON
+
+---
+ src/wallet/CMakeLists.txt           |  1 +
+ src/wallet/api/wallet.cpp           |  6 ++++++
+ src/wallet/api/wallet.h             |  2 ++
+ src/wallet/api/wallet2_api.h        |  3 +++
+ src/wallet/wallet2.h                |  6 ++++++
+ src/wallet/wallet_cache_to_json.cpp | 29 +++++++++++++++++++++++++++++
+ 6 files changed, 47 insertions(+)
+ create mode 100644 src/wallet/wallet_cache_to_json.cpp
+
+diff --git a/src/wallet/CMakeLists.txt b/src/wallet/CMakeLists.txt
+index 448700528..b8d2c2036 100755
+--- a/src/wallet/CMakeLists.txt
++++ b/src/wallet/CMakeLists.txt
+@@ -35,6 +35,7 @@ add_library(wallet
+   message_store.cpp
+   message_transporter.cpp
+   transfer_view.cpp
++  wallet_cache_to_json.cpp
+ )
+ 
+ target_link_libraries(wallet
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index 6f5c3b344..294d1bcac 100755
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -4332,4 +4332,10 @@ void Wallet::setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command
+     #endif
+ }
+ 
++EXPORT
++std::string WalletImpl::serializeCacheToJson() const
++{
++    return std::string(wallet()->serialize_cache_to_json());
++}
++
+ } // namespace
+diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
+index 1eed0c7cf..97f52dc1e 100755
+--- a/src/wallet/api/wallet.h
++++ b/src/wallet/api/wallet.h
+@@ -390,6 +390,8 @@ private:
+     bool getWaitsForDeviceSend();
+ 
+     bool getWaitsForDeviceReceive();
++
++    virtual std::string serializeCacheToJson() const override;
+ };
+ 
+ 
+diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
+index 01127214a..f6d3242cf 100755
+--- a/src/wallet/api/wallet2_api.h
++++ b/src/wallet/api/wallet2_api.h
+@@ -1346,6 +1346,9 @@ struct Wallet
+     static void setDeviceReceivedData(unsigned char* data, size_t len);
+     static void setDeviceSendData(unsigned char* data, size_t len);
+     static void setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
++
++    //! serialize wallet cache to JSON
++    virtual std::string serializeCacheToJson() const = 0;
+ };
+ 
+ /**
+diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
+index 6505f9585..85922a9f5 100755
+--- a/src/wallet/wallet2.h
++++ b/src/wallet/wallet2.h
+@@ -1218,6 +1218,12 @@ private:
+       FIELD(m_background_sync_data)
+     END_SERIALIZE()
+ 
++    /*!
++     * \brief  Serialize wallet cache fields to JSON
++     * \return const char* pointing to JSON string containing all cache fields
++     */
++    const char* serialize_cache_to_json() const;
++
+     /*!
+      * \brief  Check if wallet keys and bin files exist
+      * \param  file_path           Wallet file path
+diff --git a/src/wallet/wallet_cache_to_json.cpp b/src/wallet/wallet_cache_to_json.cpp
+new file mode 100644
+index 000000000..fbcee1244
+--- /dev/null
++++ b/src/wallet/wallet_cache_to_json.cpp
+@@ -0,0 +1,29 @@
++#include "wallet2.h"
++#include "serialization/binary_archive.h"
++#include "serialization/json_archive.h"
++#include "serialization/serialization.h"
++
++namespace tools
++{
++
++const char* wallet2::serialize_cache_to_json() const
++{
++    static std::string json_result;
++
++    try
++    {
++        json_result = serialization::dump_json(
++            const_cast<wallet2&>(*this)
++        );
++    }
++    catch (const std::exception& e)
++    {
++        json_result =
++            "{\"error\":\"Failed to serialize wallet cache: " +
++            std::string(e.what()) + "\"}";
++    }
++
++    return json_result.c_str();
++}
++
++} // namespace tools
+\ No newline at end of file
+-- 
+2.25.1
+

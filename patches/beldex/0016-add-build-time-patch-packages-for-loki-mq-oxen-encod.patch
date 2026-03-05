@@ -1,18 +1,18 @@
-From 084c276e65bf7f3b737238d131f69f2b5de59cac Mon Sep 17 00:00:00 2001
+From 5839920c4785ef2e7b44109d9966fed9aa2892aa Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 12 Jan 2026 06:11:19 +0000
-Subject: [PATCH 15/15] add build-time patch packages for loki-mq,
+Date: Thu, 5 Mar 2026 07:12:49 +0000
+Subject: [PATCH 16/19] add build-time patch packages for loki-mq,
  oxen-encoding, and uSockets
 
 ---
- cmake/loki-mq.cmake                           | 20 +++++
- cmake/oxen-encoding.cmake                     | 22 ++++++
- .../patch/loki-mq/001-fix-libzmq-cmake.patch  | 75 +++++++++++++++++++
- .../oxen-encoding/001-fix-serialization.patch | 67 +++++++++++++++++
- cmake/patch/uSockets/001-fix-bsd.patch        | 57 ++++++++++++++
- cmake/uSockets.cmake                          | 23 ++++++
+ cmake/loki-mq.cmake                           | 20 ++++
+ cmake/oxen-encoding.cmake                     | 22 +++++
+ .../patch/loki-mq/001-fix-libzmq-cmake.patch  | 97 +++++++++++++++++++
+ .../oxen-encoding/001-fix-serialization.patch | 67 +++++++++++++
+ cmake/patch/uSockets/001-fix-bsd.patch        | 57 +++++++++++
+ cmake/uSockets.cmake                          | 23 +++++
  external/CMakeLists.txt                       |  8 +-
- 7 files changed, 270 insertions(+), 2 deletions(-)
+ 7 files changed, 292 insertions(+), 2 deletions(-)
  create mode 100644 cmake/loki-mq.cmake
  create mode 100644 cmake/oxen-encoding.cmake
  create mode 100644 cmake/patch/loki-mq/001-fix-libzmq-cmake.patch
@@ -76,16 +76,23 @@ index 000000000..753460bd3
 +endif()
 diff --git a/cmake/patch/loki-mq/001-fix-libzmq-cmake.patch b/cmake/patch/loki-mq/001-fix-libzmq-cmake.patch
 new file mode 100644
-index 000000000..661f61e08
+index 000000000..e2a00586d
 --- /dev/null
 +++ b/cmake/patch/loki-mq/001-fix-libzmq-cmake.patch
-@@ -0,0 +1,75 @@
+@@ -0,0 +1,97 @@
 +diff --git a/cmake/local-libzmq/LocalLibzmq.cmake b/cmake/local-libzmq/LocalLibzmq.cmake
-+index a25adb7..1d93774 100644
++index a25adb7..387dd9c 100644
 +--- a/cmake/local-libzmq/LocalLibzmq.cmake
 ++++ b/cmake/local-libzmq/LocalLibzmq.cmake
-+@@ -15,18 +15,65 @@ file(MAKE_DIRECTORY ${LIBZMQ_PREFIX}/include)
++@@ -13,20 +13,86 @@ endif()
 + 
++ file(MAKE_DIRECTORY ${LIBZMQ_PREFIX}/include)
++ 
+++set(IOS_PLATFORM iphoneos)
+++set(IOS_ARCH arm64)
+++set(IOS_DEPLOYMENT_TARGET 12.0)
+++
+++
 + include(ExternalProject)
 + include(ProcessorCount)
 ++if(WIN32)
@@ -121,8 +128,22 @@ index 000000000..661f61e08
 ++    -DZMQ_USE_KQUEUE=OFF
 ++)
 ++
+++set(ZMQ_IOS_ARGS
+++    -DCMAKE_SYSTEM_NAME=iOS
+++    -DCMAKE_OSX_SYSROOT=${IOS_PLATFORM}
+++    -DCMAKE_OSX_ARCHITECTURES=${IOS_ARCH}
+++    -DCMAKE_OSX_DEPLOYMENT_TARGET=${IOS_DEPLOYMENT_TARGET}
+++
+++    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+++    -DENABLE_CURVE=OFF
+++    -DWITH_LIBSODIUM=OFF
+++)
+++
+++
 ++if(WIN32)
 ++    set(ZMQ_PLATFORM_ARGS ${ZMQ_WINDOWS_ARGS})
+++elseif(IOS)
+++    set(ZMQ_PLATFORM_ARGS ${ZMQ_IOS_ARGS})
 ++else()
 ++    set(ZMQ_PLATFORM_ARGS "")
 ++endif()
@@ -155,6 +176,7 @@ index 000000000..661f61e08
 ++if(WIN32)
 ++    target_compile_definitions(libzmq_vendor INTERFACE ZMQ_STATIC)
 ++endif()
++\ No newline at end of file
 diff --git a/cmake/patch/oxen-encoding/001-fix-serialization.patch b/cmake/patch/oxen-encoding/001-fix-serialization.patch
 new file mode 100644
 index 000000000..7b41ac1bf

@@ -1,0 +1,77 @@
+From 44621fc5a5198966af1373e306e6833d288e8828 Mon Sep 17 00:00:00 2001
+From: victor-tucci <victor.tucci@beldex.io>
+Date: Thu, 5 Mar 2026 07:19:46 +0000
+Subject: [PATCH 18/19] fix monero_c build issues in Docker environment
+
+---
+ CMakeLists.txt                | 12 ++++++++++++
+ src/crypto/CMakeLists.txt     |  8 ++++++++
+ src/p2p/p2p_protocol_defs.cpp |  9 +++++++--
+ 3 files changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 249afc0ca..2f93813af 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -85,6 +85,18 @@ if(ANDROID)
+   add_compile_options(-Wno-unused-command-line-argument -Wno-error -Wno-cpp -Wno-error=cpp -Wno-unused-private-field -Wno-unused-lambda-capture -Wno-unused-result -Wno-string-plus-int -fstack-clash-protection -Wno-shift-count-overflow -Wno-deprecated-copy)
+ endif()
+ 
++if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
++    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14)
++        message(STATUS "GCC 14+ detected — applying compatibility flags")
++
++        add_compile_options(
++            -Wno-dangling-reference
++            -Wno-tautological-compare
++            -Wno-unused-result
++        )
++    endif()
++endif()
++
+ # Add this line to suppress implicit-fallthrough warnings
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough")
+ 
+diff --git a/src/crypto/CMakeLists.txt b/src/crypto/CMakeLists.txt
+index a2bb8b0fd..37c20554b 100755
+--- a/src/crypto/CMakeLists.txt
++++ b/src/crypto/CMakeLists.txt
+@@ -93,6 +93,14 @@ if(IPO_ENABLED AND (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQU
+   set_target_properties(cncrypto PROPERTIES INTERPROCEDURAL_OPTIMIZATION OFF)
+ endif()
+ 
++if (CMAKE_C_COMPILER_ID STREQUAL GNU OR CMAKE_C_COMPILER_ID MATCHES Clang)
++  include(CheckCCompilerFlag)
++  check_c_compiler_flag(-Wno-error=calloc-transposed-args HAS_CALLOC_TRANSPOSED_ARGS)
++  if (HAS_CALLOC_TRANSPOSED_ARGS)
++    target_compile_options(cncrypto PRIVATE -Wno-error=calloc-transposed-args)
++  endif()
++endif()
++
+ if (ARCH STREQUAL "armv8-a" AND (CMAKE_CXX_COMPILER_ID MATCHES Clang OR CMAKE_CXX_COMPILER_ID STREQUAL GNU))
+   # Similarly use +crypto extensions for the arm hash code (it also has a run-time check before
+   # enabling).
+diff --git a/src/p2p/p2p_protocol_defs.cpp b/src/p2p/p2p_protocol_defs.cpp
+index a5e0ba6de..e66c8d13a 100644
+--- a/src/p2p/p2p_protocol_defs.cpp
++++ b/src/p2p/p2p_protocol_defs.cpp
+@@ -12,9 +12,14 @@ namespace nodetool {
+     time_t now = time(nullptr);
+     std::string result;
+     for (const auto& pe : pl) {
++      const std::string adr_str = pe.adr.str();
++
++      const std::string last_seen_str =
++      pe.last_seen == 0
++        ? std::string{"never"}
++        : epee::misc_utils::get_time_interval_string(now - pe.last_seen);
+       result += fmt::format("{:016x}\t{}\tpruning seed {}\tlast_seen {}",
+-        pe.id, pe.adr.str(), pe.pruning_seed,
+-        (pe.last_seen == 0 ? std::string("never") : epee::misc_utils::get_time_interval_string(now - pe.last_seen)));
++        pe.id, adr_str, pe.pruning_seed, last_seen_str);
+     }
+     return result;
+   }
+-- 
+2.25.1
+

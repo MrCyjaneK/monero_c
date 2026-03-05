@@ -1,7 +1,7 @@
-From b8208b9f2a05ee49825b9dc0cc183ddc3f95074a Mon Sep 17 00:00:00 2001
+From a1020819ad9c0e894099c7ff9daa78eb099a9e6f Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 12 Jan 2026 06:02:18 +0000
-Subject: [PATCH 07/15] polyseed
+Date: Thu, 5 Mar 2026 07:00:58 +0000
+Subject: [PATCH 07/19] polyseed
 
 ---
  .gitmodules                                 |   6 +
@@ -52,7 +52,7 @@ index d641e29da..5da7353b8 100644
 +	path = external/polyseed
 +	url = https://github.com/tevador/polyseed.git
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index e8dcdf00e..b9cb9b35d 100755
+index a1744b827..0b78a11d6 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -293,6 +293,8 @@ if(NOT MANUAL_SUBMODULES)
@@ -159,11 +159,11 @@ index 000000000..dfb05d8ed
 +Subproject commit dfb05d8edb682b0e8f743b1b70c9131712ff4157
 diff --git a/external/utf8proc b/external/utf8proc
 new file mode 160000
-index 000000000..e5e799221
+index 000000000..37a1f8b9b
 --- /dev/null
 +++ b/external/utf8proc
 @@ -0,0 +1 @@
-+Subproject commit e5e799221b45bbb90f5fdc5c69b6b8dfbf017e78
++Subproject commit 37a1f8b9bab1c9af18057157824874117e2a7e5d
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index ff74933f1..b83c11eb0 100755
 --- a/src/CMakeLists.txt
@@ -1218,7 +1218,7 @@ index a3568fa2f..a82ec93e0 100755
    uint64_t height_min = 0;
    uint64_t height_max = get_daemon_blockchain_height(err) - 1;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 620c2c8ce..f64e71657 100755
+index 241a3fcf4..dd1f3c69f 100755
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -84,6 +84,7 @@

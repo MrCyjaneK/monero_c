@@ -6,6 +6,7 @@ $(package)_sha256_hash=38ef96b8dfe510d42707d9c781877914792541133e1870841463bfa73
 
 # Detect Android
 is_android := $(findstring android,$(HOST))
+is_ios := $(findstring apple-ios,$(HOST))
 ANDROID_API = 21
 
 define $(package)_set_vars
@@ -18,6 +19,16 @@ define $(package)_set_vars
     $(package)_ranlib = $(HOST)-ranlib
     $(package)_ld     = $(HOST)-ld.lld
     $(package)_cflags = -fPIC -O2
+  else ifneq ($(is_ios),)
+    $(package)_cc     = xcrun --sdk iphoneos clang
+    $(package)_cxx    = xcrun --sdk iphoneos clang++
+    $(package)_ar     = xcrun --sdk iphoneos ar
+    $(package)_ranlib = xcrun --sdk iphoneos ranlib
+    $(package)_ld     = xcrun --sdk iphoneos ld
+    $(package)_cflags = -fPIC -O2 \
+        -target $(HOST) \
+        -miphoneos-version-min=$(IOS_MIN_VERSION) \
+        -isysroot $(shell xcrun --sdk iphoneos --show-sdk-path)
   else
     $(package)_cc     = $(CC)
     $(package)_cxx    = $(CXX)

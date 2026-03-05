@@ -2,10 +2,10 @@
 
 import 'dart:ffi';
 
-import 'package:beldex/beldex.dart' as beldex;
-import 'package:beldex/src/wallet2.dart';
+import 'package:monero/beldex.dart' as beldex;
+import 'package:monero/src/wallet2.dart';
 
-class beldex implements Wallet2 {
+class Beldex implements Wallet2 {
   @override
   Wallet2WalletManagerFactory walletManagerFactory() {
     return BeldexWalletManagerFactory();
@@ -47,6 +47,11 @@ class BeldexAddressBook implements Wallet2AddressBook {
   }
   
   @override
+  int lookupPaymentID({required String paymentId}) {
+    throw UnimplementedError();
+  }
+
+  @override
   void refresh() {
     beldex.AddressBook_refresh(addressBookPtr);
   }
@@ -79,7 +84,12 @@ class BeldexAddressBookRow implements Wallet2AddressBookRow {
   String getDescription() {
     return beldex.AddressBookRow_getDescription(addressBookRowPtr);
   }
-  
+
+  @override
+  String getPaymentId() {
+    throw UnimplementedError();
+  }
+
   @override
   int getRowId() {
     return beldex.AddressBookRow_getRowId(addressBookRowPtr);
@@ -814,7 +824,7 @@ class BeldexUnsignedTransaction implements Wallet2UnsignedTransaction {
 class BeldexWallet implements Wallet2Wallet {
   BeldexWallet(this.walletPtr);
 
-  final beldex.Wallet walletPtr;
+  final beldex.wallet walletPtr;
   
   @override
   void addSubaddress({required int accountIndex, String label = ""}) {
@@ -1571,7 +1581,16 @@ class BeldexWalletManager implements Wallet2WalletManager {
     return beldex.WalletManager_findWallets(wmPtr, path: path);
   }
   
+  @override
+  bool isMining() {
+    throw UnimplementedError();
+  }
   
+  @override
+  double miningHashRate() {
+    throw UnimplementedError();
+  }
+
   @override
   int networkDifficulty() {
     return beldex.WalletManager_networkDifficulty(wmPtr);
@@ -1593,6 +1612,11 @@ class BeldexWalletManager implements Wallet2WalletManager {
     final wallet = beldex.WalletManager_recoveryWallet(wmPtr, path: path, password: password, mnemonic: mnemonic, networkType: networkType, restoreHeight: restoreHeight, kdfRounds: kdfRounds, seedOffset: seedOffset);
     return BeldexWallet(wallet);
   }
+
+  @override
+  String resolveOpenAlias({required String address, required bool dnssecValid}) {
+    throw UnimplementedError();
+  }
   
   @override
   void setDaemonAddress(String address) {
@@ -1604,6 +1628,16 @@ class BeldexWalletManager implements Wallet2WalletManager {
     return beldex.WalletManager_setProxy(wmPtr, address);
   }
   
+  @override
+  bool startMining({required String address, required int threads, required bool backgroundMining, required bool ignoreBattery}) {
+    throw UnimplementedError();
+  }
+  
+  @override
+  bool stopMining(String address) {
+    throw UnimplementedError();
+  }
+
   @override
   bool verifyWalletPassword({required String keysFileName, required String password, required bool noSpendKey, required int kdfRounds}) {
     return beldex.WalletManager_verifyWalletPassword(wmPtr, keysFileName: keysFileName, password: password, noSpendKey: noSpendKey, kdfRounds: kdfRounds);

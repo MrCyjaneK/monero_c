@@ -2150,6 +2150,13 @@ void BELDEX_Wallet_setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *c
     Wallet::Wallet::setLedgerCallback(sendToLedgerDevice);
     DEBUG_END()
 }
+const char* BELDEX_Wallet_serializeCacheToJson(void* wallet_ptr) {
+    DEBUG_START()
+    Wallet::Wallet *wallet = reinterpret_cast<Wallet::Wallet*>(wallet_ptr);
+    std::string result = wallet->serializeCacheToJson();
+    return strdup(result.c_str());
+    DEBUG_END()
+}
 
 void* BELDEX_WalletManager_createWallet(void* wm_ptr, const char* path, const char* password, const char* language, int networkType) {
     DEBUG_START()

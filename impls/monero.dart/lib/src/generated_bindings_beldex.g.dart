@@ -4,17 +4,17 @@
 // ignore_for_file: type=lint
 import 'dart:ffi' as ffi;
 
-/// monero_c bindings
-class MoneroC {
+/// monero_c beldex bindings
+class BeldexC {
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
       _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
-  MoneroC(ffi.DynamicLibrary dynamicLibrary) : _lookup = dynamicLibrary.lookup;
+  BeldexC(ffi.DynamicLibrary dynamicLibrary) : _lookup = dynamicLibrary.lookup;
 
   /// The symbols are looked up with [lookup].
-  MoneroC.fromLookup(
+  BeldexC.fromLookup(
       ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
           lookup)
       : _lookup = lookup;
@@ -4486,6 +4486,22 @@ class MoneroC {
                   ffi.NativeFunction<
                       ffi.Void Function(ffi.Pointer<ffi.UnsignedChar> command,
                           ffi.UnsignedInt cmd_len)>>)>();
+
+  ffi.Pointer<ffi.Char> BELDEX_Wallet_serializeCacheToJson(
+    ffi.Pointer<ffi.Void> wallet_ptr,
+  ) {
+    return _BELDEX_Wallet_serializeCacheToJson(
+      wallet_ptr,
+    );
+  }
+
+  late final _BELDEX_Wallet_serializeCacheToJsonPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<ffi.Void>)>>('BELDEX_Wallet_serializeCacheToJson');
+  late final _BELDEX_Wallet_serializeCacheToJson =
+      _BELDEX_Wallet_serializeCacheToJsonPtr.asFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
 
   ffi.Pointer<ffi.Void> BELDEX_WalletManager_createWallet(
     ffi.Pointer<ffi.Void> wm_ptr,

@@ -1,7 +1,7 @@
-From fda1022409e61688f65090ddaad86f304850c0c9 Mon Sep 17 00:00:00 2001
+From 5dbaff457e2687d78abc0b92d3abe1acaba10a4a Mon Sep 17 00:00:00 2001
 From: victor-tucci <victor.tucci@beldex.io>
-Date: Mon, 12 Jan 2026 06:06:15 +0000
-Subject: [PATCH 10/15] Add recoverDeterministicWalletFromSpendKey
+Date: Thu, 5 Mar 2026 07:04:57 +0000
+Subject: [PATCH 10/19] Add recoverDeterministicWalletFromSpendKey
 
 ---
  src/wallet/api/wallet.cpp         | 27 +++++++++++++++++++++++++++
