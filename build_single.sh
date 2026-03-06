@@ -34,7 +34,7 @@ fi
 if [[ ! -d "$repo" ]]
 then
     echo "no '$repo' directory found. clone with --recursive or run:"
-    echo "$ git submodule init && git submodule update --force";
+    echo '$ git submodule init && git submodule update --force';
     exit 1
 fi
 
@@ -55,12 +55,12 @@ fi
 cd $(dirname $0)
 WDIR=$PWD
 pushd contrib/depends
-    env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI"
+    echo env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI"
 popd
 # source contrib/depends/_native/_source_me
 source contrib/depends/$HOST_ABI/_source_me
-export PATH="$(PWD)/contrib/depends/$HOST_ABI/native/bin:$PATH"
-exit 13
+export PATH="$(pwd)/contrib/depends/_native/bin/:$(pwd)/contrib/depends/$HOST_ABI/native/bin:$PATH"
+
 buildType=Release
 
 pushd ${repo}_libwallet2_api_c
