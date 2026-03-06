@@ -1,7 +1,7 @@
-From 799d1825696483da743ff2f92a773fcfbef08557 Mon Sep 17 00:00:00 2001
+From 45a4148e08f61fe6d85b7245e7ee445b8db97273 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 11 May 2024 16:25:10 +0200
-Subject: [PATCH 04/15] store crash fix
+Subject: [PATCH 03/16] store crash fix
 
 Monero wallet crashes (sometimes) when it is syncing,
 while the proper solution (that can be seen in feather)
@@ -36,14 +36,22 @@ would just wait for it to finish before actually storing).
 Also imo store() functin should store the wallet, no matter
 the current state.
 ---
- src/wallet/api/wallet.cpp | 25 ++++++++++++-------------
+ external/randomwow        |  2 +-
+ src/wallet/api/wallet.cpp | 23 +++++++++++------------
  src/wallet/api/wallet.h   |  1 -
  src/wallet/wallet2.cpp    | 12 +++++++++++-
  src/wallet/wallet2.h      |  3 +++
- 4 files changed, 26 insertions(+), 15 deletions(-)
+ 5 files changed, 26 insertions(+), 15 deletions(-)
 
+diff --git a/external/randomwow b/external/randomwow
+index 6f30d4b92..27b099b6d 160000
+--- a/external/randomwow
++++ b/external/randomwow
+@@ -1 +1 @@
+-Subproject commit 6f30d4b924fecb231e5b683915cc75d18b3b5866
++Subproject commit 27b099b6dd6fef6e17f58c6dfe00009e9c5df587
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index e868fa039..899ef044a 100644
+index af420569c..d53372fc9 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -55,8 +55,8 @@ using namespace cryptonote;
@@ -74,7 +82,7 @@ index e868fa039..899ef044a 100644
      try {
          if (path.empty()) {
              m_wallet->store();
-@@ -2448,10 +2449,10 @@ void WalletImpl::refreshThreadFunc()
+@@ -2449,10 +2450,10 @@ void WalletImpl::refreshThreadFunc()
          }
  
          LOG_PRINT_L3(__FUNCTION__ << ": refresh lock acquired...");
@@ -87,13 +95,7 @@ index e868fa039..899ef044a 100644
              LOG_PRINT_L3(__FUNCTION__ << ": refreshing...");
              doRefresh();
          }
-@@ -2481,12 +2482,12 @@ void WalletImpl::doRefresh()
-             }
-             m_wallet->find_and_save_rings(false);
-         } else {
--           LOG_PRINT_L3(__FUNCTION__ << ": skipping refresh - daemon is not synced");
-+            LOG_PRINT_L3(__FUNCTION__ << ": skipping refresh - daemon is not synced");
-         }
+@@ -2486,7 +2487,7 @@ void WalletImpl::doRefresh()
      } catch (const std::exception &e) {
          setStatusError(e.what());
          break;
@@ -147,10 +149,10 @@ index 1f199a72c..ac7ce2f6a 100644
      std::atomic<int>  m_refreshIntervalMillis;
      std::atomic<bool> m_refreshShouldRescan;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index 535005ab1..4e66cdeae 100644
+index f111ad0d5..8d8ba33c5 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -1192,6 +1192,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
+@@ -1195,6 +1195,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
    m_upper_transaction_weight_limit(0),
    m_run(true),
    m_callback(0),
@@ -158,7 +160,7 @@ index 535005ab1..4e66cdeae 100644
    m_trusted_daemon(false),
    m_nettype(nettype),
    m_multisig_rounds_passed(0),
-@@ -1412,6 +1413,14 @@ bool wallet2::set_daemon(std::string daemon_address, boost::optional<epee::net_u
+@@ -1415,6 +1416,14 @@ bool wallet2::set_daemon(std::string daemon_address, boost::optional<epee::net_u
    return ret;
  }
  //----------------------------------------------------------------------------------------------------
@@ -173,7 +175,7 @@ index 535005ab1..4e66cdeae 100644
  bool wallet2::set_proxy(const std::string &address)
  {
    return m_http_client->set_proxy(address);
-@@ -4107,8 +4116,9 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
+@@ -4151,8 +4160,9 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
    // infer when we get an incoming output
  
    bool first = true, last = false;
@@ -185,7 +187,7 @@ index 535005ab1..4e66cdeae 100644
      std::vector<cryptonote::block_complete_entry> next_blocks;
      std::vector<parsed_block> next_parsed_blocks;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 632298726..022d0696f 100644
+index 8ffad5675..a1d939a5a 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -1078,6 +1078,8 @@ private:
@@ -197,7 +199,7 @@ index 632298726..022d0696f 100644
  
      void stop() { m_run.store(false, std::memory_order_relaxed); m_message_store.stop(); }
  
-@@ -1989,6 +1991,7 @@ private:
+@@ -1996,6 +1998,7 @@ private:
  
      boost::recursive_mutex m_daemon_rpc_mutex;
  
@@ -206,5 +208,5 @@ index 632298726..022d0696f 100644
      i_wallet2_callback* m_callback;
      hw::device::device_type m_key_device_type;
 -- 
-2.48.0
+2.51.0
 

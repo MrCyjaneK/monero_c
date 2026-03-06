@@ -1,7 +1,7 @@
-From a707d5fc2aa9d387857381e7ebc4a68c1d245a00 Mon Sep 17 00:00:00 2001
+From 23507763ad4a3b2461b97ef0a993d6a06158312d Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 21 Nov 2024 06:05:03 -0500
-Subject: [PATCH 14/15] fix iOS depends build
+Subject: [PATCH 13/16] fix iOS depends build
 
 ---
  CMakeLists.txt                      | 4 ----
@@ -11,7 +11,7 @@ Subject: [PATCH 14/15] fix iOS depends build
  4 files changed, 14 insertions(+), 10 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 1383e630a..b8782570d 100644
+index caa1d5e33..59d598edb 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -39,10 +39,6 @@ include(CheckLibraryExists)
@@ -60,7 +60,7 @@ index 414936a05..81c81767f 100644
      find_library(IOKIT_LIBRARY IOKit)
      mark_as_advanced(IOKIT_LIBRARY)
 diff --git a/src/cryptonote_basic/miner.cpp b/src/cryptonote_basic/miner.cpp
-index 83bea8b5b..dfb4b5c5a 100644
+index 70e95d398..18563c3b3 100644
 --- a/src/cryptonote_basic/miner.cpp
 +++ b/src/cryptonote_basic/miner.cpp
 @@ -45,7 +45,7 @@
@@ -72,7 +72,7 @@ index 83bea8b5b..dfb4b5c5a 100644
    #include <sys/times.h>
    #include <IOKit/IOKitLib.h>
    #include <IOKit/ps/IOPSKeys.h>
-@@ -971,7 +971,7 @@ namespace cryptonote
+@@ -973,7 +973,7 @@ namespace cryptonote
  
        return true;
  
@@ -81,7 +81,7 @@ index 83bea8b5b..dfb4b5c5a 100644
  
        mach_msg_type_number_t count;
        kern_return_t status;
-@@ -1037,7 +1037,7 @@ namespace cryptonote
+@@ -1039,7 +1039,7 @@ namespace cryptonote
          return true;
        }
  
@@ -90,7 +90,7 @@ index 83bea8b5b..dfb4b5c5a 100644
  
        struct tms tms;
        if ( times(&tms) != (clock_t)-1 )
-@@ -1066,7 +1066,7 @@ namespace cryptonote
+@@ -1068,7 +1068,7 @@ namespace cryptonote
          return boost::logic::tribool(power_status.ACLineStatus != 1);
      	}
  
@@ -100,5 +100,5 @@ index 83bea8b5b..dfb4b5c5a 100644
        #if TARGET_OS_MAC && (!defined(MAC_OS_X_VERSION_MIN_REQUIRED) || MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7)
          return boost::logic::tribool(IOPSGetTimeRemainingEstimate() != kIOPSTimeRemainingUnlimited);
 -- 
-2.48.0
+2.51.0
 

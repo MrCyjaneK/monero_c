@@ -1,20 +1,21 @@
-From f8b3055a79c929dc167d20d4874ab20b0a51d49d Mon Sep 17 00:00:00 2001
+From 733d8fa11a455ff144d29a6a5fad384212d1931a Mon Sep 17 00:00:00 2001
 From: cyan <cyjan@mrcyjanek.net>
 Date: Thu, 7 Nov 2024 16:46:24 +0000
-Subject: [PATCH 13/15] add monero submodule support
+Subject: [PATCH 12/16] add monero submodule support
 
 ---
  CMakeLists.txt                   | 6 +++---
  cmake/CheckLinkerFlag.cmake      | 2 +-
+ cmake/FindCcache.cmake           | 2 +-
  src/wallet/wallet_rpc_server.cpp | 2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 96056e324..1383e630a 100644
+index 0007b5ea9..caa1d5e33 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -223,9 +223,9 @@ function(forbid_undefined_symbols)
- cmake_minimum_required(VERSION 3.1)
+ cmake_minimum_required(VERSION 3.5)
  project(test)
  option(EXPECT_SUCCESS "" ON)
 -file(WRITE "${CMAKE_SOURCE_DIR}/incorrect_source.cpp" "void undefined_symbol(); void symbol() { undefined_symbol(); }")
@@ -35,23 +36,36 @@ index 96056e324..1383e630a 100644
  if (NOT DEFINED ENV{DEVELOPER_LOCAL_TOOLS})
    message(STATUS "Could not find DEVELOPER_LOCAL_TOOLS in env (not required)")
 diff --git a/cmake/CheckLinkerFlag.cmake b/cmake/CheckLinkerFlag.cmake
-index 7ecf5f610..89fb9d167 100644
+index 69eefe810..89fb9d167 100644
 --- a/cmake/CheckLinkerFlag.cmake
 +++ b/cmake/CheckLinkerFlag.cmake
 @@ -6,7 +6,7 @@ macro(CHECK_LINKER_FLAG flag VARIABLE)
        message(STATUS "Looking for ${flag} linker flag")
      endif()
  
--    set(_cle_source ${CMAKE_SOURCE_DIR}/cmake/CheckLinkerFlag.c)
+-    set(_cle_source ${monero_SOURCE_DIR}/cmake/CheckLinkerFlag.c)
 +    set(_cle_source ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckLinkerFlag.c)
  
      set(saved_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
      set(CMAKE_C_FLAGS "${flag}")
+diff --git a/cmake/FindCcache.cmake b/cmake/FindCcache.cmake
+index d3f5f829b..68e4851cb 100644
+--- a/cmake/FindCcache.cmake
++++ b/cmake/FindCcache.cmake
+@@ -47,7 +47,7 @@ if (CCACHE_FOUND)
+ cmake_minimum_required(VERSION 3.5)
+ project(test)
+ option (CCACHE "")
+-file(WRITE "${CMAKE_SOURCE_DIR}/test.cpp" "int main() { return 0; }")
++file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp" "int main() { return 0; }")
+ set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE}")
+ set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK    "${CCACHE}")
+ add_executable(main test.cpp)
 diff --git a/src/wallet/wallet_rpc_server.cpp b/src/wallet/wallet_rpc_server.cpp
-index 21e69ea0e..d9bc5dda3 100644
+index d4167e8cb..f7a07ca26 100644
 --- a/src/wallet/wallet_rpc_server.cpp
 +++ b/src/wallet/wallet_rpc_server.cpp
-@@ -1162,7 +1162,7 @@ namespace tools
+@@ -1261,7 +1261,7 @@ namespace tools
      {
        uint64_t mixin = m_wallet->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
        uint32_t priority = m_wallet->adjust_priority(req.priority);
@@ -61,5 +75,5 @@ index 21e69ea0e..d9bc5dda3 100644
        if (ptx_vector.empty())
        {
 -- 
-2.48.0
+2.51.0
 

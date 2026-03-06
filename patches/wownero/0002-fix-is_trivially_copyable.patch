@@ -1,7 +1,7 @@
-From d4d406961073b5f9d3cc46a6cedaf73a378e1ea6 Mon Sep 17 00:00:00 2001
+From ab667a9b129984abbbc252963cf4f471c8fe29ba Mon Sep 17 00:00:00 2001
 From: cyan <cyjan@mrcyjanek.net>
 Date: Tue, 22 Oct 2024 10:23:18 +0000
-Subject: [PATCH 03/15] fix is_trivially_copyable
+Subject: [PATCH 02/16] fix is_trivially_copyable
 
 ---
  contrib/epee/include/span.h | 2 --
@@ -28,5 +28,5 @@ index 01dc387d6..5e3af4d11 100644
      return {reinterpret_cast<const std::uint8_t*>(std::addressof(src)), sizeof(T)};
    }
 -- 
-2.48.0
+2.51.0
 

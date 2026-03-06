@@ -1,10 +1,10 @@
-From 221fb7ed81aff1830b4bc2d7f9b73c94eb36924a Mon Sep 17 00:00:00 2001
+From be6bbe3958304e17566b2bc601255b0d6cec119f Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 26 Jun 2024 15:04:38 +0200
-Subject: [PATCH 08/15] add dummy device for ledger
+Subject: [PATCH 07/16] add dummy device for ledger
 
 ---
- CMakeLists.txt                    |   6 +-
+ CMakeLists.txt                    |  19 +++--
  src/device/CMakeLists.txt         |   6 +-
  src/device/device.cpp             |  10 ++-
  src/device/device.hpp             |  12 +--
@@ -16,15 +16,15 @@ Subject: [PATCH 08/15] add dummy device for ledger
  src/wallet/api/wallet.h           |  18 ++++
  src/wallet/api/wallet2_api.h      |  12 +++
  src/wallet/api/wallet_manager.cpp |  12 ++-
- 12 files changed, 365 insertions(+), 25 deletions(-)
+ 12 files changed, 372 insertions(+), 31 deletions(-)
  create mode 100644 src/device/device_io_dummy.cpp
  create mode 100644 src/device/device_io_dummy.hpp
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index c73b813d8..ce5ef4bab 100644
+index c439e5300..86af78f10 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -692,16 +692,21 @@ include_directories(${LMDB_INCLUDE})
+@@ -693,16 +693,21 @@ include_directories(${LMDB_INCLUDE})
  include_directories(${LIBUNWIND_INCLUDE})
  link_directories(${LIBUNWIND_LIBRARY_DIRS})
  
@@ -84,7 +84,7 @@ index e4f1159b5..14d398f87 100644
      ${device_headers} 
      device_ledger.hpp
 diff --git a/src/device/device.cpp b/src/device/device.cpp
-index e6cd358b6..777584c01 100644
+index e6cd358b6..dd0701e0c 100644
 --- a/src/device/device.cpp
 +++ b/src/device/device.cpp
 @@ -29,7 +29,7 @@
@@ -146,7 +146,7 @@ index 392703a24..ffd419779 100644
  
 diff --git a/src/device/device_io_dummy.cpp b/src/device/device_io_dummy.cpp
 new file mode 100644
-index 000000000..edb4beea3
+index 000000000..f91e10651
 --- /dev/null
 +++ b/src/device/device_io_dummy.cpp
 @@ -0,0 +1,133 @@
@@ -365,7 +365,7 @@ index 000000000..a1733616d
 +
 +#endif // HAVE_HIDAPI
 diff --git a/src/device/device_ledger.cpp b/src/device/device_ledger.cpp
-index 8403d76e8..0587eb7d3 100644
+index e1bfa7041..0139f1577 100644
 --- a/src/device/device_ledger.cpp
 +++ b/src/device/device_ledger.cpp
 @@ -41,7 +41,7 @@ namespace hw {
@@ -430,7 +430,7 @@ index 03058c4f1..39454ca6d 100644
          unsigned char buffer_send[BUFFER_SEND_SIZE];
          unsigned int  length_recv;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index ee000e7ab..556e2a8ce 100644
+index e04205e48..aec76ffc0 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -48,6 +48,9 @@
@@ -615,5 +615,5 @@ index e81b8f83a..277be6ac9 100644
  
  std::vector<std::string> WalletManagerImpl::findWallets(const std::string &path)
 -- 
-2.48.0
+2.51.0
 

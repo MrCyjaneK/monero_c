@@ -48,6 +48,7 @@ sed -e "s|@HOST@|$TARGET|g" \
     -e "s|@build_tests@|OFF|g" \
     -e "s|@cmake_system_name@|$CMAKE_SYSTEM_NAME|g" \
     -e "s|@prefix@|$PREFIX|g" \
+    -e "s|@nativeprefix@|$NATIVEPREFIX|g" \
     -e "s|@arch@|$ARCH|g" > $outfile <<EOF
 cmake_minimum_required(VERSION 3.13)  # Ensure CMake version supports CMP0077
 cmake_policy(SET CMP0077 NEW)         # Ensure 'option' honors normal variables
@@ -57,6 +58,7 @@ SET(CMAKE_SYSTEM_NAME @cmake_system_name@)
 SET(CMAKE_SYSTEM_PROCESSOR @arch@)
 SET(CMAKE_BUILD_TYPE @release_type@)
 SET(CMAKE_CXX_STANDARD 14)
+LIST(APPEND CMAKE_PROGRAM_PATH @nativeprefix@/bin)
 
 OPTION(STATIC "Link libraries statically" ON)
 OPTION(TREZOR_DEBUG "Main trezor debugging switch" OFF)
@@ -93,7 +95,7 @@ SET(LIBUSB-1.0_LIBRARY @prefix@/lib/libusb-1.0.a)
 SET(LIBUDEV_LIBRARY @prefix@/lib/libudev.a)
 
 SET(Protobuf_FOUND 1)
-SET(Protobuf_PROTOC_EXECUTABLE @prefix@/native/bin/protoc CACHE FILEPATH "Path to the native protoc")
+SET(Protobuf_PROTOC_EXECUTABLE @nativeprefix@/bin/protoc CACHE FILEPATH "Path to the native protoc")
 SET(Protobuf_INCLUDE_DIR @prefix@/include CACHE PATH "Protobuf include dir")
 SET(Protobuf_INCLUDE_DIRS @prefix@/include CACHE PATH "Protobuf include dir")
 SET(Protobuf_LIBRARY @prefix@/lib/libprotobuf.a CACHE FILEPATH "Protobuf library")
@@ -139,7 +141,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     SET(BUILD_TAG "mac-x64")
     SET(CMAKE_OSX_ARCHITECTURES "x86_64")
   endif()
-  SET(_CMAKE_TOOLCHAIN_PREFIX @prefix@/native/bin/\${CONF_TRIPLE}-)
+  SET(_CMAKE_TOOLCHAIN_PREFIX @nativeprefix@/bin/\${CONF_TRIPLE}-)
   SET(CMAKE_C_COMPILER @CC@)
   SET(CMAKE_C_COMPILER_TARGET \${CLANG_TARGET})
   SET(CMAKE_C_FLAGS_INIT -B\${_CMAKE_TOOLCHAIN_PREFIX})
@@ -176,7 +178,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
   else()
     message(SEND_ERROR Unsupported android architecture)
   endif()
-  # SET(CMAKE_ANDROID_STANDALONE_TOOLCHAIN @prefix@/native)
+  # SET(CMAKE_ANDROID_STANDALONE_TOOLCHAIN @nativeprefix@)
   SET(_ANDROID_STANDALONE_TOOLCHAIN_API 21)
   SET(__ANDROID_API__ 21)
   SET(CMAKE_SYSTEM_VERSION 1)
@@ -451,17 +453,11 @@ if(DEFINED ENV{PKG_CONFIG_PATH})
 endif()
 
 if(DEFINED CMAKE_C_COMPILER)
-  if(NOT EXISTS "\${CMAKE_C_COMPILER}")
-    message(WARNING "toolchain: C compiler '\${CMAKE_C_COMPILER}' does not exist on filesystem; if it is a program name it must be in PATH.")
-  endif()
 else()
   message(WARNING "toolchain: C compiler not set (ENV{CC} missing).")
 endif()
 
 if(DEFINED CMAKE_CXX_COMPILER)
-  if(NOT EXISTS "\${CMAKE_CXX_COMPILER}")
-    message(WARNING "toolchain: C++ compiler '\${CMAKE_CXX_COMPILER}' does not exist on filesystem; if it is a program name it must be in PATH.")
-  endif()
 else()
   message(WARNING "toolchain: C++ compiler not set (ENV{CXX} missing).")
 endif()

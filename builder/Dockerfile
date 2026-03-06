@@ -9,7 +9,8 @@ RUN apt update \
 USER user
 
 RUN git config --global user.email "monero_c@mrcyjanek.net" \
-    && git config --global user.name "MoneroC CI"
+    && git config --global user.name "MoneroC CI" \
+    && git config --global --add safe.directory '*'
 
 FROM builder_base AS contrib_simplybs
 COPY contrib/depends /w/contrib/depends
