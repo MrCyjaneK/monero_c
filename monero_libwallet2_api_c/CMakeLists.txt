@@ -134,7 +134,13 @@ if (${MONERO_FLAVOR} STREQUAL "monero")
 elseif(${MONERO_FLAVOR} STREQUAL "wownero")
     set(WALLET_TARGETS wallet_api ${wallet_api_LIB_DEPENDS}) # wallet_api_LIB_DEPENDS
 elseif(${MONERO_FLAVOR} STREQUAL "zano")
-    find_package(Boost 1.71 REQUIRED COMPONENTS system filesystem thread timer date_time chrono regex serialization atomic program_options)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    
+    set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+    set(CMAKE_HAVE_THREADS_LIBRARY 1)
+    set(CMAKE_USE_PTHREADS_INIT 1)
+    set(Threads_FOUND TRUE)
+    find_package(Boost 1.71 REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options)
     find_package(OpenSSL REQUIRED)
     set(WALLET_TARGETS
         wallet
@@ -172,9 +178,25 @@ elseif(${HOST_ABI} MATCHES "-linux-")
     target_link_options(wallet2_api_c PRIVATE "-Wl,-z,max-page-size=16384")
 endif()
 
+if(${HOST_ABI} MATCHES "-apple-")
+    set(DUMMY_RT_SRC "${CMAKE_CURRENT_BINARY_DIR}/dummy_rt.c")
+    file(WRITE "${DUMMY_RT_SRC}" "/* I have no idea what is adding -lrt in the middle of nowhere. And frankly I don't care at this point */\n")
+
+    add_library(dummy_rt STATIC "${DUMMY_RT_SRC}")
+
+    target_sources(dummy_rt PRIVATE "${DUMMY_RT_SRC}")
+    target_compile_definitions(dummy_rt PRIVATE DUMMY_RT_SYMBOL)
+
+    set_target_properties(dummy_rt PROPERTIES
+        OUTPUT_NAME "rt"
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+    )
+endif()
+
 target_link_libraries(  wallet2_api_c
 
                         ${WALLET_TARGETS}
                         ${EXTRA_LIBS_WOWNEROSEED}
                         ${EXTRA_LIBS_ANDROID}
+                        ${EXTRA_LIBS_LINUX}
                        )

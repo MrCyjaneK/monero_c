@@ -55,7 +55,12 @@ fi
 cd $(dirname $0)
 WDIR=$PWD
 pushd contrib/depends
-    echo env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI"
+    sbs_BOOST_VERSION=1_90_0
+    if [[ "x$repo" == "xzano" ]];
+    then
+        sbs_BOOST_VERSION=1_83_0
+    fi
+    env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI" BOOST_VERSION="${sbs_BOOST_VERSION}"
 popd
 # source contrib/depends/_native/_source_me
 source contrib/depends/$HOST_ABI/_source_me
@@ -71,7 +76,7 @@ pushd ${repo}_libwallet2_api_c
        EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
     fi
     pushd build/${HOST_ABI}
-        cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake $EXTRA_CMAKE_FLAGS -DUSE_DEVICE_TREZOR=OFF -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
+        cmake --trace-expand -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake $EXTRA_CMAKE_FLAGS -DUSE_DEVICE_TREZOR=OFF -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
         make $NPROC
     popd
 popd

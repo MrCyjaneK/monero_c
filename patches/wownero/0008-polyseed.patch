@@ -1441,6 +1441,21 @@ index e309cec5e..9c520fa99 100644
      bool m_multisig; /*!< if > 1 spend secret key will not match spend public key */
      uint32_t m_multisig_threshold;
      std::vector<crypto::public_key> m_multisig_signers;
+
+diff --git a/external/polyseed b/external/polyseed
+new file mode 160000
+index 000000000..bd79f5014
+--- /dev/null
++++ b/external/polyseed
+@@ -0,0 +1 @@
++Subproject commit bd79f5014c331273357277ed8a3d756fb61b9fa1
+diff --git a/external/utf8proc b/external/utf8proc
+new file mode 160000
+index 000000000..3de4596fb
+--- /dev/null
++++ b/external/utf8proc
+@@ -0,0 +1 @@
++Subproject commit 3de4596fbe28956855df2ecb3c11c0bbc3535838
 -- 
 2.51.0
 

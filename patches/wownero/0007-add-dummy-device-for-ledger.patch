@@ -149,7 +149,7 @@ new file mode 100644
 index 000000000..f91e10651
 --- /dev/null
 +++ b/src/device/device_io_dummy.cpp
-@@ -0,0 +1,133 @@
+@@ -0,0 +1,135 @@
 +// Copyright (c) 2017-2022, The Monero Project
 +//
 +// All rights reserved.
@@ -192,6 +192,8 @@ index 000000000..f91e10651
 +
 +#if defined(HIDAPI_DUMMY) && !defined(HAVE_HIDAPI)
 +#include <boost/scope_exit.hpp>
++#include <boost/chrono.hpp>
++#include <boost/thread.hpp>
 +#include "log.hpp"
 +#include "device_io_dummy.hpp"
 +#include "device_ledger.hpp"
@@ -250,13 +252,13 @@ index 000000000..f91e10651
 +            MDEBUG("exchange(): waitsForDeviceSend");
 +            // NOTE: waitsForDeviceSend should be changed by external code
 +            while (waitsForDeviceSend) {
-+                std::this_thread::sleep_for(std::chrono::microseconds(1000));
++                boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 +                MDEBUG("exchange(): waitsForDeviceSend (still)");
 +            }
 +
 +            MDEBUG("exchange(): waitsForDeviceReceive");
 +            while (waitsForDeviceReceive) {
-+                std::this_thread::sleep_for(std::chrono::microseconds(1000));
++                boost::this_thread::sleep_for(boost::chrono::milliseconds(1000));
 +                MDEBUG("exchange(): waitsForDeviceReceive (still)");
 +            }
 +

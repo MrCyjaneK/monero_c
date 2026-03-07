@@ -59,7 +59,7 @@ SET(CMAKE_SYSTEM_PROCESSOR @arch@)
 SET(CMAKE_BUILD_TYPE @release_type@)
 SET(CMAKE_CXX_STANDARD 14)
 LIST(APPEND CMAKE_PROGRAM_PATH @nativeprefix@/bin)
-
+SET(MANUAL_SUBMODULES true)
 OPTION(STATIC "Link libraries statically" ON)
 OPTION(TREZOR_DEBUG "Main trezor debugging switch" OFF)
 OPTION(BUILD_TESTS "Build tests." OFF)

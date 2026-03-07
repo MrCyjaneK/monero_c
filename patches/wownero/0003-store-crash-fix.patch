@@ -49,7 +49,7 @@ index 6f30d4b92..27b099b6d 160000
 +++ b/external/randomwow
 @@ -1 +1 @@
 -Subproject commit 6f30d4b924fecb231e5b683915cc75d18b3b5866
-+Subproject commit 27b099b6dd6fef6e17f58c6dfe00009e9c5df587
++Subproject commit cd137b1ea7bb9f0bcb5e77b39a5c1e08ca4b4fed
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
 index af420569c..d53372fc9 100644
 --- a/src/wallet/api/wallet.cpp

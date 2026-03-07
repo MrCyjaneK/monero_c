@@ -1022,6 +1022,13 @@ index a1d939a5a..e309cec5e 100644
      bool import_key_images(std::vector<crypto::key_image> key_images, size_t offset=0, boost::optional<std::unordered_set<size_t>> selected_transfers=boost::none);
      bool import_key_images(signed_tx_set & signed_tx, size_t offset=0, bool only_selected_transfers=false);
      crypto::public_key get_tx_pub_key_from_received_outs(const tools::wallet2::transfer_details &td) const;
+diff --git a/external/bc-ur b/external/bc-ur
+new file mode 160000
+index 000000000..d82e7c753
+--- /dev/null
++++ b/external/bc-ur
+@@ -0,0 +1 @@
++Subproject commit d82e7c753e710b8000706dc3383b498438795208
 -- 
 2.51.0
 

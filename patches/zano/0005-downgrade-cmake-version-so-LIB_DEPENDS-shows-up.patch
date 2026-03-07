@@ -1,4 +1,4 @@
-From 00bfd0703db144cb51f667c183ff5d066dec2f9c Mon Sep 17 00:00:00 2001
+From 9979233174da7a64add9710adcf95ec7257a3feb Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 5 Dec 2024 09:36:34 -0600
 Subject: [PATCH 5/7] downgrade cmake version so LIB_DEPENDS shows up
@@ -8,7 +8,7 @@ Subject: [PATCH 5/7] downgrade cmake version so LIB_DEPENDS shows up
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 6ded9711..47d24a81 100644
+index 7694b8eb..793cc94c 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -1,4 +1,4 @@
@@ -18,5 +18,5 @@ index 6ded9711..47d24a81 100644
  PROJECT(Zano)
  
 -- 
-2.48.1
+2.51.0
 
