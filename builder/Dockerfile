@@ -21,25 +21,19 @@ FROM builder_base AS contrib_simplybs
 COPY contrib/depends /w/contrib/depends
 RUN sudo chown -R user:user /w \
     && cd /w/contrib/depends \
-    && make simplybs \
-    && make HOST=aarch64-linux-android \
-    && make HOST=aarch64-linux-android BOOST_VERSION=1_83_0 \
-    && make HOST=x86_64-linux-android \
-    && make HOST=x86_64-linux-android BOOST_VERSION=1_83_0 \
-    && make HOST=armv7a-linux-androideabi \
-    && make HOST=armv7a-linux-androideabi BOOST_VERSION=1_83_0 \
-    && make HOST=aarch64-linux-gnu \
-    && make HOST=aarch64-linux-gnu BOOST_VERSION=1_83_0 \
-    && make HOST=x86_64-linux-gnu \
-    && make HOST=x86_64-apple-darwin \
-    && make HOST=x86_64-apple-darwin BOOST_VERSION=1_83_0 \
-    && make HOST=aarch64-apple-darwin \
-    && make HOST=aarch64-apple-darwin BOOST_VERSION=1_83_0 \
-    && make HOST=aarch64-apple-ios \
-    && make HOST=aarch64-apple-ios BOOST_VERSION=1_83_0 \
-    && make HOST=aarch64-apple-ios-simulator \
-    && make HOST=aarch64-apple-ios-simulator BOOST_VERSION=1_83_0 \
-    && make sbs-cleanup
+    && make simplybs
+WORKDIR /w/contrib/depends
+
+RUN make HOST=aarch64-linux-android && make HOST=aarch64-linux-android BOOST_VERSION=1_83_0 && make sbs-cleanup
+RUN make HOST=x86_64-linux-android && make HOST=x86_64-linux-android BOOST_VERSION=1_83_0 && make sbs-cleanup
+RUN make HOST=armv7a-linux-androideabi && make HOST=armv7a-linux-androideabi BOOST_VERSION=1_83_0 && make sbs-cleanup
+RUN make HOST=x86_64-w64-mingw32 && make sbs-cleanup
+RUN make HOST=aarch64-linux-gnu && make sbs-cleanup
+RUN make HOST=x86_64-linux-gnu && make sbs-cleanup
+RUN make HOST=x86_64-apple-darwin && make sbs-cleanup
+RUN make HOST=aarch64-apple-darwin && make sbs-cleanup 
+RUN make HOST=aarch64-apple-ios && make HOST=aarch64-apple-ios BOOST_VERSION=1_83_0 && make sbs-cleanup
+RUN make HOST=aarch64-apple-ios-simulator && make HOST=aarch64-apple-ios-simulator BOOST_VERSION=1_83_0 && make sbs-cleanup
 
 FROM builder_base AS monero_c_base
 COPY . /w
