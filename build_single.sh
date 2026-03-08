@@ -98,13 +98,4 @@ pushd release/$repo
         APPENDIX="${APPENDIX}so"
     fi
     mv ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX} ${HOST_ABI}_libwallet2_api_c.${APPENDIX}
-    # Extra libraries
-    if [[ "$HOST_ABI" == "x86_64-w64-mingw32" || "$HOST_ABI" == "i686-w64-mingw32" ]];
-    then
-        cp /usr/${HOST_ABI}/lib/libwinpthread-1.dll ${HOST_ABI}_libwinpthread-1.dll
-        rm ${HOST_ABI}_libwinpthread-1.dll.xz || true
-        ####
-        cp /usr/lib/gcc/${HOST_ABI}/*-posix/libssp-0.dll ${HOST_ABI}_libssp-0.dll
-        rm ${HOST_ABI}_libssp-0.dll.xz || true
-    fi
 popd

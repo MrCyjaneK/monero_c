@@ -4,7 +4,7 @@ HOST ?=
 
 BOOST_VERSION ?= 1_90_0
 PACKAGES = native/cmake,native/python@3.14,native/git,native/_,native/make,native/cmake-toolchain,icu4c,boost@$(BOOST_VERSION),zeromq,unbound,sodium,openssl,libiconv,zlib
-SIMPLYBS_HASH = 184235706c2665432304ef28b106da52807a9686
+SIMPLYBS_HASH = a37442738bc26fbe4e526f48694746b2efed2c2b
 
 all: simplybs $(if $(HOST),sbs-build-$(HOST),)
 	@if [ -z "$(HOST)" ]; then \
@@ -17,6 +17,7 @@ all: simplybs $(if $(HOST),sbs-build-$(HOST),)
 sbs-cleanup:
 	@rm -rf simplybs/_
 	@rm -rf simplybs/_native
+	@rm -rf _native
 	@rm -rf *-*-*
 	@rm -rf simplybs/.buildlib/*_*/work
 	@rm -rf simplybs/.buildlib/*_*/staging

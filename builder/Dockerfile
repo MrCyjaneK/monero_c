@@ -1,10 +1,15 @@
 FROM --platform=linux/amd64 golang:1.26.0-bookworm AS builder_base
+
 WORKDIR /w
 RUN apt update \
     && apt install -y git clang llvm gcc g++ sudo \
+    && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && useradd -ms /bin/bash user
+    && useradd -ms /bin/bash user \
+    && adduser user sudo \
+    && chown user:user /w \
+    && chmod 775 /w
 
 USER user
 
@@ -14,7 +19,8 @@ RUN git config --global user.email "monero_c@mrcyjanek.net" \
 
 FROM builder_base AS contrib_simplybs
 COPY contrib/depends /w/contrib/depends
-RUN cd /w/contrib/depends \
+RUN sudo chown -R user:user /w \
+    && cd /w/contrib/depends \
     && make simplybs \
     && make HOST=aarch64-linux-android \
     && make HOST=aarch64-linux-android BOOST_VERSION=1_83_0 \
@@ -37,63 +43,74 @@ RUN cd /w/contrib/depends \
 
 FROM builder_base AS monero_c_base
 COPY . /w
+RUN sudo chown -R user:user /w
 RUN git submodule update --init --force --recursive \
     && ./apply_patches.sh monero \
     && ./apply_patches.sh wownero \
     && ./apply_patches.sh zano
 
 FROM monero_c_base AS monero_c_aarch64_linux_android
-COPY --from=builder /w/contrib/depends /w/contrib/depends
+COPY --from=contrib_simplybs /w/contrib/depends /w/contrib/depends
+RUN sudo chown -R user:user /w
 RUN ./build_single.sh monero aarch64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero aarch64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh zano aarch64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 FROM monero_c_base AS monero_c_x86_64_linux_android
-COPY --from=builder /w/contrib/depends /w/contrib/depends
+COPY --from=contrib_simplybs /w/contrib/depends /w/contrib/depends
+RUN sudo chown -R user:user /w
 RUN ./build_single.sh monero x86_64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero x86_64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh zano x86_64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 FROM monero_c_base AS monero_c_armv7a_linux_androideabi
-COPY --from=builder /w/contrib/depends /w/contrib/depends
+COPY --from=contrib_simplybs /w/contrib/depends /w/contrib/depends
+RUN sudo chown -R user:user /w
 RUN ./build_single.sh monero armv7a-linux-androideabi -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero armv7a-linux-androideabi -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh zano armv7a-linux-androideabi -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 FROM monero_c_base AS monero_c_aarch64_linux_gnu
-COPY --from=builder /w/contrib/depends /w/contrib/depends
+COPY --from=contrib_simplybs /w/contrib/depends /w/contrib/depends
+RUN sudo chown -R user:user /w
 RUN ./build_single.sh monero aarch64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero aarch64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 FROM monero_c_base AS monero_c_x86_64_linux_gnu
-COPY --from=builder /w/contrib/depends /w/contrib/depends
+COPY --from=contrib_simplybs /w/contrib/depends /w/contrib/depends
+RUN sudo chown -R user:user /w
 RUN ./build_single.sh monero x86_64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero x86_64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 FROM monero_c_base AS monero_c_x86_64_apple_darwin
-COPY --from=builder /w/contrib/depends /w/contrib/depends
+COPY --from=contrib_simplybs /w/contrib/depends /w/contrib/depends
+RUN sudo chown -R user:user /w
 RUN ./build_single.sh monero x86_64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero x86_64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 FROM monero_c_base AS monero_c_aarch64_apple_darwin
-COPY --from=builder /w/contrib/depends /w/contrib/depends
+COPY --from=contrib_simplybs /w/contrib/depends /w/contrib/depends
+RUN sudo chown -R user:user /w
 RUN ./build_single.sh monero aarch64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero aarch64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 FROM monero_c_base AS monero_c_aarch64_apple_ios
-COPY --from=builder /w/contrib/depends /w/contrib/depends
+COPY --from=contrib_simplybs /w/contrib/depends /w/contrib/depends
+RUN sudo chown -R user:user /w
 RUN ./build_single.sh monero aarch64-apple-ios -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero aarch64-apple-ios -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh zano aarch64-apple-ios -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 FROM monero_c_base AS monero_c_aarch64_apple_ios-simulator
-COPY --from=builder /w/contrib/depends /w/contrib/depends
+COPY --from=contrib_simplybs /w/contrib/depends /w/contrib/depends
+RUN sudo chown -R user:user /w
 RUN ./build_single.sh monero aarch64-apple-ios-simulator -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero aarch64-apple-ios-simulator -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh zano aarch64-apple-ios-simulator -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 FROM monero_c_base AS monero_c_x86_64-w64-mingw32
-COPY --from=builder /w/contrib/depends /w/contrib/depends
+COPY --from=contrib_simplybs /w/contrib/depends /w/contrib/depends
+RUN sudo chown -R user:user /w
 RUN ./build_single.sh monero x86_64-w64-mingw32 -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero x86_64-w64-mingw32 -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
