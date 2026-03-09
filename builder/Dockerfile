@@ -109,7 +109,7 @@ RUN ./build_single.sh monero x86_64-w64-mingw32 -j$(nproc) && cd contrib/depends
 RUN ./build_single.sh wownero x86_64-w64-mingw32 -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 
-FROM scratch AS final
+FROM alpine AS final
 COPY --from=monero_c_aarch64_linux_android /w/release/ release/
 COPY --from=monero_c_x86_64_linux_android /w/release/ release/
 COPY --from=monero_c_armv7a_linux_androideabi /w/release/ release/
