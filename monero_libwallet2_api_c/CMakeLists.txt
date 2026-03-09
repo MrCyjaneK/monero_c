@@ -24,13 +24,13 @@ elseif(${HOST_ABI} STREQUAL "i686-w64-mingw32")
 elseif(${HOST_ABI} STREQUAL "host-apple-ios" OR
     ${HOST_ABI} STREQUAL "aarch64-apple-ios")
     set(CMAKE_SYSTEM_NAME iOS)
-elseif(${HOST_ABI} STREQUAL "host-apple-darwin" OR 
+elseif(${HOST_ABI} STREQUAL "host-apple-darwin" OR
     ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR
     ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin")
     set(CMAKE_SYSTEM_NAME Darwin)
 endif()
 
-if (${HOST_ABI} STREQUAL "host-apple-darwin" OR 
+if (${HOST_ABI} STREQUAL "host-apple-darwin" OR
     ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR
     ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin")
     EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
@@ -82,7 +82,7 @@ elseif(${HOST_ABI} STREQUAL "host-apple-darwin" OR
        ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR
        ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin")
   set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" "-framework Cocoa" apple_nghttp2)
-elseif(${HOST_ABI} STREQUAL "host-apple-ios" OR ${HOST_ABI} STREQUAL "aarch64-apple-ios" OR ${HOST_ABI} STREQUAL "arm64-apple-ios" OR ${HOST_ABI} STREQUAL "arm64-apple-iossimulator" OR ${HOST_ABI} STREQUAL "x86_64-apple-iossimulator")
+elseif(${HOST_ABI} STREQUAL "host-apple-ios" OR ${HOST_ABI} STREQUAL "aarch64-apple-ios" OR ${HOST_ABI} STREQUAL "arm64-apple-ios" OR ${HOST_ABI} STREQUAL "arm64-apple-ios-simulator" OR ${HOST_ABI} STREQUAL "x86_64-apple-ios-simulator")
   set(EXTRA_LIBS_APPLE "-framework IOKit" "-framework CoreFoundation" iconv )
 endif()
 
@@ -92,7 +92,7 @@ endif()
 
 if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" OR ${HOST_ABI} STREQUAL "host-apple-darwin" OR ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin" OR ${HOST_ABI} STREQUAL "host-apple-ios" OR ${HOST_ABI} STREQUAL "aarch64-apple-ios" OR ${HOST_ABI} STREQUAL "arm64-apple-iossimulator" OR ${HOST_ABI} STREQUAL "x86_64-apple-iossimulator")
     set_target_properties(wallet2_api_c PROPERTIES SUFFIX ".dylib")
-    
+
     set_target_properties(wallet2_api_c PROPERTIES NO_SONAME 1)
 endif()
 
@@ -105,7 +105,7 @@ elseif(${MONERO_FLAVOR} STREQUAL "zano")
     target_compile_definitions(wallet2_api_c PRIVATE FLAVOR_ZANO)
 endif()
 
-if(NOT ${HOST_ABI} STREQUAL "x86_64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "x86_64-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "host-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "host-apple-ios" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-ios" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-iossimulator" AND NOT ${HOST_ABI} STREQUAL "x86_64-apple-iossimulator")
+if(NOT ${HOST_ABI} STREQUAL "x86_64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "x86_64-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "host-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin" AND NOT ${HOST_ABI} STREQUAL "host-apple-ios" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-ios" AND NOT ${HOST_ABI} STREQUAL "aarch64-apple-ios-simulator" AND NOT ${HOST_ABI} STREQUAL "x86_64-apple-ios-simulator")
     set_target_properties(wallet2_api_c PROPERTIES LINK_FLAGS "-Wl,--exclude-libs,ALL")
 endif()
 
@@ -116,7 +116,7 @@ if (${MONERO_FLAVOR} STREQUAL "zano")
 endif()
 
 add_subdirectory("${CMAKE_SOURCE_DIR}/../${MONERO_FLAVOR}" ${CMAKE_BINARY_DIR}/${MONERO_FLAVOR}_build EXCLUDE_FROM_ALL)
-if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" OR ${HOST_ABI} STREQUAL "x86_64-apple-darwin" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin" OR ${HOST_ABI} STREQUAL "host-apple-darwin" OR ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin" OR ${HOST_ABI} STREQUAL "host-apple-ios" OR ${HOST_ABI} STREQUAL "aarch64-apple-ios" OR ${HOST_ABI} STREQUAL "aarch64-apple-iossimulator" OR ${HOST_ABI} STREQUAL "x86_64-apple-iossimulator")
+if(${HOST_ABI} STREQUAL "x86_64-apple-darwin11" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin11" OR ${HOST_ABI} STREQUAL "x86_64-apple-darwin" OR ${HOST_ABI} STREQUAL "aarch64-apple-darwin" OR ${HOST_ABI} STREQUAL "host-apple-darwin" OR ${HOST_ABI} STREQUAL "x86_64-host-apple-darwin" OR ${HOST_ABI} STREQUAL "aarch64-host-apple-darwin" OR ${HOST_ABI} STREQUAL "host-apple-ios" OR ${HOST_ABI} STREQUAL "aarch64-apple-ios" OR ${HOST_ABI} STREQUAL "aarch64-apple-iossimulator" OR ${HOST_ABI} STREQUAL "x86_64-apple-ios-simulator")
     if (${MONERO_FLAVOR} STREQUAL "monero")
         set(EXPORTED_SYMBOLS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/monero_libwallet2_api_c.exp)
     elseif(${MONERO_FLAVOR} STREQUAL "wownero")
@@ -134,15 +134,21 @@ if (${MONERO_FLAVOR} STREQUAL "monero")
 elseif(${MONERO_FLAVOR} STREQUAL "wownero")
     set(WALLET_TARGETS wallet_api ${wallet_api_LIB_DEPENDS}) # wallet_api_LIB_DEPENDS
 elseif(${MONERO_FLAVOR} STREQUAL "zano")
-    find_package(Boost 1.71 REQUIRED COMPONENTS system filesystem thread timer date_time chrono regex serialization atomic program_options)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    
+    set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+    set(CMAKE_HAVE_THREADS_LIBRARY 1)
+    set(CMAKE_USE_PTHREADS_INIT 1)
+    set(Threads_FOUND TRUE)
+    find_package(Boost 1.71 REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options)
     find_package(OpenSSL REQUIRED)
-    set(WALLET_TARGETS 
+    set(WALLET_TARGETS
         wallet
         general
         tor-connect
         crypto
         currency_core
-        common    
+        common
         zlibstatic
 
         ${Boost_LIBRARIES}
@@ -172,9 +178,25 @@ elseif(${HOST_ABI} MATCHES "-linux-")
     target_link_options(wallet2_api_c PRIVATE "-Wl,-z,max-page-size=16384")
 endif()
 
+if(${HOST_ABI} MATCHES "-apple-")
+    set(DUMMY_RT_SRC "${CMAKE_CURRENT_BINARY_DIR}/dummy_rt.c")
+    file(WRITE "${DUMMY_RT_SRC}" "/* I have no idea what is adding -lrt in the middle of nowhere. And frankly I don't care at this point */\n")
+
+    add_library(dummy_rt STATIC "${DUMMY_RT_SRC}")
+
+    target_sources(dummy_rt PRIVATE "${DUMMY_RT_SRC}")
+    target_compile_definitions(dummy_rt PRIVATE DUMMY_RT_SYMBOL)
+
+    set_target_properties(dummy_rt PROPERTIES
+        OUTPUT_NAME "rt"
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+    )
+endif()
+
 target_link_libraries(  wallet2_api_c
 
                         ${WALLET_TARGETS}
                         ${EXTRA_LIBS_WOWNEROSEED}
                         ${EXTRA_LIBS_ANDROID}
+                        ${EXTRA_LIBS_LINUX}
                        )

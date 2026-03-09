@@ -1,0 +1,46 @@
+From 2d4ed0b13eea96b25a574e8a87644df75c16ffb0 Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Wed, 4 Mar 2026 14:52:14 +0100
+Subject: [PATCH 19/20] fix: mingw build issues
+
+---
+ contrib/epee/include/serialization/keyvalue_serialization.h | 1 +
+ contrib/epee/src/abstract_http_client.cpp                   | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/contrib/epee/include/serialization/keyvalue_serialization.h b/contrib/epee/include/serialization/keyvalue_serialization.h
+index fbbddc7d2..5104f284d 100644
+--- a/contrib/epee/include/serialization/keyvalue_serialization.h
++++ b/contrib/epee/include/serialization/keyvalue_serialization.h
+@@ -26,6 +26,7 @@
+ 
+ #pragma once
+ 
++#include <cstdint>
+ #include <type_traits>
+ #include <boost/utility/value_init.hpp>
+ #include <boost/foreach.hpp>
+diff --git a/contrib/epee/src/abstract_http_client.cpp b/contrib/epee/src/abstract_http_client.cpp
+index ed4a193d9..2352c7d62 100644
+--- a/contrib/epee/src/abstract_http_client.cpp
++++ b/contrib/epee/src/abstract_http_client.cpp
+@@ -3,6 +3,7 @@
+ #include "net/http_base.h"
+ #include "net/net_parse_helpers.h"
+ #include "misc_log_ex.h"
++#include <cmath>
+ 
+ #undef MONERO_DEFAULT_LOG_CATEGORY
+ #define MONERO_DEFAULT_LOG_CATEGORY "net.http"
+@@ -39,7 +40,7 @@ namespace net_utils
+     while (num_char >= radix)
+     {
+       temp = num_char % radix;
+-      num_char = (int)floor((float)num_char / (float)radix);
++      num_char = (int)std::floor((float)num_char / (float)radix);
+       csTmp = get_hex_vals()[temp];
+     }
+ 
+-- 
+2.50.1 (Apple Git-155)
+
