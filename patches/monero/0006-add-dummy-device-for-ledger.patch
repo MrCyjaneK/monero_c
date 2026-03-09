@@ -1,11 +1,10 @@
-From 11ddba5ab1470fb46a87ea9b702bf11f88763ecc Mon Sep 17 00:00:00 2001
+From eb9ffa912fb31dd2bddf96d7d55d5e5f9d8219b4 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 8 May 2025 13:14:23 +0200
-Subject: [PATCH 06/17] add dummy device for ledger
+Subject: [PATCH 06/20] add dummy device for ledger
 
 ---
- CMakeLists.txt                    |   6 +-
- external/randomx                  |   2 +-
+ CMakeLists.txt                    |  19 ++--
  src/device/CMakeLists.txt         |   6 +-
  src/device/device.cpp             |  10 +-
  src/device/device.hpp             |  12 +--
@@ -17,12 +16,12 @@ Subject: [PATCH 06/17] add dummy device for ledger
  src/wallet/api/wallet.h           |  14 +++
  src/wallet/api/wallet2_api.h      |  13 +++
  src/wallet/api/wallet_manager.cpp |  12 ++-
- 13 files changed, 405 insertions(+), 26 deletions(-)
+ 12 files changed, 411 insertions(+), 31 deletions(-)
  create mode 100644 src/device/device_io_dummy.cpp
  create mode 100644 src/device/device_io_dummy.hpp
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index c73b813d8..ce5ef4bab 100644
+index 268339201..eb0d12225 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -692,16 +692,21 @@ include_directories(${LMDB_INCLUDE})
@@ -147,7 +146,7 @@ index 392703a24..ffd419779 100644
  
 diff --git a/src/device/device_io_dummy.cpp b/src/device/device_io_dummy.cpp
 new file mode 100644
-index 000000000..01e6fc7b7
+index 000000000..74742150d
 --- /dev/null
 +++ b/src/device/device_io_dummy.cpp
 @@ -0,0 +1,161 @@
@@ -315,7 +314,7 @@ index 000000000..01e6fc7b7
 \ No newline at end of file
 diff --git a/src/device/device_io_dummy.hpp b/src/device/device_io_dummy.hpp
 new file mode 100644
-index 000000000..1128b9c1d
+index 000000000..87a5f109f
 --- /dev/null
 +++ b/src/device/device_io_dummy.hpp
 @@ -0,0 +1,82 @@
@@ -402,7 +401,7 @@ index 000000000..1128b9c1d
 +
 +#endif // HAVE_HIDAPI
 diff --git a/src/device/device_ledger.cpp b/src/device/device_ledger.cpp
-index bb5b6f497..046201a1e 100644
+index 7e4be6347..ee330ba59 100644
 --- a/src/device/device_ledger.cpp
 +++ b/src/device/device_ledger.cpp
 @@ -41,7 +41,7 @@ namespace hw {
@@ -423,7 +422,7 @@ index bb5b6f497..046201a1e 100644
        this->mode = NONE;
        this->has_view_key = false;
        this->tx_in_progress = false;
-@@ -533,7 +533,9 @@ namespace hw {
+@@ -534,7 +534,9 @@ namespace hw {
  
      bool device_ledger::connect(void) {
        this->disconnect();
@@ -434,7 +433,7 @@ index bb5b6f497..046201a1e 100644
        #ifdef DEBUG_HWDEVICE
        cryptonote::account_public_address pubkey;
 diff --git a/src/device/device_ledger.hpp b/src/device/device_ledger.hpp
-index 03058c4f1..39454ca6d 100644
+index 61ac6f9c8..44a1af6c8 100644
 --- a/src/device/device_ledger.hpp
 +++ b/src/device/device_ledger.hpp
 @@ -35,6 +35,7 @@
@@ -467,7 +466,7 @@ index 03058c4f1..39454ca6d 100644
          unsigned char buffer_send[BUFFER_SEND_SIZE];
          unsigned int  length_recv;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 3fcd6f332..844a1c451 100644
+index d179e502b..fb71a0521 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -48,6 +48,9 @@
@@ -480,7 +479,7 @@ index 3fcd6f332..844a1c451 100644
  
  using namespace std;
  using namespace cryptonote;
-@@ -3178,4 +3181,101 @@ uint64_t WalletImpl::getBytesSent()
+@@ -3177,4 +3180,101 @@ uint64_t WalletImpl::getBytesSent()
      return m_wallet->get_bytes_sent();
  }
  
@@ -608,7 +607,7 @@ index edf8bb8ce..6bfb61cb8 100644
  
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 764adbfbf..a48a6be54 100644
+index 764adbfbf..f433b064f 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -1150,6 +1150,19 @@ struct Wallet
@@ -655,5 +654,5 @@ index e81b8f83a..277be6ac9 100644
  
  std::vector<std::string> WalletManagerImpl::findWallets(const std::string &path)
 -- 
-2.49.0
+2.50.1 (Apple Git-155)
 
