@@ -7,7 +7,7 @@ img=localhost/monero_c:$(git describe --tags)
 
 docker build -t $img -f ./builder/Dockerfile .
 
-docker create --name temp_extract $img
+docker create --name temp_extract $img /bin/sh -c 'sleep 3000'
 
 docker rm temp_extract || true
 docker cp temp_extract:/w/* /release/$(git describe --tags)
