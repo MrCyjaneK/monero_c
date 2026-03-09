@@ -43,13 +43,6 @@ the current state.
  src/wallet/wallet2.h      |  3 +++
  5 files changed, 40 insertions(+), 30 deletions(-)
 
-diff --git a/external/randomx b/external/randomx
-index 5dfeeb30e..102f8acf9 160000
---- a/external/randomx
-+++ b/external/randomx
-@@ -1 +1 @@
--Subproject commit 5dfeeb30ec3446ec9d348153767abc324436c56c
-+Subproject commit 102f8acf90a7649ada410de5499a7ec62e49e1da
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
 index 165b21c9f..c2f4176e2 100644
 --- a/src/wallet/api/wallet.cpp
