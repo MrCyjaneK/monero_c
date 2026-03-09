@@ -8,6 +8,6 @@ contrib/depends/_
 contrib/depends/_native
 contrib/depends/simplybs
 *_libwallet2_api_c/build
-monero
-wownero
-zano
+./monero
+./wownero
+./zano
