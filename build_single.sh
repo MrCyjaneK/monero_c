@@ -60,7 +60,7 @@ pushd contrib/depends
     then
         sbs_BOOST_VERSION=1_83_0
     fi
-    echo env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI" BOOST_VERSION="${sbs_BOOST_VERSION}"
+    env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI" BOOST_VERSION="${sbs_BOOST_VERSION}"
 popd
 # source contrib/depends/_native/_source_me
 source contrib/depends/$HOST_ABI/_source_me

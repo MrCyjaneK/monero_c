@@ -1,5 +1,5 @@
-#ifndef MONEROC_CHECKSUMS
-#define MONEROC_CHECKSUMS
+#ifndef MONEROC_CHECKSUMS_MONERO
+#define MONEROC_CHECKSUMS_MONERO
 #ifdef __cplusplus
 extern "C"
 {

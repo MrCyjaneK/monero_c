@@ -3,9 +3,9 @@
 #include <unistd.h>
 #include <cstring>
 #include <thread>
-#include "zano_checksum.h"
 #include "helpers.hpp"
 #include "../../../../zano/src/wallet/plain_wallet_api.h"
+#include "zano_checksum.h"
 
 #ifdef __cplusplus
 extern "C"
