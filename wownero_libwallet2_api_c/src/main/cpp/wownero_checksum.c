@@ -1,5 +1,5 @@
 #include "wownero_checksum.h"
 
 const char * WOWNERO_wallet2_api_c_h_sha256 = "f99009d1ca1d1c783cc9aa0fb63f680d48753b88124fb5de2079c57b7e34c827";
-const char * WOWNERO_wallet2_api_c_cpp_sha256 = "a4539145783e7909afe087ce6ba5343b878e102bc493ab4283e653cd2b2c118e-cfd2a696245be112a01936d1f2f41b6eb7558376";
+const char * WOWNERO_wallet2_api_c_cpp_sha256 = "4da7caa6ed47e95f0d1ee62315e46d3d9200d32cc6c49dbcadfc0ad053799ea6-cfd2a696245be112a01936d1f2f41b6eb7558376";
 const char * WOWNERO_wallet2_api_c_exp_sha256 = "5f53ea8bbe66a5e5aa6cbc4ca00695900e08589cfd32062e88965a24252d05ba";
