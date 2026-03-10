@@ -1,5 +1,5 @@
 export const zanoChecksum = {
     wallet2_api_c_h_sha256: "8acaa95513b85a984c08e05cc3f2ac7530bb8f32946eeeb45357bd846aef33dd",
-    wallet2_api_c_cpp_sha256: "4efacd3812d53dd268b6869cc0a9560e7320574d96e09136cf067f796edfeba6-b372a99c7ada82caac53b677d9aaa7c0902e3b0b",
+    wallet2_api_c_cpp_sha256: "326c2b134918db2f139075e8051e2531725689e5a672496792684d5fd35dd156-b372a99c7ada82caac53b677d9aaa7c0902e3b0b",
     wallet2_api_c_exp_sha256: "66f3ff655bbfd11ad28c318ab707090b5a93276f436b06f7b1c0f329dba3c9c2",
 }

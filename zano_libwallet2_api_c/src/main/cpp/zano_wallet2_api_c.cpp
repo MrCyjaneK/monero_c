@@ -1,5 +1,5 @@
 #include <inttypes.h>
-#include "wallet2_api_c.h"
+#include "zano_wallet2_api_c.h"
 #include <unistd.h>
 #include <cstring>
 #include <thread>
@@ -196,7 +196,7 @@ const char* ZANO_PlainWallet_generate(const char* path, const char* password) {
     return buffer;
     DEBUG_END()
 }
-//   std::string get_opened_wallets();  
+//   std::string get_opened_wallets();
 const char* ZANO_PlainWallet_getOpenWallets() {
     DEBUG_START()
     std::string str = plain_wallet::get_opened_wallets();

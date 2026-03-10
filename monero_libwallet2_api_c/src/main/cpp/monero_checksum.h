@@ -1,6 +1,22 @@
 #ifndef MONEROC_CHECKSUMS
 #define MONEROC_CHECKSUMS
-const char * MONERO_wallet2_api_c_h_sha256 = "3515e4c9e537ca3efa664f0b364a3aeb106ff64337f542a262ce104c00b31235";
-const char * MONERO_wallet2_api_c_cpp_sha256 = "ca44a8d4a201ba6dc0a25c857e95d07bc8d514039b38cd5b3826100e8943cbcc-dbcc7d212c094bd1a45f7291dbb99a4b4627a96d";
-const char * MONERO_wallet2_api_c_exp_sha256 = "0561e14606106e6b0ec49fb2aefe743ff500f7c3de07557f7041e06aef9509ce";
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#ifdef __MINGW32__
+    #define ADDAPI __declspec(dllexport)
+#else
+    #define ADDAPI __attribute__((__visibility__("default")))
+#endif
+
+extern ADDAPI const char * MONERO_wallet2_api_c_h_sha256;
+extern ADDAPI const char * MONERO_wallet2_api_c_cpp_sha256;
+extern ADDAPI const char * MONERO_wallet2_api_c_exp_sha256;
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

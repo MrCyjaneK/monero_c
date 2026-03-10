@@ -60,7 +60,7 @@ pushd contrib/depends
     then
         sbs_BOOST_VERSION=1_83_0
     fi
-    env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI" BOOST_VERSION="${sbs_BOOST_VERSION}"
+    echo env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI" BOOST_VERSION="${sbs_BOOST_VERSION}"
 popd
 # source contrib/depends/_native/_source_me
 source contrib/depends/$HOST_ABI/_source_me
@@ -68,34 +68,24 @@ export PATH="$(pwd)/contrib/depends/_native/bin/:$(pwd)/contrib/depends/$HOST_AB
 
 buildType=Release
 
-pushd ${repo}_libwallet2_api_c
-    rm -rf build/${HOST_ABI} || true
-    mkdir -p build/${HOST_ABI}
-    if [[ "$repo" == "zano" ]];
-    then
-       EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
-    fi
-    pushd build/${HOST_ABI}
-        cmake --trace-expand -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake $EXTRA_CMAKE_FLAGS -DUSE_DEVICE_TREZOR=OFF -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} ../..
-        make $NPROC
+for OUTPUT_MODE in SHARED;
+do
+    pushd ${repo}_libwallet2_api_c
+        rm -rf build/${HOST_ABI}_${OUTPUT_MODE} || true
+        mkdir -p build/${HOST_ABI}_${OUTPUT_MODE}
+        if [[ "$repo" == "zano" ]];
+        then
+        EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
+        fi
+        pushd build/${HOST_ABI}_${OUTPUT_MODE}
+            cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake $EXTRA_CMAKE_FLAGS -DUSE_DEVICE_TREZOR=OFF -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} -DOUTPUT_MODE=${OUTPUT_MODE} ../..
+            make $NPROC
+        popd
     popd
-popd
+done
 
-mkdir -p release/$repo 2>/dev/null || true
-pushd release/$repo
-    APPENDIX=""
-    if [[ "${HOST_ABI}" == "x86_64-w64-mingw32" || "${HOST_ABI}" == "i686-w64-mingw32" ]];
-    then
-        echo "TODO: check if it's still needed"
-        APPENDIX="${APPENDIX}dll"
-        # cp ../../$repo/build/${HOST_ABI}/external/polyseed/libpolyseed.${APPENDIX} ${HOST_ABI}_libpolyseed.${APPENDIX}
-        # rm ${HOST_ABI}_libpolyseed.${APPENDIX}.xz || true
-        # xz -e ${HOST_ABI}_libpolyseed.${APPENDIX}
-    elif [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" || "${HOST_ABI}" == "host-apple-darwin" || "${HOST_ABI}" == "x86_64-host-apple-darwin" || "${HOST_ABI}" == "aarch64-apple-darwin"  || "${HOST_ABI}" == "x86_64-apple-darwin" || "${HOST_ABI}" == "host-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios-simulator" ]];
-    then
-        APPENDIX="${APPENDIX}dylib"
-    else
-        APPENDIX="${APPENDIX}so"
-    fi
-    mv ../../${repo}_libwallet2_api_c/build/${HOST_ABI}/libwallet2_api_c.${APPENDIX} ${HOST_ABI}_libwallet2_api_c.${APPENDIX}
+mkdir -p release/$(git describe --tags)/${HOST_ABI} 2>/dev/null || true
+pushd release/$(git describe --tags)/${HOST_ABI}
+    pwd
+    mv ../../../${repo}_libwallet2_api_c/build/${HOST_ABI}_*/lib*_wallet2_api_c.* .
 popd

@@ -1,5 +1,5 @@
 #include <inttypes.h>
-#include "wallet2_api_c.h"
+#include "wownero_wallet2_api_c.h"
 #include <unistd.h>
 #include "helpers.hpp"
 #include <cstring>
@@ -38,7 +38,7 @@ extern "C"
 //     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr); <------------ We are converting the void* into Monero::Wallet*
 //     Monero::optional<uint64_t> optAmount; <------------- optional by default
 //     if (amount != 0) {------------------\ We set this optional parameter only when it isn't zero
-//         optAmount = amount;             | 
+//         optAmount = amount;             |
 //     }___________________________________/
 //     std::set<uint32_t> subaddr_indices = {}; ------------- Default value
 //     std::set<std::string> preferred_inputs = splitString(std::string(preferredInputs), std::string(separator)); <------------- We are using helpers.cpp function to split a string into std::set
@@ -442,7 +442,7 @@ const char* WOWNERO_AddressBookRow_extra(void* addressBookRow_ptr) {
     return buffer;
     DEBUG_END()
 }
-//     std::string getAddress() const {return m_address;} 
+//     std::string getAddress() const {return m_address;}
 const char* WOWNERO_AddressBookRow_getAddress(void* addressBookRow_ptr) {
     DEBUG_START()
     Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
@@ -453,7 +453,7 @@ const char* WOWNERO_AddressBookRow_getAddress(void* addressBookRow_ptr) {
     return buffer;
     DEBUG_END()
 }
-//     std::string getDescription() const {return m_description;} 
+//     std::string getDescription() const {return m_description;}
 const char* WOWNERO_AddressBookRow_getDescription(void* addressBookRow_ptr) {
     DEBUG_START()
     Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
@@ -464,7 +464,7 @@ const char* WOWNERO_AddressBookRow_getDescription(void* addressBookRow_ptr) {
     return buffer;
     DEBUG_END()
 }
-//     std::string getPaymentId() const {return m_paymentId;} 
+//     std::string getPaymentId() const {return m_paymentId;}
 const char* WOWNERO_AddressBookRow_getPaymentId(void* addressBookRow_ptr) {
     DEBUG_START()
     Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
@@ -497,7 +497,7 @@ void* WOWNERO_AddressBook_getAll_byIndex(void* addressBook_ptr, int index) {
     return addressBook->getAll()[index];
     DEBUG_END()
 }
-//     virtual bool addRow(const std::string &dst_addr , const std::string &payment_id, const std::string &description) = 0;  
+//     virtual bool addRow(const std::string &dst_addr , const std::string &payment_id, const std::string &description) = 0;
 bool WOWNERO_AddressBook_addRow(void* addressBook_ptr, const char* dst_addr , const char* payment_id, const char* description) {
     DEBUG_START()
     Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
@@ -518,7 +518,7 @@ bool WOWNERO_AddressBook_setDescription(void* addressBook_ptr, size_t rowId, con
     return addressBook->setDescription(rowId, std::string(description));
     DEBUG_END()
 }
-//     virtual void refresh() = 0;  
+//     virtual void refresh() = 0;
 void WOWNERO_AddressBook_refresh(void* addressBook_ptr) {
     DEBUG_START()
     Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
@@ -1502,8 +1502,6 @@ const char* WOWNERO_Wallet_createPolyseed(const char* language) {
     std::string seed_words = "";
     std::string err;
     Monero::Wallet::createPolyseed(seed_words, err, std::string(language));
-    std::cout << "WOWNERO_Wallet_createPolyseed(language: " << language << "):" << std::endl;
-    std::cout << "           err: "  << err << std::endl;
     std::string str = seed_words;
     const std::string::size_type size = str.size();
     char *buffer = new char[size + 1];   //we need extra char for NUL
@@ -2238,7 +2236,7 @@ void WOWNERO_WalletManagerFactory_setLogCategories(const char* categories) {
 // 2) int
 // 3) uint64_t
 // 4) void*
-// 5) const char* 
+// 5) const char*
 
 void WOWNERO_DEBUG_test0() {
     return;
@@ -2262,13 +2260,13 @@ void* WOWNERO_DEBUG_test4(uint64_t x) {
 }
 
 const char* WOWNERO_DEBUG_test5() {
-    const char *text  = "This is a const char* text"; 
+    const char *text  = "This is a const char* text";
     return text;
 }
 
 const char* WOWNERO_DEBUG_test5_std() {
     std::string text ("This is a std::string text");
-    const char *text2 = "This is a text"; 
+    const char *text2 = "This is a text";
     return text2;
 }
 
