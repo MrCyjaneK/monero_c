@@ -25,13 +25,6 @@ elseif(${HOST_ABI} MATCHES "-apple-darwin")
     set(CMAKE_SYSTEM_NAME Darwin)
 endif()
 
-if (${HOST_ABI} MATCHES "-apple-darwin")
-    EXECUTE_PROCESS( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
-    if (NOT ${ARCHITECTURE} STREQUAL arm64)
-        set(CMAKE_OSX_ARCHITECTURES x86_64)
-    endif()
-endif()
-
 if(${HOST_ABI} MATCHES "-linux-android")
     add_link_options(-stdlib=libc++ -static-libstdc++)
     set(EXTRA_LIBS_ANDROID log)
