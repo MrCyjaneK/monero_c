@@ -1,5 +1,5 @@
 export const moneroChecksum = {
-    wallet2_api_c_h_sha256: "3515e4c9e537ca3efa664f0b364a3aeb106ff64337f542a262ce104c00b31235",
-    wallet2_api_c_cpp_sha256: "ca44a8d4a201ba6dc0a25c857e95d07bc8d514039b38cd5b3826100e8943cbcc-dbcc7d212c094bd1a45f7291dbb99a4b4627a96d",
-    wallet2_api_c_exp_sha256: "0561e14606106e6b0ec49fb2aefe743ff500f7c3de07557f7041e06aef9509ce",
+    wallet2_api_c_h_sha256: "563113bbf36f153d66d6f656ea6f364172a0e801074dcffffab62374a628607f",
+    wallet2_api_c_cpp_sha256: "5231bad07c802e88fc17781b71e85fce7a0dc750301893482577558aa56f925d-dbcc7d212c094bd1a45f7291dbb99a4b4627a96d",
+    wallet2_api_c_exp_sha256: "d873158058e22fabba8d809e9c6cdf633e1b6b2bd78ee5b617435b66131ce600",
 }

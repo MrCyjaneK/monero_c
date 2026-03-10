@@ -6,6 +6,11 @@
 #define  LOGW(...)  __android_log_print(ANDROID_LOG_WARN,LOG_TAG,__VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 */
+
+#ifndef MONERO_LIBWALLET2_API_C_H
+#define MONERO_LIBWALLET2_API_C_H
+
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -26,11 +31,11 @@ extern "C"
 // namespace Monero {
 // enum NetworkType : uint8_t {
 //     MAINNET = 0,
-const int NetworkType_MAINNET = 0;
+extern ADDAPI const int MONERO_NetworkType_MAINNET;
 //     TESTNET,
-const int NetworkType_TESTNET = 1;
+extern ADDAPI const int MONERO_NetworkType_TESTNET;
 //     STAGENET
-const int NetworkType_STAGENET = 2;
+extern ADDAPI const int MONERO_NetworkType_STAGENET;
 // };
 //     namespace Utils {
 //         bool isAddressLocal(const std::string &hostaddr);
@@ -53,23 +58,23 @@ const int NetworkType_STAGENET = 2;
 // {
 //     enum Status {
 //         Status_Ok,
-const int PendingTransactionStatus_Ok = 0;
+extern ADDAPI const int MONERO_PendingTransactionStatus_Ok;
 //         Status_Error,
-const int PendingTransactionStatus_Error = 1;
+extern ADDAPI const int MONERO_PendingTransactionStatus_Error;
 //         Status_Critical
-const int PendingTransactionStatus_Critical = 2;
+extern ADDAPI const int MONERO_PendingTransactionStatus_Critical;
 //     };
 //     enum Priority {
 //         Priority_Default = 0,
-const int Priority_Default = 0;
+extern ADDAPI const int MONERO_Priority_Default;
 //         Priority_Low = 1,
-const int Priority_Low = 1;
+extern ADDAPI const int MONERO_Priority_Low;
 //         Priority_Medium = 2,
-const int Priority_Medium = 2;
+extern ADDAPI const int MONERO_Priority_Medium;
 //         Priority_High = 3,
-const int Priority_High = 3;
+extern ADDAPI const int MONERO_Priority_High;
 //         Priority_Last
-const int Priority_Last = 4;
+extern ADDAPI const int MONERO_Priority_Last;
 //     };
 //     virtual ~PendingTransaction() = 0;
 //     virtual int status() const = 0;
@@ -109,11 +114,11 @@ extern ADDAPI const char* MONERO_PendingTransaction_hex(void* pendingTx_ptr, con
 // {
 //     enum Status {
 //         Status_Ok,
-const int UnsignedTransactionStatus_Ok = 0;
+extern ADDAPI const int MONERO_UnsignedTransactionStatus_Ok;
 //         Status_Error,
-const int UnsignedTransactionStatus_Error = 1;
+extern ADDAPI const int MONERO_UnsignedTransactionStatus_Error;
 //         Status_Critical
-const int UnsignedTransactionStatus_Critical = 2;
+extern ADDAPI const int MONERO_UnsignedTransactionStatus_Critical;
 //     };
 //     virtual ~UnsignedTransaction() = 0;
 //     virtual int status() const = 0;
@@ -144,9 +149,9 @@ extern ADDAPI const char* MONERO_UnsignedTransaction_signUR(void* unsignedTx_ptr
 // {
 //     enum Direction {
 //         Direction_In,
-const int TransactionInfoDirection_In = 0;
+extern ADDAPI const int MONERO_TransactionInfoDirection_In;
 //         Direction_Out
-const int TransactionInfoDirection_Out = 1;
+extern ADDAPI const int MONERO_TransactionInfoDirection_Out;
 //     };
 //     struct Transfer {
 //         Transfer(uint64_t _amount, const std::string &address);
@@ -211,9 +216,9 @@ extern ADDAPI void MONERO_TransactionHistory_setTxNote(void* txHistory_ptr, cons
 //     AddressBookRow(std::size_t _rowId, const std::string &_address, const std::string &_paymentId, const std::string &_description):
 //         m_rowId(_rowId),
 //         m_address(_address),
-//         m_paymentId(_paymentId), 
+//         m_paymentId(_paymentId),
 //         m_description(_description) {}
- 
+
 // private:
 //     std::size_t m_rowId;
 //     std::string m_address;
@@ -222,11 +227,11 @@ extern ADDAPI void MONERO_TransactionHistory_setTxNote(void* txHistory_ptr, cons
 // public:
 //     std::string extra;
 extern ADDAPI const char* MONERO_AddressBookRow_extra(void* addressBookRow_ptr);
-//     std::string getAddress() const {return m_address;} 
+//     std::string getAddress() const {return m_address;}
 extern ADDAPI const char* MONERO_AddressBookRow_getAddress(void* addressBookRow_ptr);
-//     std::string getDescription() const {return m_description;} 
+//     std::string getDescription() const {return m_description;}
 extern ADDAPI const char* MONERO_AddressBookRow_getDescription(void* addressBookRow_ptr);
-//     std::string getPaymentId() const {return m_paymentId;} 
+//     std::string getPaymentId() const {return m_paymentId;}
 extern ADDAPI const char* MONERO_AddressBookRow_getPaymentId(void* addressBookRow_ptr);
 //     std::size_t getRowId() const {return m_rowId;}
 extern ADDAPI size_t MONERO_AddressBookRow_getRowId(void* addressBookRow_ptr);
@@ -235,25 +240,25 @@ extern ADDAPI size_t MONERO_AddressBookRow_getRowId(void* addressBookRow_ptr);
 // {
 //     enum ErrorCode {
 //         Status_Ok,
-const int AddressBookErrorCodeStatus_Ok = 0;
+extern ADDAPI const int MONERO_AddressBookErrorCodeStatus_Ok;
 //         General_Error,
-const int AddressBookErrorCodeGeneral_Error = 1;
+extern ADDAPI const int MONERO_AddressBookErrorCodeGeneral_Error;
 //         Invalid_Address,
-const int AddressBookErrorCodeInvalid_Address = 2;
+extern ADDAPI const int MONERO_AddressBookErrorCodeInvalid_Address;
 //         Invalid_Payment_Id
-const int AddressBookErrorCodeInvalidPaymentId = 3;
+extern ADDAPI const int MONERO_AddressBookErrorCodeInvalidPaymentId;
 //     };
 //     virtual ~AddressBook() = 0;
 //     virtual std::vector<AddressBookRow*> getAll() const = 0;
 extern ADDAPI int MONERO_AddressBook_getAll_size(void* addressBook_ptr);
 extern ADDAPI void* MONERO_AddressBook_getAll_byIndex(void* addressBook_ptr, int index);
-//     virtual bool addRow(const std::string &dst_addr , const std::string &payment_id, const std::string &description) = 0;  
+//     virtual bool addRow(const std::string &dst_addr , const std::string &payment_id, const std::string &description) = 0;
 extern ADDAPI bool MONERO_AddressBook_addRow(void* addressBook_ptr, const char* dst_addr , const char* payment_id, const char* description);
 //     virtual bool deleteRow(std::size_t rowId) = 0;
 extern ADDAPI bool MONERO_AddressBook_deleteRow(void* addressBook_ptr, size_t rowId);
 //     virtual bool setDescription(std::size_t index, const std::string &description) = 0;
 extern ADDAPI bool MONERO_AddressBook_setDescription(void* addressBook_ptr, size_t rowId, const char* description);
-//     virtual void refresh() = 0;  
+//     virtual void refresh() = 0;
 extern ADDAPI void MONERO_AddressBook_refresh(void* addressBook_ptr);
 //     virtual std::string errorString() const = 0;
 extern ADDAPI const char* MONERO_AddressBook_errorString(void* addressBook_ptr);
@@ -339,7 +344,7 @@ extern ADDAPI void MONERO_Coins_setDescription(void* coins_ptr, const char* publ
 //         m_rowId(_rowId),
 //         m_address(_address),
 //         m_label(_label) {}
- 
+
 // private:
 //     std::size_t m_rowId;
 //     std::string m_address;
@@ -467,35 +472,35 @@ extern ADDAPI bool MONERO_DeviceProgress_indeterminate(void* deviceProgress_ptr)
 // {
 //     enum Device {
 //         Device_Software = 0,
-const int WalletDevice_Software = 0;
+extern ADDAPI const int MONERO_WalletDevice_Software;
 //         Device_Ledger = 1,
-const int WalletDevice_Ledger = 1;
+extern ADDAPI const int MONERO_WalletDevice_Ledger;
 //         Device_Trezor = 2
-const int WalletDevice_Trezor = 2;
+extern ADDAPI const int MONERO_WalletDevice_Trezor;
 //     };
 //     enum Status {
 //         Status_Ok,
-const int WalletStatus_Ok = 0;
+extern ADDAPI const int MONERO_WalletStatus_Ok;
 //         Status_Error,
-const int WalletStatus_Error = 1;
+extern ADDAPI const int MONERO_WalletStatus_Error;
 //         Status_Critical
-const int WalletStatus_Critical = 2;
+extern ADDAPI const int MONERO_WalletStatus_Critical;
 //     };
 //     enum ConnectionStatus {
 //         ConnectionStatus_Disconnected,
-const int WalletConnectionStatus_Disconnected = 0;
+extern ADDAPI const int MONERO_WalletConnectionStatus_Disconnected;
 //         ConnectionStatus_Connected,
-const int WalletConnectionStatus_Connected = 1;
+extern ADDAPI const int MONERO_WalletConnectionStatus_Connected;
 //         ConnectionStatus_WrongVersion
-const int WalletConnectionStatus_WrongVersion = 2;
+extern ADDAPI const int MONERO_WalletConnectionStatus_WrongVersion;
 //     };
 //    enum BackgroundSyncType {
 //        BackgroundSync_Off = 0,
-const int WalletBackgroundSync_Off = 0;
+extern ADDAPI const int MONERO_WalletBackgroundSync_Off;
 //        BackgroundSync_ReusePassword = 1,
-const int WalletBackgroundSync_ReusePassword = 1;
+extern ADDAPI const int MONERO_WalletBackgroundSync_ReusePassword;
 //        BackgroundSync_CustomPassword = 2
-const int BackgroundSync_CustomPassword = 2;
+extern ADDAPI const int MONERO_WalletBackgroundSync_CustomPassword;
 //    };
 //     virtual ~Wallet() = 0;
 //     virtual std::string seed(const std::string& seed_offset = "") const = 0;
@@ -528,7 +533,7 @@ extern ADDAPI int MONERO_Wallet_nettype(void* wallet_ptr);
 //     bool testnet() const { return nettype() == TESTNET; }
 //     bool stagenet() const { return nettype() == STAGENET; }
 //     virtual void hardForkInfo(uint8_t &version, uint64_t &earliest_height) const = 0;
-//     virtual bool useForkRules(uint8_t version, int64_t early_blocks) const = 0;  
+//     virtual bool useForkRules(uint8_t version, int64_t early_blocks) const = 0;
 extern ADDAPI uint8_t MONERO_Wallet_useForkRules(void* wallet_ptr, uint8_t version, int64_t early_blocks);
 //     virtual std::string integratedAddress(const std::string &payment_id) const = 0;
 extern ADDAPI const char* MONERO_Wallet_integratedAddress(void* wallet_ptr, const char* payment_id);
@@ -894,16 +899,16 @@ extern ADDAPI void* MONERO_WalletManager_createWalletFromKeys(void* wm_ptr, cons
 //     {
 //         return createWalletFromKeys(path, password, language, testnet ? TESTNET : MAINNET, restoreHeight, addressString, viewKeyString, spendKeyString);
 //     }
-//     virtual Wallet * createWalletFromKeys(const std::string &path, 
+//     virtual Wallet * createWalletFromKeys(const std::string &path,
 //                                                     const std::string &language,
-//                                                     NetworkType nettype, 
+//                                                     NetworkType nettype,
 //                                                     uint64_t restoreHeight,
 //                                                     const std::string &addressString,
 //                                                     const std::string &viewKeyString,
 //                                                     const std::string &spendKeyString = "") = 0;
-//     Wallet * createWalletFromKeys(const std::string &path, 
+//     Wallet * createWalletFromKeys(const std::string &path,
 //                                   const std::string &language,
-//                                   bool testnet, 
+//                                   bool testnet,
 //                                   uint64_t restoreHeight,
 //                                   const std::string &addressString,
 //                                   const std::string &viewKeyString,
@@ -983,14 +988,14 @@ extern ADDAPI const char* MONERO_WalletManager_resolveOpenAlias(void* wm_ptr, co
 extern ADDAPI bool MONERO_WalletManager_setProxy(void* wm_ptr, const char* address);
 // };
 
-int LogLevel_Silent = -1;
-int LogLevel_0 = 0;
-int LogLevel_1 = 1;
-int LogLevel_2 = 2;
-int LogLevel_3 = 3;
-int LogLevel_4 = 4;
-int LogLevel_Min = -1;
-int LogLevel_Max = 4;
+extern ADDAPI const int MONERO_LogLevel_Silent;
+extern ADDAPI const int MONERO_LogLevel_0;
+extern ADDAPI const int MONERO_LogLevel_1;
+extern ADDAPI const int MONERO_LogLevel_2;
+extern ADDAPI const int MONERO_LogLevel_3;
+extern ADDAPI const int MONERO_LogLevel_4;
+extern ADDAPI const int MONERO_LogLevel_Min;
+extern ADDAPI const int MONERO_LogLevel_Max;
 
 // struct WalletManagerFactory
 // {
@@ -1040,3 +1045,5 @@ extern ADDAPI const char* MONERO_checksum_wallet2_api_c_exp();
 #ifdef __cplusplus
 }
 #endif
+
+#endif // MONERO_LIBWALLET2_API_C_H

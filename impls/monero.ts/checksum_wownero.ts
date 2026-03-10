@@ -1,5 +1,5 @@
 export const wowneroChecksum = {
     wallet2_api_c_h_sha256: "f99009d1ca1d1c783cc9aa0fb63f680d48753b88124fb5de2079c57b7e34c827",
-    wallet2_api_c_cpp_sha256: "70b39a0bef660cb9ba0397117eb1590e18461ace89ab18141690658a2a537d5d-cfd2a696245be112a01936d1f2f41b6eb7558376",
+    wallet2_api_c_cpp_sha256: "4da7caa6ed47e95f0d1ee62315e46d3d9200d32cc6c49dbcadfc0ad053799ea6-cfd2a696245be112a01936d1f2f41b6eb7558376",
     wallet2_api_c_exp_sha256: "5f53ea8bbe66a5e5aa6cbc4ca00695900e08589cfd32062e88965a24252d05ba",
 }

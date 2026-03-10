@@ -1,5 +1,5 @@
 #include <inttypes.h>
-#include "wallet2_api_c.h"
+#include "monero_wallet2_api_c.h"
 #include <unistd.h>
 #include "helpers.hpp"
 #include <cstring>
@@ -37,7 +37,7 @@ extern "C"
 //     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr); <------------ We are converting the void* into Monero::Wallet*
 //     Monero::optional<uint64_t> optAmount; <------------- optional by default
 //     if (amount != 0) {------------------\ We set this optional parameter only when it isn't zero
-//         optAmount = amount;             | 
+//         optAmount = amount;             |
 //     }___________________________________/
 //     std::set<uint32_t> subaddr_indices = {}; ------------- Default value
 //     std::set<std::string> preferred_inputs = splitString(std::string(preferredInputs), std::string(separator)); <------------- We are using helpers.cpp function to split a string into std::set
@@ -60,7 +60,20 @@ extern "C"
 //
 //
 
+const int MONERO_NetworkType_MAINNET = 0;
+const int MONERO_NetworkType_TESTNET = 1;
+const int MONERO_NetworkType_STAGENET = 2;
+
 // PendingTransaction
+
+const int MONERO_PendingTransactionStatus_Ok = 0;
+const int MONERO_PendingTransactionStatus_Error = 1;
+const int MONERO_PendingTransactionStatus_Critical = 2;
+const int MONERO_Priority_Default = 0;
+const int MONERO_Priority_Low = 1;
+const int MONERO_Priority_Medium = 2;
+const int MONERO_Priority_High = 3;
+const int MONERO_Priority_Last = 4;
 
 int MONERO_PendingTransaction_status(void* pendingTx_ptr) {
     DEBUG_START()
@@ -181,6 +194,10 @@ const char* MONERO_PendingTransaction_txKey(void* pendingTx_ptr, const char* sep
 
 // UnsignedTransaction
 
+const int MONERO_UnsignedTransactionStatus_Ok = 0;
+const int MONERO_UnsignedTransactionStatus_Error = 1;
+const int MONERO_UnsignedTransactionStatus_Critical = 2;
+
 int MONERO_UnsignedTransaction_status(void* unsignedTx_ptr) {
     DEBUG_START()
     Monero::UnsignedTransaction *unsignedTx = reinterpret_cast<Monero::UnsignedTransaction*>(unsignedTx_ptr);
@@ -266,6 +283,9 @@ const char* MONERO_UnsignedTransaction_signUR(void* unsignedTx_ptr, int max_frag
     DEBUG_END()
 }
 // TransactionInfo
+
+const int MONERO_TransactionInfoDirection_In = 0;
+const int MONERO_TransactionInfoDirection_Out = 1;
 int MONERO_TransactionInfo_direction(void* txInfo_ptr) {
     DEBUG_START()
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
@@ -454,7 +474,7 @@ const char* MONERO_AddressBookRow_extra(void* addressBookRow_ptr) {
     return buffer;
     DEBUG_END()
 }
-//     std::string getAddress() const {return m_address;} 
+//     std::string getAddress() const {return m_address;}
 const char* MONERO_AddressBookRow_getAddress(void* addressBookRow_ptr) {
     DEBUG_START()
     Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
@@ -465,7 +485,7 @@ const char* MONERO_AddressBookRow_getAddress(void* addressBookRow_ptr) {
     return buffer;
     DEBUG_END()
 }
-//     std::string getDescription() const {return m_description;} 
+//     std::string getDescription() const {return m_description;}
 const char* MONERO_AddressBookRow_getDescription(void* addressBookRow_ptr) {
     DEBUG_START()
     Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
@@ -476,7 +496,7 @@ const char* MONERO_AddressBookRow_getDescription(void* addressBookRow_ptr) {
     return buffer;
     DEBUG_END()
 }
-//     std::string getPaymentId() const {return m_paymentId;} 
+//     std::string getPaymentId() const {return m_paymentId;}
 const char* MONERO_AddressBookRow_getPaymentId(void* addressBookRow_ptr) {
     DEBUG_START()
     Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
@@ -496,6 +516,12 @@ size_t MONERO_AddressBookRow_getRowId(void* addressBookRow_ptr) {
 }
 
 // AddressBook
+
+const int MONERO_AddressBookErrorCodeStatus_Ok = 0;
+const int MONERO_AddressBookErrorCodeGeneral_Error = 1;
+const int MONERO_AddressBookErrorCodeInvalid_Address = 2;
+const int MONERO_AddressBookErrorCodeInvalidPaymentId = 3;
+
 //     virtual std::vector<AddressBookRow*> getAll() const = 0;
 int MONERO_AddressBook_getAll_size(void* addressBook_ptr) {
     DEBUG_START()
@@ -509,7 +535,7 @@ void* MONERO_AddressBook_getAll_byIndex(void* addressBook_ptr, int index) {
     return addressBook->getAll()[index];
     DEBUG_END()
 }
-//     virtual bool addRow(const std::string &dst_addr , const std::string &payment_id, const std::string &description) = 0;  
+//     virtual bool addRow(const std::string &dst_addr , const std::string &payment_id, const std::string &description) = 0;
 bool MONERO_AddressBook_addRow(void* addressBook_ptr, const char* dst_addr , const char* payment_id, const char* description) {
     DEBUG_START()
     Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
@@ -530,7 +556,7 @@ bool MONERO_AddressBook_setDescription(void* addressBook_ptr, size_t rowId, cons
     return addressBook->setDescription(rowId, std::string(description));
     DEBUG_END()
 }
-//     virtual void refresh() = 0;  
+//     virtual void refresh() = 0;
 void MONERO_AddressBook_refresh(void* addressBook_ptr) {
     DEBUG_START()
     Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
@@ -1049,6 +1075,19 @@ bool MONERO_DeviceProgress_indeterminate(void* deviceProgress_ptr) {
     DEBUG_END()
 }
 
+const int MONERO_WalletDevice_Software = 0;
+const int MONERO_WalletDevice_Ledger = 1;
+const int MONERO_WalletDevice_Trezor = 2;
+const int MONERO_WalletStatus_Ok = 0;
+const int MONERO_WalletStatus_Error = 1;
+const int MONERO_WalletStatus_Critical = 2;
+const int MONERO_WalletConnectionStatus_Disconnected = 0;
+const int MONERO_WalletConnectionStatus_Connected = 1;
+const int MONERO_WalletConnectionStatus_WrongVersion = 2;
+const int MONERO_WalletBackgroundSync_Off = 0;
+const int MONERO_WalletBackgroundSync_ReusePassword = 1;
+const int MONERO_WalletBackgroundSync_CustomPassword = 2;
+
 // Wallet
 
 const char* MONERO_Wallet_seed(void* wallet_ptr, const char* seed_offset) {
@@ -1341,6 +1380,15 @@ bool MONERO_Wallet_setProxy(void* wallet_ptr, const char* address) {
     DEBUG_END()
 }
 
+const int MONERO_LogLevel_Silent = -1;
+const int MONERO_LogLevel_0 = 0;
+const int MONERO_LogLevel_1 = 1;
+const int MONERO_LogLevel_2 = 2;
+const int MONERO_LogLevel_3 = 3;
+const int MONERO_LogLevel_4 = 4;
+const int MONERO_LogLevel_Min = MONERO_LogLevel_Silent;
+const int MONERO_LogLevel_Max = MONERO_LogLevel_4;
+
 uint64_t MONERO_Wallet_balance(void* wallet_ptr, uint32_t accountIndex) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
@@ -1515,8 +1563,6 @@ const char* MONERO_Wallet_createPolyseed(const char* language) {
     std::string seed_words = "";
     std::string err;
     Monero::Wallet::createPolyseed(seed_words, err, std::string(language));
-    std::cout << "MONERO_Wallet_createPolyseed(language: " << language << "):" << std::endl;
-    std::cout << "           err: "  << err << std::endl;
     std::string str = seed_words;
     const std::string::size_type size = str.size();
     char *buffer = new char[size + 1];   //we need extra char for NUL
@@ -1659,7 +1705,7 @@ const char* MONERO_Wallet_exchangeMultisigKeys(void* wallet_ptr, const char* inf
 const char* MONERO_Wallet_exportMultisigImages(void* wallet_ptr, const char* separator) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    std::string str; 
+    std::string str;
     wallet->exportMultisigImages(str);
     const std::string::size_type size = str.size();
     char *buffer = new char[size + 1];   //we need extra char for NUL
@@ -2449,7 +2495,7 @@ void MONERO_WalletManagerFactory_setLogCategories(const char* categories) {
 // 2) int
 // 3) uint64_t
 // 4) void*
-// 5) const char* 
+// 5) const char*
 
 void MONERO_DEBUG_test0() {
     return;
@@ -2473,13 +2519,13 @@ void* MONERO_DEBUG_test4(uint64_t x) {
 }
 
 const char* MONERO_DEBUG_test5() {
-    const char *text = "This is a const char* text"; 
+    const char *text = "This is a const char* text";
     return text;
 }
 
 const char* MONERO_DEBUG_test5_std() {
     std::string text("This is a std::string text");
-    const char *text2 = "This is a text"; 
+    const char *text2 = "This is a text";
     return text2;
 }
 

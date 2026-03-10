@@ -11,3 +11,5 @@ contrib/depends/simplybs
 ./monero
 ./wownero
 ./zano
+*.o
+test_wallet2_api_c

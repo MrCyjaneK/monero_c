@@ -1,6 +1,21 @@
-#ifndef MONEROC_CHECKSUMS
-#define MONEROC_CHECKSUMS
-const char * WOWNERO_wallet2_api_c_h_sha256 = "f99009d1ca1d1c783cc9aa0fb63f680d48753b88124fb5de2079c57b7e34c827";
-const char * WOWNERO_wallet2_api_c_cpp_sha256 = "70b39a0bef660cb9ba0397117eb1590e18461ace89ab18141690658a2a537d5d-cfd2a696245be112a01936d1f2f41b6eb7558376";
-const char * WOWNERO_wallet2_api_c_exp_sha256 = "5f53ea8bbe66a5e5aa6cbc4ca00695900e08589cfd32062e88965a24252d05ba";
+#ifndef MONEROC_CHECKSUMS_WOWNERO
+#define MONEROC_CHECKSUMS_WOWNERO
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#ifdef __MINGW32__
+    #define ADDAPI __declspec(dllexport)
+#else
+    #define ADDAPI __attribute__((__visibility__("default")))
+#endif
+
+extern ADDAPI const char * WOWNERO_wallet2_api_c_h_sha256;
+extern ADDAPI const char * WOWNERO_wallet2_api_c_cpp_sha256;
+extern ADDAPI const char * WOWNERO_wallet2_api_c_exp_sha256;
+
+#ifdef __cplusplus
+}
+#endif
 #endif

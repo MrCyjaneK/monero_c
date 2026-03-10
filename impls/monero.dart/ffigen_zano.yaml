@@ -3,7 +3,7 @@ description: monero_c bindings
 output: 'lib/src/generated_bindings_zano.g.dart'
 headers:
   entry-points:
-    - '../../zano_libwallet2_api_c/src/main/cpp/wallet2_api_c.h'
+    - '../../zano_libwallet2_api_c/src/main/cpp/zano_wallet2_api_c.h'
 
 exclude-all-by-default: true
 functions:
