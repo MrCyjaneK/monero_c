@@ -13,11 +13,11 @@ typedef PendingTransaction = Pointer<Void>;
 
 ZanoC? lib;
 String libPath = (() {
-  if (Platform.isWindows) return 'zano_libwallet2_api_c.dll';
-  if (Platform.isMacOS) return 'zano_libwallet2_api_c.dylib';
+  if (Platform.isWindows) return 'libzano_wallet2_api_c.dll';
+  if (Platform.isMacOS) return 'libzano_wallet2_api_c.dylib';
   if (Platform.isIOS) return 'ZanoWallet.framework/ZanoWallet';
-  if (Platform.isAndroid) return 'libzano_libwallet2_api_c.so';
-  return 'zano_libwallet2_api_c.so';
+  if (Platform.isAndroid) return 'libzano_wallet2_api_c.so';
+  return 'zano_wallet2_api_c.so';
 })();
 
 Map<String, List<int>> debugCallLength = {};

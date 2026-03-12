@@ -83,11 +83,11 @@ typedef PendingTransaction = Pointer<Void>;
 
 MoneroC? lib;
 String libPath = (() {
-  if (Platform.isWindows) return 'monero_libwallet2_api_c.dll';
-  if (Platform.isMacOS) return 'monero_libwallet2_api_c.dylib';
+  if (Platform.isWindows) return 'monero_wallet2_api_c.dll';
+  if (Platform.isMacOS) return 'monero_wallet2_api_c.dylib';
   if (Platform.isIOS) return 'MoneroWallet.framework/MoneroWallet';
-  if (Platform.isAndroid) return 'libmonero_libwallet2_api_c.so';
-  return 'monero_libwallet2_api_c.so';
+  if (Platform.isAndroid) return 'libmonero_wallet2_api_c.so';
+  return 'monero_wallet2_api_c.so';
 })();
 
 Map<String, List<int>> debugCallLength = {};
