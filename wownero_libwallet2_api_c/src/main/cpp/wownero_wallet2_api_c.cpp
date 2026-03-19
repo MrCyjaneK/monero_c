@@ -2381,21 +2381,21 @@ bool WOWNERO_cw_WalletListener_isNeedToRefresh(void* cw_walletListener_ptr) {
 bool WOWNERO_cw_WalletListener_isNewTransactionExist(void* cw_walletListener_ptr) {
     DEBUG_START()
     WOWNERO_cw_WalletListener *listener = reinterpret_cast<WOWNERO_cw_WalletListener*>(cw_walletListener_ptr);
-    return listener->cw_isNeedToRefresh();
+    return listener->cw_isNewTransactionExist();
     DEBUG_END()
 };
 
 void WOWNERO_cw_WalletListener_resetIsNewTransactionExist(void* cw_walletListener_ptr) {
     DEBUG_START()
     WOWNERO_cw_WalletListener *listener = reinterpret_cast<WOWNERO_cw_WalletListener*>(cw_walletListener_ptr);
-    listener->cw_isNeedToRefresh();
+    listener->cw_resetIsNewTransactionExist();
     DEBUG_END()
 };
 
 uint64_t WOWNERO_cw_WalletListener_height(void* cw_walletListener_ptr) {
     DEBUG_START()
     WOWNERO_cw_WalletListener *listener = reinterpret_cast<WOWNERO_cw_WalletListener*>(cw_walletListener_ptr);
-    return listener->cw_isNeedToRefresh();
+    return listener->cw_height();
     DEBUG_END()
 };
 
