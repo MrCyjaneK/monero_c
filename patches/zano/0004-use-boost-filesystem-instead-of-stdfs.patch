@@ -1,18 +1,18 @@
-From 1ba500f05c1b534c9fbec8d1dc534546febb5b43 Mon Sep 17 00:00:00 2001
+From 5a5c7a4d565ed9679bf960a08e894fcaff9ce73b Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 4 Dec 2024 17:21:44 -0600
 Subject: [PATCH 4/7] use boost::filesystem instead of stdfs
 
 ---
- CMakeLists.txt                       | 23 ++++-------------------
+ CMakeLists.txt                       | 19 ++-----------------
  contrib/epee/include/file_io_utils.h |  6 +++---
- 2 files changed, 7 insertions(+), 22 deletions(-)
+ 2 files changed, 5 insertions(+), 20 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 7087d796..6ded9711 100644
+index aa2687fd..7694b8eb 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -232,24 +232,9 @@ if(STATIC)
+@@ -234,22 +234,7 @@ if(STATIC)
  endif()
  
  message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")    
@@ -34,21 +34,9 @@ index 7087d796..6ded9711 100644
 -elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
 +if(CMAKE_SYSTEM_NAME STREQUAL "Android")
    if(CAKEWALLET)
--    find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem thread timer date_time chrono regex serialization atomic program_options locale)
-+    find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem thread timer date_time chrono regex serialization atomic program_options)
+     find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem locale thread timer date_time chrono regex serialization atomic program_options)
    else()
-     set(Boost_LIBRARY_DIRS "${Boost_LIBRARY_DIRS}/${CMAKE_ANDROID_ARCH_ABI}/")
-     set(Boost_LIBRARIES "${Boost_LIBRARY_DIRS}libboost_system.a;${Boost_LIBRARY_DIRS}libboost_filesystem.a;${Boost_LIBRARY_DIRS}libboost_thread.a;${Boost_LIBRARY_DIRS}libboost_timer.a;${Boost_LIBRARY_DIRS}libboost_date_time.a;${Boost_LIBRARY_DIRS}libboost_chrono.a;${Boost_LIBRARY_DIRS}libboost_regex.a;${Boost_LIBRARY_DIRS}libboost_serialization.a;${Boost_LIBRARY_DIRS}libboost_atomic.a;${Boost_LIBRARY_DIRS}libboost_program_options.a")
-@@ -257,7 +242,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
-   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC")
-   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC")
- elseif(APPLE)
--  find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem thread timer date_time chrono regex serialization atomic program_options locale)
-+  find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem thread timer date_time chrono regex serialization atomic program_options)
- else()
-   find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem thread timer date_time chrono regex serialization atomic program_options locale log)
- endif()
-@@ -302,7 +287,7 @@ else()
+@@ -306,7 +291,7 @@ else()
    find_package(Git QUIET)
    if(Git_FOUND OR GIT_FOUND)
      message(STATUS "Found Git: ${GIT_EXECUTABLE}")
@@ -76,5 +64,5 @@ index bb21ae99..ced01092 100644
  					continue;
  				}
 -- 
-2.48.1
+2.51.0
 
