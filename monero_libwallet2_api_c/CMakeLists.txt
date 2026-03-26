@@ -132,7 +132,7 @@ elseif(${MONERO_FLAVOR} STREQUAL "beldex")
             message(FATAL_ERROR "Static zlib not found at ${ZLIB_STATIC_LIB}")
         endif()
 
-        target_include_directories(wallet2_api_c
+        target_include_directories(${MONERO_FLAVOR}_wallet2_api_c
             PRIVATE
                 ${ZLIB_INCLUDE_DIR}
         )
