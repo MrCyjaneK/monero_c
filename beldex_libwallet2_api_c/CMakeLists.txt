@@ -141,6 +141,8 @@ elseif(${MONERO_FLAVOR} STREQUAL "beldex")
     endif()
 
     set(WALLET_TARGETS
+        wallet_api
+
         ${wallet_api_LIB_DEPENDS}
         ${Boost_LIBRARIES}
         ${OpenSSL_LIBRARIES}

@@ -245,8 +245,8 @@ endif()
 
 link_directories(@prefix@/lib)
 include_directories(@prefix@/include)
-if(EXISTS "@prefix@/include/c++/13.3.0")
-    include_directories("@prefix@/include/c++/13.3.0")
+if(EXISTS "@prefix@/include/c++/15.2.0")
+    include_directories("@prefix@/include/c++/15.2.0")
 endif()
 include_directories(@prefix@/include/wownero_seed)
 
