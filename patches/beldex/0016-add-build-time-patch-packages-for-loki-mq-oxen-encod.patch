@@ -1,25 +1,55 @@
-From 5839920c4785ef2e7b44109d9966fed9aa2892aa Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 07:12:49 +0000
-Subject: [PATCH 16/19] add build-time patch packages for loki-mq,
+From 54411a8ca097ecec6a9b4f8287af32e41a31f591 Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 17:44:53 +0530
+Subject: [PATCH 16/20] add build-time patch packages for loki-mq,
  oxen-encoding, and uSockets
 
 ---
- cmake/loki-mq.cmake                           | 20 ++++
- cmake/oxen-encoding.cmake                     | 22 +++++
- .../patch/loki-mq/001-fix-libzmq-cmake.patch  | 97 +++++++++++++++++++
- .../oxen-encoding/001-fix-serialization.patch | 67 +++++++++++++
- cmake/patch/uSockets/001-fix-bsd.patch        | 57 +++++++++++
- cmake/uSockets.cmake                          | 23 +++++
- external/CMakeLists.txt                       |  8 +-
- 7 files changed, 292 insertions(+), 2 deletions(-)
+ cmake/libuv.cmake                             |  19 +++
+ cmake/loki-mq.cmake                           |  20 +++
+ cmake/oxen-encoding.cmake                     |  22 +++
+ cmake/patch/libuv/001-fix-cmake-version.patch |  10 ++
+ .../patch/loki-mq/001-fix-libzmq-cmake.patch  | 161 ++++++++++++++++++
+ .../oxen-encoding/001-fix-serialization.patch |  67 ++++++++
+ cmake/patch/uSockets/001-fix-bsd.patch        |  57 +++++++
+ cmake/uSockets.cmake                          |  23 +++
+ external/CMakeLists.txt                       |  10 +-
+ 9 files changed, 387 insertions(+), 2 deletions(-)
+ create mode 100644 cmake/libuv.cmake
  create mode 100644 cmake/loki-mq.cmake
  create mode 100644 cmake/oxen-encoding.cmake
+ create mode 100644 cmake/patch/libuv/001-fix-cmake-version.patch
  create mode 100644 cmake/patch/loki-mq/001-fix-libzmq-cmake.patch
  create mode 100644 cmake/patch/oxen-encoding/001-fix-serialization.patch
  create mode 100644 cmake/patch/uSockets/001-fix-bsd.patch
  create mode 100644 cmake/uSockets.cmake
 
+diff --git a/cmake/libuv.cmake b/cmake/libuv.cmake
+new file mode 100644
+index 000000000..f18d83fef
+--- /dev/null
++++ b/cmake/libuv.cmake
+@@ -0,0 +1,19 @@
++# Apply local fixes to libuv submodule
++
++set(LIBUV_PATCH
++    "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/patch/libuv/001-fix-cmake-version.patch"
++)
++
++if(EXISTS "${LIBUV_PATCH}")
++  message(STATUS "Applying libuv local patch")
++
++  execute_process(
++    COMMAND patch -p1 -N -i "${LIBUV_PATCH}"
++    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../external/libuv"
++    RESULT_VARIABLE _patch_result
++  )
++
++  if(NOT _patch_result EQUAL 0 AND NOT _patch_result EQUAL 1)
++    message(FATAL_ERROR "Failed to apply libuv patch")
++  endif()
++endif()
+\ No newline at end of file
 diff --git a/cmake/loki-mq.cmake b/cmake/loki-mq.cmake
 new file mode 100644
 index 000000000..35683a635
@@ -74,38 +104,103 @@ index 000000000..753460bd3
 +      "Failed to apply oxen-encoding patch:\n${_patch_out}\n${_patch_err}")
 +  endif()
 +endif()
+diff --git a/cmake/patch/libuv/001-fix-cmake-version.patch b/cmake/patch/libuv/001-fix-cmake-version.patch
+new file mode 100644
+index 000000000..9fe7e4e20
+--- /dev/null
++++ b/cmake/patch/libuv/001-fix-cmake-version.patch
+@@ -0,0 +1,10 @@
++diff --git a/CMakeLists.txt b/CMakeLists.txt
++index ac524127..010264b8 100644
++--- a/CMakeLists.txt
+++++ b/CMakeLists.txt
++@@ -1,4 +1,4 @@
++-cmake_minimum_required(VERSION 3.4)
+++cmake_minimum_required(VERSION 3.5)
++ project(libuv LANGUAGES C)
++ 
++ cmake_policy(SET CMP0057 NEW) # Enable IN_LIST operator
 diff --git a/cmake/patch/loki-mq/001-fix-libzmq-cmake.patch b/cmake/patch/loki-mq/001-fix-libzmq-cmake.patch
 new file mode 100644
-index 000000000..e2a00586d
+index 000000000..65079a234
 --- /dev/null
 +++ b/cmake/patch/loki-mq/001-fix-libzmq-cmake.patch
-@@ -0,0 +1,97 @@
+@@ -0,0 +1,161 @@
++diff --git a/CMakeLists.txt b/CMakeLists.txt
++index ded625a..232f663 100644
++--- a/CMakeLists.txt
+++++ b/CMakeLists.txt
++@@ -143,7 +143,7 @@ target_include_directories(oxenmq
++ 
++ target_compile_options(oxenmq PRIVATE -Wall -Wextra)
++ 
++-option(WARNINGS_AS_ERRORS "treat all warnings as errors" ON)
+++option(WARNINGS_AS_ERRORS "treat all warnings as errors" OFF)
++ if(WARNINGS_AS_ERRORS)
++     target_compile_options(oxenmq PRIVATE -Werror)
++ endif()
 +diff --git a/cmake/local-libzmq/LocalLibzmq.cmake b/cmake/local-libzmq/LocalLibzmq.cmake
-+index a25adb7..387dd9c 100644
++index a25adb7..e7c2935 100644
 +--- a/cmake/local-libzmq/LocalLibzmq.cmake
 ++++ b/cmake/local-libzmq/LocalLibzmq.cmake
-+@@ -13,20 +13,86 @@ endif()
++@@ -12,21 +12,138 @@ endif()
++ 
 + 
 + file(MAKE_DIRECTORY ${LIBZMQ_PREFIX}/include)
+++if(IOS)
+++    set(IOS_PLATFORM iphoneos)
+++    set(IOS_ARCH arm64)
+++    set(IOS_DEPLOYMENT_TARGET 12.0)
+++endif()
+++
 + 
-++set(IOS_PLATFORM iphoneos)
-++set(IOS_ARCH arm64)
-++set(IOS_DEPLOYMENT_TARGET 12.0)
-++
-++
 + include(ExternalProject)
 + include(ProcessorCount)
+++
+++get_filename_component(LIBZMQ_REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../.." ABSOLUTE)
+++set(LIBZMQ_DEPENDS_ROOT "${LIBZMQ_REPO_ROOT}/contrib/depends")
+++
+++if(NOT DEFINED HOST_ABI OR HOST_ABI STREQUAL "")
+++    if(DEFINED ENV{HOST} AND NOT "$ENV{HOST}" STREQUAL "")
+++        set(HOST_ABI "$ENV{HOST}")
+++    elseif(WIN32)
+++        if(CMAKE_SYSTEM_PROCESSOR STREQUAL "i686")
+++            set(HOST_ABI i686-w64-mingw32)
+++        else()
+++            set(HOST_ABI x86_64-w64-mingw32)
+++        endif()
+++    endif()
+++endif()
+++
 ++if(WIN32)
+++    set(ZMQ_WINDOWS_PREFIX "${LIBZMQ_DEPENDS_ROOT}/${HOST_ABI}")
+++    set(ZMQ_WINDOWS_SYSROOT "${ZMQ_WINDOWS_PREFIX}/sysroot")
+++    set(ZMQ_WINDOWS_TOOLCHAIN_FILE "${LIBZMQ_DEPENDS_ROOT}/${HOST_ABI}/share/toolchain.cmake")
+++    if(NOT EXISTS "${ZMQ_WINDOWS_TOOLCHAIN_FILE}")
+++        message(FATAL_ERROR "Missing depends toolchain file: ${ZMQ_WINDOWS_TOOLCHAIN_FILE}")
+++    endif()
+++
 ++    set(ZMQ_WIN_DEFS
 ++    -D_WIN32_WINNT=0x0601
 ++    -DWINVER=0x0601
 ++    -DNTDDI_VERSION=0x06010000
 ++)
+++    string(JOIN " " ZMQ_WIN_DEF_FLAGS ${ZMQ_WIN_DEFS})
+++
+++    file(GLOB ZMQ_WINDOWS_CXX_INCLUDE_DIRS LIST_DIRECTORIES true "${ZMQ_WINDOWS_PREFIX}/include/c++/*")
+++    list(SORT ZMQ_WINDOWS_CXX_INCLUDE_DIRS)
+++    if(NOT ZMQ_WINDOWS_CXX_INCLUDE_DIRS)
+++        message(FATAL_ERROR "Missing libstdc++ headers under ${ZMQ_WINDOWS_PREFIX}/include/c++")
+++    endif()
+++    list(GET ZMQ_WINDOWS_CXX_INCLUDE_DIRS 0 ZMQ_WINDOWS_CXX_STDLIB_DIR)
+++
+++    set(ZMQ_WINDOWS_C_FLAGS
+++        "--sysroot=${ZMQ_WINDOWS_SYSROOT} -I${ZMQ_WINDOWS_SYSROOT}/usr/${HOST_ABI}/include -I${ZMQ_WINDOWS_SYSROOT}/mingw/include -I${ZMQ_WINDOWS_PREFIX}/include ${ZMQ_WIN_DEF_FLAGS}")
+++    set(ZMQ_WINDOWS_CXX_FLAGS
+++        "--sysroot=${ZMQ_WINDOWS_SYSROOT} -I${ZMQ_WINDOWS_SYSROOT}/usr/${HOST_ABI}/include -I${ZMQ_WINDOWS_SYSROOT}/mingw/include -I${ZMQ_WINDOWS_PREFIX}/include -I${ZMQ_WINDOWS_CXX_STDLIB_DIR} -I${ZMQ_WINDOWS_CXX_STDLIB_DIR}/${HOST_ABI} ${ZMQ_WIN_DEF_FLAGS}")
 ++endif()
 ++
 ++set(ZMQ_COMMON_ARGS
-++    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-++    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
 ++    -DWITH_LIBSODIUM=OFF
 ++    -DENABLE_CURVE=OFF
 ++    -DZMQ_BUILD_TESTS=OFF
@@ -117,15 +212,21 @@ index 000000000..e2a00586d
 ++    -DCMAKE_INSTALL_PREFIX=${LIBZMQ_PREFIX}
 ++)
 ++
-++set(ZMQ_WINDOWS_ARGS
+++set(ZMQ_WINDOWS_ARGS 
 ++    -DCMAKE_SYSTEM_NAME=Windows
-++    -DCMAKE_C_FLAGS=${ZMQ_WIN_DEFS}
-++    -DCMAKE_CXX_FLAGS=${ZMQ_WIN_DEFS}
-++    -DZMQ_POLL_BASED_ON_SELECT=ON
-++    -DZMQ_USE_SELECT=ON
-++    -DZMQ_USE_POLL=OFF
-++    -DZMQ_USE_EPOLL=OFF
-++    -DZMQ_USE_KQUEUE=OFF
+++    -DCMAKE_TOOLCHAIN_FILE=${ZMQ_WINDOWS_TOOLCHAIN_FILE}
+++    -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY 
+++    "-DCMAKE_C_FLAGS=${ZMQ_WINDOWS_C_FLAGS}"
+++    "-DCMAKE_CXX_FLAGS=${ZMQ_WINDOWS_CXX_FLAGS}"
+++    -DZMQ_WIN32_WINNT=0x0601
+++
+++    -DCMAKE_C_STANDARD_LIBRARIES=-lws2_32\ -ladvapi32\ -luser32\ -lkernel32\ -lrpcrt4
+++    -DCMAKE_CXX_STANDARD_LIBRARIES=-lws2_32\ -ladvapi32\ -luser32\ -lkernel32\ -lrpcrt4
+++
+++    -DZMQ_HAVE_WINDOWS=ON 
+++    -DZMQ_HAVE_IPC=0 
+++    -DZMQ_HAVE_IFADDRS=0 
+++    -DZMQ_HAVE_OPENPGM=0 
 ++)
 ++
 ++set(ZMQ_IOS_ARGS
@@ -142,10 +243,17 @@ index 000000000..e2a00586d
 ++
 ++if(WIN32)
 ++    set(ZMQ_PLATFORM_ARGS ${ZMQ_WINDOWS_ARGS})
+++    set(ZMQ_PATCH_COMMAND
+++        PATCH_COMMAND
+++            ${CMAKE_COMMAND}
+++            -DLIBZMQ_SOURCE_DIR=<SOURCE_DIR>
+++            -P ${LIBZMQ_REPO_ROOT}/beldex/cmake/patch-libzmq-for-mingw.cmake)
 ++elseif(IOS)
 ++    set(ZMQ_PLATFORM_ARGS ${ZMQ_IOS_ARGS})
+++    set(ZMQ_PATCH_COMMAND "")
 ++else()
 ++    set(ZMQ_PLATFORM_ARGS "")
+++    set(ZMQ_PATCH_COMMAND "")
 ++endif()
 ++
 + ExternalProject_Add(libzmq_external
@@ -157,10 +265,13 @@ index 000000000..e2a00586d
 +-    -DBUILD_SHARED=OFF -DBUILD_STATIC=ON -DWITH_DOC=OFF -DCMAKE_INSTALL_PREFIX=${LIBZMQ_PREFIX}
 +-    BUILD_BYPRODUCTS ${LIBZMQ_PREFIX}/${CMAKE_INSTALL_LIBDIR}/libzmq.a
 +-    )
+++    ${ZMQ_PATCH_COMMAND}
 ++
 ++    CMAKE_ARGS
 ++        ${ZMQ_COMMON_ARGS}
 ++        ${ZMQ_PLATFORM_ARGS}
+++        -DCMAKE_POLICY_VERSION_MINIMUM=3.5 
+++        
 ++
 ++    BUILD_BYPRODUCTS
 ++        ${LIBZMQ_PREFIX}/${CMAKE_INSTALL_LIBDIR}/libzmq.a
@@ -176,7 +287,6 @@ index 000000000..e2a00586d
 ++if(WIN32)
 ++    target_compile_definitions(libzmq_vendor INTERFACE ZMQ_STATIC)
 ++endif()
-+\ No newline at end of file
 diff --git a/cmake/patch/oxen-encoding/001-fix-serialization.patch b/cmake/patch/oxen-encoding/001-fix-serialization.patch
 new file mode 100644
 index 000000000..7b41ac1bf
@@ -343,10 +453,19 @@ index 000000000..ad133c565
 +  endif()
 +endif()
 diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
-index bc45f05f0..a20520e58 100755
+index a7bfba09b..c0561c687 100755
 --- a/external/CMakeLists.txt
 +++ b/external/CMakeLists.txt
-@@ -41,6 +41,7 @@ endif()
+@@ -33,6 +33,8 @@
+ # ...except for FreeBSD, because FreeBSD is a special case that doesn't play well with
+ # others.
+ 
++include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/libuv.cmake)
++
+ if(NOT STATIC AND NOT BUILD_STATIC_DEPS)
+   find_package(PkgConfig REQUIRED)
+   pkg_check_modules(OXENC liboxenc>=1.0.10 IMPORTED_TARGET)
+@@ -41,6 +43,7 @@ endif()
  
  if(NOT OXENC_FOUND)
     message(STATUS "Using in-tree oxen-encoding")
@@ -354,7 +473,7 @@ index bc45f05f0..a20520e58 100755
     add_subdirectory(oxen-encoding)
   else()
     add_library(oxenc INTERFACE)
-@@ -51,6 +52,7 @@ endif()
+@@ -51,6 +54,7 @@ endif()
  
  if(NOT OXENMQ_FOUND)
    message(STATUS "Using in-tree oxenmq")
@@ -362,7 +481,7 @@ index bc45f05f0..a20520e58 100755
    add_subdirectory(loki-mq)
  else()
    add_library(oxenmq INTERFACE)
-@@ -72,6 +74,8 @@ add_subdirectory(nlohmann-json)
+@@ -72,6 +76,8 @@ add_subdirectory(nlohmann-json)
  
  # uSockets doesn't really have a proper build system (just a very simple Makefile) so build it
  # ourselves.
@@ -371,7 +490,7 @@ index bc45f05f0..a20520e58 100755
  if (NOT CMAKE_VERSION VERSION_LESS 3.12)
      set(conf_depends "CONFIGURE_DEPENDS")
  else()
-@@ -84,13 +88,13 @@ target_compile_definitions(uSockets PRIVATE LIBUS_NO_SSL=1)
+@@ -84,13 +90,13 @@ target_compile_definitions(uSockets PRIVATE LIBUS_NO_SSL=1)
  target_include_directories(uSockets PRIVATE uWebSockets/uSockets/src)
  
  # Polyseed
@@ -388,5 +507,5 @@ index bc45f05f0..a20520e58 100755
  )
  
 -- 
-2.25.1
+2.43.0
 

@@ -1,0 +1,773 @@
+From 012ffe72b3ba470d829591c56933cca3d916c98b Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 18:00:53 +0530
+Subject: [PATCH 20/20] build: update source files for compiler compatibility
+
+---
+ cmake/patch-libzmq-for-mingw.cmake       | 14 +++++
+ src/cryptonote_config.h                  | 52 +++++++++---------
+ src/cryptonote_core/blockchain.cpp       | 23 +++++---
+ src/cryptonote_core/cryptonote_core.cpp  |  8 ++-
+ src/cryptonote_core/cryptonote_core.h    |  4 +-
+ src/cryptonote_core/master_node_list.cpp | 54 ++++++++++++-------
+ src/daemon/daemon.cpp                    |  8 ++-
+ src/simplewallet/simplewallet.cpp        |  2 +-
+ src/wallet/api/wallet.cpp                | 36 +++++++------
+ src/wallet/api/wallet_manager.cpp        |  4 +-
+ src/wallet/node_rpc_proxy.cpp            |  4 +-
+ src/wallet/wallet2.cpp                   | 69 ++++++++++++------------
+ 12 files changed, 167 insertions(+), 111 deletions(-)
+ create mode 100644 cmake/patch-libzmq-for-mingw.cmake
+
+diff --git a/cmake/patch-libzmq-for-mingw.cmake b/cmake/patch-libzmq-for-mingw.cmake
+new file mode 100644
+index 000000000..26a3b0463
+--- /dev/null
++++ b/cmake/patch-libzmq-for-mingw.cmake
+@@ -0,0 +1,14 @@
++if(NOT DEFINED LIBZMQ_SOURCE_DIR OR LIBZMQ_SOURCE_DIR STREQUAL "")
++    message(FATAL_ERROR "LIBZMQ_SOURCE_DIR is required")
++endif()
++
++set(libzmq_cmake_lists "${LIBZMQ_SOURCE_DIR}/CMakeLists.txt")
++if(NOT EXISTS "${libzmq_cmake_lists}")
++    message(FATAL_ERROR "Missing ${libzmq_cmake_lists}")
++endif()
++
++file(READ "${libzmq_cmake_lists}" libzmq_cmake)
++string(REPLACE "ws2_32.lib" "ws2_32" libzmq_cmake "${libzmq_cmake}")
++string(REPLACE "rpcrt4.lib" "rpcrt4" libzmq_cmake "${libzmq_cmake}")
++string(REPLACE "iphlpapi.lib" "iphlpapi" libzmq_cmake "${libzmq_cmake}")
++file(WRITE "${libzmq_cmake_lists}" "${libzmq_cmake}")
+diff --git a/src/cryptonote_config.h b/src/cryptonote_config.h
+index 41164957e..dc8381aa3 100644
+--- a/src/cryptonote_config.h
++++ b/src/cryptonote_config.h
+@@ -82,13 +82,13 @@ inline constexpr uint64_t LOCKED_TX_ALLOWED_DELTA_BLOCKS       = 1;
+         #define DIFFICULTY_TARGET_V1                            60  // seconds - before first fork
+ 
+ inline constexpr auto TARGET_BLOCK_TIME     = 30s;
+-inline constexpr uint64_t BLOCKS_PER_HOUR   = 1h / TARGET_BLOCK_TIME;
+-inline constexpr uint64_t BLOCKS_PER_DAY    = 24h / TARGET_BLOCK_TIME;
++inline constexpr uint64_t BLOCKS_PER_HOUR   = 3600 / TARGET_BLOCK_TIME.count();
++inline constexpr uint64_t BLOCKS_PER_DAY    = 86400 / TARGET_BLOCK_TIME.count();
+ 
+-inline constexpr auto MEMPOOL_TX_LIVETIME                    = 3 * 24h;
+-inline constexpr auto MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME     = 7 * 24h;
+-inline constexpr auto MEMPOOL_PRUNE_NON_STANDARD_TX_LIFETIME = 2h;
+-inline constexpr size_t DEFAULT_MEMPOOL_MAX_WEIGHT           = 72h / TARGET_BLOCK_TIME * 300'000;  // 3 days worth of full 300kB blocks
++inline constexpr auto MEMPOOL_TX_LIVETIME                    = std::chrono::seconds{3 * 24 * 60 * 60};
++inline constexpr auto MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME     = std::chrono::seconds{7 * 24 * 60 * 60};
++inline constexpr auto MEMPOOL_PRUNE_NON_STANDARD_TX_LIFETIME = std::chrono::seconds{2 * 60 * 60};
++inline constexpr size_t DEFAULT_MEMPOOL_MAX_WEIGHT           = (72ULL * 60ULL * 60ULL / TARGET_BLOCK_TIME.count()) * 300000ULL;  // 3 days worth of full 300kB blocks
+ 
+ inline constexpr uint64_t FEE_PER_BYTE                         = 215;   // Fallback used in wallet if no fee is available from RPC
+ inline constexpr uint64_t FEE_PER_OUTPUT_V17                   = 100000; // 0.0001 BDX per tx output 
+@@ -132,7 +132,7 @@ using MAXIMUM_ACCEPTABLE_STAKE = std::ratio<101, 100>;
+         // #define CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_SECONDS_V3   TARGET_BLOCK_TIME * CRYPTONOTE_LOCKED_TX_ALLOWED_DELTA_BLOCKS
+ 
+ // see src/cryptonote_protocol/levin_notify.cpp
+-inline constexpr auto     NOISE_MIN_EPOCH   = 5min;
++inline constexpr auto     NOISE_MIN_EPOCH   = std::chrono::seconds{5 * 60};
+ inline constexpr auto     NOISE_EPOCH_RANGE = 30s;
+ inline constexpr auto     NOISE_MIN_DELAY   = 10s;
+ inline constexpr auto     NOISE_DELAY_RANGE = 5s;
+@@ -155,17 +155,17 @@ namespace p2p {
+   inline constexpr auto DEFAULT_CONNECTION_TIMEOUT               = 5s;
+   inline constexpr auto DEFAULT_SOCKS_CONNECT_TIMEOUT            = 45s;
+   inline constexpr auto DEFAULT_PING_CONNECTION_TIMEOUT          = 2s;
+-  inline constexpr auto DEFAULT_INVOKE_TIMEOUT                   = 2min;
++  inline constexpr auto DEFAULT_INVOKE_TIMEOUT                   = std::chrono::seconds{2 * 60};
+   inline constexpr auto DEFAULT_HANDSHAKE_INVOKE_TIMEOUT         = 5s;
+   inline constexpr int DEFAULT_WHITELIST_CONNECTIONS_PERCENT     = 70;
+   inline constexpr size_t DEFAULT_ANCHOR_CONNECTIONS_COUNT       = 2;
+   inline constexpr size_t DEFAULT_SYNC_SEARCH_CONNECTIONS_COUNT  = 2;
+   inline constexpr int64_t DEFAULT_LIMIT_RATE_UP                 = 2048;  // kB/s
+   inline constexpr int64_t DEFAULT_LIMIT_RATE_DOWN               = 8192;  // kB/s
+-  inline constexpr auto FAILED_ADDR_FORGET                       = 1h;
+-  inline constexpr auto IP_BLOCK_TIME                            = 24h;
++  inline constexpr auto FAILED_ADDR_FORGET                       = std::chrono::seconds{60 * 60};
++  inline constexpr auto IP_BLOCK_TIME                            = std::chrono::seconds{24 * 60 * 60};
+   inline constexpr size_t IP_FAILS_BEFORE_BLOCK                  = 10;
+-  inline constexpr auto IDLE_CONNECTION_KILL_INTERVAL            = 5min;
++  inline constexpr auto IDLE_CONNECTION_KILL_INTERVAL            = std::chrono::seconds{5 * 60};
+ }  // namespace p2p
+ 
+ // filename constants:
+@@ -259,11 +259,11 @@ namespace old {
+   inline constexpr uint64_t STAKING_REQUIREMENT_LOCK_BLOCKS_EXCESS = 20;
+   // Before HF19, staking portions and fees (in SN registrations) are encoded as a numerator value
+   // with this implied denominator:
+-  inline constexpr uint64_t STAKING_PORTIONS = UINT64_C(0xfffffffffffffffc);
++  inline constexpr auto STAKING_PORTIONS = 0xfffffffffffffffcULL;
+   // Before HF19 signed registrations were only valid for two weeks:
+   // TODO: After HF19 we eliminate the window-checking code entirely (as long as no expired
+   // registration has ever been sent to the blockchain then it should still sync fine).
+-  inline constexpr std::chrono::seconds STAKING_AUTHORIZATION_EXPIRATION_WINDOW = 14 * 24h;
++  inline constexpr std::chrono::seconds STAKING_AUTHORIZATION_EXPIRATION_WINDOW{14 * 24 * 60 * 60};
+ 
+   inline constexpr uint64_t DEFAULT_TX_SPENDABLE_AGE                     = 10;
+ 
+@@ -272,7 +272,7 @@ namespace old {
+   inline constexpr uint64_t DYNAMIC_FEE_REFERENCE_TRANSACTION_WEIGHT_V17 = 30000; // Only v17 (v18 switches back)
+ 
+   // Dynamic fee calculations used before HF10:
+-  inline constexpr uint64_t DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD = UINT64_C(10000000000); // 10 * pow(10,9)
++  inline constexpr auto DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD = 10000000000ULL; // 10 * pow(10,9)
+   inline constexpr uint64_t DYNAMIC_FEE_PER_KB_BASE_FEE_V5       = 400000000;
+ 
+   inline constexpr uint64_t DIFFICULTY_WINDOW       = 59;
+@@ -296,9 +296,9 @@ namespace old {
+     return result;
+   }
+   
+-  inline constexpr auto TARGET_BLOCK_TIME_12     = 2min;
+-  inline constexpr uint64_t BLOCKS_PER_HOUR_12   = 1h / TARGET_BLOCK_TIME_12;
+-  inline constexpr uint64_t BLOCKS_PER_DAY_12    = 24h / TARGET_BLOCK_TIME_12;
++  inline constexpr auto TARGET_BLOCK_TIME_12     = std::chrono::seconds{2 * 60};
++  inline constexpr uint64_t BLOCKS_PER_HOUR_12   = 3600 / TARGET_BLOCK_TIME_12.count();
++  inline constexpr uint64_t BLOCKS_PER_DAY_12    = 86400 / TARGET_BLOCK_TIME_12.count();
+ 
+ }  // namespace old
+ 
+@@ -334,12 +334,12 @@ namespace config
+     "bxdwQ4ruRpW9QTfBpStRAMNKgdt7Rr39UcThNZ7mwsfxH7StmykPe9ah1KgJL2LwEAgqRXHLvZYBm1aaUVR8mLtB1u3WauV6P"sv, // hardfork v17
+   };
+ 
+-  inline constexpr auto UPTIME_PROOF_TOLERANCE = 5min; // How much an uptime proof timestamp can deviate from our timestamp before we refuse it
++  inline constexpr auto UPTIME_PROOF_TOLERANCE = std::chrono::seconds{5 * 60}; // How much an uptime proof timestamp can deviate from our timestamp before we refuse it
+   inline constexpr auto UPTIME_PROOF_STARTUP_DELAY = 30s; // How long to wait after startup before broadcasting a proof
+   inline constexpr auto UPTIME_PROOF_CHECK_INTERVAL = 30s; // How frequently to check whether we need to broadcast a proof
+-  inline constexpr auto UPTIME_PROOF_FREQUENCY = 1h; // How often to send proofs out to the network since the last proof we successfully sent.  (Approximately; this can be up to CHECK_INTERFACE/2 off in either direction).  The minimum accepted time between proofs is half of this.
+-  inline constexpr auto UPTIME_PROOF_VALIDITY = 2h + 5min; // The maximum time that we consider an uptime proof to be valid (i.e. after this time since the last proof we consider the MN to be down)
+-  inline constexpr auto REACHABLE_MAX_FAILURE_VALIDITY = 5min; // If we don't hear any SS ping/belnet bchat test failures for more than this long then we start considering the MN as passing for the purpose of obligation testing until we get another test result.  This should be somewhat larger than SS/belnet's max re-test backoff (2min).
++  inline constexpr auto UPTIME_PROOF_FREQUENCY = std::chrono::seconds{60 * 60}; // How often to send proofs out to the network since the last proof we successfully sent.  (Approximately; this can be up to CHECK_INTERFACE/2 off in either direction).  The minimum accepted time between proofs is half of this.
++  inline constexpr auto UPTIME_PROOF_VALIDITY = std::chrono::seconds{2 * 60 * 60 + 5 * 60}; // The maximum time that we consider an uptime proof to be valid (i.e. after this time since the last proof we consider the MN to be down)
++  inline constexpr auto REACHABLE_MAX_FAILURE_VALIDITY = std::chrono::seconds{5 * 60}; // If we don't hear any SS ping/belnet bchat test failures for more than this long then we start considering the MN as passing for the purpose of obligation testing until we get another test result.  This should be somewhat larger than SS/belnet's max re-test backoff (2min).
+   namespace testnet
+   {
+     inline constexpr uint64_t HEIGHT_ESTIMATE_HEIGHT = 169960;
+@@ -365,8 +365,8 @@ namespace config
+       "9zjbG8Pcv3YGXxpRaDtmApCaNRHkTwizaDBS7SXtf9AndKfxVZhPki23sFTsnJcBhuKzBgTipNtMyFzzG13ax5MFUmmLmcW"sv, // hardfork >=V17
+     };
+ 
+-    inline constexpr auto UPTIME_PROOF_FREQUENCY = 10min;
+-    inline constexpr auto UPTIME_PROOF_VALIDITY = 21min;
++    inline constexpr auto UPTIME_PROOF_FREQUENCY = std::chrono::seconds{10 * 60};
++    inline constexpr auto UPTIME_PROOF_VALIDITY = std::chrono::seconds{21 * 60};
+   }
+ 
+   namespace devnet
+@@ -400,8 +400,8 @@ namespace config
+     // hand-crafted, typically local temporary network.
+     inline constexpr auto UPTIME_PROOF_STARTUP_DELAY = 5s;
+     inline constexpr auto UPTIME_PROOF_CHECK_INTERVAL = 5s;
+-    inline constexpr auto UPTIME_PROOF_FREQUENCY = 1min;
+-    inline constexpr auto UPTIME_PROOF_VALIDITY = 2min + 5s;
++    inline constexpr auto UPTIME_PROOF_FREQUENCY = std::chrono::seconds{60};
++    inline constexpr auto UPTIME_PROOF_VALIDITY = std::chrono::seconds{2 * 60 + 5};
+   }
+ } // namespace config
+ 
+@@ -540,4 +540,4 @@ inline constexpr const network_config& get_config(network_type nettype)
+   }
+ }
+ 
+-}
+\ No newline at end of file
++}
+diff --git a/src/cryptonote_core/blockchain.cpp b/src/cryptonote_core/blockchain.cpp
+index c470f6885..35e68e495 100755
+--- a/src/cryptonote_core/blockchain.cpp
++++ b/src/cryptonote_core/blockchain.cpp
+@@ -68,7 +68,13 @@
+ #include "common/meta.h"
+ #include "common/sha256sum.h"
+ 
+-#ifdef ENABLE_SYSTEMD
++#if defined(ENABLE_SYSTEMD) && defined(__has_include) && __has_include(<systemd/sd-daemon.h>)
++extern "C" {
++#  include <systemd/sd-daemon.h>
++}
++#elif defined(ENABLE_SYSTEMD) && defined(__has_include)
++#  undef ENABLE_SYSTEMD
++#elif defined(ENABLE_SYSTEMD)
+ extern "C" {
+ #  include <systemd/sd-daemon.h>
+ }
+@@ -96,7 +102,7 @@ DISABLE_VS_WARNINGS(4267)
+ #define MERROR_VER(x) MCERROR("verify", x)
+ 
+ // used to overestimate the block reward when estimating a per kB to use
+-#define BLOCK_REWARD_OVERESTIMATE (10 * 1000000000000)
++#define BLOCK_REWARD_OVERESTIMATE (UINT64_C(10) * UINT64_C(1000000000000))
+ 
+ Blockchain::block_extended_info::block_extended_info(const alt_block_data_t &src, block const &blk, checkpoint_t const *checkpoint)
+ {
+@@ -2073,7 +2079,7 @@ bool Blockchain::handle_alternative_block(const block& b, const crypto::hash& id
+       // Smallest number divisible by all integers from 1..32.  (This is fairly arbitrary,
+       // but avoids remainders below in most cases, while being small enough that we can
+       // add up a large number of blocks without risk of overflow).
+-      constexpr uint64_t POS_BASE_WEIGHT = 144403552893600ULL;
++      constexpr auto POS_BASE_WEIGHT = 144403552893600ULL;
+ 
+       // Minimal value increase for a longer chain so that two chains with the same cumulative
+       // weight calculation below will marginally prefer the longer chain.  Also for mined blocks
+@@ -3789,12 +3795,13 @@ byte_and_output_fees Blockchain::get_dynamic_base_fee(uint64_t block_reward, siz
+ 
+   uint64_t unscaled_fee_base = (fee_base * min_block_weight / median_block_weight);
+   lo = mul128(unscaled_fee_base, block_reward, &hi);
+-  static_assert(old::DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD % 1000000 == 0, "DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD must be divisible by 1000000");
+-  static_assert(old::DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD / 1000000 <= std::numeric_limits<uint32_t>::max(), "DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD is too large");
++  constexpr auto old_dynamic_fee_base_block_reward = 10000000000ULL;
++  static_assert(old_dynamic_fee_base_block_reward % 1000000ULL == 0, "DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD must be divisible by 1000000");
++  static_assert(old_dynamic_fee_base_block_reward / 1000000ULL <= std::numeric_limits<uint32_t>::max(), "DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD is too large");
+ 
+   // divide in two steps, since the divisor must be 32 bits, but old::DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD isn't
+-  div128_32(hi, lo, old::DYNAMIC_FEE_PER_KB_BASE_BLOCK_REWARD / 1000000, &hi, &lo);
+-  div128_32(hi, lo, 1000000, &hi, &lo);
++  div128_32(hi, lo, static_cast<uint32_t>(old_dynamic_fee_base_block_reward / 1000000ULL), &hi, &lo);
++  div128_32(hi, lo, 1000000u, &hi, &lo);
+   assert(hi == 0);
+ 
+   // quantize fee up to 8 decimals
+@@ -4204,7 +4211,7 @@ bool Blockchain::basic_block_checks(cryptonote::block const &blk, bool alt_block
+     {
+       // Show a warning at most once every 5 minutes if we are receiving future hf blocks
+       std::lock_guard lock{last_outdated_warning_mutex};
+-      if (auto now = std::chrono::steady_clock::now(); now > last_outdated_warning + 5min)
++      if (auto now = std::chrono::steady_clock::now(); now > last_outdated_warning + std::chrono::seconds{5 * 60})
+       {
+         last_outdated_warning = now;
+         const el::Level level = el::Level::Warning;
+diff --git a/src/cryptonote_core/cryptonote_core.cpp b/src/cryptonote_core/cryptonote_core.cpp
+index d20d2b923..ce165aff0 100755
+--- a/src/cryptonote_core/cryptonote_core.cpp
++++ b/src/cryptonote_core/cryptonote_core.cpp
+@@ -40,7 +40,13 @@
+ 
+ extern "C" {
+ #include <sodium.h>
+-#ifdef ENABLE_SYSTEMD
++#if defined(ENABLE_SYSTEMD) && defined(__has_include)
++#  if __has_include(<systemd/sd-daemon.h>)
++#    include <systemd/sd-daemon.h>
++#  else
++#    undef ENABLE_SYSTEMD
++#  endif
++#elif defined(ENABLE_SYSTEMD)
+ #  include <systemd/sd-daemon.h>
+ #endif
+ }
+diff --git a/src/cryptonote_core/cryptonote_core.h b/src/cryptonote_core/cryptonote_core.h
+index d3e208d3c..907152a85 100755
+--- a/src/cryptonote_core/cryptonote_core.h
++++ b/src/cryptonote_core/cryptonote_core.h
+@@ -1175,9 +1175,9 @@ namespace cryptonote
+      tools::periodic_task m_check_disk_space_interval{10min}; //!< interval for checking for disk space
+      tools::periodic_task m_check_uptime_proof_interval{30s}; //!< interval for checking our own uptime proof (will be set to get_net_config().UPTIME_PROOF_CHECK_INTERVAL after init)
+      tools::periodic_task m_block_rate_interval{90s, false}; //!< interval for checking block rate
+-     tools::periodic_task m_blockchain_pruning_interval{5h}; //!< interval for incremental blockchain pruning
++     tools::periodic_task m_blockchain_pruning_interval{std::chrono::seconds(18000)};//!< interval for incremental blockchain pruning
+      tools::periodic_task m_master_node_vote_relayer{2min, false};
+-     tools::periodic_task m_mn_proof_cleanup_interval{1h, false};
++     tools::periodic_task m_mn_proof_cleanup_interval{std::chrono::seconds(3600), false};
+      tools::periodic_task m_systemd_notify_interval{10s};
+ 
+      std::atomic<bool> m_starter_message_showed; //!< has the "daemon will sync now" message been shown?
+diff --git a/src/cryptonote_core/master_node_list.cpp b/src/cryptonote_core/master_node_list.cpp
+index b6e90a1c8..315078772 100755
+--- a/src/cryptonote_core/master_node_list.cpp
++++ b/src/cryptonote_core/master_node_list.cpp
+@@ -72,8 +72,8 @@ namespace master_nodes
+ {
+   size_t constexpr STORE_LONG_TERM_STATE_INTERVAL = 10000;
+ 
+-  constexpr auto X25519_MAP_PRUNING_INTERVAL = 5min;
+-  constexpr auto X25519_MAP_PRUNING_LAG = 24h;
++  constexpr auto X25519_MAP_PRUNING_INTERVAL = std::chrono::seconds{5 * 60};
++  constexpr auto X25519_MAP_PRUNING_LAG = std::chrono::seconds{24 * 60 * 60};
+   static_assert(X25519_MAP_PRUNING_LAG > cryptonote::config::UPTIME_PROOF_VALIDITY, "x25519 map pruning lag is too short!");
+ 
+   static uint64_t short_term_state_cull_height(hf hf_version, uint64_t block_height)
+@@ -2978,11 +2978,19 @@ namespace master_nodes
+     if (iproof.update(std::chrono::system_clock::to_time_t(now), proof.public_ip, proof.storage_https_port, proof.storage_omq_port, proof.qnet_port, proof.mnode_version, proof.pubkey_ed25519, derived_x25519_pubkey))
+       iproof.store(proof.pubkey, m_blockchain);
+ 
+-    if (now - x25519_map_last_pruned >= X25519_MAP_PRUNING_INTERVAL)
++    const auto interval = std::chrono::seconds(
++    std::chrono::duration_cast<std::chrono::seconds>(
++        X25519_MAP_PRUNING_INTERVAL).count());
++
++    const auto lag = std::chrono::seconds(
++        std::chrono::duration_cast<std::chrono::seconds>(
++            X25519_MAP_PRUNING_LAG).count());
++
++    if (now - x25519_map_last_pruned >= interval)
+     {
+-      time_t cutoff = std::chrono::system_clock::to_time_t(now - X25519_MAP_PRUNING_LAG);
+-      erase_if(x25519_to_pub, [&cutoff](auto &x) { return x.second.second < cutoff; });
+-      x25519_map_last_pruned = now;
++        time_t cutoff = std::chrono::system_clock::to_time_t(now - lag);
++        erase_if(x25519_to_pub, [&cutoff](auto &x) { return x.second.second < cutoff; });
++        x25519_map_last_pruned = now;
+     }
+ 
+     if (old_x25519 && old_x25519 != derived_x25519_pubkey)
+@@ -3078,9 +3086,9 @@ namespace master_nodes
+       iproof.store(iproof.proof->pubkey, m_blockchain);
+     }
+ 
+-    if (now - x25519_map_last_pruned >= X25519_MAP_PRUNING_INTERVAL)
++    if (now - x25519_map_last_pruned >= std::chrono::duration_cast<std::chrono::steady_clock::duration>(X25519_MAP_PRUNING_INTERVAL))
+     {
+-      time_t cutoff = std::chrono::system_clock::to_time_t(now - X25519_MAP_PRUNING_LAG);
++      time_t cutoff = std::chrono::system_clock::to_time_t(now) - static_cast<time_t>(X25519_MAP_PRUNING_LAG.count());
+       erase_if(x25519_to_pub, [&cutoff](const decltype(x25519_to_pub)::value_type &x) { return x.second.second < cutoff; });
+       x25519_map_last_pruned = now;
+     }
+@@ -3214,14 +3222,21 @@ namespace master_nodes
+       proofs[pubkey].timesync_status.add({synced});
+   }
+ 
+-  std::optional<bool> proof_info::reachable_stats::reachable(const std::chrono::steady_clock::time_point& now) const {
+-    if (last_reachable >= last_unreachable)
+-      return true;
+-    if (last_unreachable > now - cryptonote::config::REACHABLE_MAX_FAILURE_VALIDITY)
+-      return false;
+-    // Last result was a failure, but it was a while ago, so we don't know for sure that it isn't
+-    // reachable now:
+-    return std::nullopt;
++  std::optional<bool> proof_info::reachable_stats::reachable(
++    const std::chrono::steady_clock::time_point& now) const
++  {
++      if (last_reachable >= last_unreachable)
++          return true;
++
++      const auto validity =
++          std::chrono::duration_cast<std::chrono::steady_clock::duration>(
++              cryptonote::config::REACHABLE_MAX_FAILURE_VALIDITY);
++
++      if (last_unreachable > now - validity)
++          return false;
++
++      // Last result was a failure, but it was a while ago, so we don't know for sure
++      return std::nullopt;
+   }
+ 
+   bool proof_info::reachable_stats::unreachable_for(std::chrono::seconds threshold, const std::chrono::steady_clock::time_point& now) const {
+@@ -3761,7 +3776,11 @@ namespace master_nodes
+     {
+       stream << "\n\n";
+       auto exp = std::chrono::system_clock::from_time_t(exp_timestamp);
+-      stream << tr("This registration expires at ") << date::format("%Y-%m-%d %I:%M:%S %p UTC", exp) << tr(".\n");
++      auto exp_sec = std::chrono::time_point_cast<std::chrono::seconds>(exp);
++
++      stream << tr("This registration expires at ")
++            << date::format("%Y-%m-%d %I:%M:%S %p UTC", exp_sec)
++            << tr(".\n");
+       stream << tr("This should be in about 2 weeks, if it isn't, check this computer's clock.\n");
+       stream << tr("Please submit your registration into the blockchain before this time or it will be invalid.");
+     }
+@@ -3861,4 +3880,3 @@ namespace master_nodes
+     return result;
+   }
+ }
+-
+diff --git a/src/daemon/daemon.cpp b/src/daemon/daemon.cpp
+index b80ba6431..5824e7c88 100755
+--- a/src/daemon/daemon.cpp
++++ b/src/daemon/daemon.cpp
+@@ -59,7 +59,13 @@
+ 
+ #include <functional>
+ 
+-#ifdef ENABLE_SYSTEMD
++#if defined(ENABLE_SYSTEMD) && defined(__has_include) && __has_include(<systemd/sd-daemon.h>)
++extern "C" {
++#  include <systemd/sd-daemon.h>
++}
++#elif defined(ENABLE_SYSTEMD) && defined(__has_include)
++#  undef ENABLE_SYSTEMD
++#elif defined(ENABLE_SYSTEMD)
+ extern "C" {
+ #  include <systemd/sd-daemon.h>
+ }
+diff --git a/src/simplewallet/simplewallet.cpp b/src/simplewallet/simplewallet.cpp
+index 046836b80..781fc830f 100755
+--- a/src/simplewallet/simplewallet.cpp
++++ b/src/simplewallet/simplewallet.cpp
+@@ -7518,7 +7518,7 @@ bool simple_wallet::bns_by_owner(const std::vector<std::string>& args)
+     std::string_view name;
+     std::string value_bchat, value_wallet, value_belnet, value_eth;
+ 
+-    if (auto got = cache.find(entry["name_hash"]); got != cache.end())
++    if (auto got = cache.find(entry["name_hash"].get<std::string>()); got != cache.end())
+     {
+       name = got->second.name;
+ 
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index 294d1bcac..7ad7c731e 100755
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -1288,10 +1288,10 @@ std::vector<stakeInfo>* WalletImpl::listCurrentStakes() const
+         {
+             if(contributor["address"] == address){
+                 auto &info = stakes->emplace_back();
+-                info.mn_pubkey = node_info["master_node_pubkey"];
+-                info.stake = contributor["amount"];
++                info.mn_pubkey = node_info["master_node_pubkey"].get<std::string>();
++                info.stake = contributor["amount"].get<uint64_t>();
+                 if(node_info["requested_unlock_height"] !=0)
+-                    info.unlock_height = node_info["requested_unlock_height"];
++                    info.unlock_height = node_info["requested_unlock_height"].get<uint64_t>();
+                 info.decommissioned = !node_info["active"] && node_info["funded"];
+                 info.awaiting = !node_info["funded"];
+             }
+@@ -2305,7 +2305,7 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
+                     error = true;
+                     setStatusError(tr("failed to parse key image"));
+                     break;
+-                }   
++                }
+                 if (wallet()->frozen(keyImage)) {
+                     error = true;
+                     setStatusError(tr("refusing to spend frozen coin"));
+@@ -2341,7 +2341,7 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
+         }
+             for (const auto &de : preferred_input_list) {
+                 LOG_ERROR("preferred input: " << de);
+-            }       
++            }
+             if (error) {
+                 break;
+             }
+@@ -3042,7 +3042,7 @@ std::vector<bnsInfo>* WalletImpl::MyBns() const
+     {
+         std::string_view name;
+         std::string value_bchat, value_wallet, value_belnet, value_eth;
+-        if (auto got = cache.find(entry["name_hash"]); got != cache.end())
++        if (auto got = cache.find(entry["name_hash"].get<std::string>()); got != cache.end())
+         {
+             name = got->second.name;
+             auto decrypt_value = [&](std::string_view key, bns::mapping_type type, std::string& out) {
+@@ -3066,24 +3066,28 @@ std::vector<bnsInfo>* WalletImpl::MyBns() const
+         }
+ 
+         auto &info = my_bns->emplace_back();
+-        info.name_hash = entry["name_hash"];
++        info.name_hash = entry["name_hash"].get<std::string>();
+         info.name = name.empty() ? "(none)" : std::string(name);
+         info.value_bchat = value_bchat.empty() ? "(none)" : value_bchat;
+         info.value_wallet = value_wallet.empty() ? "(none)" : value_wallet;
+         info.value_belnet = value_belnet.empty() ? "(none)" : value_belnet;
+         info.value_eth_addr = value_eth.empty() ? "(none)" : value_eth;
+-        info.owner = entry["owner"];
++        info.owner = entry["owner"].get<std::string>();
+         if (entry.contains("backup_owner") && !entry["backup_owner"].is_null())
+-            info.backup_owner =  entry["backup_owner"];
++            info.backup_owner = entry["backup_owner"].get<std::string>();
+         else
+             info.backup_owner = "(none)";
+-        info.update_height = entry["update_height"];
+-        info.expiration_height = entry["expiration_height"];
+-    
+-        info.encrypted_bchat_value = entry["encrypted_bchat_value"].get<std::string>().empty() ? "(none)" : entry["encrypted_bchat_value"];
+-        info.encrypted_wallet_value = entry["encrypted_wallet_value"].get<std::string>().empty() ? "(none)" : entry["encrypted_wallet_value"];
+-        info.encrypted_belnet_value = entry["encrypted_belnet_value"].get<std::string>().empty() ? "(none)" : entry["encrypted_belnet_value"];
+-        info.encrypted_eth_addr_value = entry["encrypted_eth_addr_value"].get<std::string>().empty() ? "(none)" : entry["encrypted_eth_addr_value"];
++        info.update_height = entry["update_height"].get<uint64_t>();
++        info.expiration_height = entry["expiration_height"].get<uint64_t>();
++
++        auto tmp = entry["encrypted_bchat_value"].get<std::string>();
++        info.encrypted_bchat_value = tmp.empty() ? "(none)" : tmp;
++        auto wallet_val = entry["encrypted_wallet_value"].get<std::string>();
++        info.encrypted_wallet_value = wallet_val.empty() ? "(none)" : wallet_val;
++        auto belnet_val = entry["encrypted_belnet_value"].get<std::string>();
++        info.encrypted_belnet_value = belnet_val.empty() ? "(none)" : belnet_val;
++        auto eth_addr_val = entry["encrypted_eth_addr_value"].get<std::string>();
++        info.encrypted_eth_addr_value = eth_addr_val.empty() ? "(none)" : eth_addr_val;
+     }
+     return my_bns;
+ }
+diff --git a/src/wallet/api/wallet_manager.cpp b/src/wallet/api/wallet_manager.cpp
+index 85981df76..dacd2b4ed 100755
+--- a/src/wallet/api/wallet_manager.cpp
++++ b/src/wallet/api/wallet_manager.cpp
+@@ -256,7 +256,7 @@ bool WalletManagerImpl::connected(uint32_t* version) {
+     try {
+         auto res = m_http_client.json_rpc("get_version");
+         if (version)
+-            *version = res["version"];
++            *version = res["version"].get<uint32_t>();
+         return true;
+     } catch (...) {
+     }
+@@ -292,7 +292,7 @@ uint64_t WalletManagerImpl::networkDifficulty()
+     if (!res)
+         return 0;
+ 
+-    return res["difficulty"];
++    return res["difficulty"].get<uint64_t>();
+ }
+ 
+ EXPORT
+diff --git a/src/wallet/node_rpc_proxy.cpp b/src/wallet/node_rpc_proxy.cpp
+index 35d74f1d7..7584ed12d 100755
+--- a/src/wallet/node_rpc_proxy.cpp
++++ b/src/wallet/node_rpc_proxy.cpp
+@@ -110,9 +110,9 @@ bool NodeRPCProxy::get_info() const
+       m_target_height = res.at("target_height").get<uint64_t>();
+       auto it_block_weight_limit = res.find("block_weight_limit");
+       if (it_block_weight_limit != res.end())
+-        m_block_weight_limit = res.at("block_weight_limit");
++        m_block_weight_limit = res.at("block_weight_limit").get<uint64_t>();
+       else
+-        m_block_weight_limit = res.at("block_size_limit");
++        m_block_weight_limit = res.at("block_size_limit").get<uint64_t>();
+       auto it_immutable_height = res.find("immutable_height");
+         if (it_immutable_height != res.end())
+             m_immutable_height = res.at("immutable_height").get<uint64_t>();
+diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
+index a3b52fd03..7f9636bfd 100755
+--- a/src/wallet/wallet2.cpp
++++ b/src/wallet/wallet2.cpp
+@@ -2836,7 +2836,7 @@ void wallet2::process_new_blockchain_entry(const cryptonote::block& b, const cry
+   {
+     auto miner_tx_handle_time_start = std::chrono::steady_clock::now();
+     if (m_refresh_type != RefreshNoCoinbase)
+-      process_new_transaction(get_transaction_hash(b.miner_tx), b.miner_tx, parsed_block.o_indices["indices"][0]["indices"], height, b.major_version, b.timestamp, true, false, false, false, tx_cache_data[tx_cache_data_offset], output_tracker_cache);
++      process_new_transaction(get_transaction_hash(b.miner_tx), b.miner_tx, parsed_block.o_indices["indices"][0]["indices"].get<std::vector<uint64_t>>(), height, b.major_version, b.timestamp, true, false, false, false, tx_cache_data[tx_cache_data_offset], output_tracker_cache);
+     ++tx_cache_data_offset;
+     auto miner_tx_handle_time_duration = std::chrono::steady_clock::now() - miner_tx_handle_time_start;
+ 
+@@ -2845,7 +2845,7 @@ void wallet2::process_new_blockchain_entry(const cryptonote::block& b, const cry
+     THROW_WALLET_EXCEPTION_IF(bche.txs.size() != parsed_block.txes.size(), error::wallet_internal_error, "Wrong amount of transactions for block");
+     for (size_t idx = 0; idx < b.tx_hashes.size(); ++idx)
+     {
+-      process_new_transaction(b.tx_hashes[idx], parsed_block.txes[idx], parsed_block.o_indices["indices"][idx+1]["indices"], height, b.major_version, b.timestamp, false, false, false, false, tx_cache_data[tx_cache_data_offset++], output_tracker_cache);
++      process_new_transaction(b.tx_hashes[idx], parsed_block.txes[idx], parsed_block.o_indices["indices"][idx+1]["indices"].get<std::vector<uint64_t>>(), height, b.major_version, b.timestamp, false, false, false, false, tx_cache_data[tx_cache_data_offset++], output_tracker_cache);
+     }
+     auto txs_handle_time_duration = std::chrono::steady_clock::now() - txs_handle_time_start;
+     m_last_block_reward = cryptonote::get_outs_money_amount(b.miner_tx);
+@@ -3445,7 +3445,7 @@ std::vector<wallet2::get_pool_state_tx> wallet2::get_pool_state(bool refreshed)
+     }
+     for (const auto &tx_entry: res["txs"])
+     {
+-      if (tx_entry["in_pool"])
++      if (tx_entry["in_pool"].get<bool>())
+       {
+         cryptonote::transaction tx;
+         cryptonote::blobdata bd;
+@@ -4043,7 +4043,7 @@ void wallet2::handle_reorg(uint64_t height, std::map<std::pair<uint64_t, uint64_
+ 
+   if (m_background_syncing && height < m_background_sync_data.start_height)
+     m_background_sync_data.start_height = height;
+-  
++
+   if (m_callback)
+     m_callback->on_reorg(height, dbd.detached_blockchain.size(), dbd.detached_tx_hashes.size());
+ }
+@@ -6124,8 +6124,8 @@ bool wallet2::check_connection(rpc::version_t *version, bool *ssl, bool throw_on
+   {
+     try {
+       auto res = m_http_client.json_rpc("get_version", {});
+-      if(res["status"] != rpc::STATUS_OK) return false;
+-      m_rpc_version = res["version"];
++      if(res["status"].get<std::string_view>() != rpc::STATUS_OK) return false;
++      m_rpc_version = res["version"].get<uint32_t>();
+     } catch(...) {
+       return false;
+     }
+@@ -6444,7 +6444,7 @@ void wallet2::trim_hashchain()
+     };
+     try {
+       auto res = m_http_client.json_rpc("get_block_header_by_height", req_params);
+-      if (res["status"] == rpc::STATUS_OK)
++      if (res["status"].get<std::string_view>() == rpc::STATUS_OK)
+       {
+         crypto::hash hash;
+         tools::hex_to_type(res["block_header"]["hash"].get<std::string_view>(), hash);
+@@ -7199,12 +7199,13 @@ void wallet2::rescan_spent()
+       {"key_images", key_images}
+     };
+     auto kispent_res = m_http_client.json_rpc("is_key_image_spent", req_params);
+-    THROW_WALLET_EXCEPTION_IF(kispent_res["status"] == rpc::STATUS_BUSY, error::daemon_busy, "is_key_image_spent");
+-    THROW_WALLET_EXCEPTION_IF(kispent_res["status"] != rpc::STATUS_OK, error::is_key_image_spent_error, get_rpc_status(kispent_res["status"]));
++    THROW_WALLET_EXCEPTION_IF(kispent_res["status"].get<std::string_view>() == rpc::STATUS_BUSY, error::daemon_busy, "is_key_image_spent");
++    THROW_WALLET_EXCEPTION_IF(kispent_res["status"].get<std::string_view>() != rpc::STATUS_OK, error::is_key_image_spent_error, get_rpc_status(kispent_res["status"].get<std::string>()));
+     THROW_WALLET_EXCEPTION_IF(kispent_res["spent_status"].size() != n_outputs, error::wallet_internal_error,
+         "daemon returned wrong response for is_key_image_spent, wrong amounts count = " +
+         std::to_string(kispent_res["spent_status"].size()) + ", expected " +  std::to_string(n_outputs));
+-    std::copy(kispent_res["spent_status"].begin(), kispent_res["spent_status"].end(), std::back_inserter(spent_status));
++    for (const auto &status : kispent_res["spent_status"])
++      spent_status.push_back(status.get<int>());
+   }
+ 
+   // update spent status
+@@ -7592,11 +7593,11 @@ void wallet2::commit_tx(pending_tx& ptx, bool flash)
+ 
+     };
+     auto daemon_send_resp = m_http_client.json_rpc("send_raw_transaction", send_transaction_params);
+-    THROW_WALLET_EXCEPTION_IF(daemon_send_resp["status"] == rpc::STATUS_BUSY, error::daemon_busy, "sendrawtransaction");
++    THROW_WALLET_EXCEPTION_IF(daemon_send_resp["status"].get<std::string_view>() == rpc::STATUS_BUSY, error::daemon_busy, "sendrawtransaction");
+     if (flash)
+-      THROW_WALLET_EXCEPTION_IF(daemon_send_resp["status"] != rpc::STATUS_OK, error::tx_flash_rejected, ptx.tx, get_rpc_status(daemon_send_resp["status"]), daemon_send_resp["reason"].is_string() ? daemon_send_resp["reason"].get<std::string>() : "Daemon provided no reason");    
++      THROW_WALLET_EXCEPTION_IF(daemon_send_resp["status"].get<std::string_view>() != rpc::STATUS_OK, error::tx_flash_rejected, ptx.tx, get_rpc_status(daemon_send_resp["status"].get<std::string>()), daemon_send_resp["reason"].is_string() ? daemon_send_resp["reason"].get<std::string>() : "Daemon provided no reason");
+     else
+-      THROW_WALLET_EXCEPTION_IF(daemon_send_resp["status"] != rpc::STATUS_OK, error::tx_rejected, ptx.tx, get_rpc_status(daemon_send_resp["status"]), daemon_send_resp["reason"].is_string() ? daemon_send_resp["reason"].get<std::string>() : "Daemon provided no reason");
++      THROW_WALLET_EXCEPTION_IF(daemon_send_resp["status"].get<std::string_view>() != rpc::STATUS_OK, error::tx_rejected, ptx.tx, get_rpc_status(daemon_send_resp["status"].get<std::string>()), daemon_send_resp["reason"].is_string() ? daemon_send_resp["reason"].get<std::string>() : "Daemon provided no reason");
+     // sanity checks
+     for (size_t idx: ptx.selected_transfers)
+     {
+@@ -9254,7 +9255,7 @@ wallet2::request_stake_unlock_result wallet2::can_request_stake_unlock(const cry
+       if (node_info["requested_unlock_height"].get<uint64_t>() != 0)
+       {
+         result.msg.append("Key image: ");
+-        result.msg.append(contribution["key_image"]);
++        result.msg.append(contribution["key_image"].get<std::string_view>());
+         result.msg.append(" has already been requested to be unlocked, unlocking at height: ");
+         result.msg.append(node_info["requested_unlock_height"].get<std::string_view>());
+         result.msg.append(" (about ");
+@@ -9263,7 +9264,7 @@ wallet2::request_stake_unlock_result wallet2::can_request_stake_unlock(const cry
+         return result;
+       }
+ 
+-      if((contribution["amount"] < master_nodes::SMALL_CONTRIBUTOR_THRESHOLD * beldex::COIN ) && ((cur_height - node_info["registration_height"].get<uint64_t>()) <  master_nodes::SMALL_CONTRIBUTOR_UNLOCK_TIMER))
++      if((contribution["amount"].get<uint64_t>() < master_nodes::SMALL_CONTRIBUTOR_THRESHOLD * beldex::COIN ) && ((cur_height - node_info["registration_height"].get<uint64_t>()) <  master_nodes::SMALL_CONTRIBUTOR_UNLOCK_TIMER))
+       {
+         result.msg = tr("you can't give the unlock command! you have to wait upto ") + std::to_string(node_info["registration_height"].get<uint64_t>() + master_nodes::SMALL_CONTRIBUTOR_UNLOCK_TIMER - cur_height) + " Blocks or "+ std::to_string((node_info["registration_height"].get<uint64_t>() + master_nodes::SMALL_CONTRIBUTOR_UNLOCK_TIMER - cur_height)/ (master_nodes::SMALL_CONTRIBUTOR_UNLOCK_TIMER / 30)) + " days approx";
+         result.success = false;
+@@ -9271,9 +9272,9 @@ wallet2::request_stake_unlock_result wallet2::can_request_stake_unlock(const cry
+       }
+ 
+       result.msg.append("You are requesting to unlock a stake of: ");
+-      result.msg.append(cryptonote::print_money(contribution["amount"]));
++      result.msg.append(cryptonote::print_money(contribution["amount"].get<uint64_t>()));
+       result.msg.append(" Beldex from the master node network.\nThis will schedule the master node: ");
+-      result.msg.append(node_info["master_node_pubkey"]);
++      result.msg.append(node_info["master_node_pubkey"].get<std::string_view>());
+       result.msg.append(" for deactivation.");
+       if (node_info["contributors"].size() > 1) {
+           result.msg.append(" The stakes of the master node's ");
+@@ -10064,8 +10065,8 @@ void wallet2::get_outs(std::vector<std::vector<tools::wallet2::get_outs_entry>>
+         {"recent_cutoff", time(NULL) - RECENT_OUTPUT_ZONE}
+       };
+       res = m_http_client.json_rpc("get_output_histogram", req_params);
+-      THROW_WALLET_EXCEPTION_IF(res["status"] == rpc::STATUS_BUSY, error::daemon_busy, "get_output_histogram");
+-      THROW_WALLET_EXCEPTION_IF(res["status"] != rpc::STATUS_OK, error::get_histogram_error, get_rpc_status(res["status"]));
++      THROW_WALLET_EXCEPTION_IF(res["status"].get<std::string_view>() == rpc::STATUS_BUSY, error::daemon_busy, "get_output_histogram");
++      THROW_WALLET_EXCEPTION_IF(res["status"].get<std::string_view>() != rpc::STATUS_OK, error::get_histogram_error, get_rpc_status(res["status"].get<std::string>()));
+     }
+ 
+     // if we want to segregate fake outs pre or post fork, get distribution
+@@ -13024,8 +13025,8 @@ std::vector<size_t> wallet2::select_available_outputs_from_histogram(uint64_t co
+     {"recent_cutoff", 0}
+   };
+   auto res = m_http_client.json_rpc("get_output_histogram", req_params);
+-  THROW_WALLET_EXCEPTION_IF(res["status"] == rpc::STATUS_BUSY, error::daemon_busy, "get_output_histogram");
+-  THROW_WALLET_EXCEPTION_IF(res["status"] != rpc::STATUS_OK, error::get_histogram_error, res["status"]);
++  THROW_WALLET_EXCEPTION_IF(res["status"].get<std::string_view>() == rpc::STATUS_BUSY, error::daemon_busy, "get_output_histogram");
++  THROW_WALLET_EXCEPTION_IF(res["status"].get<std::string_view>() != rpc::STATUS_OK, error::get_histogram_error, res["status"].get<std::string>());
+ 
+   std::set<uint64_t> mixable;
+   for (const auto &i: res["histogram"])
+@@ -13059,8 +13060,8 @@ uint64_t wallet2::get_num_rct_outputs()
+     {"recent_cutoff", 0}
+   };
+   auto res = m_http_client.json_rpc("get_output_histogram", req_params);
+-  THROW_WALLET_EXCEPTION_IF(res["status"] == rpc::STATUS_BUSY, error::daemon_busy, "get_output_histogram");
+-  THROW_WALLET_EXCEPTION_IF(res["status"] != rpc::STATUS_OK, error::get_histogram_error, res["status"]);
++  THROW_WALLET_EXCEPTION_IF(res["status"].get<std::string_view>() == rpc::STATUS_BUSY, error::daemon_busy, "get_output_histogram");
++  THROW_WALLET_EXCEPTION_IF(res["status"].get<std::string_view>() != rpc::STATUS_OK, error::get_histogram_error, res["status"].get<std::string>());
+   THROW_WALLET_EXCEPTION_IF(res["histogram"].size() != 1, error::get_histogram_error, "Expected exactly one response");
+   THROW_WALLET_EXCEPTION_IF(res["histogram"][0]["amount"].get<uint64_t>() != 0, error::get_histogram_error, "Expected 0 amount");
+ 
+@@ -13532,7 +13533,7 @@ void wallet2::check_tx_key_helper(const crypto::hash &txid, const crypto::key_de
+ 
+   check_tx_key_helper(tx, derivation, additional_derivations, address, received);
+ 
+-  in_pool = res["txs"].front()["in_pool"];
++  in_pool = res["txs"].front()["in_pool"].get<bool>();
+   confirmations = 0;
+   if (!in_pool)
+   {
+@@ -13697,7 +13698,7 @@ bool wallet2::check_tx_proof(const crypto::hash &txid, const cryptonote::account
+   if (!check_tx_proof(tx, address, is_subaddress, message, sig_str, received))
+     return false;
+ 
+-  in_pool = res["txs"].front()["in_pool"];
++  in_pool = res["txs"].front()["in_pool"].get<bool>();
+   confirmations = 0;
+   if (!in_pool)
+   {
+@@ -13990,7 +13991,7 @@ bool wallet2::check_reserve_proof(const cryptonote::account_public_address &addr
+   for (size_t i = 0; i < proofs.size(); ++i)
+   {
+     const reserve_proof_entry& proof = proofs[i];
+-    THROW_WALLET_EXCEPTION_IF(gettx_res["txs"][i]["in_pool"], error::wallet_internal_error, "Tx is unconfirmed");
++    THROW_WALLET_EXCEPTION_IF(gettx_res["txs"][i]["in_pool"].get<bool>(), error::wallet_internal_error, "Tx is unconfirmed");
+ 
+     cryptonote::transaction tx;
+     crypto::hash tx_hash;
+@@ -14639,15 +14640,15 @@ uint64_t wallet2::import_key_images(const std::vector<std::pair<crypto::key_imag
+   {
+     PERF_TIMER(import_key_images_RPC);
+     is_key_image_spent_response = m_http_client.json_rpc("is_key_image_spent", req_params);
+-    THROW_WALLET_EXCEPTION_IF(is_key_image_spent_response["status"] == rpc::STATUS_BUSY, error::daemon_busy, "is_key_image_spent");
+-    THROW_WALLET_EXCEPTION_IF(is_key_image_spent_response["status"] != rpc::STATUS_OK, error::is_key_image_spent_error, is_key_image_spent_response["status"]);
++    THROW_WALLET_EXCEPTION_IF(is_key_image_spent_response["status"].get<std::string_view>() == rpc::STATUS_BUSY, error::daemon_busy, "is_key_image_spent");
++    THROW_WALLET_EXCEPTION_IF(is_key_image_spent_response["status"].get<std::string_view>() != rpc::STATUS_OK, error::is_key_image_spent_error, is_key_image_spent_response["status"].get<std::string>());
+     THROW_WALLET_EXCEPTION_IF(is_key_image_spent_response["spent_status"].size() != signed_key_images.size(), error::wallet_internal_error,
+       "daemon returned wrong response for is_key_image_spent, wrong amounts count = " +
+       std::to_string(is_key_image_spent_response["spent_status"].size()) + ", expected " +  std::to_string(signed_key_images.size()));
+     for (size_t n = 0; n < is_key_image_spent_response["spent_status"].size(); ++n)
+     {
+       transfer_details &td = m_transfers[n + offset];
+-      td.m_spent = is_key_image_spent_response["spent_status"][n] != rpc::IS_KEY_IMAGE_SPENT::SPENT::UNSPENT;
++      td.m_spent = is_key_image_spent_response["spent_status"][n].get<int>() != static_cast<int>(rpc::IS_KEY_IMAGE_SPENT::SPENT::UNSPENT);
+     }
+   }
+   std::unordered_set<crypto::hash> spent_txids;   // For each spent key image, search for a tx in m_transfers that uses it as input.
+@@ -14693,7 +14694,7 @@ uint64_t wallet2::import_key_images(const std::vector<std::pair<crypto::key_imag
+     LOG_PRINT_L2("Transfer " << i << ": " << print_money(amount) << " (" << td.m_global_output_index << "): "
+         << (td.m_spent ? "spent" : "unspent") << " (key image " << key_images[i] << ")");
+ 
+-    if (i < is_key_image_spent_response["spent_status"].size() && is_key_image_spent_response["spent_status"][i] == rpc::IS_KEY_IMAGE_SPENT::SPENT::BLOCKCHAIN)
++    if (i < is_key_image_spent_response["spent_status"].size() && is_key_image_spent_response["spent_status"][i].get<int>() == static_cast<int>(rpc::IS_KEY_IMAGE_SPENT::SPENT::BLOCKCHAIN))
+     {
+       const std::unordered_map<crypto::key_image, crypto::hash>::const_iterator skii = spent_key_images.find(td.m_key_image);
+       if (skii == spent_key_images.end())
+@@ -14723,7 +14724,7 @@ uint64_t wallet2::import_key_images(const std::vector<std::pair<crypto::key_imag
+     auto it = spent_txids.begin();
+     for (const auto& e : gettxs_res["txs"])
+     {
+-      THROW_WALLET_EXCEPTION_IF(e["in_pool"], error::wallet_internal_error, "spent tx isn't supposed to be in txpool");
++      THROW_WALLET_EXCEPTION_IF(e["in_pool"].get<bool>(), error::wallet_internal_error, "spent tx isn't supposed to be in txpool");
+ 
+       cryptonote::transaction spent_tx;
+       crypto::hash spnet_txid_parsed;
+@@ -14791,9 +14792,9 @@ uint64_t wallet2::import_key_images(const std::vector<std::pair<crypto::key_imag
+           tx_money_spent_in_ins += amount;
+ 
+           LOG_PRINT_L0("Spent money: " << print_money(amount) << ", with tx: " << *spent_txid);
+-          set_spent(it->second, e["block_height"]);
++          set_spent(it->second, e["block_height"].get<uint64_t>());
+           if (m_callback)
+-            m_callback->on_money_spent(e["block_height"], *spent_txid, spent_tx, amount, spent_tx, td.m_subaddr_index);
++            m_callback->on_money_spent(e["block_height"].get<uint64_t>(), *spent_txid, spent_tx, amount, spent_tx, td.m_subaddr_index);
+           if (subaddr_account != (uint32_t)-1 && subaddr_account != td.m_subaddr_index.major)
+             LOG_PRINT_L0("WARNING: This tx spends outputs received by different subaddress accounts, which isn't supposed to happen");
+           subaddr_account = td.m_subaddr_index.major;
+@@ -14802,7 +14803,7 @@ uint64_t wallet2::import_key_images(const std::vector<std::pair<crypto::key_imag
+       }
+ 
+       // create outgoing payment
+-      process_outgoing(*spent_txid, spent_tx, e["block_height"], e["block_timestamp"], tx_money_spent_in_ins, tx_money_got_in_outs, subaddr_account, subaddr_indices);
++      process_outgoing(*spent_txid, spent_tx, e["block_height"].get<uint64_t>(), e["block_timestamp"].get<uint64_t>(), tx_money_spent_in_ins, tx_money_got_in_outs, subaddr_account, subaddr_indices);
+ 
+       // erase corresponding incoming payment
+       for (auto j = m_payments.begin(); j != m_payments.end(); )
+-- 
+2.43.0
+

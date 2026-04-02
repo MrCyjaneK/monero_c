@@ -1,7 +1,7 @@
-From 18bbb0d25ddfe892d9e7485a065da1ae84ec6578 Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 06:35:07 +0000
-Subject: [PATCH 01/19] wallet enhancement
+From e3585a5a15372fd9a8362fa9466849b4761a8890 Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 12:58:37 +0530
+Subject: [PATCH 01/20] wallet enhancement
 
 ---
  contrib/epee/include/epee/scope_leaver.h |  22 ++++
@@ -834,5 +834,5 @@ index 69dcdb17f..42595cebc 100755
      RefreshType m_refresh_type;
      bool m_auto_refresh;
 -- 
-2.25.1
+2.43.0
 

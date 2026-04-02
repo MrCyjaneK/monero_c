@@ -1,7 +1,7 @@
-From b832990ddeacaea8abb7436e56656bdc5f1b9ba6 Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 07:06:06 +0000
-Subject: [PATCH 11/19] add beldex submodule support
+From 49e6f186c9cc7b536debd8846c7b55846e81fc0b Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 14:10:06 +0530
+Subject: [PATCH 11/20] add beldex submodule support
 
 ---
  CMakeLists.txt                   | 4 ++--
@@ -115,5 +115,5 @@ index 5b02c868e..20d4c324f 100755
        if (ptx_vector.empty())
          throw wallet_rpc_error{error_code::TX_NOT_POSSIBLE, "No transaction created"};
 -- 
-2.25.1
+2.43.0
 

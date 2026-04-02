@@ -1,7 +1,7 @@
-From 76d9bd161e04a9bc16719781cd84f616b60f82c7 Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 07:02:35 +0000
-Subject: [PATCH 08/19] coin control
+From ff20847bffd1b08a73a9711f278de808a78af269 Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 14:03:19 +0530
+Subject: [PATCH 08/20] coin control
 
 ---
  src/simplewallet/simplewallet.cpp |   2 +-
@@ -1047,5 +1047,5 @@ index dd1f3c69f..6505f9585 100755
      void set_unspent(size_t idx);
      bool is_spent(const transfer_details &td, bool strict = true) const;
 -- 
-2.25.1
+2.43.0
 

@@ -1,7 +1,7 @@
-From 2ca22bde2b5dac50d03fd5ed0d46a48bdd73f01a Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 07:09:09 +0000
-Subject: [PATCH 14/19] Fix Android cross-build
+From b4f6eaf444fd1f3524d18a1002fa10ad79798b19 Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 15:55:42 +0530
+Subject: [PATCH 14/20] Fix Android cross-build
 
 ---
  CMakeLists.txt                                 |  4 ++++
@@ -12,10 +12,10 @@ Subject: [PATCH 14/19] Fix Android cross-build
  5 files changed, 24 insertions(+), 18 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 0e6d6f6ec..ab3b924ae 100755
+index c5777d1e7..992362bb1 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -81,6 +81,10 @@ if(WIN32)
+@@ -112,6 +112,10 @@ if(WIN32)
      add_compile_definitions(_FORTIFY_SOURCE=0)
  endif()
  
@@ -133,5 +133,5 @@ index 2200e0ae8..1e413b80b 100755
    bool operator==(std::string_view other)     const { return other == to_view(); }
  
 -- 
-2.25.1
+2.43.0
 
