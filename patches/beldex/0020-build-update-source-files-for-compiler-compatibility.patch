@@ -1,9 +1,10 @@
-From cb2f6ffe9c738f7bbbe1fec80f1f4155c1e568a1 Mon Sep 17 00:00:00 2001
+From de8ecca3ee77f508a062b67ffb955ece505efd38 Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Mon, 6 Apr 2026 14:04:15 +0530
+Date: Mon, 6 Apr 2026 16:30:53 +0530
 Subject: [PATCH 20/20] build: update source files for compiler compatibility
 
 ---
+ CMakeLists.txt                                |  4 +-
  cmake/patch-libzmq-for-mingw.cmake            | 14 ++++
  .../cryptonote_basic_impl.cpp                 |  2 -
  src/cryptonote_config.h                       | 52 +++++++-------
@@ -19,9 +20,24 @@ Subject: [PATCH 20/20] build: update source files for compiler compatibility
  src/wallet/node_rpc_proxy.cpp                 |  4 +-
  src/wallet/wallet2.cpp                        | 69 ++++++++++---------
  tests/hash/main.cpp                           |  4 +-
- 15 files changed, 169 insertions(+), 116 deletions(-)
+ 16 files changed, 172 insertions(+), 117 deletions(-)
  create mode 100644 cmake/patch-libzmq-for-mingw.cmake
 
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ef5f61030..3c8a2f5cf 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -826,7 +826,9 @@ if(STATIC)
+   endif()
+ 
+   set(Boost_USE_STATIC_LIBS ON)
+-  set(Boost_USE_STATIC_RUNTIME ON)
++  if(MINGW OR MSVC)
++    set(Boost_USE_STATIC_RUNTIME ON)
++  endif()
+ endif()
+ set(Boost_USE_MULTITHREADED TRUE) # Needed for macOS, at least, and won't hurt elsewhere
+ 
 diff --git a/cmake/patch-libzmq-for-mingw.cmake b/cmake/patch-libzmq-for-mingw.cmake
 new file mode 100644
 index 000000000..26a3b0463
