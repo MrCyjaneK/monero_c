@@ -1,29 +1,63 @@
-From 54411a8ca097ecec6a9b4f8287af32e41a31f591 Mon Sep 17 00:00:00 2001
+From 8071414dab9fe44a45e983bddf9d37bfcb9d8b27 Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Wed, 1 Apr 2026 17:44:53 +0530
-Subject: [PATCH 16/20] add build-time patch packages for loki-mq,
- oxen-encoding, and uSockets
+Date: Mon, 6 Apr 2026 13:55:33 +0530
+Subject: [PATCH 16/20] add build-time patch packages for randomx, libuv, cpr,
+ loki-mq, oxen-encoding, and uSockets
 
 ---
+ cmake/cpr.cmake                               |  19 +++
  cmake/libuv.cmake                             |  19 +++
  cmake/loki-mq.cmake                           |  20 +++
  cmake/oxen-encoding.cmake                     |  22 +++
+ cmake/patch/cpr/001-fix-callback.patch        |  12 ++
  cmake/patch/libuv/001-fix-cmake-version.patch |  10 ++
  .../patch/loki-mq/001-fix-libzmq-cmake.patch  | 161 ++++++++++++++++++
  .../oxen-encoding/001-fix-serialization.patch |  67 ++++++++
+ .../001-fix-instructions-portable.patch       |  79 +++++++++
  cmake/patch/uSockets/001-fix-bsd.patch        |  57 +++++++
+ cmake/randomx.cmake                           |  19 +++
  cmake/uSockets.cmake                          |  23 +++
- external/CMakeLists.txt                       |  10 +-
- 9 files changed, 387 insertions(+), 2 deletions(-)
+ external/CMakeLists.txt                       |  13 +-
+ 13 files changed, 519 insertions(+), 2 deletions(-)
+ create mode 100644 cmake/cpr.cmake
  create mode 100644 cmake/libuv.cmake
  create mode 100644 cmake/loki-mq.cmake
  create mode 100644 cmake/oxen-encoding.cmake
+ create mode 100644 cmake/patch/cpr/001-fix-callback.patch
  create mode 100644 cmake/patch/libuv/001-fix-cmake-version.patch
  create mode 100644 cmake/patch/loki-mq/001-fix-libzmq-cmake.patch
  create mode 100644 cmake/patch/oxen-encoding/001-fix-serialization.patch
+ create mode 100644 cmake/patch/randomx/001-fix-instructions-portable.patch
  create mode 100644 cmake/patch/uSockets/001-fix-bsd.patch
+ create mode 100644 cmake/randomx.cmake
  create mode 100644 cmake/uSockets.cmake
 
+diff --git a/cmake/cpr.cmake b/cmake/cpr.cmake
+new file mode 100644
+index 000000000..c96657702
+--- /dev/null
++++ b/cmake/cpr.cmake
+@@ -0,0 +1,19 @@
++# Apply local fixes to cpr submodule
++
++set(CPR_PATCH
++    "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/patch/cpr/001-fix-callback.patch"
++)
++
++if(EXISTS "${CPR_PATCH}")
++  message(STATUS "Applying cpr local patch")
++
++  execute_process(
++    COMMAND patch -p1 -N -i "${CPR_PATCH}"
++    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../external/cpr"
++    RESULT_VARIABLE _cpr_patch_result
++  )
++
++  if(NOT _cpr_patch_result EQUAL 0 AND NOT _cpr_patch_result EQUAL 1)
++    message(FATAL_ERROR "Failed to apply cpr patch")
++  endif()
++endif()
+\ No newline at end of file
 diff --git a/cmake/libuv.cmake b/cmake/libuv.cmake
 new file mode 100644
 index 000000000..f18d83fef
@@ -104,6 +138,24 @@ index 000000000..753460bd3
 +      "Failed to apply oxen-encoding patch:\n${_patch_out}\n${_patch_err}")
 +  endif()
 +endif()
+diff --git a/cmake/patch/cpr/001-fix-callback.patch b/cmake/patch/cpr/001-fix-callback.patch
+new file mode 100644
+index 000000000..574af7c79
+--- /dev/null
++++ b/cmake/patch/cpr/001-fix-callback.patch
+@@ -0,0 +1,12 @@
++diff --git a/include/cpr/callback.h b/include/cpr/callback.h
++index e54c4fb..93c810b 100644
++--- a/include/cpr/callback.h
+++++ b/include/cpr/callback.h
++@@ -3,6 +3,7 @@
++ 
++ #include "cprtypes.h"
++ 
+++#include <cstdint>
++ #include <functional>
++ #include <utility>
++ 
 diff --git a/cmake/patch/libuv/001-fix-cmake-version.patch b/cmake/patch/libuv/001-fix-cmake-version.patch
 new file mode 100644
 index 000000000..9fe7e4e20
@@ -360,6 +412,91 @@ index 000000000..7b41ac1bf
 + #elif defined(__linux__)
 + extern "C" {
 + #include <byteswap.h>
+diff --git a/cmake/patch/randomx/001-fix-instructions-portable.patch b/cmake/patch/randomx/001-fix-instructions-portable.patch
+new file mode 100644
+index 000000000..45bcbb369
+--- /dev/null
++++ b/cmake/patch/randomx/001-fix-instructions-portable.patch
+@@ -0,0 +1,79 @@
++diff --git a/src/instructions_portable.cpp b/src/instructions_portable.cpp
++index d1253d8..e1d5862 100644
++--- a/src/instructions_portable.cpp
+++++ b/src/instructions_portable.cpp
++@@ -26,7 +26,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
++ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ */
++ 
++-#include <cfenv>
++ #include <cmath>
++ #include "common.hpp"
++ #include "intrin_portable.h"
++@@ -77,14 +76,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ 	#endif
++ 
++ 	static void setRoundMode_(uint32_t mode) {
++-		_controlfp(mode, _MCW_RC);
+++		switch (mode & 3) {
+++		case RoundDown:
+++			_controlfp(_RC_DOWN, _MCW_RC);
+++			break;
+++		case RoundUp:
+++			_controlfp(_RC_UP, _MCW_RC);
+++			break;
+++		case RoundToZero:
+++			_controlfp(_RC_CHOP, _MCW_RC);
+++			break;
+++		case RoundToNearest:
+++		default:
+++			_controlfp(_RC_NEAR, _MCW_RC);
+++			break;
+++		}
+++	}
+++	#define HAVE_SETROUNDMODE_IMPL
+++#endif
+++
+++#if defined(__SSE2__) && !defined(HAVE_SETROUNDMODE_IMPL)
+++	static void setRoundMode_(uint32_t mode) {
+++		_mm_setcsr(rx_mxcsr_default | ((mode & 3) << 13));
++ 	}
++ 	#define HAVE_SETROUNDMODE_IMPL
++ #endif
++ 
++ #ifndef HAVE_SETROUNDMODE_IMPL
++ 	static void setRoundMode_(uint32_t mode) {
++-		fesetround(mode);
+++		(void)mode;
++ 	}
++ #endif
++ 
++@@ -134,23 +154,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ #ifdef RANDOMX_DEFAULT_FENV
++ 
++ void rx_reset_float_state() {
++-	setRoundMode_(FE_TONEAREST);
+++	setRoundMode_(RoundToNearest);
++ 	rx_set_double_precision(); //set precision to 53 bits if needed by the platform
++ }
++ 
++ void rx_set_rounding_mode(uint32_t mode) {
++ 	switch (mode & 3) {
++ 	case RoundDown:
++-		setRoundMode_(FE_DOWNWARD);
+++		setRoundMode_(RoundDown);
++ 		break;
++ 	case RoundUp:
++-		setRoundMode_(FE_UPWARD);
+++		setRoundMode_(RoundUp);
++ 		break;
++ 	case RoundToZero:
++-		setRoundMode_(FE_TOWARDZERO);
+++		setRoundMode_(RoundToZero);
++ 		break;
++ 	case RoundToNearest:
++-		setRoundMode_(FE_TONEAREST);
+++		setRoundMode_(RoundToNearest);
++ 		break;
++ 	default:
++ 		UNREACHABLE;
 diff --git a/cmake/patch/uSockets/001-fix-bsd.patch b/cmake/patch/uSockets/001-fix-bsd.patch
 new file mode 100644
 index 000000000..a1e2fca12
@@ -423,6 +560,32 @@ index 000000000..a1e2fca12
 ++}
 ++#endif
 +\ No newline at end of file
+diff --git a/cmake/randomx.cmake b/cmake/randomx.cmake
+new file mode 100644
+index 000000000..a4ee18f3e
+--- /dev/null
++++ b/cmake/randomx.cmake
+@@ -0,0 +1,19 @@
++# Apply local fixes to randomx submodule
++
++set(RANDOMX_PATCH
++    "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/patch/randomx/001-fix-instructions-portable.patch"
++)
++
++if(EXISTS "${RANDOMX_PATCH}")
++  message(STATUS "Applying randomx local patch")
++
++  execute_process(
++    COMMAND patch -p1 -N -i "${RANDOMX_PATCH}"
++    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../external/randomx"
++    RESULT_VARIABLE _randomx_patch_result
++  )
++
++  if(NOT _randomx_patch_result EQUAL 0 AND NOT _randomx_patch_result EQUAL 1)
++    message(FATAL_ERROR "Failed to apply randomx patch")
++  endif()
++endif()
+\ No newline at end of file
 diff --git a/cmake/uSockets.cmake b/cmake/uSockets.cmake
 new file mode 100644
 index 000000000..ad133c565
@@ -453,19 +616,22 @@ index 000000000..ad133c565
 +  endif()
 +endif()
 diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
-index a7bfba09b..c0561c687 100755
+index a7bfba09b..fdfa002c0 100755
 --- a/external/CMakeLists.txt
 +++ b/external/CMakeLists.txt
-@@ -33,6 +33,8 @@
+@@ -33,6 +33,11 @@
  # ...except for FreeBSD, because FreeBSD is a special case that doesn't play well with
  # others.
  
 +include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/libuv.cmake)
++include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cpr.cmake)
++include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/randomx.cmake)
++
 +
  if(NOT STATIC AND NOT BUILD_STATIC_DEPS)
    find_package(PkgConfig REQUIRED)
    pkg_check_modules(OXENC liboxenc>=1.0.10 IMPORTED_TARGET)
-@@ -41,6 +43,7 @@ endif()
+@@ -41,6 +46,7 @@ endif()
  
  if(NOT OXENC_FOUND)
     message(STATUS "Using in-tree oxen-encoding")
@@ -473,7 +639,7 @@ index a7bfba09b..c0561c687 100755
     add_subdirectory(oxen-encoding)
   else()
     add_library(oxenc INTERFACE)
-@@ -51,6 +54,7 @@ endif()
+@@ -51,6 +57,7 @@ endif()
  
  if(NOT OXENMQ_FOUND)
    message(STATUS "Using in-tree oxenmq")
@@ -481,7 +647,7 @@ index a7bfba09b..c0561c687 100755
    add_subdirectory(loki-mq)
  else()
    add_library(oxenmq INTERFACE)
-@@ -72,6 +76,8 @@ add_subdirectory(nlohmann-json)
+@@ -72,6 +79,8 @@ add_subdirectory(nlohmann-json)
  
  # uSockets doesn't really have a proper build system (just a very simple Makefile) so build it
  # ourselves.
@@ -490,7 +656,7 @@ index a7bfba09b..c0561c687 100755
  if (NOT CMAKE_VERSION VERSION_LESS 3.12)
      set(conf_depends "CONFIGURE_DEPENDS")
  else()
-@@ -84,13 +90,13 @@ target_compile_definitions(uSockets PRIVATE LIBUS_NO_SSL=1)
+@@ -84,13 +93,13 @@ target_compile_definitions(uSockets PRIVATE LIBUS_NO_SSL=1)
  target_include_directories(uSockets PRIVATE uWebSockets/uSockets/src)
  
  # Polyseed

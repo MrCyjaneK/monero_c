@@ -1,6 +1,6 @@
-From 3e92b515191316855905186b1fb6577da9479872 Mon Sep 17 00:00:00 2001
+From b765826c81749932d7908eb07588fd3413f4bc31 Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Wed, 1 Apr 2026 17:46:29 +0530
+Date: Mon, 6 Apr 2026 13:58:05 +0530
 Subject: [PATCH 17/20] Fix Apple cross-build
 
 ---

@@ -1,22 +1,25 @@
-From 012ffe72b3ba470d829591c56933cca3d916c98b Mon Sep 17 00:00:00 2001
+From cb2f6ffe9c738f7bbbe1fec80f1f4155c1e568a1 Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Wed, 1 Apr 2026 18:00:53 +0530
+Date: Mon, 6 Apr 2026 14:04:15 +0530
 Subject: [PATCH 20/20] build: update source files for compiler compatibility
 
 ---
- cmake/patch-libzmq-for-mingw.cmake       | 14 +++++
- src/cryptonote_config.h                  | 52 +++++++++---------
- src/cryptonote_core/blockchain.cpp       | 23 +++++---
- src/cryptonote_core/cryptonote_core.cpp  |  8 ++-
- src/cryptonote_core/cryptonote_core.h    |  4 +-
- src/cryptonote_core/master_node_list.cpp | 54 ++++++++++++-------
- src/daemon/daemon.cpp                    |  8 ++-
- src/simplewallet/simplewallet.cpp        |  2 +-
- src/wallet/api/wallet.cpp                | 36 +++++++------
- src/wallet/api/wallet_manager.cpp        |  4 +-
- src/wallet/node_rpc_proxy.cpp            |  4 +-
- src/wallet/wallet2.cpp                   | 69 ++++++++++++------------
- 12 files changed, 167 insertions(+), 111 deletions(-)
+ cmake/patch-libzmq-for-mingw.cmake            | 14 ++++
+ .../cryptonote_basic_impl.cpp                 |  2 -
+ src/cryptonote_config.h                       | 52 +++++++-------
+ src/cryptonote_core/blockchain.cpp            | 23 ++++---
+ src/cryptonote_core/cryptonote_core.cpp       |  8 ++-
+ src/cryptonote_core/cryptonote_core.h         |  4 +-
+ src/cryptonote_core/master_node_list.cpp      | 54 ++++++++++-----
+ src/cryptonote_core/master_node_rules.cpp     |  1 -
+ src/daemon/daemon.cpp                         |  8 ++-
+ src/simplewallet/simplewallet.cpp             |  2 +-
+ src/wallet/api/wallet.cpp                     | 36 +++++-----
+ src/wallet/api/wallet_manager.cpp             |  4 +-
+ src/wallet/node_rpc_proxy.cpp                 |  4 +-
+ src/wallet/wallet2.cpp                        | 69 ++++++++++---------
+ tests/hash/main.cpp                           |  4 +-
+ 15 files changed, 169 insertions(+), 116 deletions(-)
  create mode 100644 cmake/patch-libzmq-for-mingw.cmake
 
 diff --git a/cmake/patch-libzmq-for-mingw.cmake b/cmake/patch-libzmq-for-mingw.cmake
@@ -39,6 +42,26 @@ index 000000000..26a3b0463
 +string(REPLACE "rpcrt4.lib" "rpcrt4" libzmq_cmake "${libzmq_cmake}")
 +string(REPLACE "iphlpapi.lib" "iphlpapi" libzmq_cmake "${libzmq_cmake}")
 +file(WRITE "${libzmq_cmake_lists}" "${libzmq_cmake}")
+diff --git a/src/cryptonote_basic/cryptonote_basic_impl.cpp b/src/cryptonote_basic/cryptonote_basic_impl.cpp
+index 828952d73..e3f8d367d 100755
+--- a/src/cryptonote_basic/cryptonote_basic_impl.cpp
++++ b/src/cryptonote_basic/cryptonote_basic_impl.cpp
+@@ -39,7 +39,6 @@
+ #include "crypto/hash.h"
+ #include "epee/int-util.h"
+ #include "common/beldex.h"
+-#include <cfenv>
+ 
+ #undef BELDEX_DEFAULT_LOG_CATEGORY
+ #define BELDEX_DEFAULT_LOG_CATEGORY "cn"
+@@ -109,7 +108,6 @@ namespace cryptonote {
+ 
+   uint64_t block_reward_unpenalized_formula_v8(uint64_t height)
+   {
+-    std::fesetround(FE_TONEAREST);
+     uint64_t result = 28'000'000'000. + 100'000'000'000. / beldex::exp2(height / (720. * 90)); // halve every 90 days.
+     return result;
+   }
 diff --git a/src/cryptonote_config.h b/src/cryptonote_config.h
 index 41164957e..dc8381aa3 100644
 --- a/src/cryptonote_config.h
@@ -374,6 +397,18 @@ index b6e90a1c8..315078772 100755
    }
  }
 -
+diff --git a/src/cryptonote_core/master_node_rules.cpp b/src/cryptonote_core/master_node_rules.cpp
+index 7ccc8ca05..107400d6e 100755
+--- a/src/cryptonote_core/master_node_rules.cpp
++++ b/src/cryptonote_core/master_node_rules.cpp
+@@ -5,7 +5,6 @@
+ #include <limits>
+ #include <vector>
+ #include <boost/lexical_cast.hpp>
+-#include <cfenv>
+ 
+ #include "beldex_economy.h"
+ #include "master_node_rules.h"
 diff --git a/src/daemon/daemon.cpp b/src/daemon/daemon.cpp
 index b80ba6431..5824e7c88 100755
 --- a/src/daemon/daemon.cpp
@@ -768,6 +803,28 @@ index a3b52fd03..7f9636bfd 100755
  
        // erase corresponding incoming payment
        for (auto j = m_payments.begin(); j != m_payments.end(); )
+diff --git a/tests/hash/main.cpp b/tests/hash/main.cpp
+index 6cafa7a6e..99f4eabca 100755
+--- a/tests/hash/main.cpp
++++ b/tests/hash/main.cpp
+@@ -33,7 +33,7 @@
+ #include <iomanip>
+ #include <ios>
+ #include <string>
+-#include <cfenv>
++#include <fenv.h>
+ 
+ #include "epee/misc_log_ex.h"
+ #include "epee/warnings.h"
+@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
+       }
+       const int round_modes[3] = { FE_DOWNWARD, FE_TONEAREST, FE_UPWARD };
+       for (int i = 0; i < 3; ++i) {
+-        std::fesetround(round_modes[i]);
++        fesetround(round_modes[i]);
+         const int result = test_variant2_int_sqrt();
+         if (result != 0) {
+           cerr << "FPU round mode was set to ";
 -- 
 2.43.0
 
