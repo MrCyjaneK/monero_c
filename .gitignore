@@ -2,3 +2,14 @@ release/
 build/
 tests/dependencies
 tests/wallets
+.DS_Store
+contrib/depends/*-*-*
+contrib/depends/_
+contrib/depends/_native
+contrib/depends/simplybs
+*_libwallet2_api_c/build
+./monero
+./wownero
+./zano
+*.o
+test_wallet2_api_c

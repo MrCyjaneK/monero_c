@@ -1,7 +1,7 @@
-From 8c7620ca83c949eb6028e5ea423844f3922ec84d Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 07:10:30 +0000
-Subject: [PATCH 15/19] serialize cache to JSON
+From be71acca5614c92cd754e0223ebbdaa0526aca4a Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 15:56:31 +0530
+Subject: [PATCH 15/20] serialize cache to JSON
 
 ---
  src/wallet/CMakeLists.txt           |  1 +
@@ -121,5 +121,5 @@ index 000000000..fbcee1244
 +} // namespace tools
 \ No newline at end of file
 -- 
-2.25.1
+2.43.0
 

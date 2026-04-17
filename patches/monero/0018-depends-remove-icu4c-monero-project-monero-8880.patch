@@ -1,0 +1,39 @@
+From 960a5efe59725eab4c03ce8025de8fc0fbffaacf Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Tue, 3 Mar 2026 13:55:59 +0100
+Subject: [PATCH 18/20] depends: remove icu4c monero-project/monero#8880
+
+---
+ CMakeLists.txt | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ce5e1b557..25e034301 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1117,20 +1117,15 @@ if(MINGW)
+   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wa,-mbig-obj")
+   set(EXTRA_LIBRARIES mswsock;ws2_32;iphlpapi;crypt32;bcrypt)
+   if(DEPENDS)
+-    set(ICU_LIBRARIES icuio icui18n icuuc icudata icutu iconv)
++    set(ICU_LIBRARIES iconv)
+   else()
+     # This is an extremely ugly hack to get around Boost not being built with static ICU.
+     # We reported the issue, we are waiting for upstream to fix this issue: https://github.com/boostorg/boost/issues/1079#issue-3384962885
+     # This hack links shared ICU libs to avoid linker errors we get in MSYS2 compilation (undefined symbols to ICU).
+     set(OLD_LIB_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+     set(CMAKE_FIND_LIBRARY_SUFFIXES ".dll.a")
+-    find_library(ICUIO_LIBRARIES NAMES icuio REQUIRED)
+-    find_library(ICUIN_LIBRARIES NAMES icuin REQUIRED)
+-    find_library(ICUUC_LIBRARIES NAMES icuuc REQUIRED)
+-    find_library(ICUDT_LIBRARIES NAMES icudt REQUIRED)
+-    find_library(ICUTU_LIBRARIES NAMES icutu REQUIRED)
+     find_library(ICONV_LIBRARIES NAMES iconv REQUIRED)
+-    set(ICU_LIBRARIES ${ICUIO_LIBRARIES} ${ICUIN_LIBRARIES} ${ICUUC_LIBRARIES} ${ICUDT_LIBRARIES} ${ICUTU_LIBRARIES} ${ICONV_LIBRARIES})
++    set(ICU_LIBRARIES ${ICUIO_LIBRARIES} ${ICONV_LIBRARIES})
+     set(CMAKE_FIND_LIBRARY_SUFFIXES ${OLD_LIB_SUFFIXES})
+   endif()
+ elseif(APPLE OR OPENBSD OR ANDROID)
+-- 
+2.50.1 (Apple Git-155)
+

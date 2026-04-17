@@ -1,7 +1,7 @@
-From 550ab96fcd7bda6ccee2f6c3a030fa73eccea17f Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 07:07:09 +0000
-Subject: [PATCH 12/19] include locale only when targeting WIN32
+From 185d50e477a5ef4a67e1be448fd93191c7d848dc Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 14:10:57 +0530
+Subject: [PATCH 12/20] include locale only when targeting WIN32
 
 ---
  CMakeLists.txt            | 4 ++++
@@ -39,5 +39,5 @@ index 7b28e4cba..239043964 100755
  
  #undef BELDEX_DEFAULT_LOG_CATEGORY
 -- 
-2.25.1
+2.43.0
 

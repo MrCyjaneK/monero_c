@@ -1,7 +1,7 @@
-From 36259ba9f88bc135b243329400bec9290abb04c6 Mon Sep 17 00:00:00 2001
+From 41d9f755a1392dd116241acb32b887091669f090 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 2 Apr 2024 16:51:56 +0200
-Subject: [PATCH 01/17] fix missing ___clear_cache when targetting iOS
+Subject: [PATCH 01/20] fix missing ___clear_cache when targetting iOS
 
 ---
  .gitmodules      | 3 ++-
@@ -23,12 +23,12 @@ index 721cce3b4..ffb73fe9a 100644
  	path = external/supercop
  	url = https://github.com/monero-project/supercop
 diff --git a/external/randomx b/external/randomx
-index 102f8acf9..ce72c9bb9 160000
+index 102f8acf9..5dfeeb30e 160000
 --- a/external/randomx
 +++ b/external/randomx
 @@ -1 +1 @@
 -Subproject commit 102f8acf90a7649ada410de5499a7ec62e49e1da
-+Subproject commit ce72c9bb9cb799e0d9171094b9abb009e04c5bfc
++Subproject commit 5dfeeb30ec3446ec9d348153767abc324436c56c
 -- 
-2.49.0
+2.50.1 (Apple Git-155)
 

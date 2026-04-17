@@ -1,7 +1,7 @@
-From 5dbaff457e2687d78abc0b92d3abe1acaba10a4a Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 07:04:57 +0000
-Subject: [PATCH 10/19] Add recoverDeterministicWalletFromSpendKey
+From f893a13a3fa72506fee0b3432e831992a2083069 Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 14:08:35 +0530
+Subject: [PATCH 10/20] Add recoverDeterministicWalletFromSpendKey
 
 ---
  src/wallet/api/wallet.cpp         | 27 +++++++++++++++++++++++++++
@@ -141,5 +141,5 @@ index 16b9adeeb..63feea07f 100755
                                              const std::string &password,
                                              NetworkType nettype,
 -- 
-2.25.1
+2.43.0
 

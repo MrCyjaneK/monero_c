@@ -1,6 +1,21 @@
-#ifndef MONEROC_CHECKSUMS
-#define MONEROC_CHECKSUMS
-const char * ZANO_wallet2_api_c_h_sha256 = "8acaa95513b85a984c08e05cc3f2ac7530bb8f32946eeeb45357bd846aef33dd";
-const char * ZANO_wallet2_api_c_cpp_sha256 = "4efacd3812d53dd268b6869cc0a9560e7320574d96e09136cf067f796edfeba6-83eefd205e3df84da0bf095257459fe778330316";
-const char * ZANO_wallet2_api_c_exp_sha256 = "66f3ff655bbfd11ad28c318ab707090b5a93276f436b06f7b1c0f329dba3c9c2";
+#ifndef MONEROC_CHECKSUMS_ZANO
+#define MONEROC_CHECKSUMS_ZANO
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#ifdef __MINGW32__
+    #define ADDAPI __declspec(dllexport)
+#else
+    #define ADDAPI __attribute__((__visibility__("default")))
+#endif
+
+extern ADDAPI const char * ZANO_wallet2_api_c_h_sha256;
+extern ADDAPI const char * ZANO_wallet2_api_c_cpp_sha256;
+extern ADDAPI const char * ZANO_wallet2_api_c_exp_sha256;
+
+#ifdef __cplusplus
+}
+#endif
 #endif

@@ -1,7 +1,7 @@
-From 1c7b9348d7a9deb7ae52b5be1faeb3ecd6910305 Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 06:51:20 +0000
-Subject: [PATCH 03/19] store crash fix
+From 7b30966704626b163a9d51fab4553f7953761ccb Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 13:18:44 +0530
+Subject: [PATCH 03/20] store crash fix
 
 Beldex wallet crashes (sometimes) when it is syncing,
 while the proper solution (that can be seen in feather)
@@ -208,5 +208,5 @@ index 0b97a4f50..64cd27ff6 100755
      i_wallet2_callback* m_callback;
      hw::device::type m_key_device_type;
 -- 
-2.25.1
+2.43.0
 

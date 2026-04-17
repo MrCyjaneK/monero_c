@@ -1,7 +1,7 @@
-From ea5dafb83881270a27d82c438ef435c40a47d820 Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 06:49:43 +0000
-Subject: [PATCH 02/19] wallet: background sync with just the view key
+From fdf7a08c132ac5335e5fa43dfb63b7d82af7cf20 Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 13:17:24 +0530
+Subject: [PATCH 02/20] wallet: background sync with just the view key
 
 - When background syncing, the wallet wipes the spend key
 from memory and processes all new transactions. The wallet saves
@@ -4760,5 +4760,5 @@ index 6f6e06881..b87ac928f 100755
 +        }
 +        return self.rpc.send_json_rpc_request(stop_background_sync)
 -- 
-2.25.1
+2.43.0
 

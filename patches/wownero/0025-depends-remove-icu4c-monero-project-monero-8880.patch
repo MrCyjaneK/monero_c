@@ -1,0 +1,25 @@
+From e437fea14ce67d7d0073ad484a66cfc92daa3eb5 Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Tue, 3 Mar 2026 13:55:59 +0100
+Subject: [PATCH] depends: remove icu4c monero-project/monero#8880
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a4c163503..b744261ea 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1115,7 +1115,7 @@ if(MINGW)
+   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wa,-mbig-obj")
+   set(EXTRA_LIBRARIES mswsock;ws2_32;iphlpapi;crypt32;bcrypt)
+   if(DEPENDS)
+-    set(ICU_LIBRARIES icuio icui18n icuuc icudata icutu iconv)
++    set(ICU_LIBRARIES iconv)
+   else()
+     # This is an extremely ugly hack to get around Boost not being built with static ICU.
+     # We reported the issue, we are waiting for upstream to fix this issue: https://github.com/boostorg/boost/issues/1079#issue-3384962885
+-- 
+2.51.0
+

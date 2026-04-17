@@ -1,7 +1,7 @@
-From a1020819ad9c0e894099c7ff9daa78eb099a9e6f Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 07:00:58 +0000
-Subject: [PATCH 07/19] polyseed
+From 1ee953d8a468cec403bc4e58fdca6b663a67f423 Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 14:02:21 +0530
+Subject: [PATCH 07/20] polyseed
 
 ---
  .gitmodules                                 |   6 +
@@ -159,11 +159,11 @@ index 000000000..dfb05d8ed
 +Subproject commit dfb05d8edb682b0e8f743b1b70c9131712ff4157
 diff --git a/external/utf8proc b/external/utf8proc
 new file mode 160000
-index 000000000..37a1f8b9b
+index 000000000..e46d2dba2
 --- /dev/null
 +++ b/external/utf8proc
 @@ -0,0 +1 @@
-+Subproject commit 37a1f8b9bab1c9af18057157824874117e2a7e5d
++Subproject commit e46d2dba26a06f2ec3c57d944c8b679c6d8fea44
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index ff74933f1..b83c11eb0 100755
 --- a/src/CMakeLists.txt
@@ -1296,5 +1296,5 @@ index 241a3fcf4..dd1f3c69f 100755
      uint32_t m_multisig_threshold;
      std::vector<crypto::public_key> m_multisig_signers;
 -- 
-2.25.1
+2.43.0
 

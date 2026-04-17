@@ -1,7 +1,7 @@
-From 7e4262bab0e8bd496f1e72ebf6a0ec4a4cf6688a Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 06:54:38 +0000
-Subject: [PATCH 05/19] UR functions
+From 0bf158b664a6a445223f0cfd2eb88207a0f1db1c Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Wed, 1 Apr 2026 13:58:04 +0530
+Subject: [PATCH 05/20] UR functions
 
 This commit adds UR functions for UR tasks,
 I believe that the right place to get
@@ -931,5 +931,5 @@ index 64cd27ff6..241a3fcf4 100755
      bool import_key_images(signed_tx_set & signed_tx, size_t offset=0, bool only_selected_transfers=false);
      crypto::public_key get_tx_pub_key_from_received_outs(const transfer_details &td) const;
 -- 
-2.25.1
+2.43.0
 

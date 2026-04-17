@@ -83,11 +83,11 @@ typedef PendingTransaction = Pointer<Void>;
 
 WowneroC? lib;
 String libPath = (() {
-  if (Platform.isWindows) return 'wownero_libwallet2_api_c.dll';
-  if (Platform.isMacOS) return 'wownero_libwallet2_api_c.dylib';
+  if (Platform.isWindows) return 'libwownero_wallet2_api_c.dll';
+  if (Platform.isMacOS) return 'libwownero_wallet2_api_c.dylib';
   if (Platform.isIOS) return 'WowneroWallet.framework/WowneroWallet';
-  if (Platform.isAndroid) return 'libwownero_libwallet2_api_c.so';
-  return 'wownero_libwallet2_api_c.so';
+  if (Platform.isAndroid) return 'libwownero_wallet2_api_c.so';
+  return 'libwownero_wallet2_api_c.so';
 })();
 
 Map<String, List<int>> debugCallLength = {};

@@ -1,19 +1,19 @@
-From 44621fc5a5198966af1373e306e6833d288e8828 Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 07:19:46 +0000
-Subject: [PATCH 18/19] fix monero_c build issues in Docker environment
+From c3b4ef1a7675c6672869af627c023425598aa176 Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Mon, 6 Apr 2026 13:58:58 +0530
+Subject: [PATCH 18/20] fix monero_c build issues in Docker environment
 
 ---
- CMakeLists.txt                | 12 ++++++++++++
+ CMakeLists.txt                | 15 +++++++++++++++
  src/crypto/CMakeLists.txt     |  8 ++++++++
  src/p2p/p2p_protocol_defs.cpp |  9 +++++++--
- 3 files changed, 27 insertions(+), 2 deletions(-)
+ 3 files changed, 30 insertions(+), 2 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 249afc0ca..2f93813af 100755
+index 9f5456ee0..ef5f61030 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -85,6 +85,18 @@ if(ANDROID)
+@@ -116,6 +116,21 @@ if(ANDROID)
    add_compile_options(-Wno-unused-command-line-argument -Wno-error -Wno-cpp -Wno-error=cpp -Wno-unused-private-field -Wno-unused-lambda-capture -Wno-unused-result -Wno-string-plus-int -fstack-clash-protection -Wno-shift-count-overflow -Wno-deprecated-copy)
  endif()
  
@@ -22,6 +22,9 @@ index 249afc0ca..2f93813af 100755
 +        message(STATUS "GCC 14+ detected — applying compatibility flags")
 +
 +        add_compile_options(
++            -Wno-error
++            -Wno-error=extra
++            -Wno-extra
 +            -Wno-dangling-reference
 +            -Wno-tautological-compare
 +            -Wno-unused-result
@@ -73,5 +76,5 @@ index a5e0ba6de..e66c8d13a 100644
      return result;
    }
 -- 
-2.25.1
+2.43.0
 

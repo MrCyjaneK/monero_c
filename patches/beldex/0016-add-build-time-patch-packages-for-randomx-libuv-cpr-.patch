@@ -1,0 +1,677 @@
+From 8071414dab9fe44a45e983bddf9d37bfcb9d8b27 Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Mon, 6 Apr 2026 13:55:33 +0530
+Subject: [PATCH 16/20] add build-time patch packages for randomx, libuv, cpr,
+ loki-mq, oxen-encoding, and uSockets
+
+---
+ cmake/cpr.cmake                               |  19 +++
+ cmake/libuv.cmake                             |  19 +++
+ cmake/loki-mq.cmake                           |  20 +++
+ cmake/oxen-encoding.cmake                     |  22 +++
+ cmake/patch/cpr/001-fix-callback.patch        |  12 ++
+ cmake/patch/libuv/001-fix-cmake-version.patch |  10 ++
+ .../patch/loki-mq/001-fix-libzmq-cmake.patch  | 161 ++++++++++++++++++
+ .../oxen-encoding/001-fix-serialization.patch |  67 ++++++++
+ .../001-fix-instructions-portable.patch       |  79 +++++++++
+ cmake/patch/uSockets/001-fix-bsd.patch        |  57 +++++++
+ cmake/randomx.cmake                           |  19 +++
+ cmake/uSockets.cmake                          |  23 +++
+ external/CMakeLists.txt                       |  13 +-
+ 13 files changed, 519 insertions(+), 2 deletions(-)
+ create mode 100644 cmake/cpr.cmake
+ create mode 100644 cmake/libuv.cmake
+ create mode 100644 cmake/loki-mq.cmake
+ create mode 100644 cmake/oxen-encoding.cmake
+ create mode 100644 cmake/patch/cpr/001-fix-callback.patch
+ create mode 100644 cmake/patch/libuv/001-fix-cmake-version.patch
+ create mode 100644 cmake/patch/loki-mq/001-fix-libzmq-cmake.patch
+ create mode 100644 cmake/patch/oxen-encoding/001-fix-serialization.patch
+ create mode 100644 cmake/patch/randomx/001-fix-instructions-portable.patch
+ create mode 100644 cmake/patch/uSockets/001-fix-bsd.patch
+ create mode 100644 cmake/randomx.cmake
+ create mode 100644 cmake/uSockets.cmake
+
+diff --git a/cmake/cpr.cmake b/cmake/cpr.cmake
+new file mode 100644
+index 000000000..c96657702
+--- /dev/null
++++ b/cmake/cpr.cmake
+@@ -0,0 +1,19 @@
++# Apply local fixes to cpr submodule
++
++set(CPR_PATCH
++    "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/patch/cpr/001-fix-callback.patch"
++)
++
++if(EXISTS "${CPR_PATCH}")
++  message(STATUS "Applying cpr local patch")
++
++  execute_process(
++    COMMAND patch -p1 -N -i "${CPR_PATCH}"
++    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../external/cpr"
++    RESULT_VARIABLE _cpr_patch_result
++  )
++
++  if(NOT _cpr_patch_result EQUAL 0 AND NOT _cpr_patch_result EQUAL 1)
++    message(FATAL_ERROR "Failed to apply cpr patch")
++  endif()
++endif()
+\ No newline at end of file
+diff --git a/cmake/libuv.cmake b/cmake/libuv.cmake
+new file mode 100644
+index 000000000..f18d83fef
+--- /dev/null
++++ b/cmake/libuv.cmake
+@@ -0,0 +1,19 @@
++# Apply local fixes to libuv submodule
++
++set(LIBUV_PATCH
++    "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/patch/libuv/001-fix-cmake-version.patch"
++)
++
++if(EXISTS "${LIBUV_PATCH}")
++  message(STATUS "Applying libuv local patch")
++
++  execute_process(
++    COMMAND patch -p1 -N -i "${LIBUV_PATCH}"
++    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../external/libuv"
++    RESULT_VARIABLE _patch_result
++  )
++
++  if(NOT _patch_result EQUAL 0 AND NOT _patch_result EQUAL 1)
++    message(FATAL_ERROR "Failed to apply libuv patch")
++  endif()
++endif()
+\ No newline at end of file
+diff --git a/cmake/loki-mq.cmake b/cmake/loki-mq.cmake
+new file mode 100644
+index 000000000..35683a635
+--- /dev/null
++++ b/cmake/loki-mq.cmake
+@@ -0,0 +1,20 @@
++# Apply local fixes to loki-mq submodule
++
++set(LOKI_MQ_PATCH
++    "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/patch/loki-mq/001-fix-libzmq-cmake.patch"
++)
++
++if(EXISTS "${LOKI_MQ_PATCH}")
++  message(STATUS "Applying loki-mq local patch")
++
++  execute_process(
++    COMMAND patch -p1 -N -i "${LOKI_MQ_PATCH}"
++    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../external/loki-mq"
++    RESULT_VARIABLE _patch_result
++)
++
++
++  if(NOT _patch_result EQUAL 0 AND NOT _patch_result EQUAL 1)
++    message(FATAL_ERROR "Failed to apply loki-mq patch")
++  endif()
++endif()
+diff --git a/cmake/oxen-encoding.cmake b/cmake/oxen-encoding.cmake
+new file mode 100644
+index 000000000..753460bd3
+--- /dev/null
++++ b/cmake/oxen-encoding.cmake
+@@ -0,0 +1,22 @@
++# Apply local fixes to oxen-encoding submodule
++
++set(OXEN_ENCODING_PATCH
++    "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/patch/oxen-encoding/001-fix-serialization.patch"
++)
++
++if(EXISTS "${OXEN_ENCODING_PATCH}")
++  message(STATUS "Applying oxen-encoding local patch")
++
++  execute_process(
++    COMMAND patch -p1 -N -i "${OXEN_ENCODING_PATCH}"
++    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../external/oxen-encoding"
++    RESULT_VARIABLE _patch_result
++    OUTPUT_VARIABLE _patch_out
++    ERROR_VARIABLE  _patch_err
++  )
++
++  if(NOT _patch_result EQUAL 0 AND NOT _patch_result EQUAL 1)
++    message(FATAL_ERROR
++      "Failed to apply oxen-encoding patch:\n${_patch_out}\n${_patch_err}")
++  endif()
++endif()
+diff --git a/cmake/patch/cpr/001-fix-callback.patch b/cmake/patch/cpr/001-fix-callback.patch
+new file mode 100644
+index 000000000..574af7c79
+--- /dev/null
++++ b/cmake/patch/cpr/001-fix-callback.patch
+@@ -0,0 +1,12 @@
++diff --git a/include/cpr/callback.h b/include/cpr/callback.h
++index e54c4fb..93c810b 100644
++--- a/include/cpr/callback.h
+++++ b/include/cpr/callback.h
++@@ -3,6 +3,7 @@
++ 
++ #include "cprtypes.h"
++ 
+++#include <cstdint>
++ #include <functional>
++ #include <utility>
++ 
+diff --git a/cmake/patch/libuv/001-fix-cmake-version.patch b/cmake/patch/libuv/001-fix-cmake-version.patch
+new file mode 100644
+index 000000000..9fe7e4e20
+--- /dev/null
++++ b/cmake/patch/libuv/001-fix-cmake-version.patch
+@@ -0,0 +1,10 @@
++diff --git a/CMakeLists.txt b/CMakeLists.txt
++index ac524127..010264b8 100644
++--- a/CMakeLists.txt
+++++ b/CMakeLists.txt
++@@ -1,4 +1,4 @@
++-cmake_minimum_required(VERSION 3.4)
+++cmake_minimum_required(VERSION 3.5)
++ project(libuv LANGUAGES C)
++ 
++ cmake_policy(SET CMP0057 NEW) # Enable IN_LIST operator
+diff --git a/cmake/patch/loki-mq/001-fix-libzmq-cmake.patch b/cmake/patch/loki-mq/001-fix-libzmq-cmake.patch
+new file mode 100644
+index 000000000..65079a234
+--- /dev/null
++++ b/cmake/patch/loki-mq/001-fix-libzmq-cmake.patch
+@@ -0,0 +1,161 @@
++diff --git a/CMakeLists.txt b/CMakeLists.txt
++index ded625a..232f663 100644
++--- a/CMakeLists.txt
+++++ b/CMakeLists.txt
++@@ -143,7 +143,7 @@ target_include_directories(oxenmq
++ 
++ target_compile_options(oxenmq PRIVATE -Wall -Wextra)
++ 
++-option(WARNINGS_AS_ERRORS "treat all warnings as errors" ON)
+++option(WARNINGS_AS_ERRORS "treat all warnings as errors" OFF)
++ if(WARNINGS_AS_ERRORS)
++     target_compile_options(oxenmq PRIVATE -Werror)
++ endif()
++diff --git a/cmake/local-libzmq/LocalLibzmq.cmake b/cmake/local-libzmq/LocalLibzmq.cmake
++index a25adb7..e7c2935 100644
++--- a/cmake/local-libzmq/LocalLibzmq.cmake
+++++ b/cmake/local-libzmq/LocalLibzmq.cmake
++@@ -12,21 +12,138 @@ endif()
++ 
++ 
++ file(MAKE_DIRECTORY ${LIBZMQ_PREFIX}/include)
+++if(IOS)
+++    set(IOS_PLATFORM iphoneos)
+++    set(IOS_ARCH arm64)
+++    set(IOS_DEPLOYMENT_TARGET 12.0)
+++endif()
+++
++ 
++ include(ExternalProject)
++ include(ProcessorCount)
+++
+++get_filename_component(LIBZMQ_REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../.." ABSOLUTE)
+++set(LIBZMQ_DEPENDS_ROOT "${LIBZMQ_REPO_ROOT}/contrib/depends")
+++
+++if(NOT DEFINED HOST_ABI OR HOST_ABI STREQUAL "")
+++    if(DEFINED ENV{HOST} AND NOT "$ENV{HOST}" STREQUAL "")
+++        set(HOST_ABI "$ENV{HOST}")
+++    elseif(WIN32)
+++        if(CMAKE_SYSTEM_PROCESSOR STREQUAL "i686")
+++            set(HOST_ABI i686-w64-mingw32)
+++        else()
+++            set(HOST_ABI x86_64-w64-mingw32)
+++        endif()
+++    endif()
+++endif()
+++
+++if(WIN32)
+++    set(ZMQ_WINDOWS_PREFIX "${LIBZMQ_DEPENDS_ROOT}/${HOST_ABI}")
+++    set(ZMQ_WINDOWS_SYSROOT "${ZMQ_WINDOWS_PREFIX}/sysroot")
+++    set(ZMQ_WINDOWS_TOOLCHAIN_FILE "${LIBZMQ_DEPENDS_ROOT}/${HOST_ABI}/share/toolchain.cmake")
+++    if(NOT EXISTS "${ZMQ_WINDOWS_TOOLCHAIN_FILE}")
+++        message(FATAL_ERROR "Missing depends toolchain file: ${ZMQ_WINDOWS_TOOLCHAIN_FILE}")
+++    endif()
+++
+++    set(ZMQ_WIN_DEFS
+++    -D_WIN32_WINNT=0x0601
+++    -DWINVER=0x0601
+++    -DNTDDI_VERSION=0x06010000
+++)
+++    string(JOIN " " ZMQ_WIN_DEF_FLAGS ${ZMQ_WIN_DEFS})
+++
+++    file(GLOB ZMQ_WINDOWS_CXX_INCLUDE_DIRS LIST_DIRECTORIES true "${ZMQ_WINDOWS_PREFIX}/include/c++/*")
+++    list(SORT ZMQ_WINDOWS_CXX_INCLUDE_DIRS)
+++    if(NOT ZMQ_WINDOWS_CXX_INCLUDE_DIRS)
+++        message(FATAL_ERROR "Missing libstdc++ headers under ${ZMQ_WINDOWS_PREFIX}/include/c++")
+++    endif()
+++    list(GET ZMQ_WINDOWS_CXX_INCLUDE_DIRS 0 ZMQ_WINDOWS_CXX_STDLIB_DIR)
+++
+++    set(ZMQ_WINDOWS_C_FLAGS
+++        "--sysroot=${ZMQ_WINDOWS_SYSROOT} -I${ZMQ_WINDOWS_SYSROOT}/usr/${HOST_ABI}/include -I${ZMQ_WINDOWS_SYSROOT}/mingw/include -I${ZMQ_WINDOWS_PREFIX}/include ${ZMQ_WIN_DEF_FLAGS}")
+++    set(ZMQ_WINDOWS_CXX_FLAGS
+++        "--sysroot=${ZMQ_WINDOWS_SYSROOT} -I${ZMQ_WINDOWS_SYSROOT}/usr/${HOST_ABI}/include -I${ZMQ_WINDOWS_SYSROOT}/mingw/include -I${ZMQ_WINDOWS_PREFIX}/include -I${ZMQ_WINDOWS_CXX_STDLIB_DIR} -I${ZMQ_WINDOWS_CXX_STDLIB_DIR}/${HOST_ABI} ${ZMQ_WIN_DEF_FLAGS}")
+++endif()
+++
+++set(ZMQ_COMMON_ARGS
+++    -DWITH_LIBSODIUM=OFF
+++    -DENABLE_CURVE=OFF
+++    -DZMQ_BUILD_TESTS=OFF
+++    -DWITH_PERF_TOOL=OFF
+++    -DENABLE_DRAFTS=OFF
+++    -DBUILD_SHARED=OFF
+++    -DBUILD_STATIC=ON
+++    -DWITH_DOC=OFF
+++    -DCMAKE_INSTALL_PREFIX=${LIBZMQ_PREFIX}
+++)
+++
+++set(ZMQ_WINDOWS_ARGS 
+++    -DCMAKE_SYSTEM_NAME=Windows
+++    -DCMAKE_TOOLCHAIN_FILE=${ZMQ_WINDOWS_TOOLCHAIN_FILE}
+++    -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY 
+++    "-DCMAKE_C_FLAGS=${ZMQ_WINDOWS_C_FLAGS}"
+++    "-DCMAKE_CXX_FLAGS=${ZMQ_WINDOWS_CXX_FLAGS}"
+++    -DZMQ_WIN32_WINNT=0x0601
+++
+++    -DCMAKE_C_STANDARD_LIBRARIES=-lws2_32\ -ladvapi32\ -luser32\ -lkernel32\ -lrpcrt4
+++    -DCMAKE_CXX_STANDARD_LIBRARIES=-lws2_32\ -ladvapi32\ -luser32\ -lkernel32\ -lrpcrt4
+++
+++    -DZMQ_HAVE_WINDOWS=ON 
+++    -DZMQ_HAVE_IPC=0 
+++    -DZMQ_HAVE_IFADDRS=0 
+++    -DZMQ_HAVE_OPENPGM=0 
+++)
+++
+++set(ZMQ_IOS_ARGS
+++    -DCMAKE_SYSTEM_NAME=iOS
+++    -DCMAKE_OSX_SYSROOT=${IOS_PLATFORM}
+++    -DCMAKE_OSX_ARCHITECTURES=${IOS_ARCH}
+++    -DCMAKE_OSX_DEPLOYMENT_TARGET=${IOS_DEPLOYMENT_TARGET}
+++
+++    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+++    -DENABLE_CURVE=OFF
+++    -DWITH_LIBSODIUM=OFF
+++)
+++
+++
+++if(WIN32)
+++    set(ZMQ_PLATFORM_ARGS ${ZMQ_WINDOWS_ARGS})
+++    set(ZMQ_PATCH_COMMAND
+++        PATCH_COMMAND
+++            ${CMAKE_COMMAND}
+++            -DLIBZMQ_SOURCE_DIR=<SOURCE_DIR>
+++            -P ${LIBZMQ_REPO_ROOT}/beldex/cmake/patch-libzmq-for-mingw.cmake)
+++elseif(IOS)
+++    set(ZMQ_PLATFORM_ARGS ${ZMQ_IOS_ARGS})
+++    set(ZMQ_PATCH_COMMAND "")
+++else()
+++    set(ZMQ_PLATFORM_ARGS "")
+++    set(ZMQ_PATCH_COMMAND "")
+++endif()
+++
++ ExternalProject_Add(libzmq_external
++     PREFIX ${LIBZMQ_PREFIX}
++     URL ${LIBZMQ_URL}
++     URL_HASH ${LIBZMQ_HASH}
++-    CMAKE_ARGS -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
++-    -DWITH_LIBSODIUM=ON -DZMQ_BUILD_TESTS=OFF -DWITH_PERF_TOOL=OFF -DENABLE_DRAFTS=OFF
++-    -DBUILD_SHARED=OFF -DBUILD_STATIC=ON -DWITH_DOC=OFF -DCMAKE_INSTALL_PREFIX=${LIBZMQ_PREFIX}
++-    BUILD_BYPRODUCTS ${LIBZMQ_PREFIX}/${CMAKE_INSTALL_LIBDIR}/libzmq.a
++-    )
+++    ${ZMQ_PATCH_COMMAND}
+++
+++    CMAKE_ARGS
+++        ${ZMQ_COMMON_ARGS}
+++        ${ZMQ_PLATFORM_ARGS}
+++        -DCMAKE_POLICY_VERSION_MINIMUM=3.5 
+++        
+++
+++    BUILD_BYPRODUCTS
+++        ${LIBZMQ_PREFIX}/${CMAKE_INSTALL_LIBDIR}/libzmq.a
+++)
+++
++ 
++ add_library(libzmq_vendor STATIC IMPORTED GLOBAL)
++ add_dependencies(libzmq_vendor libzmq_external)
++ set_target_properties(libzmq_vendor PROPERTIES
++     INTERFACE_INCLUDE_DIRECTORIES ${LIBZMQ_PREFIX}/include
++     IMPORTED_LOCATION ${LIBZMQ_PREFIX}/${CMAKE_INSTALL_LIBDIR}/libzmq.a)
+++
+++if(WIN32)
+++    target_compile_definitions(libzmq_vendor INTERFACE ZMQ_STATIC)
+++endif()
+diff --git a/cmake/patch/oxen-encoding/001-fix-serialization.patch b/cmake/patch/oxen-encoding/001-fix-serialization.patch
+new file mode 100644
+index 000000000..7b41ac1bf
+--- /dev/null
++++ b/cmake/patch/oxen-encoding/001-fix-serialization.patch
+@@ -0,0 +1,67 @@
++diff --git a/oxenc/bt_serialize.h b/oxenc/bt_serialize.h
++index 0185a23..8753045 100644
++--- a/oxenc/bt_serialize.h
+++++ b/oxenc/bt_serialize.h
++@@ -760,12 +760,14 @@ class bt_list_consumer {
++             throw std::runtime_error{"Cannot create a bt_list_consumer with non-list data"};
++         data.remove_prefix(1);
++     }
++-    bt_list_consumer(std::basic_string_view<unsigned char> data) :
++-            bt_list_consumer{
++-                    std::string_view{reinterpret_cast<const char*>(data.data()), data.size()}} {}
++-    bt_list_consumer(std::basic_string_view<std::byte> data) :
++-            bt_list_consumer{
++-                    std::string_view{reinterpret_cast<const char*>(data.data()), data.size()}} {}
+++
+++    bt_list_consumer(const std::vector<uint8_t>& data) :
+++        bt_list_consumer{
+++                std::string_view{reinterpret_cast<const char*>(data.data()), data.size()}} {}
+++
+++    bt_list_consumer(const std::vector<std::byte>& data) :
+++        bt_list_consumer{
+++                std::string_view{reinterpret_cast<const char*>(data.data()), data.size()}} {}
++ 
++     /// Copy constructor.  Making a copy copies the current position so can be used for multipass
++     /// iteration through a list.
++@@ -1037,12 +1039,13 @@ class bt_dict_consumer : private bt_list_consumer {
++             throw std::runtime_error{"Cannot create a bt_dict_consumer with non-dict data"};
++         data.remove_prefix(1);
++     }
++-    bt_dict_consumer(std::basic_string_view<unsigned char> data) :
++-            bt_dict_consumer{
++-                    std::string_view{reinterpret_cast<const char*>(data.data()), data.size()}} {}
++-    bt_dict_consumer(std::basic_string_view<std::byte> data) :
++-            bt_dict_consumer{
++-                    std::string_view{reinterpret_cast<const char*>(data.data()), data.size()}} {}
+++    bt_dict_consumer(const std::vector<uint8_t>& data) :
+++        bt_dict_consumer{
+++                std::string_view{reinterpret_cast<const char*>(data.data()), data.size()}} {}
+++
+++    bt_dict_consumer(const std::vector<std::byte>& data) :
+++        bt_dict_consumer{
+++                std::string_view{reinterpret_cast<const char*>(data.data()), data.size()}} {}
++ 
++     /// Copy constructor.  Making a copy copies the current position so can be used for multipass
++     /// iteration through a list.
++diff --git a/oxenc/endian.h b/oxenc/endian.h
++index 8350ae8..1e51411 100644
++--- a/oxenc/endian.h
+++++ b/oxenc/endian.h
++@@ -11,9 +11,17 @@
++ #define bswap_32(x) _byteswap_ulong(x)
++ #define bswap_64(x) _byteswap_uint64(x)
++ #elif defined(__clang__) || defined(__GNUC__)
+++#ifndef bswap_16
++ #define bswap_16(x) __builtin_bswap16(x)
+++#endif
+++
+++#ifndef bswap_32
++ #define bswap_32(x) __builtin_bswap32(x)
+++#endif
+++
+++#ifndef bswap_64
++ #define bswap_64(x) __builtin_bswap64(x)
+++#endif
++ #elif defined(__linux__)
++ extern "C" {
++ #include <byteswap.h>
+diff --git a/cmake/patch/randomx/001-fix-instructions-portable.patch b/cmake/patch/randomx/001-fix-instructions-portable.patch
+new file mode 100644
+index 000000000..45bcbb369
+--- /dev/null
++++ b/cmake/patch/randomx/001-fix-instructions-portable.patch
+@@ -0,0 +1,79 @@
++diff --git a/src/instructions_portable.cpp b/src/instructions_portable.cpp
++index d1253d8..e1d5862 100644
++--- a/src/instructions_portable.cpp
+++++ b/src/instructions_portable.cpp
++@@ -26,7 +26,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
++ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ */
++ 
++-#include <cfenv>
++ #include <cmath>
++ #include "common.hpp"
++ #include "intrin_portable.h"
++@@ -77,14 +76,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ 	#endif
++ 
++ 	static void setRoundMode_(uint32_t mode) {
++-		_controlfp(mode, _MCW_RC);
+++		switch (mode & 3) {
+++		case RoundDown:
+++			_controlfp(_RC_DOWN, _MCW_RC);
+++			break;
+++		case RoundUp:
+++			_controlfp(_RC_UP, _MCW_RC);
+++			break;
+++		case RoundToZero:
+++			_controlfp(_RC_CHOP, _MCW_RC);
+++			break;
+++		case RoundToNearest:
+++		default:
+++			_controlfp(_RC_NEAR, _MCW_RC);
+++			break;
+++		}
+++	}
+++	#define HAVE_SETROUNDMODE_IMPL
+++#endif
+++
+++#if defined(__SSE2__) && !defined(HAVE_SETROUNDMODE_IMPL)
+++	static void setRoundMode_(uint32_t mode) {
+++		_mm_setcsr(rx_mxcsr_default | ((mode & 3) << 13));
++ 	}
++ 	#define HAVE_SETROUNDMODE_IMPL
++ #endif
++ 
++ #ifndef HAVE_SETROUNDMODE_IMPL
++ 	static void setRoundMode_(uint32_t mode) {
++-		fesetround(mode);
+++		(void)mode;
++ 	}
++ #endif
++ 
++@@ -134,23 +154,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ #ifdef RANDOMX_DEFAULT_FENV
++ 
++ void rx_reset_float_state() {
++-	setRoundMode_(FE_TONEAREST);
+++	setRoundMode_(RoundToNearest);
++ 	rx_set_double_precision(); //set precision to 53 bits if needed by the platform
++ }
++ 
++ void rx_set_rounding_mode(uint32_t mode) {
++ 	switch (mode & 3) {
++ 	case RoundDown:
++-		setRoundMode_(FE_DOWNWARD);
+++		setRoundMode_(RoundDown);
++ 		break;
++ 	case RoundUp:
++-		setRoundMode_(FE_UPWARD);
+++		setRoundMode_(RoundUp);
++ 		break;
++ 	case RoundToZero:
++-		setRoundMode_(FE_TOWARDZERO);
+++		setRoundMode_(RoundToZero);
++ 		break;
++ 	case RoundToNearest:
++-		setRoundMode_(FE_TONEAREST);
+++		setRoundMode_(RoundToNearest);
++ 		break;
++ 	default:
++ 		UNREACHABLE;
+diff --git a/cmake/patch/uSockets/001-fix-bsd.patch b/cmake/patch/uSockets/001-fix-bsd.patch
+new file mode 100644
+index 000000000..a1e2fca12
+--- /dev/null
++++ b/cmake/patch/uSockets/001-fix-bsd.patch
+@@ -0,0 +1,57 @@
++diff --git a/src/bsd.c b/src/bsd.c
++index b06b30d..118fc03 100644
++--- a/src/bsd.c
+++++ b/src/bsd.c
++@@ -541,12 +541,13 @@ LIBUS_SOCKET_DESCRIPTOR bsd_create_listen_socket(const char *host, int port, int
++ 
++ #ifndef _WIN32
++ #include <sys/un.h>
++-#else
+++#elif !defined(__MINGW32__) && !defined(__MINGW64__)
++ #include <afunix.h>
++ #include <io.h>
++ #endif
++ #include <sys/stat.h>
++ #include <stddef.h>
+++#if !defined(__MINGW32__) && !defined(__MINGW64__)
++ LIBUS_SOCKET_DESCRIPTOR bsd_create_listen_socket_unix(const char *path, int options) {
++ 
++     LIBUS_SOCKET_DESCRIPTOR listenFd = LIBUS_SOCKET_ERROR;
++@@ -582,6 +583,7 @@ LIBUS_SOCKET_DESCRIPTOR bsd_create_listen_socket_unix(const char *path, int opti
++ 
++     return listenFd;
++ }
+++#endif /* !MINGW */
++ 
++ LIBUS_SOCKET_DESCRIPTOR bsd_create_udp_socket(const char *host, int port) {
++     struct addrinfo hints, *result;
++@@ -659,9 +661,11 @@ LIBUS_SOCKET_DESCRIPTOR bsd_create_udp_socket(const char *host, int port) {
++     /* These are used for getting the ECN */
++     if (setsockopt(listenFd, IPPROTO_IPV6, IPV6_RECVTCLASS, (void *) &enabled, sizeof(enabled)) == -1) {
++         if (errno == 92) {
+++            #if defined(IP_RECVTOS)
++             if (setsockopt(listenFd, IPPROTO_IP, IP_RECVTOS, (void *) &enabled, sizeof(enabled)) != 0) {
++                 printf("Error setting IPv4 ECN!\n");
++             }
+++            #endif
++         } else {
++             printf("Error setting IPv6 ECN!\n");
++         }
++@@ -746,7 +750,7 @@ LIBUS_SOCKET_DESCRIPTOR bsd_create_connect_socket(const char *host, int port, co
++ 
++     return fd;
++ }
++-
+++#if !defined(__MINGW32__) && !defined(__MINGW64__)
++ LIBUS_SOCKET_DESCRIPTOR bsd_create_connect_socket_unix(const char *server_path, int options) {
++ 
++     struct sockaddr_un server_address;
++@@ -764,4 +768,5 @@ LIBUS_SOCKET_DESCRIPTOR bsd_create_connect_socket_unix(const char *server_path,
++     connect(fd, (struct sockaddr *)&server_address, size);
++ 
++     return fd;
++-}
++\ No newline at end of file
+++}
+++#endif
++\ No newline at end of file
+diff --git a/cmake/randomx.cmake b/cmake/randomx.cmake
+new file mode 100644
+index 000000000..a4ee18f3e
+--- /dev/null
++++ b/cmake/randomx.cmake
+@@ -0,0 +1,19 @@
++# Apply local fixes to randomx submodule
++
++set(RANDOMX_PATCH
++    "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/patch/randomx/001-fix-instructions-portable.patch"
++)
++
++if(EXISTS "${RANDOMX_PATCH}")
++  message(STATUS "Applying randomx local patch")
++
++  execute_process(
++    COMMAND patch -p1 -N -i "${RANDOMX_PATCH}"
++    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../external/randomx"
++    RESULT_VARIABLE _randomx_patch_result
++  )
++
++  if(NOT _randomx_patch_result EQUAL 0 AND NOT _randomx_patch_result EQUAL 1)
++    message(FATAL_ERROR "Failed to apply randomx patch")
++  endif()
++endif()
+\ No newline at end of file
+diff --git a/cmake/uSockets.cmake b/cmake/uSockets.cmake
+new file mode 100644
+index 000000000..ad133c565
+--- /dev/null
++++ b/cmake/uSockets.cmake
+@@ -0,0 +1,23 @@
++# Apply local fixes to uSockets nested submodule
++
++set(USOCKETS_PATCH
++    "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/patch/uSockets/001-fix-bsd.patch"
++)
++
++if(EXISTS "${USOCKETS_PATCH}")
++  message(STATUS "Applying uSockets local patch")
++
++  execute_process(
++    COMMAND patch -p1 -N -i "${USOCKETS_PATCH}"
++    WORKING_DIRECTORY
++      "${CMAKE_CURRENT_SOURCE_DIR}/../external/uWebSockets/uSockets"
++    RESULT_VARIABLE _patch_result
++    OUTPUT_VARIABLE _patch_out
++    ERROR_VARIABLE  _patch_err
++  )
++
++  if(NOT _patch_result EQUAL 0 AND NOT _patch_result EQUAL 1)
++    message(FATAL_ERROR
++      "Failed to apply uSockets patch:\n${_patch_out}\n${_patch_err}")
++  endif()
++endif()
+diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
+index a7bfba09b..fdfa002c0 100755
+--- a/external/CMakeLists.txt
++++ b/external/CMakeLists.txt
+@@ -33,6 +33,11 @@
+ # ...except for FreeBSD, because FreeBSD is a special case that doesn't play well with
+ # others.
+ 
++include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/libuv.cmake)
++include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cpr.cmake)
++include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/randomx.cmake)
++
++
+ if(NOT STATIC AND NOT BUILD_STATIC_DEPS)
+   find_package(PkgConfig REQUIRED)
+   pkg_check_modules(OXENC liboxenc>=1.0.10 IMPORTED_TARGET)
+@@ -41,6 +46,7 @@ endif()
+ 
+ if(NOT OXENC_FOUND)
+    message(STATUS "Using in-tree oxen-encoding")
++   include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/oxen-encoding.cmake)
+    add_subdirectory(oxen-encoding)
+  else()
+    add_library(oxenc INTERFACE)
+@@ -51,6 +57,7 @@ endif()
+ 
+ if(NOT OXENMQ_FOUND)
+   message(STATUS "Using in-tree oxenmq")
++  include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/loki-mq.cmake)
+   add_subdirectory(loki-mq)
+ else()
+   add_library(oxenmq INTERFACE)
+@@ -72,6 +79,8 @@ add_subdirectory(nlohmann-json)
+ 
+ # uSockets doesn't really have a proper build system (just a very simple Makefile) so build it
+ # ourselves.
++include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/uSockets.cmake)
++
+ if (NOT CMAKE_VERSION VERSION_LESS 3.12)
+     set(conf_depends "CONFIGURE_DEPENDS")
+ else()
+@@ -84,13 +93,13 @@ target_compile_definitions(uSockets PRIVATE LIBUS_NO_SSL=1)
+ target_include_directories(uSockets PRIVATE uWebSockets/uSockets/src)
+ 
+ # Polyseed
+-file(GLOB polyseed_src 
++file(GLOB polyseed_src
+     ${CMAKE_CURRENT_SOURCE_DIR}/polyseed/src/*.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/polyseed/src/*.cpp
+ )
+ 
+ add_library(polyseed STATIC EXCLUDE_FROM_ALL ${polyseed_src})
+-target_include_directories(polyseed PUBLIC 
++target_include_directories(polyseed PUBLIC
+     ${CMAKE_CURRENT_SOURCE_DIR}/polyseed/include
+ )
+ 
+-- 
+2.43.0
+

@@ -1,7 +1,7 @@
-From 22ad9daf9a6551b0f7238d19df6ec994fde6a339 Mon Sep 17 00:00:00 2001
-From: victor-tucci <victor.tucci@beldex.io>
-Date: Thu, 5 Mar 2026 07:21:07 +0000
-Subject: [PATCH 19/19] Remove locking behavior from LockedWallet wrapper
+From a4293bba492e11fa129072839108194dd7e889ab Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Mon, 6 Apr 2026 13:59:53 +0530
+Subject: [PATCH 19/20] Remove locking behavior from LockedWallet wrapper
 
 ---
  src/wallet/api/wallet.h | 21 +++++++--------------
@@ -49,5 +49,5 @@ index 97f52dc1e..70bc1911c 100755
      // TODO: harden password handling in the wallet API, see relevant discussion
      // https://github.com/monero-project/monero-gui/issues/1537
 -- 
-2.25.1
+2.43.0
 
