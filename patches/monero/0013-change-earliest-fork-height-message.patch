@@ -1,17 +1,17 @@
-From 7c58eb392e94ff5b50bcb15b8d91038476743ba9 Mon Sep 17 00:00:00 2001
+From b635126bbe684ce566b5666aa66a66fcd8774bfb Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 29 Jan 2025 16:13:28 +0100
-Subject: [PATCH 14/20] change earliest fork height message
+Subject: [PATCH 13/17] change earliest fork height message
 
 ---
  src/wallet/wallet2.cpp | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index c50a840b6..a7532d7ec 100644
+index e8514a207..12d7f8efc 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -12380,7 +12380,7 @@ bool wallet2::use_fork_rules(uint8_t version, int64_t early_blocks)
+@@ -12089,7 +12089,7 @@ bool wallet2::use_fork_rules(uint8_t version, int64_t early_blocks)
    boost::optional<std::string> result = m_node_rpc_proxy.get_height(height);
    THROW_WALLET_EXCEPTION_IF(result, error::wallet_internal_error, "Failed to get height");
    result = m_node_rpc_proxy.get_earliest_height(version, earliest_height);
@@ -21,5 +21,5 @@ index c50a840b6..a7532d7ec 100644
    bool close_enough = (int64_t)height >= (int64_t)earliest_height - early_blocks && earliest_height != std::numeric_limits<uint64_t>::max(); // start using the rules that many blocks beforehand
    if (close_enough)
 -- 
-2.50.1 (Apple Git-155)
+2.51.0
 

@@ -1,17 +1,17 @@
-From 81eb38a5add85266cc0d2aa39ecba9d62337f4b1 Mon Sep 17 00:00:00 2001
+From 5c454168c9ca9af91f6673de13fdda3512403612 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 5 Mar 2026 18:12:53 +0100
-Subject: [PATCH 20/20] fix: remove flaky test
+Subject: [PATCH 17/17] fix: remove flaky test
 
 ---
  CMakeLists.txt | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 25e034301..19417f072 100644
+index bb258883c..38bec3751 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -235,9 +235,7 @@ add_library(l3 OBJECT incorrect_source.cpp)
+@@ -240,9 +240,7 @@ add_library(l3 OBJECT incorrect_source.cpp)
        "-DCMAKE_MODULE_LINKER_FLAGS=${CMAKE_MODULE_LINKER_FLAGS}"
        "-DEXPECT_SUCCESS=${EXPECT}"
      )
@@ -23,5 +23,5 @@ index 25e034301..19417f072 100644
    endforeach()
  endfunction()
 -- 
-2.50.1 (Apple Git-155)
+2.51.0
 

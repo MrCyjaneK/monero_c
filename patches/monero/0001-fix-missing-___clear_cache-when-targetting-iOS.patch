@@ -1,24 +1,23 @@
-From 41d9f755a1392dd116241acb32b887091669f090 Mon Sep 17 00:00:00 2001
+From fcc142aa6183f8125284bbc194e705523820552b Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 2 Apr 2024 16:51:56 +0200
-Subject: [PATCH 01/20] fix missing ___clear_cache when targetting iOS
+Subject: [PATCH 01/17] fix missing ___clear_cache when targetting iOS
 
 ---
- .gitmodules      | 3 ++-
+ .gitmodules      | 2 +-
  external/randomx | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/.gitmodules b/.gitmodules
-index 721cce3b4..ffb73fe9a 100644
+index 40fb2b826..e9568bc46 100644
 --- a/.gitmodules
 +++ b/.gitmodules
-@@ -9,7 +9,8 @@
- 	url = https://github.com/trezor/trezor-common.git
+@@ -6,7 +6,7 @@
+ 	url = https://github.com/Tencent/rapidjson
  [submodule "external/randomx"]
  	path = external/randomx
 -	url = https://github.com/tevador/RandomX
 +	url = https://github.com/MrCyjaneK/RandomX
-+	branch = cyjan-fix-ios
  [submodule "external/supercop"]
  	path = external/supercop
  	url = https://github.com/monero-project/supercop
@@ -30,5 +29,5 @@ index 102f8acf9..5dfeeb30e 160000
 -Subproject commit 102f8acf90a7649ada410de5499a7ec62e49e1da
 +Subproject commit 5dfeeb30ec3446ec9d348153767abc324436c56c
 -- 
-2.50.1 (Apple Git-155)
+2.51.0
 
