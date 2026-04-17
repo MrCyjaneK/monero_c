@@ -1,7 +1,7 @@
-From 6aa368c9613a1a7b7f2f1ce1f025962d40827c67 Mon Sep 17 00:00:00 2001
+From 522059fc457aa56373c4ce59b66d237397f4e8f0 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Fri, 20 Feb 2026 08:03:01 +0100
-Subject: [PATCH 17/20] drop generate_translations_header.c requirement
+Subject: [PATCH 15/17] drop generate_translations_header.c requirement
 
 ---
  CMakeLists.txt              |  9 +----
@@ -9,10 +9,10 @@ Subject: [PATCH 17/20] drop generate_translations_header.c requirement
  2 files changed, 30 insertions(+), 58 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index cef44dd1b..ce5e1b557 100644
+index d3fda1975..bb258883c 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -666,16 +666,11 @@ endfunction ()
+@@ -638,16 +638,11 @@ endfunction ()
  # Generate header for embedded translations
  # Generate header for embedded translations, use target toolchain if depends, otherwise use the
  # lrelease and lupdate binaries from the host
@@ -32,10 +32,10 @@ index cef44dd1b..ce5e1b557 100644
  include_directories(${UNBOUND_INCLUDE_DIR})
  
 diff --git a/translations/CMakeLists.txt b/translations/CMakeLists.txt
-index 3b43360f8..d88a78ced 100644
+index 4bc579aaa..ad37b8ba7 100644
 --- a/translations/CMakeLists.txt
 +++ b/translations/CMakeLists.txt
-@@ -30,54 +30,31 @@ cmake_minimum_required(VERSION 3.5)
+@@ -30,54 +30,31 @@ cmake_minimum_required(VERSION 3.10)
  
  project(translations)
  
@@ -119,5 +119,5 @@ index 3b43360f8..d88a78ced 100644
 +#endif /* TRANSLATION_FILES_H */
 +")
 -- 
-2.50.1 (Apple Git-155)
+2.51.0
 
