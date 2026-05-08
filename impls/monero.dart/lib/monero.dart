@@ -92,7 +92,7 @@ String libPath = (() {
 
 Map<String, List<int>> debugCallLength = {};
 
-final defaultSeparatorStr = ";";
+final defaultSeparatorStr = "|";
 final defaultSeparator = defaultSeparatorStr.toNativeUtf8().cast<Char>();
 /* we don't call .free here, this comment serves one purpose - so the numbers match :) */
 
@@ -565,6 +565,25 @@ String UnsignedTransaction_signUR(
   } catch (e) {
     errorHandler?.call('MONERO_UnsignedTransaction_signUR', e);
     debugEnd?.call('MONERO_UnsignedTransaction_signUR');
+    return "";
+  }
+}
+
+@Deprecated("TODO")
+String PendingTransaction_commitTrezor(PendingTransaction ptr, int tx_index) {
+  debugStart?.call('MONERO_PendingTransaction_commitTrezor');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+  final txid = lib!.MONERO_PendingTransaction_commitTrezor(ptr, tx_index);
+  debugEnd?.call('MONERO_PendingTransaction_commitTrezor');
+  try {
+    final strPtr = txid.cast<Utf8>();
+    final str = strPtr.toDartString();
+    MONERO_free(strPtr.cast());
+    debugEnd?.call('MONERO_PendingTransaction_commitTrezor');
+    return str;
+  } catch (e) {
+    errorHandler?.call('MONERO_PendingTransaction_commitTrezor', e);
+    debugEnd?.call('MONERO_PendingTransaction_commitTrezor');
     return "";
   }
 }
@@ -2978,6 +2997,18 @@ bool Wallet_submitTransactionUR(wallet ptr, String input) {
 }
 
 @Deprecated("TODO")
+bool Wallet_submitTransactionHex(wallet ptr, String hex) {
+  debugStart?.call('MONERO_Wallet_submitTransactionHex');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+
+  final hex_ = hex.toNativeUtf8().cast<Char>();
+  final s = lib!.MONERO_Wallet_submitTransactionHex(ptr, hex_);
+  calloc.free(hex_);
+  debugEnd?.call('MONERO_Wallet_submitTransactionHex');
+  return s;
+}
+
+@Deprecated("TODO")
 bool Wallet_hasUnknownKeyImages(wallet ptr) {
   debugStart?.call('MONERO_Wallet_hasUnknownKeyImages');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
@@ -3596,7 +3627,9 @@ void Wallet_setDeviceSendData(Pointer<UnsignedChar> data, int len) {
 }
 
 @Deprecated("TODO")
-void Wallet_setLedgerCallback(Pointer<NativeFunction<Void Function(Pointer<UnsignedChar>, UnsignedInt)>> callback) {
+void Wallet_setLedgerCallback(
+    Pointer<NativeFunction<Void Function(Pointer<UnsignedChar>, UnsignedInt)>>
+        callback) {
   debugStart?.call('MONERO_Wallet_setDeviceSendData');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
   final ret = lib!.MONERO_Wallet_setLedgerCallback(callback);
@@ -3612,6 +3645,29 @@ String MONERO_Wallet_serializeCacheToJson(wallet ptr) {
   final str = ret.cast<Utf8>().toDartString();
   MONERO_free(ret.cast());
   debugEnd?.call('MONERO_Wallet_serializeCacheToJson');
+  return str;
+}
+
+@Deprecated("TODO")
+bool Wallet_importTrezorEncryptedKeyImagesJson(wallet ptr, String json) {
+  debugStart?.call('MONERO_Wallet_importTrezorEncryptedKeyImagesJson');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+  final jsonStr = json.toNativeUtf8();
+  final ret = lib!
+      .MONERO_Wallet_importTrezorEncryptedKeyImagesJson(ptr, jsonStr.cast());
+  malloc.free(jsonStr);
+  debugEnd?.call('MONERO_Wallet_importTrezorEncryptedKeyImagesJson');
+  return ret;
+}
+
+@Deprecated("TODO")
+String Wallet_exportTrezorTdis(wallet ptr) {
+  debugStart?.call('MONERO_Wallet_exportTrezorTdis');
+  lib ??= MoneroC(DynamicLibrary.open(libPath));
+  final ret = lib!.MONERO_Wallet_exportTrezorTdis(ptr);
+  final str = ret.cast<Utf8>().toDartString();
+  MONERO_free(ret.cast());
+  debugEnd?.call('MONERO_Wallet_exportTrezorTdis');
   return str;
 }
 
@@ -3882,11 +3938,11 @@ bool WalletManager_verifyWalletPassword(
 
 @Deprecated("TODO")
 int WalletManager_queryWalletDevice(
-    WalletManager wm_ptr, {
-      required String keysFileName,
-      required String password,
-      required int kdfRounds,
-    }) {
+  WalletManager wm_ptr, {
+  required String keysFileName,
+  required String password,
+  required int kdfRounds,
+}) {
   debugStart?.call('MONERO_WalletManager_queryWalletDevice');
   lib ??= MoneroC(DynamicLibrary.open(libPath));
   final keysFileName_ = keysFileName.toNativeUtf8().cast<Char>();

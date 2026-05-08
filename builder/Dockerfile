@@ -39,9 +39,13 @@ FROM builder_base AS monero_c_base
 COPY . /w
 RUN sudo chown -R user:user /w
 RUN git submodule update --init --force --recursive \
-    && ./apply_patches.sh monero \
-    && ./apply_patches.sh wownero \
-    && ./apply_patches.sh zano
+    && for coin in monero wownero zano; do \
+        ./apply_patches.sh $coin \
+        && count=$(find patches/$coin -maxdepth 1 -name "*.patch" | wc -l) \
+        && count=$((count + 2)) \
+        && cd $coin && git reset HEAD~$count \
+        && cd ..; \
+    done
 
 FROM monero_c_base AS monero_c
 COPY --from=contrib_simplybs /w/contrib/depends /w/contrib/depends

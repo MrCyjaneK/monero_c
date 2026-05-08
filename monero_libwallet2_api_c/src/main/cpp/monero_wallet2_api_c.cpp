@@ -85,10 +85,7 @@ const char* MONERO_PendingTransaction_errorString(void* pendingTx_ptr) {
     DEBUG_START()
     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
     std::string str = pendingTx->errorString();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 bool MONERO_PendingTransaction_commit(void* pendingTx_ptr, const char* filename, bool overwrite) {
@@ -101,12 +98,19 @@ const char* MONERO_PendingTransaction_commitUR(void* pendingTx_ptr, int max_frag
     DEBUG_START()
     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
     std::string str = pendingTx->commitUR(max_fragment_length);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
+
+
+const char* MONERO_PendingTransaction_commitTrezor(void* pendingTx_ptr, int tx_index) {
+    DEBUG_START()
+    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
+    std::string str = pendingTx->commitTrezor(tx_index);
+    return strdup(str.c_str());
+    DEBUG_END()
+}
+
 uint64_t MONERO_PendingTransaction_amount(void* pendingTx_ptr) {
     DEBUG_START()
     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
@@ -156,10 +160,7 @@ const char* MONERO_PendingTransaction_multisigSignData(void* pendingTx_ptr) {
     DEBUG_START()
     Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
     std::string str = pendingTx->multisigSignData();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 void MONERO_PendingTransaction_signMultisigTx(void* pendingTx_ptr) {
@@ -208,10 +209,7 @@ const char* MONERO_UnsignedTransaction_errorString(void* unsignedTx_ptr) {
     DEBUG_START()
     Monero::UnsignedTransaction *unsignedTx = reinterpret_cast<Monero::UnsignedTransaction*>(unsignedTx_ptr);
     std::string str = unsignedTx->errorString();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 const char* MONERO_UnsignedTransaction_amount(void* unsignedTx_ptr, const char* separator) {
@@ -236,10 +234,7 @@ const char* MONERO_UnsignedTransaction_confirmationMessage(void* unsignedTx_ptr)
     DEBUG_START()
     Monero::UnsignedTransaction *unsignedTx = reinterpret_cast<Monero::UnsignedTransaction*>(unsignedTx_ptr);
     std::string str = unsignedTx->confirmationMessage();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 const char* MONERO_UnsignedTransaction_paymentId(void* unsignedTx_ptr, const char* separator) {
@@ -276,12 +271,10 @@ const char* MONERO_UnsignedTransaction_signUR(void* unsignedTx_ptr, int max_frag
     DEBUG_START()
     Monero::UnsignedTransaction *unsignedTx = reinterpret_cast<Monero::UnsignedTransaction*>(unsignedTx_ptr);
     std::string str = unsignedTx->signUR(max_fragment_length);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
+
 // TransactionInfo
 
 const int MONERO_TransactionInfoDirection_In = 0;
@@ -332,10 +325,7 @@ const char* MONERO_TransactionInfo_description(void* txInfo_ptr) {
     DEBUG_START()
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
     std::string str = txInfo->description();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 const char* MONERO_TransactionInfo_subaddrIndex(void* txInfo_ptr, const char* separator) {
@@ -355,10 +345,7 @@ const char* MONERO_TransactionInfo_label(void* txInfo_ptr) {
     DEBUG_START()
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
     std::string str = txInfo->label();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 uint64_t MONERO_TransactionInfo_confirmations(void* txInfo_ptr) {
@@ -377,10 +364,7 @@ const char* MONERO_TransactionInfo_hash(void* txInfo_ptr) {
     DEBUG_START()
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
     std::string str = txInfo->hash();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 uint64_t MONERO_TransactionInfo_timestamp(void* txInfo_ptr) {
@@ -393,10 +377,7 @@ const char* MONERO_TransactionInfo_paymentId(void* txInfo_ptr) {
     DEBUG_START()
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
     std::string str = txInfo->paymentId();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -418,10 +399,7 @@ const char* MONERO_TransactionInfo_transfers_address(void* txInfo_ptr, int index
     DEBUG_START()
     Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
     std::string str = txInfo->transfers()[index].address;
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -468,10 +446,7 @@ const char* MONERO_AddressBookRow_extra(void* addressBookRow_ptr) {
     DEBUG_START()
     Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
     std::string str = addressBookRow->extra;
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     std::string getAddress() const {return m_address;}
@@ -479,10 +454,7 @@ const char* MONERO_AddressBookRow_getAddress(void* addressBookRow_ptr) {
     DEBUG_START()
     Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
     std::string str = addressBookRow->getAddress();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     std::string getDescription() const {return m_description;}
@@ -490,10 +462,7 @@ const char* MONERO_AddressBookRow_getDescription(void* addressBookRow_ptr) {
     DEBUG_START()
     Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
     std::string str = addressBookRow->getDescription();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     std::string getPaymentId() const {return m_paymentId;}
@@ -501,10 +470,7 @@ const char* MONERO_AddressBookRow_getPaymentId(void* addressBookRow_ptr) {
     DEBUG_START()
     Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
     std::string str = addressBookRow->getPaymentId();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     std::size_t getRowId() const {return m_rowId;}
@@ -568,10 +534,7 @@ const char* MONERO_AddressBook_errorString(void* addressBook_ptr) {
     DEBUG_START()
     Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
     std::string str = addressBook->errorString();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     virtual int errorCode() const = 0;
@@ -601,10 +564,7 @@ const char* MONERO_CoinsInfo_hash(void* coinsInfo_ptr) {
     DEBUG_START()
     Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
     std::string str = coinsInfo->hash();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     virtual size_t internalOutputIndex() const = 0;
@@ -689,10 +649,7 @@ const char* MONERO_CoinsInfo_address(void* coinsInfo_ptr) {
     DEBUG_START()
     Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
     std::string str = coinsInfo->address();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     virtual std::string addressLabel() const = 0;
@@ -700,10 +657,7 @@ const char* MONERO_CoinsInfo_addressLabel(void* coinsInfo_ptr) {
     DEBUG_START()
     Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
     std::string str = coinsInfo->addressLabel();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     virtual std::string keyImage() const = 0;
@@ -711,10 +665,7 @@ const char* MONERO_CoinsInfo_keyImage(void* coinsInfo_ptr) {
     DEBUG_START()
     Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
     std::string str = coinsInfo->keyImage();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     virtual uint64_t unlockTime() const = 0;
@@ -736,10 +687,7 @@ const char* MONERO_CoinsInfo_pubKey(void* coinsInfo_ptr) {
     DEBUG_START()
     Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
     std::string str = coinsInfo->pubKey();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     virtual bool coinbase() const = 0;
@@ -754,10 +702,7 @@ const char* MONERO_CoinsInfo_description(void* coinsInfo_ptr) {
     DEBUG_START()
     Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
     std::string str = coinsInfo->description();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -851,10 +796,7 @@ const char* MONERO_SubaddressRow_extra(void* subaddressRow_ptr) {
     DEBUG_START()
     Monero::SubaddressRow *subaddressRow = reinterpret_cast<Monero::SubaddressRow*>(subaddressRow_ptr);
     std::string str = subaddressRow->extra;
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     std::string getAddress() const {return m_address;}
@@ -862,10 +804,7 @@ const char* MONERO_SubaddressRow_getAddress(void* subaddressRow_ptr) {
     DEBUG_START()
     Monero::SubaddressRow *subaddressRow = reinterpret_cast<Monero::SubaddressRow*>(subaddressRow_ptr);
     std::string str = subaddressRow->getAddress();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     std::string getLabel() const {return m_label;}
@@ -873,10 +812,7 @@ const char* MONERO_SubaddressRow_getLabel(void* subaddressRow_ptr) {
     DEBUG_START()
     Monero::SubaddressRow *subaddressRow = reinterpret_cast<Monero::SubaddressRow*>(subaddressRow_ptr);
     std::string str = subaddressRow->getLabel();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     std::size_t getRowId() const {return m_rowId;}
@@ -930,10 +866,7 @@ const char* MONERO_SubaddressAccountRow_extra(void* subaddressAccountRow_ptr) {
     DEBUG_START()
     Monero::SubaddressAccountRow *subaddressAccountRow = reinterpret_cast<Monero::SubaddressAccountRow*>(subaddressAccountRow_ptr);
     std::string str = subaddressAccountRow->extra;
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     std::string getAddress() const {return m_address;}
@@ -941,10 +874,7 @@ const char* MONERO_SubaddressAccountRow_getAddress(void* subaddressAccountRow_pt
     DEBUG_START()
     Monero::SubaddressAccountRow *subaddressAccountRow = reinterpret_cast<Monero::SubaddressAccountRow*>(subaddressAccountRow_ptr);
     std::string str = subaddressAccountRow->getAddress();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     std::string getLabel() const {return m_label;}
@@ -952,10 +882,7 @@ const char* MONERO_SubaddressAccountRow_getLabel(void* subaddressAccountRow_ptr)
     DEBUG_START()
     Monero::SubaddressAccountRow *subaddressAccountRow = reinterpret_cast<Monero::SubaddressAccountRow*>(subaddressAccountRow_ptr);
     std::string str = subaddressAccountRow->getLabel();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     std::string getBalance() const {return m_balance;}
@@ -963,10 +890,7 @@ const char* MONERO_SubaddressAccountRow_getBalance(void* subaddressAccountRow_pt
     DEBUG_START()
     Monero::SubaddressAccountRow *subaddressAccountRow = reinterpret_cast<Monero::SubaddressAccountRow*>(subaddressAccountRow_ptr);
     std::string str = subaddressAccountRow->getBalance();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     std::string getUnlockedBalance() const {return m_unlockedBalance;}
@@ -974,10 +898,7 @@ const char* MONERO_SubaddressAccountRow_getUnlockedBalance(void* subaddressAccou
     DEBUG_START()
     Monero::SubaddressAccountRow *subaddressAccountRow = reinterpret_cast<Monero::SubaddressAccountRow*>(subaddressAccountRow_ptr);
     std::string str = subaddressAccountRow->getUnlockedBalance();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     std::size_t getRowId() const {return m_rowId;}
@@ -1094,10 +1015,7 @@ const char* MONERO_Wallet_seed(void* wallet_ptr, const char* seed_offset) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->seed(std::string(seed_offset));
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1105,10 +1023,7 @@ const char* MONERO_Wallet_getSeedLanguage(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->getSeedLanguage();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1130,10 +1045,7 @@ const char* MONERO_Wallet_errorString(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->errorString();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1149,10 +1061,7 @@ const char* MONERO_Wallet_getPassword(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->getPassword();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1174,10 +1083,7 @@ const char* MONERO_Wallet_address(void* wallet_ptr, uint64_t accountIndex, uint6
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->address(accountIndex, addressIndex);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1185,10 +1091,7 @@ const char* MONERO_Wallet_path(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->path();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 int MONERO_Wallet_nettype(void* wallet_ptr) {
@@ -1207,10 +1110,7 @@ const char* MONERO_Wallet_integratedAddress(void* wallet_ptr, const char* paymen
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->integratedAddress(std::string(payment_id));
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1218,10 +1118,7 @@ const char* MONERO_Wallet_secretViewKey(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->secretViewKey();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1229,10 +1126,7 @@ const char* MONERO_Wallet_publicViewKey(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->publicViewKey();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1240,10 +1134,7 @@ const char* MONERO_Wallet_secretSpendKey(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->secretSpendKey();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1251,20 +1142,14 @@ const char* MONERO_Wallet_publicSpendKey(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->publicSpendKey();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 const char* MONERO_Wallet_publicMultisigSignerKey(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->publicMultisigSignerKey();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1285,20 +1170,14 @@ const char* MONERO_Wallet_filename(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->filename();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 const char* MONERO_Wallet_keysFilename(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->keysFilename();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1464,10 +1343,7 @@ bool MONERO_Wallet_synchronized(void* wallet_ptr) {
 const char* MONERO_Wallet_displayAmount(uint64_t amount) {
     DEBUG_START()
     std::string str = Monero::Wallet::displayAmount(amount);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1487,10 +1363,7 @@ uint64_t MONERO_Wallet_amountFromDouble(double amount) {
 const char* MONERO_Wallet_genPaymentId() {
     DEBUG_START()
     std::string str = Monero::Wallet::genPaymentId();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     static bool paymentIdValid(const std::string &paiment_id);
@@ -1516,20 +1389,14 @@ const char* MONERO_Wallet_keyValid_error(const char* secret_key_string, const ch
     DEBUG_START()
     std::string str;
     Monero::Wallet::keyValid(std::string(secret_key_string), std::string(address_string), isViewKey, nettype, str);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 
 }
 const char* MONERO_Wallet_paymentIdFromAddress(const char* strarg, int nettype) {
     DEBUG_START()
     std::string str = Monero::Wallet::paymentIdFromAddress(std::string(strarg), nettype);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 uint64_t MONERO_Wallet_maximumAllowedAmount() {
@@ -1551,10 +1418,7 @@ const char* MONERO_Wallet_getPolyseed(void* wallet_ptr, const char* passphrase) 
     std::string _passphrase = std::string(passphrase);
     wallet->getPolyseed(seed, _passphrase);
     std::string str = seed;
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     static bool createPolyseed(std::string &seed_words, std::string &err, const std::string &language = "English");
@@ -1564,10 +1428,7 @@ const char* MONERO_Wallet_createPolyseed(const char* language) {
     std::string err;
     Monero::Wallet::createPolyseed(seed_words, err, std::string(language));
     std::string str = seed_words;
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1647,10 +1508,7 @@ const char* MONERO_Wallet_getSubaddressLabel(void* wallet_ptr, uint32_t accountI
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->getSubaddressLabel(accountIndex, addressIndex);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1673,10 +1531,7 @@ const char* MONERO_Wallet_getMultisigInfo(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->getMultisigInfo();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1684,10 +1539,7 @@ const char* MONERO_Wallet_makeMultisig(void* wallet_ptr, const char* info, const
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->makeMultisig(splitStringVector(std::string(info), std::string(info_separator)), threshold);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1695,10 +1547,7 @@ const char* MONERO_Wallet_exchangeMultisigKeys(void* wallet_ptr, const char* inf
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->exchangeMultisigKeys(splitStringVector(std::string(info), std::string(info_separator)), force_update_use_with_caution);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1707,10 +1556,7 @@ const char* MONERO_Wallet_exportMultisigImages(void* wallet_ptr, const char* sep
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str;
     wallet->exportMultisigImages(str);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -1818,6 +1664,12 @@ bool MONERO_Wallet_submitTransactionUR(void* wallet_ptr, const char* input) {
     return wallet->submitTransactionUR(std::string(input));
     DEBUG_END()
 }
+bool MONERO_Wallet_submitTransactionHex(void* wallet_ptr, const char* hex) {
+    DEBUG_START()
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    return wallet->submitTransactionHex(std::string(hex));
+    DEBUG_END()
+}
 bool MONERO_Wallet_hasUnknownKeyImages(void* wallet_ptr) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
@@ -1835,10 +1687,7 @@ const char* MONERO_Wallet_exportKeyImagesUR(void* wallet_ptr, size_t max_fragmen
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->exportKeyImagesUR(max_fragment_length, all);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 bool MONERO_Wallet_importKeyImages(void* wallet_ptr, const char* filename) {
@@ -1863,10 +1712,7 @@ const char* MONERO_Wallet_exportOutputsUR(void* wallet_ptr, size_t max_fragment_
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->exportOutputsUR(max_fragment_length, all);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 bool MONERO_Wallet_importOutputs(void* wallet_ptr, const char* filename) {
@@ -1982,10 +1828,7 @@ const char* MONERO_Wallet_getCacheAttribute(void* wallet_ptr, const char* key) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->getCacheAttribute(std::string(key));
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     virtual bool setUserNote(const std::string &txid, const std::string &note) = 0;
@@ -2000,10 +1843,7 @@ const char* MONERO_Wallet_getUserNote(void* wallet_ptr, const char* txid) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->getUserNote(std::string(txid));
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -2011,10 +1851,7 @@ const char* MONERO_Wallet_getTxKey(void* wallet_ptr, const char* txid) {
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->getTxKey(std::string(txid));
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -2022,10 +1859,7 @@ const char* MONERO_Wallet_signMessage(void* wallet_ptr, const char* message, con
     DEBUG_START()
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = wallet->signMessage(std::string(message), std::string(address));
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -2121,10 +1955,7 @@ const char* MONERO_Wallet_deviceShowAddress(void* wallet_ptr, uint32_t accountIn
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string str = "";
     wallet->deviceShowAddress(accountIndex, addressIndex, str);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 //     virtual bool reconnectDevice() = 0;
@@ -2213,6 +2044,22 @@ const char* MONERO_Wallet_serializeCacheToJson(void* wallet_ptr) {
     Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
     std::string result = wallet->serializeCacheToJson();
     return strdup(result.c_str());
+    DEBUG_END()
+}
+
+const char* MONERO_Wallet_exportTrezorTdis(void *wallet_ptr) {
+    DEBUG_START()
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    std::string result = wallet->exportTrezorTdis();
+    return strdup(result.c_str());
+    DEBUG_END()
+}
+
+bool MONERO_Wallet_importTrezorEncryptedKeyImagesJson(void *wallet_ptr, const char* json) {
+    DEBUG_START()
+    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
+    bool result = wallet->importTrezorEncryptedKeyImagesJson(std::string(json));
+    return result;
     DEBUG_END()
 }
 
@@ -2375,10 +2222,7 @@ const char* MONERO_WalletManager_errorString(void* wm_ptr) {
     DEBUG_START()
     Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
     std::string str = wm->errorString();
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
@@ -2459,10 +2303,7 @@ const char* MONERO_WalletManager_resolveOpenAlias(void* wm_ptr, const char* addr
     DEBUG_START()
     Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
     std::string str = wm->resolveOpenAlias(std::string(address), dnssec_valid);
-    const std::string::size_type size = str.size();
-    char *buffer = new char[size + 1];   //we need extra char for NUL
-    memcpy(buffer, str.c_str(), size + 1);
-    return buffer;
+    return strdup(str.c_str());
     DEBUG_END()
 }
 
