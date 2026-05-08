@@ -78,7 +78,7 @@ do
         EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
         fi
         pushd build/${HOST_ABI}_${OUTPUT_MODE}
-            cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake $EXTRA_CMAKE_FLAGS -DUSE_DEVICE_TREZOR=OFF -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} -DOUTPUT_MODE=${OUTPUT_MODE} ../..
+            cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake $EXTRA_CMAKE_FLAGS -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} -DOUTPUT_MODE=${OUTPUT_MODE} ../..
             make $NPROC
         popd
     popd

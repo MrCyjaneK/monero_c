@@ -1,4 +1,3 @@
-
 // ignore_for_file: non_constant_identifier_names, camel_case_types
 
 import 'dart:ffi';
@@ -72,7 +71,8 @@ String PlainWallet_init(String address, String working_dir, int log_level) {
   lib ??= ZanoC(DynamicLibrary.open(libPath));
   final address_ = address.toNativeUtf8();
   final working_dir_ = working_dir.toNativeUtf8();
-  final txid = lib!.ZANO_PlainWallet_init(address_.cast(), working_dir_.cast(), log_level);
+  final txid = lib!
+      .ZANO_PlainWallet_init(address_.cast(), working_dir_.cast(), log_level);
   calloc.free(address_);
   calloc.free(working_dir_);
   debugEnd?.call('ZANO_PlainWallet_init');
@@ -88,14 +88,17 @@ String PlainWallet_init(String address, String working_dir, int log_level) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_init2(const char* ip, const char* port, const char* working_dir, int log_level);
-String PlainWallet_init2(String ip, String port, String working_dir, int log_level) {
+String PlainWallet_init2(
+    String ip, String port, String working_dir, int log_level) {
   debugStart?.call('ZANO_PlainWallet_init2');
   lib ??= ZanoC(DynamicLibrary.open(libPath));
   final ip_ = ip.toNativeUtf8();
   final port_ = port.toNativeUtf8();
   final working_dir_ = working_dir.toNativeUtf8();
-  final txid = lib!.ZANO_PlainWallet_init2(ip_.cast(), port_.cast(), working_dir_.cast(), log_level);
+  final txid = lib!.ZANO_PlainWallet_init2(
+      ip_.cast(), port_.cast(), working_dir_.cast(), log_level);
   calloc.free(ip_);
   calloc.free(port_);
   calloc.free(working_dir_);
@@ -112,6 +115,7 @@ String PlainWallet_init2(String ip, String port, String working_dir, int log_lev
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_reset();
 String PlainWallet_reset() {
   debugStart?.call('ZANO_PlainWallet_reset');
@@ -130,6 +134,7 @@ String PlainWallet_reset() {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_setLogLevel(int log_level);
 String PlainWallet_setLogLevel(int log_level) {
   debugStart?.call('ZANO_PlainWallet_setLogLevel');
@@ -148,6 +153,7 @@ String PlainWallet_setLogLevel(int log_level) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_getVersion();
 String PlainWallet_getVersion() {
   debugStart?.call('ZANO_PlainWallet_getVersion');
@@ -166,6 +172,7 @@ String PlainWallet_getVersion() {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_getWalletFiles();
 String PlainWallet_getWalletFiles() {
   debugStart?.call('ZANO_PlainWallet_getWalletFiles');
@@ -184,6 +191,7 @@ String PlainWallet_getWalletFiles() {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_getExportPrivateInfo(const char* target_dir);
 String PlainWallet_getExportPrivateInfo(String target_dir) {
   debugStart?.call('ZANO_PlainWallet_getExportPrivateInfo');
@@ -204,6 +212,7 @@ String PlainWallet_getExportPrivateInfo(String target_dir) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_deleteWallet(const char* file_name);
 String PlainWallet_deleteWallet(String file_name) {
   debugStart?.call('ZANO_PlainWallet_deleteWallet');
@@ -224,6 +233,7 @@ String PlainWallet_deleteWallet(String file_name) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_getAddressInfo(const char* addr);
 String PlainWallet_getAddressInfo(String addr) {
   debugStart?.call('ZANO_PlainWallet_getAddressInfo');
@@ -244,6 +254,7 @@ String PlainWallet_getAddressInfo(String addr) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_getAppconfig(const char* encryption_key);
 String PlainWallet_getAppconfig(String encryption_key) {
   debugStart?.call('ZANO_PlainWallet_getAppconfig');
@@ -264,13 +275,15 @@ String PlainWallet_getAppconfig(String encryption_key) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_setAppconfig(const char* conf_str, const char* encryption_key);
 String PlainWallet_setAppconfig(String conf_str, String encryption_key) {
   debugStart?.call('ZANO_PlainWallet_setAppconfig');
   lib ??= ZanoC(DynamicLibrary.open(libPath));
   final conf_str_ = conf_str.toNativeUtf8();
   final encryption_key_ = encryption_key.toNativeUtf8();
-  final txid = lib!.ZANO_PlainWallet_setAppconfig(conf_str_.cast(), encryption_key_.cast());
+  final txid = lib!
+      .ZANO_PlainWallet_setAppconfig(conf_str_.cast(), encryption_key_.cast());
   calloc.free(conf_str_);
   calloc.free(encryption_key_);
   debugEnd?.call('ZANO_PlainWallet_setAppconfig');
@@ -286,6 +299,7 @@ String PlainWallet_setAppconfig(String conf_str, String encryption_key) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_generateRandomKey(uint64_t lenght);
 String PlainWallet_generateRandomKey(int length) {
   debugStart?.call('ZANO_PlainWallet_generateRandomKey');
@@ -304,6 +318,7 @@ String PlainWallet_generateRandomKey(int length) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_getLogsBuffer();
 String PlainWallet_getLogsBuffer() {
   debugStart?.call('ZANO_PlainWallet_getLogsBuffer');
@@ -322,6 +337,7 @@ String PlainWallet_getLogsBuffer() {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_truncateLog();
 String PlainWallet_truncateLog() {
   debugStart?.call('ZANO_PlainWallet_truncateLog');
@@ -340,6 +356,7 @@ String PlainWallet_truncateLog() {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_getConnectivityStatus();
 String PlainWallet_getConnectivityStatus() {
   debugStart?.call('ZANO_PlainWallet_getConnectivityStatus');
@@ -358,6 +375,7 @@ String PlainWallet_getConnectivityStatus() {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_open(const char* path, const char* password);
 String PlainWallet_open(String path, String password) {
   debugStart?.call('ZANO_PlainWallet_open');
@@ -380,15 +398,18 @@ String PlainWallet_open(String path, String password) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_restore(const char* seed, const char* path, const char* password, const char* seed_password);
-String PlainWallet_restore(String seed, String path, String password, String seed_password) {
+String PlainWallet_restore(
+    String seed, String path, String password, String seed_password) {
   debugStart?.call('ZANO_PlainWallet_restore');
   lib ??= ZanoC(DynamicLibrary.open(libPath));
   final seed_ = seed.toNativeUtf8();
   final path_ = path.toNativeUtf8();
   final password_ = password.toNativeUtf8();
   final seed_password_ = seed_password.toNativeUtf8();
-  final txid = lib!.ZANO_PlainWallet_restore(seed_.cast(), path_.cast(), password_.cast(), seed_password_.cast());
+  final txid = lib!.ZANO_PlainWallet_restore(
+      seed_.cast(), path_.cast(), password_.cast(), seed_password_.cast());
   calloc.free(seed_);
   calloc.free(path_);
   calloc.free(password_);
@@ -406,6 +427,7 @@ String PlainWallet_restore(String seed, String path, String password, String see
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_generate(const char* path, const char* password);
 String PlainWallet_generate(String path, String password) {
   debugStart?.call('ZANO_PlainWallet_generate');
@@ -428,6 +450,7 @@ String PlainWallet_generate(String path, String password) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_getOpenWallets();
 String PlainWallet_getOpenWallets() {
   debugStart?.call('ZANO_PlainWallet_getOpenWallets');
@@ -446,6 +469,7 @@ String PlainWallet_getOpenWallets() {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_getWalletStatus(int64_t h);
 String PlainWallet_getWalletStatus(int h) {
   debugStart?.call('ZANO_PlainWallet_getWalletStatus');
@@ -464,6 +488,7 @@ String PlainWallet_getWalletStatus(int h) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_closeWallet(int64_t h);
 String PlainWallet_closeWallet(int h) {
   debugStart?.call('ZANO_PlainWallet_closeWallet');
@@ -482,6 +507,7 @@ String PlainWallet_closeWallet(int h) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_invoke(int64_t h, const char* params);
 String PlainWallet_invoke(int h, String params) {
   debugStart?.call('ZANO_PlainWallet_invoke');
@@ -509,7 +535,8 @@ String PlainWallet_asyncCall(String method_name, int h, String params) {
   lib ??= ZanoC(DynamicLibrary.open(libPath));
   final params_ = params.toNativeUtf8();
   final method_name_ = method_name.toNativeUtf8();
-  final txid = lib!.ZANO_PlainWallet_asyncCall(method_name_.cast(), h, params_.cast());
+  final txid =
+      lib!.ZANO_PlainWallet_asyncCall(method_name_.cast(), h, params_.cast());
   calloc.free(params_);
   calloc.free(method_name_);
   debugEnd?.call('ZANO_PlainWallet_asyncCall');
@@ -544,13 +571,16 @@ String PlainWallet_tryPullResult(int instance_id) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_syncCall(const char* method_name, uint64_t instance_id, const char* params);
-String PlainWallet_syncCall(String method_name, int instance_id, String params) {
+String PlainWallet_syncCall(
+    String method_name, int instance_id, String params) {
   debugStart?.call('ZANO_PlainWallet_syncCall');
   lib ??= ZanoC(DynamicLibrary.open(libPath));
   final method_name_ = method_name.toNativeUtf8();
   final params_ = params.toNativeUtf8();
-  final txid = lib!.ZANO_PlainWallet_syncCall(method_name_.cast(), instance_id, params_.cast());
+  final txid = lib!.ZANO_PlainWallet_syncCall(
+      method_name_.cast(), instance_id, params_.cast());
   calloc.free(method_name_);
   calloc.free(params_);
   debugEnd?.call('ZANO_PlainWallet_syncCall');
@@ -566,6 +596,7 @@ String PlainWallet_syncCall(String method_name, int instance_id, String params) 
     return "";
   }
 }
+
 // extern ADDAPI bool ZANO_PlainWallet_isWalletExist(const char* path);
 bool PlainWallet_isWalletExist(String path) {
   debugStart?.call('ZANO_PlainWallet_isWalletExist');
@@ -576,6 +607,7 @@ bool PlainWallet_isWalletExist(String path) {
   debugEnd?.call('ZANO_PlainWallet_isWalletExist');
   return txid;
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_getWalletInfo(int64_t h);
 String PlainWallet_getWalletInfo(int h) {
   debugStart?.call('ZANO_PlainWallet_getWalletInfo');
@@ -594,6 +626,7 @@ String PlainWallet_getWalletInfo(int h) {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_PlainWallet_resetWalletPassword(int64_t h, const char* password);
 String PlainWallet_resetWalletPassword(int h, String password) {
   debugStart?.call('ZANO_PlainWallet_resetWalletPassword');
@@ -614,6 +647,7 @@ String PlainWallet_resetWalletPassword(int h, String password) {
     return "";
   }
 }
+
 // extern ADDAPI uint64_t ZANO_PlainWallet_getCurrentTxFee(uint64_t priority);
 int PlainWallet_getCurrentTxFee(int priority) {
   debugStart?.call('ZANO_PlainWallet_getCurrentTxFee');
@@ -650,6 +684,7 @@ String checksum_wallet2_api_c_h() {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_checksum_wallet2_api_c_cpp();
 String checksum_wallet2_api_c_cpp() {
   debugStart?.call('ZANO_checksum_wallet2_api_c_cpp');
@@ -668,6 +703,7 @@ String checksum_wallet2_api_c_cpp() {
     return "";
   }
 }
+
 // extern ADDAPI const char* ZANO_checksum_wallet2_api_c_exp();
 String checksum_wallet2_api_c_exp() {
   debugStart?.call('ZANO_checksum_wallet2_api_c_exp');

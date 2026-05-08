@@ -88,6 +88,24 @@ class MoneroC {
       _MONERO_PendingTransaction_commitURPtr.asFunction<
           ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>, int)>();
 
+  ffi.Pointer<ffi.Char> MONERO_PendingTransaction_commitTrezor(
+    ffi.Pointer<ffi.Void> pendingTx_ptr,
+    int tx_index,
+  ) {
+    return _MONERO_PendingTransaction_commitTrezor(
+      pendingTx_ptr,
+      tx_index,
+    );
+  }
+
+  late final _MONERO_PendingTransaction_commitTrezorPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>,
+              ffi.Int)>>('MONERO_PendingTransaction_commitTrezor');
+  late final _MONERO_PendingTransaction_commitTrezor =
+      _MONERO_PendingTransaction_commitTrezorPtr.asFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>, int)>();
+
   int MONERO_PendingTransaction_amount(
     ffi.Pointer<ffi.Void> pendingTx_ptr,
   ) {
@@ -3587,6 +3605,24 @@ class MoneroC {
       _MONERO_Wallet_submitTransactionURPtr.asFunction<
           bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
 
+  bool MONERO_Wallet_submitTransactionHex(
+    ffi.Pointer<ffi.Void> wallet_ptr,
+    ffi.Pointer<ffi.Char> hex,
+  ) {
+    return _MONERO_Wallet_submitTransactionHex(
+      wallet_ptr,
+      hex,
+    );
+  }
+
+  late final _MONERO_Wallet_submitTransactionHexPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Char>)>>('MONERO_Wallet_submitTransactionHex');
+  late final _MONERO_Wallet_submitTransactionHex =
+      _MONERO_Wallet_submitTransactionHexPtr.asFunction<
+          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
+
   bool MONERO_Wallet_hasUnknownKeyImages(
     ffi.Pointer<ffi.Void> wallet_ptr,
   ) {
@@ -4503,6 +4539,40 @@ class MoneroC {
   late final _MONERO_Wallet_serializeCacheToJson =
       _MONERO_Wallet_serializeCacheToJsonPtr.asFunction<
           ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
+
+  ffi.Pointer<ffi.Char> MONERO_Wallet_exportTrezorTdis(
+    ffi.Pointer<ffi.Void> wallet_ptr,
+  ) {
+    return _MONERO_Wallet_exportTrezorTdis(
+      wallet_ptr,
+    );
+  }
+
+  late final _MONERO_Wallet_exportTrezorTdisPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<ffi.Void>)>>('MONERO_Wallet_exportTrezorTdis');
+  late final _MONERO_Wallet_exportTrezorTdis =
+      _MONERO_Wallet_exportTrezorTdisPtr.asFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
+
+  bool MONERO_Wallet_importTrezorEncryptedKeyImagesJson(
+    ffi.Pointer<ffi.Void> wallet_ptr,
+    ffi.Pointer<ffi.Char> json,
+  ) {
+    return _MONERO_Wallet_importTrezorEncryptedKeyImagesJson(
+      wallet_ptr,
+      json,
+    );
+  }
+
+  late final _MONERO_Wallet_importTrezorEncryptedKeyImagesJsonPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>>(
+      'MONERO_Wallet_importTrezorEncryptedKeyImagesJson');
+  late final _MONERO_Wallet_importTrezorEncryptedKeyImagesJson =
+      _MONERO_Wallet_importTrezorEncryptedKeyImagesJsonPtr.asFunction<
+          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<ffi.Void> MONERO_WalletManager_createWallet(
     ffi.Pointer<ffi.Void> wm_ptr,
