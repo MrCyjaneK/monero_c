@@ -50,7 +50,7 @@ index d641e29da..5da7353b8 100644
 +	url = https://github.com/JuliaStrings/utf8proc.git
 +[submodule "external/polyseed"]
 +	path = external/polyseed
-+	url = https://github.com/tevador/polyseed.git
++	url = https://github.com/Beldex-Coin/polyseed.git
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index a1744b827..0b78a11d6 100755
 --- a/CMakeLists.txt

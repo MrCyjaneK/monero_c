@@ -1,5 +1,5 @@
 #include "monero_checksum.h"
 
-const char * MONERO_wallet2_api_c_h_sha256 = "563113bbf36f153d66d6f656ea6f364172a0e801074dcffffab62374a628607f";
-const char * MONERO_wallet2_api_c_cpp_sha256 = "5231bad07c802e88fc17781b71e85fce7a0dc750301893482577558aa56f925d-dbcc7d212c094bd1a45f7291dbb99a4b4627a96d";
-const char * MONERO_wallet2_api_c_exp_sha256 = "d873158058e22fabba8d809e9c6cdf633e1b6b2bd78ee5b617435b66131ce600";
+const char * MONERO_wallet2_api_c_h_sha256 = "f1f24af3a9ae7e136c67fbbeffb1af0f7a3dd6cb70a7c43d5bd36a60fdb4a64f";
+const char * MONERO_wallet2_api_c_cpp_sha256 = "b62ff8b4a7178be15f7c53f8b368164357eb2f35db5bc00125beaafc39c3c4a5-dbcc7d212c094bd1a45f7291dbb99a4b4627a96d";
+const char * MONERO_wallet2_api_c_exp_sha256 = "0b4c4b51dd956cbc035dababe423b787add156e8f7d0174445d9e2d4cdbac01e";

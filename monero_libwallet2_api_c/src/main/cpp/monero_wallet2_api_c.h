@@ -84,6 +84,7 @@ extern ADDAPI const char* MONERO_PendingTransaction_errorString(void* pendingTx_
 //     virtual bool commit(const std::string &filename = "", bool overwrite = false) = 0;
 extern ADDAPI bool MONERO_PendingTransaction_commit(void* pendingTx_ptr, const char* filename, bool overwrite);
 extern ADDAPI const char* MONERO_PendingTransaction_commitUR(void* pendingTx_ptr, int max_fragment_length);
+extern ADDAPI const char* MONERO_PendingTransaction_commitTrezor(void* pendingTx_ptr, int tx_index);
 //     virtual uint64_t amount() const = 0;
 extern ADDAPI uint64_t MONERO_PendingTransaction_amount(void* pendingTx_ptr);
 //     virtual uint64_t dust() const = 0;
@@ -727,6 +728,7 @@ extern ADDAPI void* MONERO_Wallet_loadUnsignedTxUR(void* wallet_ptr, const char*
 //     virtual bool submitTransaction(const std::string &fileName) = 0;
 extern ADDAPI bool MONERO_Wallet_submitTransaction(void* wallet_ptr, const char* fileName);
 extern ADDAPI bool MONERO_Wallet_submitTransactionUR(void* wallet_ptr, const char* input);
+extern ADDAPI bool MONERO_Wallet_submitTransactionHex(void* wallet_ptr, const char* hex);
 //     virtual void disposeTransaction(PendingTransaction * t) = 0;
 //     virtual uint64_t estimateTransactionFee(const std::vector<std::pair<std::string, uint64_t>> &destinations,
 //                                             PendingTransaction::Priority priority) const = 0;
@@ -848,6 +850,9 @@ extern ADDAPI void MONERO_Wallet_setDeviceReceivedData(unsigned char* data, size
 extern ADDAPI void MONERO_Wallet_setDeviceSendData(unsigned char* data, size_t len);
 extern ADDAPI void MONERO_Wallet_setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
 extern ADDAPI const char* MONERO_Wallet_serializeCacheToJson(void* wallet_ptr);
+extern ADDAPI const char* MONERO_Wallet_exportTrezorTdis(void* wallet_ptr);
+extern ADDAPI bool MONERO_Wallet_importTrezorEncryptedKeyImagesJson(void* wallet_ptr, const char* json);
+
 // };
 
 // struct WalletManager
