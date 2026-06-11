@@ -95,20 +95,14 @@ bool NERVA_PendingTransaction_commit(void* pendingTx_ptr, const char* filename, 
     DEBUG_END()
 }
 const char* NERVA_PendingTransaction_commitUR(void* pendingTx_ptr, int max_fragment_length) {
-    DEBUG_START()
-    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
-    std::string str = pendingTx->commitUR(max_fragment_length);
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 
 const char* NERVA_PendingTransaction_commitTrezor(void* pendingTx_ptr, int tx_index) {
-    DEBUG_START()
-    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
-    std::string str = pendingTx->commitTrezor(tx_index);
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 uint64_t NERVA_PendingTransaction_amount(void* pendingTx_ptr) {
@@ -178,19 +172,13 @@ const char* NERVA_PendingTransaction_signersKeys(void* pendingTx_ptr, const char
 }
 
 const char* NERVA_PendingTransaction_hex(void* pendingTx_ptr, const char* separator) {
-    DEBUG_START()
-    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
-    std::vector<std::string> txid = pendingTx->hex();
-    return vectorToString(txid, std::string(separator));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 const char* NERVA_PendingTransaction_txKey(void* pendingTx_ptr, const char* separator) {
-    DEBUG_START()
-    Monero::PendingTransaction *pendingTx = reinterpret_cast<Monero::PendingTransaction*>(pendingTx_ptr);
-    std::vector<std::string> txid = pendingTx->txKey();
-    return vectorToString(txid, std::string(separator));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 // UnsignedTransaction
@@ -225,10 +213,8 @@ const char* NERVA_UnsignedTransaction_fee(void* unsignedTx_ptr, const char* sepa
     DEBUG_END()
 }
 const char* NERVA_UnsignedTransaction_mixin(void* unsignedTx_ptr, const char* separator) {
-    DEBUG_START()
-    Monero::UnsignedTransaction *unsignedTx = reinterpret_cast<Monero::UnsignedTransaction*>(unsignedTx_ptr);
-    return vectorToString(unsignedTx->mixin(), std::string(separator));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 const char* NERVA_UnsignedTransaction_confirmationMessage(void* unsignedTx_ptr) {
     DEBUG_START()
@@ -250,10 +236,8 @@ const char* NERVA_UnsignedTransaction_recipientAddress(void* unsignedTx_ptr, con
     DEBUG_END()
 }
 uint64_t NERVA_UnsignedTransaction_minMixinCount(void* unsignedTx_ptr) {
-    DEBUG_START()
-    Monero::UnsignedTransaction *unsignedTx = reinterpret_cast<Monero::UnsignedTransaction*>(unsignedTx_ptr);
-    return unsignedTx->minMixinCount();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 uint64_t NERVA_UnsignedTransaction_txCount(void* unsignedTx_ptr) {
     DEBUG_START()
@@ -268,11 +252,8 @@ bool NERVA_UnsignedTransaction_sign(void* unsignedTx_ptr, const char* signedFile
     DEBUG_END()
 }
 const char* NERVA_UnsignedTransaction_signUR(void* unsignedTx_ptr, int max_fragment_length) {
-    DEBUG_START()
-    Monero::UnsignedTransaction *unsignedTx = reinterpret_cast<Monero::UnsignedTransaction*>(unsignedTx_ptr);
-    std::string str = unsignedTx->signUR(max_fragment_length);
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 // TransactionInfo
@@ -298,10 +279,8 @@ bool NERVA_TransactionInfo_isFailed(void* txInfo_ptr) {
     DEBUG_END()
 }
 bool NERVA_TransactionInfo_isCoinbase(void* txInfo_ptr) {
-    DEBUG_START()
-    Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
-    return txInfo->isCoinbase();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 uint64_t NERVA_TransactionInfo_amount(void* txInfo_ptr) {
     DEBUG_START()
@@ -322,11 +301,8 @@ uint64_t NERVA_TransactionInfo_blockHeight(void* txInfo_ptr) {
     DEBUG_END()
 }
 const char* NERVA_TransactionInfo_description(void* txInfo_ptr) {
-    DEBUG_START()
-    Monero::TransactionInfo *txInfo = reinterpret_cast<Monero::TransactionInfo*>(txInfo_ptr);
-    std::string str = txInfo->description();
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 const char* NERVA_TransactionInfo_subaddrIndex(void* txInfo_ptr, const char* separator) {
     DEBUG_START()
@@ -433,52 +409,35 @@ void NERVA_TransactionHistory_refresh(void* txHistory_ptr) {
     DEBUG_END()
 }
 void NERVA_TransactionHistory_setTxNote(void* txHistory_ptr, const char* txid, const char* note) {
-    DEBUG_START()
-    Monero::TransactionHistory *txHistory = reinterpret_cast<Monero::TransactionHistory*>(txHistory_ptr);
-    return txHistory->setTxNote(std::string(txid), std::string(note));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 
 // AddressBokRow
 
 //     std::string extra;
 const char* NERVA_AddressBookRow_extra(void* addressBookRow_ptr) {
-    DEBUG_START()
-    Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
-    std::string str = addressBookRow->extra;
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 //     std::string getAddress() const {return m_address;}
 const char* NERVA_AddressBookRow_getAddress(void* addressBookRow_ptr) {
-    DEBUG_START()
-    Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
-    std::string str = addressBookRow->getAddress();
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 //     std::string getDescription() const {return m_description;}
 const char* NERVA_AddressBookRow_getDescription(void* addressBookRow_ptr) {
-    DEBUG_START()
-    Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
-    std::string str = addressBookRow->getDescription();
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 //     std::string getPaymentId() const {return m_paymentId;}
 const char* NERVA_AddressBookRow_getPaymentId(void* addressBookRow_ptr) {
-    DEBUG_START()
-    Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
-    std::string str = addressBookRow->getPaymentId();
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 //     std::size_t getRowId() const {return m_rowId;}
 size_t NERVA_AddressBookRow_getRowId(void* addressBookRow_ptr) {
-    DEBUG_START()
-    Monero::AddressBookRow *addressBookRow = reinterpret_cast<Monero::AddressBookRow*>(addressBookRow_ptr);
-    return addressBookRow->getRowId();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 
 // AddressBook
@@ -490,220 +449,152 @@ const int NERVA_AddressBookErrorCodeInvalidPaymentId = 3;
 
 //     virtual std::vector<AddressBookRow*> getAll() const = 0;
 int NERVA_AddressBook_getAll_size(void* addressBook_ptr) {
-    DEBUG_START()
-    Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
-    return addressBook->getAll().size();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 void* NERVA_AddressBook_getAll_byIndex(void* addressBook_ptr, int index) {
-    DEBUG_START()
-    Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
-    return addressBook->getAll()[index];
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return nullptr;
 }
 //     virtual bool addRow(const std::string &dst_addr , const std::string &payment_id, const std::string &description) = 0;
 bool NERVA_AddressBook_addRow(void* addressBook_ptr, const char* dst_addr , const char* payment_id, const char* description) {
-    DEBUG_START()
-    Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
-    return addressBook->addRow(std::string(dst_addr), std::string(payment_id), std::string(description));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual bool deleteRow(std::size_t rowId) = 0;
 bool NERVA_AddressBook_deleteRow(void* addressBook_ptr, size_t rowId) {
-    DEBUG_START()
-    Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
-    return addressBook->deleteRow(rowId);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual bool setDescription(std::size_t index, const std::string &description) = 0;
 bool NERVA_AddressBook_setDescription(void* addressBook_ptr, size_t rowId, const char* description) {
-    DEBUG_START()
-    Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
-    return addressBook->setDescription(rowId, std::string(description));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual void refresh() = 0;
 void NERVA_AddressBook_refresh(void* addressBook_ptr) {
-    DEBUG_START()
-    Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
-    return addressBook->refresh();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 //     virtual std::string errorString() const = 0;
 const char* NERVA_AddressBook_errorString(void* addressBook_ptr) {
-    DEBUG_START()
-    Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
-    std::string str = addressBook->errorString();
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 //     virtual int errorCode() const = 0;
 int NERVA_AddressBook_errorCode(void* addressBook_ptr) {
-    DEBUG_START()
-    Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
-    return addressBook->errorCode();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual int lookupPaymentID(const std::string &payment_id) const = 0;
 int NERVA_AddressBook_lookupPaymentID(void* addressBook_ptr, const char* payment_id) {
-    DEBUG_START()
-    Monero::AddressBook *addressBook = reinterpret_cast<Monero::AddressBook*>(addressBook_ptr);
-    return addressBook->lookupPaymentID(std::string(payment_id));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 
 // CoinsInfo
 uint64_t NERVA_CoinsInfo_blockHeight(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->blockHeight();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual std::string hash() const = 0;
 const char* NERVA_CoinsInfo_hash(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    std::string str = coinsInfo->hash();
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 //     virtual size_t internalOutputIndex() const = 0;
 size_t NERVA_CoinsInfo_internalOutputIndex(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->internalOutputIndex();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual uint64_t globalOutputIndex() const = 0;
 uint64_t NERVA_CoinsInfo_globalOutputIndex(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->globalOutputIndex();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual bool spent() const = 0;
 bool NERVA_CoinsInfo_spent(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->spent();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual bool frozen() const = 0;
 bool NERVA_CoinsInfo_frozen(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->frozen();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual uint64_t spentHeight() const = 0;
 uint64_t NERVA_CoinsInfo_spentHeight(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->spentHeight();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual uint64_t amount() const = 0;
 uint64_t NERVA_CoinsInfo_amount(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->amount();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual bool rct() const = 0;
 bool NERVA_CoinsInfo_rct(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->rct();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual bool keyImageKnown() const = 0;
 bool NERVA_CoinsInfo_keyImageKnown(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->keyImageKnown();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual size_t pkIndex() const = 0;
 size_t NERVA_CoinsInfo_pkIndex(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->pkIndex();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual uint32_t subaddrIndex() const = 0;
 uint32_t NERVA_CoinsInfo_subaddrIndex(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->subaddrIndex();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual uint32_t subaddrAccount() const = 0;
 uint32_t NERVA_CoinsInfo_subaddrAccount(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->subaddrAccount();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual std::string address() const = 0;
 const char* NERVA_CoinsInfo_address(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    std::string str = coinsInfo->address();
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 //     virtual std::string addressLabel() const = 0;
 const char* NERVA_CoinsInfo_addressLabel(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    std::string str = coinsInfo->addressLabel();
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 //     virtual std::string keyImage() const = 0;
 const char* NERVA_CoinsInfo_keyImage(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    std::string str = coinsInfo->keyImage();
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 //     virtual uint64_t unlockTime() const = 0;
 uint64_t NERVA_CoinsInfo_unlockTime(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->unlockTime();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual bool unlocked() const = 0;
 bool NERVA_CoinsInfo_unlocked(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->unlocked();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual std::string pubKey() const = 0;
 const char* NERVA_CoinsInfo_pubKey(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    std::string str = coinsInfo->pubKey();
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 //     virtual bool coinbase() const = 0;
 bool NERVA_CoinsInfo_coinbase(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    return coinsInfo->coinbase();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual std::string description() const = 0;
 const char* NERVA_CoinsInfo_description(void* coinsInfo_ptr) {
-    DEBUG_START()
-    Monero::CoinsInfo *coinsInfo = reinterpret_cast<Monero::CoinsInfo*>(coinsInfo_ptr);
-    std::string str = coinsInfo->description();
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 
@@ -712,81 +603,53 @@ const char* NERVA_CoinsInfo_description(void* coinsInfo_ptr) {
 //     virtual ~Coins() = 0;
 //     virtual int count() const = 0;
 int NERVA_Coins_count(void* coins_ptr) {
-    DEBUG_START()
-    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
-    return coins->count();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual CoinsInfo * coin(int index)  const = 0;
 void* NERVA_Coins_coin(void* coins_ptr, int index) {
-    DEBUG_START()
-    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
-    return coins->coin(index);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return nullptr;
 }
 
 int NERVA_Coins_getAll_size(void* coins_ptr)  {
-    DEBUG_START()
-    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
-    return coins->getAll().size();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 void* NERVA_Coins_getAll_byIndex(void* coins_ptr, int index) {
-    DEBUG_START()
-    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
-    return coins->getAll()[index];
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return nullptr;
 }
 
 //     virtual std::vector<CoinsInfo*> getAll() const = 0;
 //     virtual void refresh() = 0;
 void NERVA_Coins_refresh(void* coins_ptr) {
-    DEBUG_START()
-    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
-    return coins->refresh();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 //     virtual void setFrozen(std::string public_key) = 0;
 void NERVA_Coins_setFrozenByPublicKey(void* coins_ptr, const char* public_key) {
-    DEBUG_START()
-    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
-    return coins->setFrozen(std::string(public_key));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 //     virtual void setFrozen(int index) = 0;
 void NERVA_Coins_setFrozen(void* coins_ptr, int index) {
-    DEBUG_START()
-    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
-    return coins->setFrozen(index);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 //     virtual void thaw(int index) = 0;
 void NERVA_Coins_thaw(void* coins_ptr, int index) {
-    DEBUG_START()
-    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
-    return coins->thaw(index);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 //     virtual void thaw(std::string public_key) = 0;
 void NERVA_Coins_thawByPublicKey(void* coins_ptr, const char* public_key) {
-    DEBUG_START()
-    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
-    return coins->thaw(std::string(public_key));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 //     virtual bool isTransferUnlocked(uint64_t unlockTime, uint64_t blockHeight) = 0;
 bool NERVA_Coins_isTransferUnlocked(void* coins_ptr, uint64_t unlockTime, uint64_t blockHeight) {
-    DEBUG_START()
-    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
-    return coins->isTransferUnlocked(unlockTime, blockHeight);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //    virtual void setDescription(const std::string &public_key, const std::string &description) = 0;
 void NERVA_Coins_setDescription(void* coins_ptr, const char* public_key, const char* description) {
-    DEBUG_START()
-    Monero::Coins *coins = reinterpret_cast<Monero::Coins*>(coins_ptr);
-    return coins->setDescription(std::string(public_key), std::string(description));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 
 // SubaddressRow
@@ -1012,11 +875,8 @@ const int NERVA_WalletBackgroundSync_CustomPassword = 2;
 // Wallet
 
 const char* NERVA_Wallet_seed(void* wallet_ptr, const char* seed_offset) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    std::string str = wallet->seed(std::string(seed_offset));
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 const char* NERVA_Wallet_getSeedLanguage(void* wallet_ptr) {
@@ -1058,11 +918,8 @@ bool NERVA_Wallet_setPassword(void* wallet_ptr, const char* password) {
 }
 
 const char* NERVA_Wallet_getPassword(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    std::string str = wallet->getPassword();
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 bool NERVA_Wallet_setDevicePin(void* wallet_ptr, const char* pin) {
@@ -1154,10 +1011,7 @@ const char* NERVA_Wallet_publicMultisigSignerKey(void* wallet_ptr) {
 }
 
 void NERVA_Wallet_stop(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->stop();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 
 bool NERVA_Wallet_store(void* wallet_ptr, const char* path) {
@@ -1183,10 +1037,8 @@ const char* NERVA_Wallet_keysFilename(void* wallet_ptr) {
 
 //     virtual bool init(const std::string &daemon_address, uint64_t upper_transaction_size_limit = 0, const std::string &daemon_username = "", const std::string &daemon_password = "", bool use_ssl = false, bool lightWallet = false, const std::string &proxy_address = "") = 0;
 bool NERVA_Wallet_init(void* wallet_ptr, const char* daemon_address, uint64_t upper_transaction_size_limit, const char* daemon_username, const char* daemon_password, bool use_ssl, bool lightWallet, const char* proxy_address) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->init(std::string(daemon_address), upper_transaction_size_limit, std::string(daemon_username), std::string(daemon_password), use_ssl, lightWallet, std::string(proxy_address));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 bool NERVA_Wallet_createWatchOnly(void* wallet_ptr, const char* path, const char* password, const char* language) {
     DEBUG_START()
@@ -1253,10 +1105,8 @@ bool NERVA_Wallet_trustedDaemon(void* wallet_ptr) {
     DEBUG_END()
 }
 bool NERVA_Wallet_setProxy(void* wallet_ptr, const char* address) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->setProxy(std::string(address));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 
 const int NERVA_LogLevel_Silent = -1;
@@ -1283,10 +1133,8 @@ uint64_t NERVA_Wallet_unlockedBalance(void* wallet_ptr, uint32_t accountIndex) {
 }
 
 uint64_t NERVA_Wallet_viewOnlyBalance(void* wallet_ptr, uint32_t accountIndex) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->viewOnlyBalance(accountIndex);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 
 // TODO
@@ -1297,10 +1145,8 @@ bool NERVA_Wallet_watchOnly(void* wallet_ptr) {
     DEBUG_END()
 }
 bool NERVA_Wallet_isDeterministic(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->isDeterministic();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 uint64_t NERVA_Wallet_blockChainHeight(void* wallet_ptr) {
     DEBUG_START()
@@ -1412,24 +1258,13 @@ void NERVA_Wallet_init3(void* wallet_ptr, const char* argv0, const char* default
     DEBUG_END()
 }
 const char* NERVA_Wallet_getPolyseed(void* wallet_ptr, const char* passphrase) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    std::string seed = "";
-    std::string _passphrase = std::string(passphrase);
-    wallet->getPolyseed(seed, _passphrase);
-    std::string str = seed;
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 //     static bool createPolyseed(std::string &seed_words, std::string &err, const std::string &language = "English");
 const char* NERVA_Wallet_createPolyseed(const char* language) {
-    DEBUG_START()
-    std::string seed_words = "";
-    std::string err;
-    Monero::Wallet::createPolyseed(seed_words, err, std::string(language));
-    std::string str = seed_words;
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 void NERVA_Wallet_startRefresh(void* wallet_ptr) {
@@ -1544,11 +1379,8 @@ const char* NERVA_Wallet_makeMultisig(void* wallet_ptr, const char* info, const 
 }
 
 const char* NERVA_Wallet_exchangeMultisigKeys(void* wallet_ptr, const char* info, const char* info_separator, bool force_update_use_with_caution) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    std::string str = wallet->exchangeMultisigKeys(splitStringVector(std::string(info), std::string(info_separator)), force_update_use_with_caution);
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 const char* NERVA_Wallet_exportMultisigImages(void* wallet_ptr, const char* separator) {
@@ -1606,15 +1438,15 @@ void* NERVA_Wallet_createTransactionMultDest(void* wallet_ptr, const char* dst_a
         optAmount = splitStringUint(std::string(amount_list), std::string(amount_list_separator));;
     }
     std::set<uint32_t> subaddr_indices = {};
-    std::set<std::string> preferred_inputs = splitString(std::string(preferredInputs), std::string(preferredInputs_separator));
+    // Nerva's createTransactionMultDest takes no mixin_count/preferred_inputs.
+    (void)mixin_count; (void)preferredInputs; (void)preferredInputs_separator;
 
     return wallet->createTransactionMultDest(
         dst_addr, std::string(payment_id),
-        optAmount, mixin_count,
+        optAmount,
         PendingTransaction_Priority_fromInt(pendingTransactionPriority),
         subaddr_account,
-        subaddr_indices,
-        preferred_inputs
+        subaddr_indices
     );
     DEBUG_END()
 }
@@ -1631,11 +1463,12 @@ void* NERVA_Wallet_createTransaction(void* wallet_ptr, const char* dst_addr, con
         optAmount = amount;
     }
     std::set<uint32_t> subaddr_indices = {};
-    std::set<std::string> preferred_inputs = splitString(std::string(preferredInputs), std::string(separator));
+    // Nerva's createTransaction takes no mixin_count/preferred_inputs.
+    (void)mixin_count; (void)preferredInputs; (void)separator;
     return wallet->createTransaction(std::string(dst_addr), std::string(payment_id),
-                                        optAmount, mixin_count,
+                                        optAmount,
                                         PendingTransaction_Priority_fromInt(pendingTransactionPriority),
-                                        subaddr_account, subaddr_indices, preferred_inputs);
+                                        subaddr_account, subaddr_indices);
     DEBUG_END()
 }
 
@@ -1647,10 +1480,8 @@ void* NERVA_Wallet_loadUnsignedTx(void* wallet_ptr, const char* fileName) {
 }
 
 void* NERVA_Wallet_loadUnsignedTxUR(void* wallet_ptr, const char* input) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->loadUnsignedTxUR(std::string(input));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return nullptr;
 }
 bool NERVA_Wallet_submitTransaction(void* wallet_ptr, const char* fileName) {
     DEBUG_START()
@@ -1659,36 +1490,25 @@ bool NERVA_Wallet_submitTransaction(void* wallet_ptr, const char* fileName) {
     DEBUG_END()
 }
 bool NERVA_Wallet_submitTransactionUR(void* wallet_ptr, const char* input) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->submitTransactionUR(std::string(input));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 bool NERVA_Wallet_submitTransactionHex(void* wallet_ptr, const char* hex) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->submitTransactionHex(std::string(hex));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 bool NERVA_Wallet_hasUnknownKeyImages(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->hasUnknownKeyImages();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 bool NERVA_Wallet_exportKeyImages(void* wallet_ptr, const char* filename, bool all) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->exportKeyImages(std::string(filename), all);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 
 const char* NERVA_Wallet_exportKeyImagesUR(void* wallet_ptr, size_t max_fragment_length, bool all) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    std::string str = wallet->exportKeyImagesUR(max_fragment_length, all);
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 bool NERVA_Wallet_importKeyImages(void* wallet_ptr, const char* filename) {
     DEBUG_START()
@@ -1697,77 +1517,54 @@ bool NERVA_Wallet_importKeyImages(void* wallet_ptr, const char* filename) {
     DEBUG_END()
 }
 bool NERVA_Wallet_importKeyImagesUR(void* wallet_ptr, const char* input) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->importKeyImagesUR(std::string(input));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 bool NERVA_Wallet_exportOutputs(void* wallet_ptr, const char* filename, bool all) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->exportOutputs(std::string(filename), all);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 const char* NERVA_Wallet_exportOutputsUR(void* wallet_ptr, size_t max_fragment_length, bool all) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    std::string str = wallet->exportOutputsUR(max_fragment_length, all);
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 bool NERVA_Wallet_importOutputs(void* wallet_ptr, const char* filename) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->importOutputs(std::string(filename));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 bool NERVA_Wallet_importOutputsUR(void* wallet_ptr, const char* input) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->importOutputsUR(std::string(input));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual bool setupBackgroundSync(const BackgroundSyncType background_sync_type, const std::string &wallet_password, const optional<std::string> &background_cache_password) = 0;
 bool NERVA_Wallet_setupBackgroundSync(void* wallet_ptr, int background_sync_type, const char* wallet_password, const char* background_cache_password) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->setupBackgroundSync(Monero::Wallet::BackgroundSyncType::BackgroundSync_CustomPassword, std::string(wallet_password), std::string(background_cache_password));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual BackgroundSyncType getBackgroundSyncType() const = 0;
 int NERVA_Wallet_getBackgroundSyncType(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getBackgroundSyncType();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual bool startBackgroundSync() = 0;
 bool NERVA_Wallet_startBackgroundSync(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->startBackgroundSync();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual bool stopBackgroundSync(const std::string &wallet_password) = 0;
 bool NERVA_Wallet_stopBackgroundSync(void* wallet_ptr, const char* wallet_password) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->stopBackgroundSync(std::string(wallet_password));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual bool isBackgroundSyncing() const = 0;
 bool NERVA_Wallet_isBackgroundSyncing(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->hasUnknownKeyImages();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 //     virtual bool isBackgroundWallet() const = 0;
 bool NERVA_Wallet_isBackgroundWallet(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->isBackgroundWallet();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 void* NERVA_Wallet_history(void* wallet_ptr) {
     DEBUG_START()
@@ -1776,17 +1573,13 @@ void* NERVA_Wallet_history(void* wallet_ptr) {
     DEBUG_END()
 }
 void* NERVA_Wallet_addressBook(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->addressBook();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return nullptr;
 }
 //     virtual Coins * coins() = 0;
 void* NERVA_Wallet_coins(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->coins();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return nullptr;
 }
 //     virtual Subaddress * subaddress() = 0;
 void* NERVA_Wallet_subaddress(void* wallet_ptr) {
@@ -1804,17 +1597,12 @@ void* NERVA_Wallet_subaddressAccount(void* wallet_ptr) {
 }
 //     virtual uint32_t defaultMixin() const = 0;
 uint32_t NERVA_Wallet_defaultMixin(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->defaultMixin();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 //     virtual void setDefaultMixin(uint32_t arg) = 0;
 void NERVA_Wallet_setDefaultMixin(void* wallet_ptr, uint32_t arg) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->setDefaultMixin(arg);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 //     virtual bool setCacheAttribute(const std::string &key, const std::string &val) = 0;
 bool NERVA_Wallet_setCacheAttribute(void* wallet_ptr, const char* key, const char* val) {
@@ -1856,11 +1644,8 @@ const char* NERVA_Wallet_getTxKey(void* wallet_ptr, const char* txid) {
 }
 
 const char* NERVA_Wallet_signMessage(void* wallet_ptr, const char* message, const char* address) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    std::string str = wallet->signMessage(std::string(message), std::string(address));
-    return strdup(str.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 bool NERVA_Wallet_verifySignedMessage(void* wallet_ptr, const char* message, const char* address, const char* signature) {
@@ -1879,17 +1664,12 @@ bool NERVA_Wallet_rescanSpent(void* wallet_ptr) {
 }
 
 void NERVA_Wallet_setOffline(void* wallet_ptr, bool offline) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->setOffline(offline);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 //     virtual bool isOffline() const = 0;
 bool NERVA_Wallet_isOffline(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->isOffline();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 
 void NERVA_Wallet_segregatePreForkOutputs(void* wallet_ptr, bool segregate) {
@@ -1960,107 +1740,79 @@ const char* NERVA_Wallet_deviceShowAddress(void* wallet_ptr, uint32_t accountInd
 }
 //     virtual bool reconnectDevice() = 0;
 bool NERVA_Wallet_reconnectDevice(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->reconnectDevice();
-    DEBUG_END()
-};
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
+}
 
 uint64_t NERVA_Wallet_getBytesReceived(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getBytesReceived();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 uint64_t NERVA_Wallet_getBytesSent(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return wallet->getBytesSent();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 
 bool NERVA_Wallet_getStateIsConnected() {
-    DEBUG_START()
-    return Monero::Wallet::getStateIsConnected();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 
 unsigned char* NERVA_Wallet_getSendToDevice() {
-    DEBUG_START()
-    return Monero::Wallet::getSendToDevice();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return reinterpret_cast<unsigned char*>(strdup(""));
 }
 
 size_t NERVA_Wallet_getSendToDeviceLength() {
-    DEBUG_START()
-    return Monero::Wallet::getSendToDeviceLength();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 
 unsigned char* NERVA_Wallet_getReceivedFromDevice() {
-    DEBUG_START()
-    return Monero::Wallet::getReceivedFromDevice();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return reinterpret_cast<unsigned char*>(strdup(""));
 }
 
 size_t NERVA_Wallet_getReceivedFromDeviceLength() {
-    DEBUG_START()
-    return Monero::Wallet::getReceivedFromDeviceLength();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return 0;
 }
 
 bool NERVA_Wallet_getWaitsForDeviceSend() {
-    DEBUG_START()
-    return Monero::Wallet::getWaitsForDeviceSend();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 
 bool NERVA_Wallet_getWaitsForDeviceReceive() {
-    DEBUG_START()
-    return Monero::Wallet::getWaitsForDeviceReceive();
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 
 void NERVA_Wallet_setDeviceReceivedData(unsigned char* data, size_t len) {
-    DEBUG_START()
-    Monero::Wallet::setDeviceReceivedData(data, len);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 
 void NERVA_Wallet_setDeviceSendData(unsigned char* data, size_t len) {
-    DEBUG_START()
-    Monero::Wallet::setDeviceSendData(data, len);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 
 void NERVA_Wallet_setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len)) {
-    DEBUG_START()
-    Monero::Wallet::setLedgerCallback(sendToLedgerDevice);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
 }
 
 const char* NERVA_Wallet_serializeCacheToJson(void* wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    std::string result = wallet->serializeCacheToJson();
-    return strdup(result.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 const char* NERVA_Wallet_exportTrezorTdis(void *wallet_ptr) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    std::string result = wallet->exportTrezorTdis();
-    return strdup(result.c_str());
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return strdup("");
 }
 
 bool NERVA_Wallet_importTrezorEncryptedKeyImagesJson(void *wallet_ptr, const char* json) {
-    DEBUG_START()
-    Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    bool result = wallet->importTrezorEncryptedKeyImagesJson(std::string(json));
-    return result;
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 
 void* NERVA_WalletManager_createWallet(void* wm_ptr, const char* path, const char* password, const char* language, int networkType) {
@@ -2144,35 +1896,15 @@ void* NERVA_WalletManager_createWalletFromDevice(void* wm_ptr, const char* path,
 void* NERVA_WalletManager_createDeterministicWalletFromSpendKey(void* wm_ptr, const char* path, const char* password,
                                                 const char* language, int nettype, uint64_t restoreHeight,
                                                 const char* spendKeyString, uint64_t kdf_rounds) {
-    DEBUG_START()
-    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
-    Monero::Wallet *wallet = wm->createDeterministicWalletFromSpendKey(
-        std::string(path),
-        std::string(password),
-        std::string(language),
-        static_cast<Monero::NetworkType>(nettype),
-        restoreHeight,
-        std::string(spendKeyString),
-        kdf_rounds
-    );
-    return reinterpret_cast<void*>(wallet);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return nullptr;
 }
 
 void* NERVA_WalletManager_createWalletFromPolyseed(void* wm_ptr, const char* path, const char* password,
                                                 int nettype, const char* mnemonic, const char* passphrase,
                                                 bool newWallet, uint64_t restore_height, uint64_t kdf_rounds) {
-    DEBUG_START()
-    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
-    return wm->createWalletFromPolyseed(std::string(path),
-                                              std::string(password),
-                                              static_cast<Monero::NetworkType>(nettype),
-                                              std::string(mnemonic),
-                                              std::string(passphrase),
-                                              newWallet,
-                                              restore_height,
-                                              kdf_rounds);
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return nullptr;
 }
 
 
@@ -2234,10 +1966,8 @@ void NERVA_WalletManager_setDaemonAddress(void* wm_ptr, const char* address) {
 }
 
 bool NERVA_WalletManager_setProxy(void* wm_ptr, const char* address) {
-    DEBUG_START()
-    Monero::WalletManager *wm = reinterpret_cast<Monero::WalletManager*>(wm_ptr);
-    return wm->setProxy(std::string(address));
-    DEBUG_END()
+    // stubbed: not supported by Nerva's wallet2_api
+    return false;
 }
 
 
