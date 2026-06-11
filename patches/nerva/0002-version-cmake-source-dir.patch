@@ -1,0 +1,28 @@
+From e12c34241b4d6d81b7d4d30808caf81f22cb3c6a Mon Sep 17 00:00:00 2001
+From: mmokhi <mmokhi@freebsd.org>
+Date: Thu, 11 Jun 2026 12:03:28 +0200
+Subject: [PATCH] cmake: Version.cmake use ${CMAKE_CURRENT_LIST_DIR} for
+ version.cpp.in (add_subdirectory builds)
+
+Mirrors monero's Version.cmake. CMAKE_SOURCE_DIR resolves to the top-level
+(monero_c wrapper) under add_subdirectory; the file-relative path is correct.
+---
+ cmake/Version.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmake/Version.cmake b/cmake/Version.cmake
+index 44a6f72..f498630 100644
+--- a/cmake/Version.cmake
++++ b/cmake/Version.cmake
+@@ -29,7 +29,7 @@
+ 
+ function (write_version tag)
+   set(VERSIONTAG "${tag}" CACHE STRING "The tag portion of the Monero software version" FORCE)
+-  configure_file("${CMAKE_SOURCE_DIR}/src/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp")
++  configure_file("${CMAKE_CURRENT_LIST_DIR}/../src/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp")
+ endfunction ()
+ 
+ find_package(Git QUIET)
+-- 
+2.43.0
+

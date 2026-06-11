@@ -10,10 +10,10 @@ then
     exit 1
 fi
 
-if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" ]];
+if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" && "x$repo" != "xnerva" ]];
 then
-    echo "Usage: $0 monero/wownero"
-    echo "Invalid target given, only monero and wownero are supported targets"
+    echo "Usage: $0 monero/wownero/nerva"
+    echo "Invalid target given, only monero, wownero and nerva are supported targets"
 fi
 
 if [[ ! -d "$repo" ]]
@@ -31,7 +31,13 @@ fi
 
 set -e
 cd $repo
-git am -3 --whitespace=fix --reject ../patches/$repo/*.patch
+# Apply patches only if any exist for this target (nerva may start with none).
+if compgen -G "../patches/$repo/*.patch" > /dev/null;
+then
+    git am -3 --whitespace=fix --reject ../patches/$repo/*.patch
+else
+    echo "No patches found for $repo, skipping git am."
+fi
 if [[ "$repo" == "wownero" ]];
 then
     pushd external/randomwow
@@ -57,7 +63,9 @@ find . -name "*.S" -o -name "*.s" -type f | while read -r file; do
         git add "$file" || true
     fi
 done
-git commit -m "Add .note.GNU-stack section to assembly files"
+# Nerva's assembly files may already carry the .note.GNU-stack section (or have
+# none), leaving nothing to commit -- tolerate that instead of failing the build.
+git commit -m "Add .note.GNU-stack section to assembly files" || true
 
 git am -3 <<EOF
 From e56dd6cd0fb1a5e55d3cb08691edf24b26d65299 Mon Sep 17 00:00:00 2001

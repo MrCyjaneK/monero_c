@@ -24,9 +24,9 @@ then
     exit 1
 fi
 
-if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" && "x$repo" != "xzano" ]];
+if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" && "x$repo" != "xzano" && "x$repo" != "xnerva" ]];
 then
-    echo "Usage: $0 monero/wownero/zano $(gcc -dumpmachine) -j$proccount"
+    echo "Usage: $0 monero/wownero/zano/nerva $(gcc -dumpmachine) -j$proccount"
     echo "Invalid target given"
     exit 1
 fi
