@@ -1,5 +1,5 @@
 #include "nerva_checksum.h"
 
-const char * NERVA_wallet2_api_c_h_sha256 = "f1f24af3a9ae7e136c67fbbeffb1af0f7a3dd6cb70a7c43d5bd36a60fdb4a64f";
-const char * NERVA_wallet2_api_c_cpp_sha256 = "b62ff8b4a7178be15f7c53f8b368164357eb2f35db5bc00125beaafc39c3c4a5-dbcc7d212c094bd1a45f7291dbb99a4b4627a96d";
-const char * NERVA_wallet2_api_c_exp_sha256 = "0b4c4b51dd956cbc035dababe423b787add156e8f7d0174445d9e2d4cdbac01e";
+const char * NERVA_wallet2_api_c_h_sha256 = "f6acca469ca15968be235f96a7d6259bc0a001806f4ce5b9186409151c2519bd";
+const char * NERVA_wallet2_api_c_cpp_sha256 = "719e6a06c55b5fc31f22f138727fbb49d5b8f915abfa186f33cbe4db6b7ab692-bfa626e7bf99d8710842009b0dccde1a4ab06ff3";
+const char * NERVA_wallet2_api_c_exp_sha256 = "bce3f709d68687444b694936b4da6d0bbd790d0f3d87a7f4e08f9b541fd2c92e";
