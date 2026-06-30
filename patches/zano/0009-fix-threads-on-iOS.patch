@@ -1,29 +1,28 @@
-From 40280e2316d37cb19ec3e9dd6e3a466811dd75c9 Mon Sep 17 00:00:00 2001
+From 759cd27fdbd815bd2188174638735c995b508811 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 7 Mar 2026 00:06:53 +0100
-Subject: [PATCH] fix: threads on iOS
+Subject: [PATCH 09/11] fix: threads on iOS
 
 ---
- CMakeLists.txt | 6 ++++++
- 1 file changed, 6 insertions(+)
+ CMakeLists.txt | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 5186bc87..ad4815ea 100644
+index 452de748..2eab048e 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -244,6 +244,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
-   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC")
-   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC")
- elseif(APPLE)
+@@ -249,6 +249,11 @@ else()
+       set(Boost_LIBRARIES "${Boost_LIBRARY_DIRS}libboost_system.a;${Boost_LIBRARY_DIRS}libboost_filesystem.a;${Boost_LIBRARY_DIRS}libboost_thread.a;${Boost_LIBRARY_DIRS}libboost_timer.a;${Boost_LIBRARY_DIRS}libboost_date_time.a;${Boost_LIBRARY_DIRS}libboost_chrono.a;${Boost_LIBRARY_DIRS}libboost_regex.a;${Boost_LIBRARY_DIRS}libboost_serialization.a;${Boost_LIBRARY_DIRS}libboost_atomic.a;${Boost_LIBRARY_DIRS}libboost_program_options.a")
+     endif()  
+   elseif(APPLE)
 +    set(THREADS_PREFER_PTHREAD_FLAG ON)
-+    
 +    set(CMAKE_THREAD_LIBS_INIT "-lpthread")
 +    set(CMAKE_HAVE_THREADS_LIBRARY 1)
 +    set(CMAKE_USE_PTHREADS_INIT 1)
 +    set(Threads_FOUND TRUE)
-   find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options)
- elseif(MINGW)
-   find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options log locale)
+     find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options)
+   elseif(MINGW)
+     find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options log locale)
 -- 
-2.51.0
+2.54.0 (Apple Git-156)
 

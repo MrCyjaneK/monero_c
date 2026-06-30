@@ -1,17 +1,17 @@
-From df278aa4633d1e20d55a905c7ab58cf786304058 Mon Sep 17 00:00:00 2001
+From 6ab4a4e288dbf48ea8d2203f4a90b46c6c5d7a82 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 5 Nov 2024 16:52:23 +0100
-Subject: [PATCH 3/7] fix ios builds
+Subject: [PATCH 03/11] fix ios builds
 
 ---
  CMakeLists.txt | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 4aa125a5..aa2687fd 100644
+index d5c975f3..83bf9e6d 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -137,6 +137,8 @@ else()
+@@ -140,6 +140,8 @@ else()
    set(ARCH default CACHE STRING "CPU to build for: -march value or default")
    if("${ARCH}" STREQUAL "default")
      set(ARCH_FLAG "")
@@ -20,7 +20,7 @@ index 4aa125a5..aa2687fd 100644
    else()
      set(ARCH_FLAG "-march=${ARCH}")
    endif()
-@@ -209,7 +211,7 @@ else()
+@@ -212,7 +214,7 @@ else()
    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${RELEASE_FLAGS}")
    if(STATIC)
      if(APPLE)
@@ -30,5 +30,5 @@ index 4aa125a5..aa2687fd 100644
        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++")
      endif()
 -- 
-2.51.0
+2.54.0 (Apple Git-156)
 

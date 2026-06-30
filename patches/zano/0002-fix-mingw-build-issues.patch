@@ -1,7 +1,7 @@
-From 4e9ac1ac20c243d8cdccc2a4941f16e09951454b Mon Sep 17 00:00:00 2001
+From ec003422f5cb74962da19224c104b927689abf7f Mon Sep 17 00:00:00 2001
 From: cyan <cyjan@mrcyjanek.net>
 Date: Sun, 3 Nov 2024 08:59:22 +0000
-Subject: [PATCH 2/7] fix mingw build issues
+Subject: [PATCH 02/11] fix mingw build issues
 
 ---
  src/common/callstack_helper.cpp | 2 +-
@@ -35,5 +35,5 @@ index 9176de17..8b488135 100644
  #define I64T __int64
  #define U64C(v) (v##ui64)
 -- 
-2.51.0
+2.54.0 (Apple Git-156)
 
