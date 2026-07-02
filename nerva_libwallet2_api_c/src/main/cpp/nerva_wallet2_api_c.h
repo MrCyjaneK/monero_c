@@ -83,8 +83,6 @@ extern ADDAPI int NERVA_PendingTransaction_status(void* pendingTx_ptr);
 extern ADDAPI const char* NERVA_PendingTransaction_errorString(void* pendingTx_ptr);
 //     virtual bool commit(const std::string &filename = "", bool overwrite = false) = 0;
 extern ADDAPI bool NERVA_PendingTransaction_commit(void* pendingTx_ptr, const char* filename, bool overwrite);
-extern ADDAPI const char* NERVA_PendingTransaction_commitUR(void* pendingTx_ptr, int max_fragment_length);
-extern ADDAPI const char* NERVA_PendingTransaction_commitTrezor(void* pendingTx_ptr, int tx_index);
 //     virtual uint64_t amount() const = 0;
 extern ADDAPI uint64_t NERVA_PendingTransaction_amount(void* pendingTx_ptr);
 //     virtual uint64_t dust() const = 0;
@@ -106,7 +104,6 @@ extern ADDAPI void NERVA_PendingTransaction_signMultisigTx(void* pendingTx_ptr);
 //     virtual std::vector<std::string> signersKeys() const = 0;
 extern ADDAPI const char* NERVA_PendingTransaction_signersKeys(void* pendingTx_ptr, const char* separator);
 //     virtual std::vector<std::string> hex() const = 0;
-extern ADDAPI const char* NERVA_PendingTransaction_hex(void* pendingTx_ptr, const char* separator);
 //     virtual std::vector<std::string> txKey() const = 0;
 // extern ADDAPI const char* NERVA_PendingTransaction_txHex(void* pendingTx_ptr, const char* separator);
 // };
@@ -131,7 +128,6 @@ extern ADDAPI const char* NERVA_UnsignedTransaction_amount(void* unsignedTx_ptr,
 //     virtual std::vector<uint64_t>  fee() const = 0;
 extern ADDAPI const char* NERVA_UnsignedTransaction_fee(void* unsignedTx_ptr, const char* separator);
 //     virtual std::vector<uint64_t> mixin() const = 0;
-extern ADDAPI const char* NERVA_UnsignedTransaction_mixin(void* unsignedTx_ptr, const char* separator);
 //     virtual std::string confirmationMessage() const = 0;
 extern ADDAPI const char* NERVA_UnsignedTransaction_confirmationMessage(void* unsignedTx_ptr);
 //     virtual std::vector<std::string> paymentId() const = 0;
@@ -139,12 +135,10 @@ extern ADDAPI const char* NERVA_UnsignedTransaction_paymentId(void* unsignedTx_p
 //     virtual std::vector<std::string> recipientAddress() const = 0;
 extern ADDAPI const char* NERVA_UnsignedTransaction_recipientAddress(void* unsignedTx_ptr, const char* separator);
 //     virtual uint64_t minMixinCount() const = 0;
-extern ADDAPI uint64_t NERVA_UnsignedTransaction_minMixinCount(void* unsignedTx_ptr);
 //     virtual uint64_t txCount() const = 0;
 extern ADDAPI uint64_t NERVA_UnsignedTransaction_txCount(void* unsignedTx_ptr);
 //     virtual bool sign(const std::string &signedFileName) = 0;
 extern ADDAPI bool NERVA_UnsignedTransaction_sign(void* unsignedTx_ptr, const char* signedFileName);
-extern ADDAPI const char* NERVA_UnsignedTransaction_signUR(void* unsignedTx_ptr, int max_fragment_length);
 // };
 // struct TransactionInfo
 // {
@@ -167,7 +161,6 @@ extern ADDAPI bool NERVA_TransactionInfo_isPending(void* txInfo_ptr);
 //     virtual bool isFailed() const = 0;
 extern ADDAPI bool NERVA_TransactionInfo_isFailed(void* txInfo_ptr);
 //     virtual bool isCoinbase() const = 0;
-extern ADDAPI bool NERVA_TransactionInfo_isCoinbase(void* txInfo_ptr);
 //     virtual uint64_t amount() const = 0;
 extern ADDAPI uint64_t NERVA_TransactionInfo_amount(void* txInfo_ptr);
 //     virtual uint64_t fee() const = 0;
@@ -175,7 +168,6 @@ extern ADDAPI uint64_t NERVA_TransactionInfo_fee(void* txInfo_ptr);
 //     virtual uint64_t blockHeight() const = 0;
 extern ADDAPI uint64_t NERVA_TransactionInfo_blockHeight(void* txInfo_ptr);
 //     virtual std::string description() const = 0;
-extern ADDAPI const char* NERVA_TransactionInfo_description(void* txInfo_ptr);
 //     virtual std::set<uint32_t> subaddrIndex() const = 0;
 extern ADDAPI const char* NERVA_TransactionInfo_subaddrIndex(void* txInfo_ptr, const char* separator);
 //     virtual uint32_t subaddrAccount() const = 0;
@@ -210,7 +202,6 @@ extern ADDAPI void* NERVA_TransactionHistory_transactionById(void* txHistory_ptr
 //     virtual void refresh() = 0;
 extern ADDAPI void NERVA_TransactionHistory_refresh(void* txHistory_ptr);
 //     virtual void setTxNote(const std::string &txid, const std::string &note) = 0;
-extern ADDAPI void NERVA_TransactionHistory_setTxNote(void* txHistory_ptr, const char* txid, const char* note);
 // };
 // struct AddressBookRow {
 // public:
@@ -227,15 +218,10 @@ extern ADDAPI void NERVA_TransactionHistory_setTxNote(void* txHistory_ptr, const
 //     std::string m_description;
 // public:
 //     std::string extra;
-extern ADDAPI const char* NERVA_AddressBookRow_extra(void* addressBookRow_ptr);
 //     std::string getAddress() const {return m_address;}
-extern ADDAPI const char* NERVA_AddressBookRow_getAddress(void* addressBookRow_ptr);
 //     std::string getDescription() const {return m_description;}
-extern ADDAPI const char* NERVA_AddressBookRow_getDescription(void* addressBookRow_ptr);
 //     std::string getPaymentId() const {return m_paymentId;}
-extern ADDAPI const char* NERVA_AddressBookRow_getPaymentId(void* addressBookRow_ptr);
 //     std::size_t getRowId() const {return m_rowId;}
-extern ADDAPI size_t NERVA_AddressBookRow_getRowId(void* addressBookRow_ptr);
 // };
 // struct AddressBook
 // {
@@ -251,93 +237,52 @@ extern ADDAPI const int NERVA_AddressBookErrorCodeInvalidPaymentId;
 //     };
 //     virtual ~AddressBook() = 0;
 //     virtual std::vector<AddressBookRow*> getAll() const = 0;
-extern ADDAPI int NERVA_AddressBook_getAll_size(void* addressBook_ptr);
-extern ADDAPI void* NERVA_AddressBook_getAll_byIndex(void* addressBook_ptr, int index);
 //     virtual bool addRow(const std::string &dst_addr , const std::string &payment_id, const std::string &description) = 0;
-extern ADDAPI bool NERVA_AddressBook_addRow(void* addressBook_ptr, const char* dst_addr , const char* payment_id, const char* description);
 //     virtual bool deleteRow(std::size_t rowId) = 0;
-extern ADDAPI bool NERVA_AddressBook_deleteRow(void* addressBook_ptr, size_t rowId);
 //     virtual bool setDescription(std::size_t index, const std::string &description) = 0;
-extern ADDAPI bool NERVA_AddressBook_setDescription(void* addressBook_ptr, size_t rowId, const char* description);
 //     virtual void refresh() = 0;
-extern ADDAPI void NERVA_AddressBook_refresh(void* addressBook_ptr);
 //     virtual std::string errorString() const = 0;
-extern ADDAPI const char* NERVA_AddressBook_errorString(void* addressBook_ptr);
 //     virtual int errorCode() const = 0;
-extern ADDAPI int NERVA_AddressBook_errorCode(void* addressBook_ptr);
 //     virtual int lookupPaymentID(const std::string &payment_id) const = 0;
-extern ADDAPI int NERVA_AddressBook_lookupPaymentID(void* addressBook_ptr, const char* payment_id);
 // };
 // struct CoinsInfo
 // {
 //     virtual ~CoinsInfo() = 0;
 //     virtual uint64_t blockHeight() const = 0;
-extern ADDAPI uint64_t NERVA_CoinsInfo_blockHeight(void* coinsInfo_ptr);
 //     virtual std::string hash() const = 0;
-extern ADDAPI const char* NERVA_CoinsInfo_hash(void* coinsInfo_ptr);
 //     virtual size_t internalOutputIndex() const = 0;
-extern ADDAPI size_t NERVA_CoinsInfo_internalOutputIndex(void* coinsInfo_ptr);
 //     virtual uint64_t globalOutputIndex() const = 0;
-extern ADDAPI uint64_t NERVA_CoinsInfo_globalOutputIndex(void* coinsInfo_ptr);
 //     virtual bool spent() const = 0;
-extern ADDAPI bool NERVA_CoinsInfo_spent(void* coinsInfo_ptr);
 //     virtual bool frozen() const = 0;
-extern ADDAPI bool NERVA_CoinsInfo_frozen(void* coinsInfo_ptr);
 //     virtual uint64_t spentHeight() const = 0;
-extern ADDAPI uint64_t NERVA_CoinsInfo_spentHeight(void* coinsInfo_ptr);
 //     virtual uint64_t amount() const = 0;
-extern ADDAPI uint64_t NERVA_CoinsInfo_amount(void* coinsInfo_ptr);
 //     virtual bool rct() const = 0;
-extern ADDAPI bool NERVA_CoinsInfo_rct(void* coinsInfo_ptr);
 //     virtual bool keyImageKnown() const = 0;
-extern ADDAPI bool NERVA_CoinsInfo_keyImageKnown(void* coinsInfo_ptr);
 //     virtual size_t pkIndex() const = 0;
-extern ADDAPI size_t NERVA_CoinsInfo_pkIndex(void* coinsInfo_ptr);
 //     virtual uint32_t subaddrIndex() const = 0;
-extern ADDAPI uint32_t NERVA_CoinsInfo_subaddrIndex(void* coinsInfo_ptr);
 //     virtual uint32_t subaddrAccount() const = 0;
-extern ADDAPI uint32_t NERVA_CoinsInfo_subaddrAccount(void* coinsInfo_ptr);
 //     virtual std::string address() const = 0;
-extern ADDAPI const char* NERVA_CoinsInfo_address(void* coinsInfo_ptr);
 //     virtual std::string addressLabel() const = 0;
-extern ADDAPI const char* NERVA_CoinsInfo_addressLabel(void* coinsInfo_ptr);
 //     virtual std::string keyImage() const = 0;
-extern ADDAPI const char* NERVA_CoinsInfo_keyImage(void* coinsInfo_ptr);
 //     virtual uint64_t unlockTime() const = 0;
-extern ADDAPI uint64_t NERVA_CoinsInfo_unlockTime(void* coinsInfo_ptr);
 //     virtual bool unlocked() const = 0;
-extern ADDAPI bool NERVA_CoinsInfo_unlocked(void* coinsInfo_ptr);
 //     virtual std::string pubKey() const = 0;
-extern ADDAPI const char* NERVA_CoinsInfo_pubKey(void* coinsInfo_ptr);
 //     virtual bool coinbase() const = 0;
-extern ADDAPI bool NERVA_CoinsInfo_coinbase(void* coinsInfo_ptr);
 //     virtual std::string description() const = 0;
-extern ADDAPI const char* NERVA_CoinsInfo_description(void* coinsInfo_ptr);
 // };
 // struct Coins
 // {
 //     virtual ~Coins() = 0;
 //     virtual int count() const = 0;
-extern ADDAPI int NERVA_Coins_count(void* coins_ptr);
 //     virtual CoinsInfo * coin(int index)  const = 0;
-extern ADDAPI void* NERVA_Coins_coin(void* coins_ptr, int index);
 //     virtual std::vector<CoinsInfo*> getAll() const = 0;
-extern ADDAPI int NERVA_Coins_getAll_size(void* coins_ptr);
-extern ADDAPI void* NERVA_Coins_getAll_byIndex(void* coins_ptr, int index);
 //     virtual void refresh() = 0;
-extern ADDAPI void NERVA_Coins_refresh(void* coins_ptr);
 //     virtual void setFrozen(std::string public_key) = 0;
-extern ADDAPI void NERVA_Coins_setFrozenByPublicKey(void* coins_ptr, const char* public_key);
 //     virtual void setFrozen(int index) = 0;
-extern ADDAPI void NERVA_Coins_setFrozen(void* coins_ptr, int index);
 //     virtual void thaw(int index) = 0;
-extern ADDAPI void NERVA_Coins_thaw(void* coins_ptr, int index);
 //     virtual void thaw(std::string public_key) = 0;
-extern ADDAPI void NERVA_Coins_thawByPublicKey(void* coins_ptr, const char* public_key);
 //     virtual bool isTransferUnlocked(uint64_t unlockTime, uint64_t blockHeight) = 0;
-extern ADDAPI bool NERVA_Coins_isTransferUnlocked(void* coins_ptr, uint64_t unlockTime, uint64_t blockHeight);
 //    virtual void setDescription(const std::string &public_key, const std::string &description) = 0;
-extern ADDAPI void NERVA_Coins_setDescription(void* coins_ptr, const char* public_key, const char* description);
 // };
 // struct SubaddressRow {
 // public:
@@ -505,7 +450,7 @@ extern ADDAPI const int NERVA_WalletBackgroundSync_CustomPassword;
 //    };
 //     virtual ~Wallet() = 0;
 //     virtual std::string seed(const std::string& seed_offset = "") const = 0;
-extern ADDAPI const char* NERVA_Wallet_seed(void* wallet_ptr, const char* seed_offset);
+extern ADDAPI const char* NERVA_Wallet_seed(void* wallet_ptr);
 //     virtual std::string getSeedLanguage() const = 0;
 extern ADDAPI const char* NERVA_Wallet_getSeedLanguage(void* wallet_ptr);
 //     virtual void setSeedLanguage(const std::string &arg) = 0;
@@ -518,7 +463,6 @@ extern ADDAPI const char* NERVA_Wallet_errorString(void* wallet_ptr);
 //     virtual bool setPassword(const std::string &password) = 0;
 extern ADDAPI bool NERVA_Wallet_setPassword(void* wallet_ptr, const char* password);
 //     virtual const std::string& getPassword() const = 0;
-extern ADDAPI const char* NERVA_Wallet_getPassword(void* wallet_ptr);
 //     virtual bool setDevicePin(const std::string &pin) { (void)pin; return false; };
 extern ADDAPI bool NERVA_Wallet_setDevicePin(void* wallet_ptr, const char* pin);
 //     virtual bool setDevicePassphrase(const std::string &passphrase) { (void)passphrase; return false; };
@@ -549,7 +493,6 @@ extern ADDAPI const char* NERVA_Wallet_publicSpendKey(void* wallet_ptr);
 //     virtual std::string publicMultisigSignerKey() const = 0;
 extern ADDAPI const char* NERVA_Wallet_publicMultisigSignerKey(void* wallet_ptr);
 //     virtual void stop() = 0;
-extern ADDAPI void NERVA_Wallet_stop(void* wallet_ptr);
 //     virtual bool store(const std::string &path) = 0;
 extern ADDAPI bool NERVA_Wallet_store(void* wallet_ptr, const char* path);
 //     virtual std::string filename() const = 0;
@@ -557,7 +500,7 @@ extern ADDAPI const char* NERVA_Wallet_filename(void* wallet_ptr);
 //     virtual std::string keysFilename() const = 0;
 extern ADDAPI const char* NERVA_Wallet_keysFilename(void* wallet_ptr);
 //     virtual bool init(const std::string &daemon_address, uint64_t upper_transaction_size_limit = 0, const std::string &daemon_username = "", const std::string &daemon_password = "", bool use_ssl = false, bool lightWallet = false, const std::string &proxy_address = "") = 0;
-extern ADDAPI bool NERVA_Wallet_init(void* wallet_ptr, const char* daemon_address, uint64_t upper_transaction_size_limit, const char* daemon_username, const char* daemon_password, bool use_ssl, bool lightWallet, const char* proxy_address);
+extern ADDAPI bool NERVA_Wallet_init(void* wallet_ptr, const char* daemon_address, uint64_t upper_transaction_size_limit, const char* daemon_username, const char* daemon_password, bool use_ssl, bool lightWallet);
 //     virtual bool createWatchOnly(const std::string &path, const std::string &password, const std::string &language) const = 0;
 extern ADDAPI bool NERVA_Wallet_createWatchOnly(void* wallet_ptr, const char* path, const char* password, const char* language);
 //     virtual void setRefreshFromBlockHeight(uint64_t refresh_from_block_height) = 0;
@@ -579,7 +522,6 @@ extern ADDAPI void NERVA_Wallet_setTrustedDaemon(void* wallet_ptr, bool arg);
 //     virtual bool trustedDaemon() const = 0;
 extern ADDAPI bool NERVA_Wallet_trustedDaemon(void* wallet_ptr);
 //     virtual bool setProxy(const std::string &address) = 0;
-extern ADDAPI bool NERVA_Wallet_setProxy(void* wallet_ptr, const char* address);
 //     virtual uint64_t balance(uint32_t accountIndex = 0) const = 0;
 extern ADDAPI uint64_t NERVA_Wallet_balance(void* wallet_ptr, uint32_t accountIndex);
 //     uint64_t balanceAll() const {
@@ -598,10 +540,8 @@ extern ADDAPI uint64_t NERVA_Wallet_unlockedBalance(void* wallet_ptr, uint32_t a
 //     }
 //     virtual bool watchOnly() const = 0;
 //    virtual uint64_t viewOnlyBalance(uint32_t accountIndex, const std::vector<std::string> &key_images = {}) const = 0;
-extern ADDAPI uint64_t NERVA_Wallet_viewOnlyBalance(void* wallet_ptr, uint32_t accountIndex);
 extern ADDAPI bool NERVA_Wallet_watchOnly(void* wallet_ptr);
 //     virtual bool isDeterministic() const = 0;
-extern ADDAPI bool NERVA_Wallet_isDeterministic(void* wallet_ptr);
 //     virtual uint64_t blockChainHeight() const = 0;
 extern ADDAPI uint64_t NERVA_Wallet_blockChainHeight(void* wallet_ptr);
 //     virtual uint64_t approximateBlockChainHeight() const = 0;
@@ -654,9 +594,7 @@ extern ADDAPI void NERVA_Wallet_init3(void* wallet_ptr, const char* argv0, const
 //     static void error(const std::string &category, const std::string &str);
 //     virtual void startRefresh() = 0;
 //     virtual bool getPolyseed(std::string &seed, std::string &passphrase) const = 0;
-extern ADDAPI const char* NERVA_Wallet_getPolyseed(void* wallet_ptr, const char* passphrase);
 //     static bool createPolyseed(std::string &seed_words, std::string &err, const std::string &language = "English");
-extern ADDAPI const char* NERVA_Wallet_createPolyseed(const char* language);
 extern ADDAPI void NERVA_Wallet_startRefresh(void* wallet_ptr);
 //     virtual void pauseRefresh() = 0;
 extern ADDAPI void NERVA_Wallet_pauseRefresh(void* wallet_ptr);
@@ -691,7 +629,7 @@ extern ADDAPI const char* NERVA_Wallet_getMultisigInfo(void* wallet_ptr);
 //     virtual std::string makeMultisig(const std::vector<std::string>& info, uint32_t threshold) = 0;
 extern ADDAPI const char* NERVA_Wallet_makeMultisig(void* wallet_ptr, const char* info, const char* info_separator, uint32_t threshold);
 //     virtual std::string exchangeMultisigKeys(const std::vector<std::string> &info, const bool force_update_use_with_caution) = 0;
-extern ADDAPI const char* NERVA_Wallet_exchangeMultisigKeys(void* wallet_ptr, const char* info, const char* info_separator, bool force_update_use_with_caution);
+extern ADDAPI const char* NERVA_Wallet_exchangeMultisigKeys(void* wallet_ptr, const char* info, const char* info_separator);
 //     virtual bool exportMultisigImages(std::string& images) = 0;
 extern ADDAPI const char* NERVA_Wallet_exportMultisigImages(void* wallet_ptr, const char* separator);
 //     virtual size_t importMultisigImages(const std::vector<std::string>& images) = 0;
@@ -724,56 +662,36 @@ extern ADDAPI void* NERVA_Wallet_createTransaction(void* wallet_ptr, const char*
 //     virtual PendingTransaction * createSweepUnmixableTransaction() = 0;
 //     virtual UnsignedTransaction * loadUnsignedTx(const std::string &unsigned_filename) = 0;
 extern ADDAPI void* NERVA_Wallet_loadUnsignedTx(void* wallet_ptr, const char* unsigned_filename);
-extern ADDAPI void* NERVA_Wallet_loadUnsignedTxUR(void* wallet_ptr, const char* input);
 //     virtual bool submitTransaction(const std::string &fileName) = 0;
 extern ADDAPI bool NERVA_Wallet_submitTransaction(void* wallet_ptr, const char* fileName);
-extern ADDAPI bool NERVA_Wallet_submitTransactionUR(void* wallet_ptr, const char* input);
-extern ADDAPI bool NERVA_Wallet_submitTransactionHex(void* wallet_ptr, const char* hex);
 //     virtual void disposeTransaction(PendingTransaction * t) = 0;
 //     virtual uint64_t estimateTransactionFee(const std::vector<std::pair<std::string, uint64_t>> &destinations,
 //                                             PendingTransaction::Priority priority) const = 0;
 //     virtual bool hasUnknownKeyImages() const = 0;
-extern ADDAPI bool NERVA_Wallet_hasUnknownKeyImages(void* wallet_ptr);
 //     virtual bool exportKeyImages(const std::string &filename, bool all = false) = 0;
-extern ADDAPI bool NERVA_Wallet_exportKeyImages(void* wallet_ptr, const char* filename, bool all);
-extern ADDAPI const char* NERVA_Wallet_exportKeyImagesUR(void* wallet_ptr, size_t max_fragment_length, bool all) ;
+extern ADDAPI bool NERVA_Wallet_exportKeyImages(void* wallet_ptr, const char* filename);
 //     virtual bool importKeyImages(const std::string &filename) = 0;
 extern ADDAPI bool NERVA_Wallet_importKeyImages(void* wallet_ptr, const char* filename);
-extern ADDAPI bool NERVA_Wallet_importKeyImagesUR(void* wallet_ptr, const char* input);
 //     virtual bool exportOutputs(const std::string &filename, bool all = false) = 0;
-extern ADDAPI bool NERVA_Wallet_exportOutputs(void* wallet_ptr, const char* filename, bool all);
-extern ADDAPI const char* NERVA_Wallet_exportOutputsUR(void* wallet_ptr, size_t max_fragment_length, bool all);
 //     virtual bool importOutputs(const std::string &filename) = 0;
-extern ADDAPI bool NERVA_Wallet_importOutputs(void* wallet_ptr, const char* filename);
-extern ADDAPI bool NERVA_Wallet_importOutputsUR(void* wallet_ptr, const char* input);
 //     virtual bool scanTransactions(const std::vector<std::string> &txids) = 0;
 //     virtual bool setupBackgroundSync(const BackgroundSyncType background_sync_type, const std::string &wallet_password, const optional<std::string> &background_cache_password) = 0;
-extern ADDAPI bool NERVA_Wallet_setupBackgroundSync(void* wallet_ptr, int background_sync_type, const char* wallet_password, const char* background_cache_password);
 //     virtual BackgroundSyncType getBackgroundSyncType() const = 0;
-extern ADDAPI int NERVA_Wallet_getBackgroundSyncType(void* wallet_ptr);
 //     virtual bool startBackgroundSync() = 0;
-extern ADDAPI bool NERVA_Wallet_startBackgroundSync(void* wallet_ptr);
 //     virtual bool stopBackgroundSync(const std::string &wallet_password) = 0;
-extern ADDAPI bool NERVA_Wallet_stopBackgroundSync(void* wallet_ptr, const char* wallet_password);
 //     virtual bool isBackgroundSyncing() const = 0;
-extern ADDAPI bool NERVA_Wallet_isBackgroundSyncing(void* wallet_ptr);
 //     virtual bool isBackgroundWallet() const = 0;
-extern ADDAPI bool NERVA_Wallet_isBackgroundWallet(void* wallet_ptr);
 //     virtual TransactionHistory * history() = 0;
 extern ADDAPI void* NERVA_Wallet_history(void* wallet_ptr);
 //     virtual AddressBook * addressBook() = 0;
-extern ADDAPI void* NERVA_Wallet_addressBook(void* wallet_ptr);
 //     virtual Coins * coins() = 0;
-extern ADDAPI void* NERVA_Wallet_coins(void* wallet_ptr);
 //     virtual Subaddress * subaddress() = 0;
 extern ADDAPI void* NERVA_Wallet_subaddress(void* wallet_ptr);
 //     virtual SubaddressAccount * subaddressAccount() = 0;
 extern ADDAPI void* NERVA_Wallet_subaddressAccount(void* wallet_ptr);
 //     virtual void setListener(WalletListener *) = 0;
 //     virtual uint32_t defaultMixin() const = 0;
-extern ADDAPI uint32_t NERVA_Wallet_defaultMixin(void* wallet_ptr);
 //     virtual void setDefaultMixin(uint32_t arg) = 0;
-extern ADDAPI void NERVA_Wallet_setDefaultMixin(void* wallet_ptr, uint32_t arg);
 //     virtual bool setCacheAttribute(const std::string &key, const std::string &val) = 0;
 extern ADDAPI bool NERVA_Wallet_setCacheAttribute(void* wallet_ptr, const char* key, const char* val);
 //     virtual std::string getCacheAttribute(const std::string &key) const = 0;
@@ -792,7 +710,7 @@ extern ADDAPI const char* NERVA_Wallet_getTxKey(void* wallet_ptr, const char* tx
 //     virtual std::string getReserveProof(bool all, uint32_t account_index, uint64_t amount, const std::string &message) const = 0;
 //     virtual bool checkReserveProof(const std::string &address, const std::string &message, const std::string &signature, bool &good, uint64_t &total, uint64_t &spent) const = 0;
 //     virtual std::string signMessage(const std::string &message, const std::string &address = "") = 0;
-extern ADDAPI const char* NERVA_Wallet_signMessage(void* wallet_ptr, const char* message, const char* address);
+extern ADDAPI const char* NERVA_Wallet_signMessage(void* wallet_ptr, const char* message);
 //     virtual bool verifySignedMessage(const std::string &message, const std::string &addres, const std::string &signature) const = 0;
 extern ADDAPI bool NERVA_Wallet_verifySignedMessage(void* wallet_ptr, const char* message, const char* address, const char* signature);
 //     virtual std::string signMultisigParticipant(const std::string &message) const = 0;
@@ -803,9 +721,7 @@ extern ADDAPI bool NERVA_Wallet_verifySignedMessage(void* wallet_ptr, const char
 //     virtual bool rescanSpent() = 0;
 extern ADDAPI bool NERVA_Wallet_rescanSpent(void* wallet_ptr);
 //     virtual void setOffline(bool offline) = 0;
-extern ADDAPI void NERVA_Wallet_setOffline(void* wallet_ptr, bool offline);
 //     virtual bool isOffline() const = 0;
-extern ADDAPI bool NERVA_Wallet_isOffline(void* wallet_ptr);
 //     virtual bool blackballOutputs(const std::vector<std::string> &outputs, bool add) = 0;
 //     virtual bool blackballOutput(const std::string &amount, const std::string &offset) = 0;
 //     virtual bool unblackballOutput(const std::string &amount, const std::string &offset) = 0;
@@ -833,25 +749,9 @@ extern ADDAPI uint64_t NERVA_Wallet_coldKeyImageSync(void* wallet_ptr, uint64_t 
 //     virtual void deviceShowAddress(uint32_t accountIndex, uint32_t addressIndex, const std::string &paymentId) = 0;
 extern ADDAPI const char* NERVA_Wallet_deviceShowAddress(void* wallet_ptr, uint32_t accountIndex, uint32_t addressIndex);
 //     virtual bool reconnectDevice() = 0;
-extern ADDAPI bool NERVA_Wallet_reconnectDevice(void* wallet_ptr);
 //     virtual uint64_t getBytesReceived() = 0;
-extern ADDAPI uint64_t NERVA_Wallet_getBytesReceived(void* wallet_ptr);
 //     virtual uint64_t getBytesSent() = 0;
-extern ADDAPI uint64_t NERVA_Wallet_getBytesSent(void* wallet_ptr);
     // HIDAPI_DUMMY
-extern ADDAPI bool NERVA_Wallet_getStateIsConnected();
-extern ADDAPI unsigned char* NERVA_Wallet_getSendToDevice();
-extern ADDAPI size_t NERVA_Wallet_getSendToDeviceLength();
-extern ADDAPI unsigned char* NERVA_Wallet_getReceivedFromDevice();
-extern ADDAPI size_t NERVA_Wallet_getReceivedFromDeviceLength();
-extern ADDAPI bool NERVA_Wallet_getWaitsForDeviceSend();
-extern ADDAPI bool NERVA_Wallet_getWaitsForDeviceReceive();
-extern ADDAPI void NERVA_Wallet_setDeviceReceivedData(unsigned char* data, size_t len);
-extern ADDAPI void NERVA_Wallet_setDeviceSendData(unsigned char* data, size_t len);
-extern ADDAPI void NERVA_Wallet_setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
-extern ADDAPI const char* NERVA_Wallet_serializeCacheToJson(void* wallet_ptr);
-extern ADDAPI const char* NERVA_Wallet_exportTrezorTdis(void* wallet_ptr);
-extern ADDAPI bool NERVA_Wallet_importTrezorEncryptedKeyImagesJson(void* wallet_ptr, const char* json);
 
 // };
 
@@ -928,9 +828,6 @@ extern ADDAPI void* NERVA_WalletManager_createWalletFromKeys(void* wm_ptr, const
 //                                                        uint64_t restoreHeight,
 //                                                        const std::string &spendKeyString,
 //                                                        uint64_t kdf_rounds = 1) = 0;
-extern ADDAPI void* NERVA_WalletManager_createDeterministicWalletFromSpendKey(void* wm_ptr, const char* path, const char* password,
-                                                const char* language, int nettype, uint64_t restoreHeight,
-                                                const char* spendKeyString, uint64_t kdf_rounds);
 //     virtual Wallet * createWalletFromDevice(const std::string &path,
 //                                             const std::string &password,
 //                                             NetworkType nettype,
@@ -948,9 +845,6 @@ extern ADDAPI void* NERVA_WalletManager_createWalletFromDevice(void* wm_ptr, con
 //                                               bool newWallet = true,
 //                                               uint64_t restore_height = 0,
 //                                               uint64_t kdf_rounds = 1) = 0;
-extern ADDAPI void* NERVA_WalletManager_createWalletFromPolyseed(void* wm_ptr, const char* path, const char* password,
-                                                int nettype, const char* mnemonic, const char* passphrase,
-                                                bool newWallet, uint64_t restore_height, uint64_t kdf_rounds);
 //     virtual bool closeWallet(Wallet *wallet, bool store = true) = 0;
 extern ADDAPI bool NERVA_WalletManager_closeWallet(void* wm_ptr, void* wallet_ptr, bool store);
 //     virtual bool walletExists(const std::string &path) = 0;
@@ -990,7 +884,6 @@ extern ADDAPI const char* NERVA_WalletManager_resolveOpenAlias(void* wm_ptr, con
 //         const char *buildtag = nullptr,
 //         const char *current_version = nullptr);
 //     virtual bool setProxy(const std::string &address) = 0;
-extern ADDAPI bool NERVA_WalletManager_setProxy(void* wm_ptr, const char* address);
 // };
 
 extern ADDAPI const int NERVA_LogLevel_Silent;

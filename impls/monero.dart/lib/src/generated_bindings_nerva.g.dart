@@ -70,42 +70,6 @@ class NervaC {
       _NERVA_PendingTransaction_commitPtr.asFunction<
           bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>, bool)>();
 
-  ffi.Pointer<ffi.Char> NERVA_PendingTransaction_commitUR(
-    ffi.Pointer<ffi.Void> pendingTx_ptr,
-    int max_fragment_length,
-  ) {
-    return _NERVA_PendingTransaction_commitUR(
-      pendingTx_ptr,
-      max_fragment_length,
-    );
-  }
-
-  late final _NERVA_PendingTransaction_commitURPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>,
-              ffi.Int)>>('NERVA_PendingTransaction_commitUR');
-  late final _NERVA_PendingTransaction_commitUR =
-      _NERVA_PendingTransaction_commitURPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>, int)>();
-
-  ffi.Pointer<ffi.Char> NERVA_PendingTransaction_commitTrezor(
-    ffi.Pointer<ffi.Void> pendingTx_ptr,
-    int tx_index,
-  ) {
-    return _NERVA_PendingTransaction_commitTrezor(
-      pendingTx_ptr,
-      tx_index,
-    );
-  }
-
-  late final _NERVA_PendingTransaction_commitTrezorPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>,
-              ffi.Int)>>('NERVA_PendingTransaction_commitTrezor');
-  late final _NERVA_PendingTransaction_commitTrezor =
-      _NERVA_PendingTransaction_commitTrezorPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>, int)>();
-
   int NERVA_PendingTransaction_amount(
     ffi.Pointer<ffi.Void> pendingTx_ptr,
   ) {
@@ -273,25 +237,6 @@ class NervaC {
           ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
 
-  ffi.Pointer<ffi.Char> NERVA_PendingTransaction_hex(
-    ffi.Pointer<ffi.Void> pendingTx_ptr,
-    ffi.Pointer<ffi.Char> separator,
-  ) {
-    return _NERVA_PendingTransaction_hex(
-      pendingTx_ptr,
-      separator,
-    );
-  }
-
-  late final _NERVA_PendingTransaction_hexPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_PendingTransaction_hex');
-  late final _NERVA_PendingTransaction_hex =
-      _NERVA_PendingTransaction_hexPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
   int NERVA_UnsignedTransaction_status(
     ffi.Pointer<ffi.Void> unsignedTx_ptr,
   ) {
@@ -361,25 +306,6 @@ class NervaC {
           ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
 
-  ffi.Pointer<ffi.Char> NERVA_UnsignedTransaction_mixin(
-    ffi.Pointer<ffi.Void> unsignedTx_ptr,
-    ffi.Pointer<ffi.Char> separator,
-  ) {
-    return _NERVA_UnsignedTransaction_mixin(
-      unsignedTx_ptr,
-      separator,
-    );
-  }
-
-  late final _NERVA_UnsignedTransaction_mixinPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_UnsignedTransaction_mixin');
-  late final _NERVA_UnsignedTransaction_mixin =
-      _NERVA_UnsignedTransaction_mixinPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
   ffi.Pointer<ffi.Char> NERVA_UnsignedTransaction_confirmationMessage(
     ffi.Pointer<ffi.Void> unsignedTx_ptr,
   ) {
@@ -435,21 +361,6 @@ class NervaC {
           ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
 
-  int NERVA_UnsignedTransaction_minMixinCount(
-    ffi.Pointer<ffi.Void> unsignedTx_ptr,
-  ) {
-    return _NERVA_UnsignedTransaction_minMixinCount(
-      unsignedTx_ptr,
-    );
-  }
-
-  late final _NERVA_UnsignedTransaction_minMixinCountPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_UnsignedTransaction_minMixinCount');
-  late final _NERVA_UnsignedTransaction_minMixinCount =
-      _NERVA_UnsignedTransaction_minMixinCountPtr.asFunction<
-          int Function(ffi.Pointer<ffi.Void>)>();
-
   int NERVA_UnsignedTransaction_txCount(
     ffi.Pointer<ffi.Void> unsignedTx_ptr,
   ) {
@@ -482,24 +393,6 @@ class NervaC {
   late final _NERVA_UnsignedTransaction_sign =
       _NERVA_UnsignedTransaction_signPtr.asFunction<
           bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_UnsignedTransaction_signUR(
-    ffi.Pointer<ffi.Void> unsignedTx_ptr,
-    int max_fragment_length,
-  ) {
-    return _NERVA_UnsignedTransaction_signUR(
-      unsignedTx_ptr,
-      max_fragment_length,
-    );
-  }
-
-  late final _NERVA_UnsignedTransaction_signURPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>,
-              ffi.Int)>>('NERVA_UnsignedTransaction_signUR');
-  late final _NERVA_UnsignedTransaction_signUR =
-      _NERVA_UnsignedTransaction_signURPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>, int)>();
 
   int NERVA_TransactionInfo_direction(
     ffi.Pointer<ffi.Void> txInfo_ptr,
@@ -546,21 +439,6 @@ class NervaC {
       _NERVA_TransactionInfo_isFailedPtr.asFunction<
           bool Function(ffi.Pointer<ffi.Void>)>();
 
-  bool NERVA_TransactionInfo_isCoinbase(
-    ffi.Pointer<ffi.Void> txInfo_ptr,
-  ) {
-    return _NERVA_TransactionInfo_isCoinbase(
-      txInfo_ptr,
-    );
-  }
-
-  late final _NERVA_TransactionInfo_isCoinbasePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_TransactionInfo_isCoinbase');
-  late final _NERVA_TransactionInfo_isCoinbase =
-      _NERVA_TransactionInfo_isCoinbasePtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>)>();
-
   int NERVA_TransactionInfo_amount(
     ffi.Pointer<ffi.Void> txInfo_ptr,
   ) {
@@ -603,22 +481,6 @@ class NervaC {
   late final _NERVA_TransactionInfo_blockHeight =
       _NERVA_TransactionInfo_blockHeightPtr.asFunction<
           int Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_TransactionInfo_description(
-    ffi.Pointer<ffi.Void> txInfo_ptr,
-  ) {
-    return _NERVA_TransactionInfo_description(
-      txInfo_ptr,
-    );
-  }
-
-  late final _NERVA_TransactionInfo_descriptionPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_TransactionInfo_description');
-  late final _NERVA_TransactionInfo_description =
-      _NERVA_TransactionInfo_descriptionPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
 
   ffi.Pointer<ffi.Char> NERVA_TransactionInfo_subaddrIndex(
     ffi.Pointer<ffi.Void> txInfo_ptr,
@@ -863,750 +725,6 @@ class NervaC {
   late final _NERVA_TransactionHistory_refresh =
       _NERVA_TransactionHistory_refreshPtr.asFunction<
           void Function(ffi.Pointer<ffi.Void>)>();
-
-  void NERVA_TransactionHistory_setTxNote(
-    ffi.Pointer<ffi.Void> txHistory_ptr,
-    ffi.Pointer<ffi.Char> txid,
-    ffi.Pointer<ffi.Char> note,
-  ) {
-    return _NERVA_TransactionHistory_setTxNote(
-      txHistory_ptr,
-      txid,
-      note,
-    );
-  }
-
-  late final _NERVA_TransactionHistory_setTxNotePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_TransactionHistory_setTxNote');
-  late final _NERVA_TransactionHistory_setTxNote =
-      _NERVA_TransactionHistory_setTxNotePtr.asFunction<
-          void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_AddressBookRow_extra(
-    ffi.Pointer<ffi.Void> addressBookRow_ptr,
-  ) {
-    return _NERVA_AddressBookRow_extra(
-      addressBookRow_ptr,
-    );
-  }
-
-  late final _NERVA_AddressBookRow_extraPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_AddressBookRow_extra');
-  late final _NERVA_AddressBookRow_extra = _NERVA_AddressBookRow_extraPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_AddressBookRow_getAddress(
-    ffi.Pointer<ffi.Void> addressBookRow_ptr,
-  ) {
-    return _NERVA_AddressBookRow_getAddress(
-      addressBookRow_ptr,
-    );
-  }
-
-  late final _NERVA_AddressBookRow_getAddressPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_AddressBookRow_getAddress');
-  late final _NERVA_AddressBookRow_getAddress =
-      _NERVA_AddressBookRow_getAddressPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_AddressBookRow_getDescription(
-    ffi.Pointer<ffi.Void> addressBookRow_ptr,
-  ) {
-    return _NERVA_AddressBookRow_getDescription(
-      addressBookRow_ptr,
-    );
-  }
-
-  late final _NERVA_AddressBookRow_getDescriptionPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_AddressBookRow_getDescription');
-  late final _NERVA_AddressBookRow_getDescription =
-      _NERVA_AddressBookRow_getDescriptionPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_AddressBookRow_getPaymentId(
-    ffi.Pointer<ffi.Void> addressBookRow_ptr,
-  ) {
-    return _NERVA_AddressBookRow_getPaymentId(
-      addressBookRow_ptr,
-    );
-  }
-
-  late final _NERVA_AddressBookRow_getPaymentIdPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_AddressBookRow_getPaymentId');
-  late final _NERVA_AddressBookRow_getPaymentId =
-      _NERVA_AddressBookRow_getPaymentIdPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_AddressBookRow_getRowId(
-    ffi.Pointer<ffi.Void> addressBookRow_ptr,
-  ) {
-    return _NERVA_AddressBookRow_getRowId(
-      addressBookRow_ptr,
-    );
-  }
-
-  late final _NERVA_AddressBookRow_getRowIdPtr =
-      _lookup<ffi.NativeFunction<ffi.Size Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_AddressBookRow_getRowId');
-  late final _NERVA_AddressBookRow_getRowId = _NERVA_AddressBookRow_getRowIdPtr
-      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_AddressBook_getAll_size(
-    ffi.Pointer<ffi.Void> addressBook_ptr,
-  ) {
-    return _NERVA_AddressBook_getAll_size(
-      addressBook_ptr,
-    );
-  }
-
-  late final _NERVA_AddressBook_getAll_sizePtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_AddressBook_getAll_size');
-  late final _NERVA_AddressBook_getAll_size = _NERVA_AddressBook_getAll_sizePtr
-      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Void> NERVA_AddressBook_getAll_byIndex(
-    ffi.Pointer<ffi.Void> addressBook_ptr,
-    int index,
-  ) {
-    return _NERVA_AddressBook_getAll_byIndex(
-      addressBook_ptr,
-      index,
-    );
-  }
-
-  late final _NERVA_AddressBook_getAll_byIndexPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>,
-              ffi.Int)>>('NERVA_AddressBook_getAll_byIndex');
-  late final _NERVA_AddressBook_getAll_byIndex =
-      _NERVA_AddressBook_getAll_byIndexPtr.asFunction<
-          ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, int)>();
-
-  bool NERVA_AddressBook_addRow(
-    ffi.Pointer<ffi.Void> addressBook_ptr,
-    ffi.Pointer<ffi.Char> dst_addr,
-    ffi.Pointer<ffi.Char> payment_id,
-    ffi.Pointer<ffi.Char> description,
-  ) {
-    return _NERVA_AddressBook_addRow(
-      addressBook_ptr,
-      dst_addr,
-      payment_id,
-      description,
-    );
-  }
-
-  late final _NERVA_AddressBook_addRowPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_AddressBook_addRow');
-  late final _NERVA_AddressBook_addRow =
-      _NERVA_AddressBook_addRowPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
-
-  bool NERVA_AddressBook_deleteRow(
-    ffi.Pointer<ffi.Void> addressBook_ptr,
-    int rowId,
-  ) {
-    return _NERVA_AddressBook_deleteRow(
-      addressBook_ptr,
-      rowId,
-    );
-  }
-
-  late final _NERVA_AddressBook_deleteRowPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Size)>>(
-      'NERVA_AddressBook_deleteRow');
-  late final _NERVA_AddressBook_deleteRow = _NERVA_AddressBook_deleteRowPtr
-      .asFunction<bool Function(ffi.Pointer<ffi.Void>, int)>();
-
-  bool NERVA_AddressBook_setDescription(
-    ffi.Pointer<ffi.Void> addressBook_ptr,
-    int rowId,
-    ffi.Pointer<ffi.Char> description,
-  ) {
-    return _NERVA_AddressBook_setDescription(
-      addressBook_ptr,
-      rowId,
-      description,
-    );
-  }
-
-  late final _NERVA_AddressBook_setDescriptionPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Size,
-              ffi.Pointer<ffi.Char>)>>('NERVA_AddressBook_setDescription');
-  late final _NERVA_AddressBook_setDescription =
-      _NERVA_AddressBook_setDescriptionPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, int, ffi.Pointer<ffi.Char>)>();
-
-  void NERVA_AddressBook_refresh(
-    ffi.Pointer<ffi.Void> addressBook_ptr,
-  ) {
-    return _NERVA_AddressBook_refresh(
-      addressBook_ptr,
-    );
-  }
-
-  late final _NERVA_AddressBook_refreshPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_AddressBook_refresh');
-  late final _NERVA_AddressBook_refresh = _NERVA_AddressBook_refreshPtr
-      .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_AddressBook_errorString(
-    ffi.Pointer<ffi.Void> addressBook_ptr,
-  ) {
-    return _NERVA_AddressBook_errorString(
-      addressBook_ptr,
-    );
-  }
-
-  late final _NERVA_AddressBook_errorStringPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_AddressBook_errorString');
-  late final _NERVA_AddressBook_errorString = _NERVA_AddressBook_errorStringPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_AddressBook_errorCode(
-    ffi.Pointer<ffi.Void> addressBook_ptr,
-  ) {
-    return _NERVA_AddressBook_errorCode(
-      addressBook_ptr,
-    );
-  }
-
-  late final _NERVA_AddressBook_errorCodePtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_AddressBook_errorCode');
-  late final _NERVA_AddressBook_errorCode = _NERVA_AddressBook_errorCodePtr
-      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_AddressBook_lookupPaymentID(
-    ffi.Pointer<ffi.Void> addressBook_ptr,
-    ffi.Pointer<ffi.Char> payment_id,
-  ) {
-    return _NERVA_AddressBook_lookupPaymentID(
-      addressBook_ptr,
-      payment_id,
-    );
-  }
-
-  late final _NERVA_AddressBook_lookupPaymentIDPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_AddressBook_lookupPaymentID');
-  late final _NERVA_AddressBook_lookupPaymentID =
-      _NERVA_AddressBook_lookupPaymentIDPtr.asFunction<
-          int Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
-  int NERVA_CoinsInfo_blockHeight(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_blockHeight(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_blockHeightPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_blockHeight');
-  late final _NERVA_CoinsInfo_blockHeight = _NERVA_CoinsInfo_blockHeightPtr
-      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_CoinsInfo_hash(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_hash(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_hashPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_CoinsInfo_hash');
-  late final _NERVA_CoinsInfo_hash = _NERVA_CoinsInfo_hashPtr.asFunction<
-      ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_CoinsInfo_internalOutputIndex(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_internalOutputIndex(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_internalOutputIndexPtr =
-      _lookup<ffi.NativeFunction<ffi.Size Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_internalOutputIndex');
-  late final _NERVA_CoinsInfo_internalOutputIndex =
-      _NERVA_CoinsInfo_internalOutputIndexPtr.asFunction<
-          int Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_CoinsInfo_globalOutputIndex(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_globalOutputIndex(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_globalOutputIndexPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_globalOutputIndex');
-  late final _NERVA_CoinsInfo_globalOutputIndex =
-      _NERVA_CoinsInfo_globalOutputIndexPtr.asFunction<
-          int Function(ffi.Pointer<ffi.Void>)>();
-
-  bool NERVA_CoinsInfo_spent(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_spent(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_spentPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_spent');
-  late final _NERVA_CoinsInfo_spent = _NERVA_CoinsInfo_spentPtr.asFunction<
-      bool Function(ffi.Pointer<ffi.Void>)>();
-
-  bool NERVA_CoinsInfo_frozen(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_frozen(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_frozenPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_frozen');
-  late final _NERVA_CoinsInfo_frozen = _NERVA_CoinsInfo_frozenPtr.asFunction<
-      bool Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_CoinsInfo_spentHeight(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_spentHeight(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_spentHeightPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_spentHeight');
-  late final _NERVA_CoinsInfo_spentHeight = _NERVA_CoinsInfo_spentHeightPtr
-      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_CoinsInfo_amount(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_amount(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_amountPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_amount');
-  late final _NERVA_CoinsInfo_amount = _NERVA_CoinsInfo_amountPtr.asFunction<
-      int Function(ffi.Pointer<ffi.Void>)>();
-
-  bool NERVA_CoinsInfo_rct(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_rct(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_rctPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_rct');
-  late final _NERVA_CoinsInfo_rct = _NERVA_CoinsInfo_rctPtr.asFunction<
-      bool Function(ffi.Pointer<ffi.Void>)>();
-
-  bool NERVA_CoinsInfo_keyImageKnown(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_keyImageKnown(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_keyImageKnownPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_keyImageKnown');
-  late final _NERVA_CoinsInfo_keyImageKnown = _NERVA_CoinsInfo_keyImageKnownPtr
-      .asFunction<bool Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_CoinsInfo_pkIndex(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_pkIndex(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_pkIndexPtr =
-      _lookup<ffi.NativeFunction<ffi.Size Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_pkIndex');
-  late final _NERVA_CoinsInfo_pkIndex = _NERVA_CoinsInfo_pkIndexPtr.asFunction<
-      int Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_CoinsInfo_subaddrIndex(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_subaddrIndex(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_subaddrIndexPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint32 Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_subaddrIndex');
-  late final _NERVA_CoinsInfo_subaddrIndex = _NERVA_CoinsInfo_subaddrIndexPtr
-      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_CoinsInfo_subaddrAccount(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_subaddrAccount(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_subaddrAccountPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint32 Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_subaddrAccount');
-  late final _NERVA_CoinsInfo_subaddrAccount =
-      _NERVA_CoinsInfo_subaddrAccountPtr.asFunction<
-          int Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_CoinsInfo_address(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_address(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_addressPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_CoinsInfo_address');
-  late final _NERVA_CoinsInfo_address = _NERVA_CoinsInfo_addressPtr.asFunction<
-      ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_CoinsInfo_addressLabel(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_addressLabel(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_addressLabelPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_CoinsInfo_addressLabel');
-  late final _NERVA_CoinsInfo_addressLabel = _NERVA_CoinsInfo_addressLabelPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_CoinsInfo_keyImage(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_keyImage(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_keyImagePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_CoinsInfo_keyImage');
-  late final _NERVA_CoinsInfo_keyImage = _NERVA_CoinsInfo_keyImagePtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_CoinsInfo_unlockTime(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_unlockTime(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_unlockTimePtr =
-      _lookup<ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_unlockTime');
-  late final _NERVA_CoinsInfo_unlockTime = _NERVA_CoinsInfo_unlockTimePtr
-      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
-
-  bool NERVA_CoinsInfo_unlocked(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_unlocked(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_unlockedPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_unlocked');
-  late final _NERVA_CoinsInfo_unlocked = _NERVA_CoinsInfo_unlockedPtr
-      .asFunction<bool Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_CoinsInfo_pubKey(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_pubKey(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_pubKeyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_CoinsInfo_pubKey');
-  late final _NERVA_CoinsInfo_pubKey = _NERVA_CoinsInfo_pubKeyPtr.asFunction<
-      ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  bool NERVA_CoinsInfo_coinbase(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_coinbase(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_coinbasePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_CoinsInfo_coinbase');
-  late final _NERVA_CoinsInfo_coinbase = _NERVA_CoinsInfo_coinbasePtr
-      .asFunction<bool Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_CoinsInfo_description(
-    ffi.Pointer<ffi.Void> coinsInfo_ptr,
-  ) {
-    return _NERVA_CoinsInfo_description(
-      coinsInfo_ptr,
-    );
-  }
-
-  late final _NERVA_CoinsInfo_descriptionPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_CoinsInfo_description');
-  late final _NERVA_CoinsInfo_description = _NERVA_CoinsInfo_descriptionPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_Coins_count(
-    ffi.Pointer<ffi.Void> coins_ptr,
-  ) {
-    return _NERVA_Coins_count(
-      coins_ptr,
-    );
-  }
-
-  late final _NERVA_Coins_countPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Coins_count');
-  late final _NERVA_Coins_count =
-      _NERVA_Coins_countPtr.asFunction<int Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Void> NERVA_Coins_coin(
-    ffi.Pointer<ffi.Void> coins_ptr,
-    int index,
-  ) {
-    return _NERVA_Coins_coin(
-      coins_ptr,
-      index,
-    );
-  }
-
-  late final _NERVA_Coins_coinPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(
-              ffi.Pointer<ffi.Void>, ffi.Int)>>('NERVA_Coins_coin');
-  late final _NERVA_Coins_coin = _NERVA_Coins_coinPtr.asFunction<
-      ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, int)>();
-
-  int NERVA_Coins_getAll_size(
-    ffi.Pointer<ffi.Void> coins_ptr,
-  ) {
-    return _NERVA_Coins_getAll_size(
-      coins_ptr,
-    );
-  }
-
-  late final _NERVA_Coins_getAll_sizePtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Coins_getAll_size');
-  late final _NERVA_Coins_getAll_size = _NERVA_Coins_getAll_sizePtr.asFunction<
-      int Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Void> NERVA_Coins_getAll_byIndex(
-    ffi.Pointer<ffi.Void> coins_ptr,
-    int index,
-  ) {
-    return _NERVA_Coins_getAll_byIndex(
-      coins_ptr,
-      index,
-    );
-  }
-
-  late final _NERVA_Coins_getAll_byIndexPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(
-              ffi.Pointer<ffi.Void>, ffi.Int)>>('NERVA_Coins_getAll_byIndex');
-  late final _NERVA_Coins_getAll_byIndex = _NERVA_Coins_getAll_byIndexPtr
-      .asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>, int)>();
-
-  void NERVA_Coins_refresh(
-    ffi.Pointer<ffi.Void> coins_ptr,
-  ) {
-    return _NERVA_Coins_refresh(
-      coins_ptr,
-    );
-  }
-
-  late final _NERVA_Coins_refreshPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Coins_refresh');
-  late final _NERVA_Coins_refresh = _NERVA_Coins_refreshPtr.asFunction<
-      void Function(ffi.Pointer<ffi.Void>)>();
-
-  void NERVA_Coins_setFrozenByPublicKey(
-    ffi.Pointer<ffi.Void> coins_ptr,
-    ffi.Pointer<ffi.Char> public_key,
-  ) {
-    return _NERVA_Coins_setFrozenByPublicKey(
-      coins_ptr,
-      public_key,
-    );
-  }
-
-  late final _NERVA_Coins_setFrozenByPublicKeyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Coins_setFrozenByPublicKey');
-  late final _NERVA_Coins_setFrozenByPublicKey =
-      _NERVA_Coins_setFrozenByPublicKeyPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
-  void NERVA_Coins_setFrozen(
-    ffi.Pointer<ffi.Void> coins_ptr,
-    int index,
-  ) {
-    return _NERVA_Coins_setFrozen(
-      coins_ptr,
-      index,
-    );
-  }
-
-  late final _NERVA_Coins_setFrozenPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int)>>(
-      'NERVA_Coins_setFrozen');
-  late final _NERVA_Coins_setFrozen = _NERVA_Coins_setFrozenPtr.asFunction<
-      void Function(ffi.Pointer<ffi.Void>, int)>();
-
-  void NERVA_Coins_thaw(
-    ffi.Pointer<ffi.Void> coins_ptr,
-    int index,
-  ) {
-    return _NERVA_Coins_thaw(
-      coins_ptr,
-      index,
-    );
-  }
-
-  late final _NERVA_Coins_thawPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int)>>(
-      'NERVA_Coins_thaw');
-  late final _NERVA_Coins_thaw = _NERVA_Coins_thawPtr.asFunction<
-      void Function(ffi.Pointer<ffi.Void>, int)>();
-
-  void NERVA_Coins_thawByPublicKey(
-    ffi.Pointer<ffi.Void> coins_ptr,
-    ffi.Pointer<ffi.Char> public_key,
-  ) {
-    return _NERVA_Coins_thawByPublicKey(
-      coins_ptr,
-      public_key,
-    );
-  }
-
-  late final _NERVA_Coins_thawByPublicKeyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Coins_thawByPublicKey');
-  late final _NERVA_Coins_thawByPublicKey =
-      _NERVA_Coins_thawByPublicKeyPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
-  bool NERVA_Coins_isTransferUnlocked(
-    ffi.Pointer<ffi.Void> coins_ptr,
-    int unlockTime,
-    int blockHeight,
-  ) {
-    return _NERVA_Coins_isTransferUnlocked(
-      coins_ptr,
-      unlockTime,
-      blockHeight,
-    );
-  }
-
-  late final _NERVA_Coins_isTransferUnlockedPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Uint64,
-              ffi.Uint64)>>('NERVA_Coins_isTransferUnlocked');
-  late final _NERVA_Coins_isTransferUnlocked =
-      _NERVA_Coins_isTransferUnlockedPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, int, int)>();
-
-  void NERVA_Coins_setDescription(
-    ffi.Pointer<ffi.Void> coins_ptr,
-    ffi.Pointer<ffi.Char> public_key,
-    ffi.Pointer<ffi.Char> description,
-  ) {
-    return _NERVA_Coins_setDescription(
-      coins_ptr,
-      public_key,
-      description,
-    );
-  }
-
-  late final _NERVA_Coins_setDescriptionPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Coins_setDescription');
-  late final _NERVA_Coins_setDescription =
-      _NERVA_Coins_setDescriptionPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<ffi.Char> NERVA_SubaddressRow_extra(
     ffi.Pointer<ffi.Void> subaddressRow_ptr,
@@ -2028,21 +1146,18 @@ class NervaC {
 
   ffi.Pointer<ffi.Char> NERVA_Wallet_seed(
     ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.Char> seed_offset,
   ) {
     return _NERVA_Wallet_seed(
       wallet_ptr,
-      seed_offset,
     );
   }
 
   late final _NERVA_Wallet_seedPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_seed');
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<ffi.Void>)>>('NERVA_Wallet_seed');
   late final _NERVA_Wallet_seed = _NERVA_Wallet_seedPtr.asFunction<
-      ffi.Pointer<ffi.Char> Function(
-          ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
 
   ffi.Pointer<ffi.Char> NERVA_Wallet_getSeedLanguage(
     ffi.Pointer<ffi.Void> wallet_ptr,
@@ -2123,21 +1238,6 @@ class NervaC {
   late final _NERVA_Wallet_setPassword =
       _NERVA_Wallet_setPasswordPtr.asFunction<
           bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_Wallet_getPassword(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_getPassword(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_getPasswordPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_Wallet_getPassword');
-  late final _NERVA_Wallet_getPassword = _NERVA_Wallet_getPasswordPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
 
   bool NERVA_Wallet_setDevicePin(
     ffi.Pointer<ffi.Void> wallet_ptr,
@@ -2337,20 +1437,6 @@ class NervaC {
       _NERVA_Wallet_publicMultisigSignerKeyPtr.asFunction<
           ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
 
-  void NERVA_Wallet_stop(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_stop(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_stopPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Wallet_stop');
-  late final _NERVA_Wallet_stop =
-      _NERVA_Wallet_stopPtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
   bool NERVA_Wallet_store(
     ffi.Pointer<ffi.Void> wallet_ptr,
     ffi.Pointer<ffi.Char> path,
@@ -2406,7 +1492,6 @@ class NervaC {
     ffi.Pointer<ffi.Char> daemon_password,
     bool use_ssl,
     bool lightWallet,
-    ffi.Pointer<ffi.Char> proxy_address,
   ) {
     return _NERVA_Wallet_init(
       wallet_ptr,
@@ -2416,7 +1501,6 @@ class NervaC {
       daemon_password,
       use_ssl,
       lightWallet,
-      proxy_address,
     );
   }
 
@@ -2429,18 +1513,10 @@ class NervaC {
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Char>,
               ffi.Bool,
-              ffi.Bool,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_init');
+              ffi.Bool)>>('NERVA_Wallet_init');
   late final _NERVA_Wallet_init = _NERVA_Wallet_initPtr.asFunction<
-      bool Function(
-          ffi.Pointer<ffi.Void>,
-          ffi.Pointer<ffi.Char>,
-          int,
-          ffi.Pointer<ffi.Char>,
-          ffi.Pointer<ffi.Char>,
-          bool,
-          bool,
-          ffi.Pointer<ffi.Char>)>();
+      bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>, int,
+          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>, bool, bool)>();
 
   bool NERVA_Wallet_createWatchOnly(
     ffi.Pointer<ffi.Void> wallet_ptr,
@@ -2616,23 +1692,6 @@ class NervaC {
   late final _NERVA_Wallet_trustedDaemon = _NERVA_Wallet_trustedDaemonPtr
       .asFunction<bool Function(ffi.Pointer<ffi.Void>)>();
 
-  bool NERVA_Wallet_setProxy(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.Char> address,
-  ) {
-    return _NERVA_Wallet_setProxy(
-      wallet_ptr,
-      address,
-    );
-  }
-
-  late final _NERVA_Wallet_setProxyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_setProxy');
-  late final _NERVA_Wallet_setProxy = _NERVA_Wallet_setProxyPtr.asFunction<
-      bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
   int NERVA_Wallet_balance(
     ffi.Pointer<ffi.Void> wallet_ptr,
     int accountIndex,
@@ -2667,23 +1726,6 @@ class NervaC {
   late final _NERVA_Wallet_unlockedBalance = _NERVA_Wallet_unlockedBalancePtr
       .asFunction<int Function(ffi.Pointer<ffi.Void>, int)>();
 
-  int NERVA_Wallet_viewOnlyBalance(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    int accountIndex,
-  ) {
-    return _NERVA_Wallet_viewOnlyBalance(
-      wallet_ptr,
-      accountIndex,
-    );
-  }
-
-  late final _NERVA_Wallet_viewOnlyBalancePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Uint64 Function(ffi.Pointer<ffi.Void>,
-              ffi.Uint32)>>('NERVA_Wallet_viewOnlyBalance');
-  late final _NERVA_Wallet_viewOnlyBalance = _NERVA_Wallet_viewOnlyBalancePtr
-      .asFunction<int Function(ffi.Pointer<ffi.Void>, int)>();
-
   bool NERVA_Wallet_watchOnly(
     ffi.Pointer<ffi.Void> wallet_ptr,
   ) {
@@ -2697,20 +1739,6 @@ class NervaC {
           'NERVA_Wallet_watchOnly');
   late final _NERVA_Wallet_watchOnly = _NERVA_Wallet_watchOnlyPtr.asFunction<
       bool Function(ffi.Pointer<ffi.Void>)>();
-
-  bool NERVA_Wallet_isDeterministic(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_isDeterministic(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_isDeterministicPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Wallet_isDeterministic');
-  late final _NERVA_Wallet_isDeterministic = _NERVA_Wallet_isDeterministicPtr
-      .asFunction<bool Function(ffi.Pointer<ffi.Void>)>();
 
   int NERVA_Wallet_blockChainHeight(
     ffi.Pointer<ffi.Void> wallet_ptr,
@@ -2985,40 +2013,6 @@ class NervaC {
   late final _NERVA_Wallet_init3 = _NERVA_Wallet_init3Ptr.asFunction<
       void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>, bool)>();
-
-  ffi.Pointer<ffi.Char> NERVA_Wallet_getPolyseed(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.Char> passphrase,
-  ) {
-    return _NERVA_Wallet_getPolyseed(
-      wallet_ptr,
-      passphrase,
-    );
-  }
-
-  late final _NERVA_Wallet_getPolyseedPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_getPolyseed');
-  late final _NERVA_Wallet_getPolyseed =
-      _NERVA_Wallet_getPolyseedPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_Wallet_createPolyseed(
-    ffi.Pointer<ffi.Char> language,
-  ) {
-    return _NERVA_Wallet_createPolyseed(
-      language,
-    );
-  }
-
-  late final _NERVA_Wallet_createPolyseedPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_createPolyseed');
-  late final _NERVA_Wallet_createPolyseed = _NERVA_Wallet_createPolyseedPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Char>)>();
 
   void NERVA_Wallet_startRefresh(
     ffi.Pointer<ffi.Void> wallet_ptr,
@@ -3311,13 +2305,11 @@ class NervaC {
     ffi.Pointer<ffi.Void> wallet_ptr,
     ffi.Pointer<ffi.Char> info,
     ffi.Pointer<ffi.Char> info_separator,
-    bool force_update_use_with_caution,
   ) {
     return _NERVA_Wallet_exchangeMultisigKeys(
       wallet_ptr,
       info,
       info_separator,
-      force_update_use_with_caution,
     );
   }
 
@@ -3326,12 +2318,11 @@ class NervaC {
           ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<ffi.Void>,
               ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Bool)>>('NERVA_Wallet_exchangeMultisigKeys');
+              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_exchangeMultisigKeys');
   late final _NERVA_Wallet_exchangeMultisigKeys =
       _NERVA_Wallet_exchangeMultisigKeysPtr.asFunction<
           ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>, bool)>();
+              ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<ffi.Char> NERVA_Wallet_exportMultisigImages(
     ffi.Pointer<ffi.Void> wallet_ptr,
@@ -3538,25 +2529,6 @@ class NervaC {
           ffi.Pointer<ffi.Void> Function(
               ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
 
-  ffi.Pointer<ffi.Void> NERVA_Wallet_loadUnsignedTxUR(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.Char> input,
-  ) {
-    return _NERVA_Wallet_loadUnsignedTxUR(
-      wallet_ptr,
-      input,
-    );
-  }
-
-  late final _NERVA_Wallet_loadUnsignedTxURPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_loadUnsignedTxUR');
-  late final _NERVA_Wallet_loadUnsignedTxUR =
-      _NERVA_Wallet_loadUnsignedTxURPtr.asFunction<
-          ffi.Pointer<ffi.Void> Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
   bool NERVA_Wallet_submitTransaction(
     ffi.Pointer<ffi.Void> wallet_ptr,
     ffi.Pointer<ffi.Char> fileName,
@@ -3575,96 +2547,23 @@ class NervaC {
       _NERVA_Wallet_submitTransactionPtr.asFunction<
           bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
 
-  bool NERVA_Wallet_submitTransactionUR(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.Char> input,
-  ) {
-    return _NERVA_Wallet_submitTransactionUR(
-      wallet_ptr,
-      input,
-    );
-  }
-
-  late final _NERVA_Wallet_submitTransactionURPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_submitTransactionUR');
-  late final _NERVA_Wallet_submitTransactionUR =
-      _NERVA_Wallet_submitTransactionURPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
-  bool NERVA_Wallet_submitTransactionHex(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.Char> hex,
-  ) {
-    return _NERVA_Wallet_submitTransactionHex(
-      wallet_ptr,
-      hex,
-    );
-  }
-
-  late final _NERVA_Wallet_submitTransactionHexPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_submitTransactionHex');
-  late final _NERVA_Wallet_submitTransactionHex =
-      _NERVA_Wallet_submitTransactionHexPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
-  bool NERVA_Wallet_hasUnknownKeyImages(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_hasUnknownKeyImages(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_hasUnknownKeyImagesPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Wallet_hasUnknownKeyImages');
-  late final _NERVA_Wallet_hasUnknownKeyImages =
-      _NERVA_Wallet_hasUnknownKeyImagesPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>)>();
-
   bool NERVA_Wallet_exportKeyImages(
     ffi.Pointer<ffi.Void> wallet_ptr,
     ffi.Pointer<ffi.Char> filename,
-    bool all,
   ) {
     return _NERVA_Wallet_exportKeyImages(
       wallet_ptr,
       filename,
-      all,
     );
   }
 
   late final _NERVA_Wallet_exportKeyImagesPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
-              ffi.Bool)>>('NERVA_Wallet_exportKeyImages');
+          ffi.Bool Function(ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_exportKeyImages');
   late final _NERVA_Wallet_exportKeyImages =
       _NERVA_Wallet_exportKeyImagesPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>, bool)>();
-
-  ffi.Pointer<ffi.Char> NERVA_Wallet_exportKeyImagesUR(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    int max_fragment_length,
-    bool all,
-  ) {
-    return _NERVA_Wallet_exportKeyImagesUR(
-      wallet_ptr,
-      max_fragment_length,
-      all,
-    );
-  }
-
-  late final _NERVA_Wallet_exportKeyImagesURPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>, ffi.Size,
-              ffi.Bool)>>('NERVA_Wallet_exportKeyImagesUR');
-  late final _NERVA_Wallet_exportKeyImagesUR =
-      _NERVA_Wallet_exportKeyImagesURPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>, int, bool)>();
+          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
 
   bool NERVA_Wallet_importKeyImages(
     ffi.Pointer<ffi.Void> wallet_ptr,
@@ -3684,204 +2583,6 @@ class NervaC {
       _NERVA_Wallet_importKeyImagesPtr.asFunction<
           bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
 
-  bool NERVA_Wallet_importKeyImagesUR(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.Char> input,
-  ) {
-    return _NERVA_Wallet_importKeyImagesUR(
-      wallet_ptr,
-      input,
-    );
-  }
-
-  late final _NERVA_Wallet_importKeyImagesURPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_importKeyImagesUR');
-  late final _NERVA_Wallet_importKeyImagesUR =
-      _NERVA_Wallet_importKeyImagesURPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
-  bool NERVA_Wallet_exportOutputs(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.Char> filename,
-    bool all,
-  ) {
-    return _NERVA_Wallet_exportOutputs(
-      wallet_ptr,
-      filename,
-      all,
-    );
-  }
-
-  late final _NERVA_Wallet_exportOutputsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
-              ffi.Bool)>>('NERVA_Wallet_exportOutputs');
-  late final _NERVA_Wallet_exportOutputs =
-      _NERVA_Wallet_exportOutputsPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>, bool)>();
-
-  ffi.Pointer<ffi.Char> NERVA_Wallet_exportOutputsUR(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    int max_fragment_length,
-    bool all,
-  ) {
-    return _NERVA_Wallet_exportOutputsUR(
-      wallet_ptr,
-      max_fragment_length,
-      all,
-    );
-  }
-
-  late final _NERVA_Wallet_exportOutputsURPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>, ffi.Size,
-              ffi.Bool)>>('NERVA_Wallet_exportOutputsUR');
-  late final _NERVA_Wallet_exportOutputsUR =
-      _NERVA_Wallet_exportOutputsURPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>, int, bool)>();
-
-  bool NERVA_Wallet_importOutputs(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.Char> filename,
-  ) {
-    return _NERVA_Wallet_importOutputs(
-      wallet_ptr,
-      filename,
-    );
-  }
-
-  late final _NERVA_Wallet_importOutputsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_importOutputs');
-  late final _NERVA_Wallet_importOutputs =
-      _NERVA_Wallet_importOutputsPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
-  bool NERVA_Wallet_importOutputsUR(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.Char> input,
-  ) {
-    return _NERVA_Wallet_importOutputsUR(
-      wallet_ptr,
-      input,
-    );
-  }
-
-  late final _NERVA_Wallet_importOutputsURPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_importOutputsUR');
-  late final _NERVA_Wallet_importOutputsUR =
-      _NERVA_Wallet_importOutputsURPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
-  bool NERVA_Wallet_setupBackgroundSync(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    int background_sync_type,
-    ffi.Pointer<ffi.Char> wallet_password,
-    ffi.Pointer<ffi.Char> background_cache_password,
-  ) {
-    return _NERVA_Wallet_setupBackgroundSync(
-      wallet_ptr,
-      background_sync_type,
-      wallet_password,
-      background_cache_password,
-    );
-  }
-
-  late final _NERVA_Wallet_setupBackgroundSyncPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Int,
-              ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_setupBackgroundSync');
-  late final _NERVA_Wallet_setupBackgroundSync =
-      _NERVA_Wallet_setupBackgroundSyncPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, int, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>();
-
-  int NERVA_Wallet_getBackgroundSyncType(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_getBackgroundSyncType(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_getBackgroundSyncTypePtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Wallet_getBackgroundSyncType');
-  late final _NERVA_Wallet_getBackgroundSyncType =
-      _NERVA_Wallet_getBackgroundSyncTypePtr.asFunction<
-          int Function(ffi.Pointer<ffi.Void>)>();
-
-  bool NERVA_Wallet_startBackgroundSync(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_startBackgroundSync(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_startBackgroundSyncPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Wallet_startBackgroundSync');
-  late final _NERVA_Wallet_startBackgroundSync =
-      _NERVA_Wallet_startBackgroundSyncPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>)>();
-
-  bool NERVA_Wallet_stopBackgroundSync(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.Char> wallet_password,
-  ) {
-    return _NERVA_Wallet_stopBackgroundSync(
-      wallet_ptr,
-      wallet_password,
-    );
-  }
-
-  late final _NERVA_Wallet_stopBackgroundSyncPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_stopBackgroundSync');
-  late final _NERVA_Wallet_stopBackgroundSync =
-      _NERVA_Wallet_stopBackgroundSyncPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
-
-  bool NERVA_Wallet_isBackgroundSyncing(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_isBackgroundSyncing(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_isBackgroundSyncingPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Wallet_isBackgroundSyncing');
-  late final _NERVA_Wallet_isBackgroundSyncing =
-      _NERVA_Wallet_isBackgroundSyncingPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>)>();
-
-  bool NERVA_Wallet_isBackgroundWallet(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_isBackgroundWallet(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_isBackgroundWalletPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Wallet_isBackgroundWallet');
-  late final _NERVA_Wallet_isBackgroundWallet =
-      _NERVA_Wallet_isBackgroundWalletPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>)>();
-
   ffi.Pointer<ffi.Void> NERVA_Wallet_history(
     ffi.Pointer<ffi.Void> wallet_ptr,
   ) {
@@ -3895,36 +2596,6 @@ class NervaC {
           ffi.Pointer<ffi.Void> Function(
               ffi.Pointer<ffi.Void>)>>('NERVA_Wallet_history');
   late final _NERVA_Wallet_history = _NERVA_Wallet_historyPtr.asFunction<
-      ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Void> NERVA_Wallet_addressBook(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_addressBook(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_addressBookPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_Wallet_addressBook');
-  late final _NERVA_Wallet_addressBook = _NERVA_Wallet_addressBookPtr
-      .asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Void> NERVA_Wallet_coins(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_coins(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_coinsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_Wallet_coins');
-  late final _NERVA_Wallet_coins = _NERVA_Wallet_coinsPtr.asFunction<
       ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
 
   ffi.Pointer<ffi.Void> NERVA_Wallet_subaddress(
@@ -3957,37 +2628,6 @@ class NervaC {
   late final _NERVA_Wallet_subaddressAccount =
       _NERVA_Wallet_subaddressAccountPtr.asFunction<
           ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_Wallet_defaultMixin(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_defaultMixin(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_defaultMixinPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint32 Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Wallet_defaultMixin');
-  late final _NERVA_Wallet_defaultMixin = _NERVA_Wallet_defaultMixinPtr
-      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
-
-  void NERVA_Wallet_setDefaultMixin(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    int arg,
-  ) {
-    return _NERVA_Wallet_setDefaultMixin(
-      wallet_ptr,
-      arg,
-    );
-  }
-
-  late final _NERVA_Wallet_setDefaultMixinPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>,
-              ffi.Uint32)>>('NERVA_Wallet_setDefaultMixin');
-  late final _NERVA_Wallet_setDefaultMixin = _NERVA_Wallet_setDefaultMixinPtr
-      .asFunction<void Function(ffi.Pointer<ffi.Void>, int)>();
 
   bool NERVA_Wallet_setCacheAttribute(
     ffi.Pointer<ffi.Void> wallet_ptr,
@@ -4090,25 +2730,21 @@ class NervaC {
   ffi.Pointer<ffi.Char> NERVA_Wallet_signMessage(
     ffi.Pointer<ffi.Void> wallet_ptr,
     ffi.Pointer<ffi.Char> message,
-    ffi.Pointer<ffi.Char> address,
   ) {
     return _NERVA_Wallet_signMessage(
       wallet_ptr,
       message,
-      address,
     );
   }
 
   late final _NERVA_Wallet_signMessagePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>,
               ffi.Pointer<ffi.Char>)>>('NERVA_Wallet_signMessage');
   late final _NERVA_Wallet_signMessage =
       _NERVA_Wallet_signMessagePtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
 
   bool NERVA_Wallet_verifySignedMessage(
     ffi.Pointer<ffi.Void> wallet_ptr,
@@ -4149,37 +2785,6 @@ class NervaC {
           'NERVA_Wallet_rescanSpent');
   late final _NERVA_Wallet_rescanSpent = _NERVA_Wallet_rescanSpentPtr
       .asFunction<bool Function(ffi.Pointer<ffi.Void>)>();
-
-  void NERVA_Wallet_setOffline(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    bool offline,
-  ) {
-    return _NERVA_Wallet_setOffline(
-      wallet_ptr,
-      offline,
-    );
-  }
-
-  late final _NERVA_Wallet_setOfflinePtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Bool)>>(
-      'NERVA_Wallet_setOffline');
-  late final _NERVA_Wallet_setOffline = _NERVA_Wallet_setOfflinePtr.asFunction<
-      void Function(ffi.Pointer<ffi.Void>, bool)>();
-
-  bool NERVA_Wallet_isOffline(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_isOffline(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_isOfflinePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Wallet_isOffline');
-  late final _NERVA_Wallet_isOffline = _NERVA_Wallet_isOfflinePtr.asFunction<
-      bool Function(ffi.Pointer<ffi.Void>)>();
 
   void NERVA_Wallet_segregatePreForkOutputs(
     ffi.Pointer<ffi.Void> wallet_ptr,
@@ -4329,233 +2934,6 @@ class NervaC {
   late final _NERVA_Wallet_deviceShowAddress =
       _NERVA_Wallet_deviceShowAddressPtr.asFunction<
           ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>, int, int)>();
-
-  bool NERVA_Wallet_reconnectDevice(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_reconnectDevice(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_reconnectDevicePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Wallet_reconnectDevice');
-  late final _NERVA_Wallet_reconnectDevice = _NERVA_Wallet_reconnectDevicePtr
-      .asFunction<bool Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_Wallet_getBytesReceived(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_getBytesReceived(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_getBytesReceivedPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Wallet_getBytesReceived');
-  late final _NERVA_Wallet_getBytesReceived = _NERVA_Wallet_getBytesReceivedPtr
-      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
-
-  int NERVA_Wallet_getBytesSent(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_getBytesSent(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_getBytesSentPtr =
-      _lookup<ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<ffi.Void>)>>(
-          'NERVA_Wallet_getBytesSent');
-  late final _NERVA_Wallet_getBytesSent = _NERVA_Wallet_getBytesSentPtr
-      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
-
-  bool NERVA_Wallet_getStateIsConnected() {
-    return _NERVA_Wallet_getStateIsConnected();
-  }
-
-  late final _NERVA_Wallet_getStateIsConnectedPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
-          'NERVA_Wallet_getStateIsConnected');
-  late final _NERVA_Wallet_getStateIsConnected =
-      _NERVA_Wallet_getStateIsConnectedPtr.asFunction<bool Function()>();
-
-  ffi.Pointer<ffi.UnsignedChar> NERVA_Wallet_getSendToDevice() {
-    return _NERVA_Wallet_getSendToDevice();
-  }
-
-  late final _NERVA_Wallet_getSendToDevicePtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.UnsignedChar> Function()>>(
-          'NERVA_Wallet_getSendToDevice');
-  late final _NERVA_Wallet_getSendToDevice = _NERVA_Wallet_getSendToDevicePtr
-      .asFunction<ffi.Pointer<ffi.UnsignedChar> Function()>();
-
-  int NERVA_Wallet_getSendToDeviceLength() {
-    return _NERVA_Wallet_getSendToDeviceLength();
-  }
-
-  late final _NERVA_Wallet_getSendToDeviceLengthPtr =
-      _lookup<ffi.NativeFunction<ffi.Size Function()>>(
-          'NERVA_Wallet_getSendToDeviceLength');
-  late final _NERVA_Wallet_getSendToDeviceLength =
-      _NERVA_Wallet_getSendToDeviceLengthPtr.asFunction<int Function()>();
-
-  ffi.Pointer<ffi.UnsignedChar> NERVA_Wallet_getReceivedFromDevice() {
-    return _NERVA_Wallet_getReceivedFromDevice();
-  }
-
-  late final _NERVA_Wallet_getReceivedFromDevicePtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.UnsignedChar> Function()>>(
-          'NERVA_Wallet_getReceivedFromDevice');
-  late final _NERVA_Wallet_getReceivedFromDevice =
-      _NERVA_Wallet_getReceivedFromDevicePtr.asFunction<
-          ffi.Pointer<ffi.UnsignedChar> Function()>();
-
-  int NERVA_Wallet_getReceivedFromDeviceLength() {
-    return _NERVA_Wallet_getReceivedFromDeviceLength();
-  }
-
-  late final _NERVA_Wallet_getReceivedFromDeviceLengthPtr =
-      _lookup<ffi.NativeFunction<ffi.Size Function()>>(
-          'NERVA_Wallet_getReceivedFromDeviceLength');
-  late final _NERVA_Wallet_getReceivedFromDeviceLength =
-      _NERVA_Wallet_getReceivedFromDeviceLengthPtr.asFunction<int Function()>();
-
-  bool NERVA_Wallet_getWaitsForDeviceSend() {
-    return _NERVA_Wallet_getWaitsForDeviceSend();
-  }
-
-  late final _NERVA_Wallet_getWaitsForDeviceSendPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
-          'NERVA_Wallet_getWaitsForDeviceSend');
-  late final _NERVA_Wallet_getWaitsForDeviceSend =
-      _NERVA_Wallet_getWaitsForDeviceSendPtr.asFunction<bool Function()>();
-
-  bool NERVA_Wallet_getWaitsForDeviceReceive() {
-    return _NERVA_Wallet_getWaitsForDeviceReceive();
-  }
-
-  late final _NERVA_Wallet_getWaitsForDeviceReceivePtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
-          'NERVA_Wallet_getWaitsForDeviceReceive');
-  late final _NERVA_Wallet_getWaitsForDeviceReceive =
-      _NERVA_Wallet_getWaitsForDeviceReceivePtr.asFunction<bool Function()>();
-
-  void NERVA_Wallet_setDeviceReceivedData(
-    ffi.Pointer<ffi.UnsignedChar> data,
-    int len,
-  ) {
-    return _NERVA_Wallet_setDeviceReceivedData(
-      data,
-      len,
-    );
-  }
-
-  late final _NERVA_Wallet_setDeviceReceivedDataPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.UnsignedChar>,
-              ffi.Size)>>('NERVA_Wallet_setDeviceReceivedData');
-  late final _NERVA_Wallet_setDeviceReceivedData =
-      _NERVA_Wallet_setDeviceReceivedDataPtr.asFunction<
-          void Function(ffi.Pointer<ffi.UnsignedChar>, int)>();
-
-  void NERVA_Wallet_setDeviceSendData(
-    ffi.Pointer<ffi.UnsignedChar> data,
-    int len,
-  ) {
-    return _NERVA_Wallet_setDeviceSendData(
-      data,
-      len,
-    );
-  }
-
-  late final _NERVA_Wallet_setDeviceSendDataPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.UnsignedChar>,
-              ffi.Size)>>('NERVA_Wallet_setDeviceSendData');
-  late final _NERVA_Wallet_setDeviceSendData =
-      _NERVA_Wallet_setDeviceSendDataPtr.asFunction<
-          void Function(ffi.Pointer<ffi.UnsignedChar>, int)>();
-
-  void NERVA_Wallet_setLedgerCallback(
-    ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.Void Function(ffi.Pointer<ffi.UnsignedChar> command,
-                    ffi.UnsignedInt cmd_len)>>
-        sendToLedgerDevice,
-  ) {
-    return _NERVA_Wallet_setLedgerCallback(
-      sendToLedgerDevice,
-    );
-  }
-
-  late final _NERVA_Wallet_setLedgerCallbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<
-                      ffi.NativeFunction<
-                          ffi.Void Function(
-                              ffi.Pointer<ffi.UnsignedChar> command,
-                              ffi.UnsignedInt cmd_len)>>)>>(
-      'NERVA_Wallet_setLedgerCallback');
-  late final _NERVA_Wallet_setLedgerCallback =
-      _NERVA_Wallet_setLedgerCallbackPtr.asFunction<
-          void Function(
-              ffi.Pointer<
-                  ffi.NativeFunction<
-                      ffi.Void Function(ffi.Pointer<ffi.UnsignedChar> command,
-                          ffi.UnsignedInt cmd_len)>>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_Wallet_serializeCacheToJson(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_serializeCacheToJson(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_serializeCacheToJsonPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_Wallet_serializeCacheToJson');
-  late final _NERVA_Wallet_serializeCacheToJson =
-      _NERVA_Wallet_serializeCacheToJsonPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  ffi.Pointer<ffi.Char> NERVA_Wallet_exportTrezorTdis(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-  ) {
-    return _NERVA_Wallet_exportTrezorTdis(
-      wallet_ptr,
-    );
-  }
-
-  late final _NERVA_Wallet_exportTrezorTdisPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<ffi.Void>)>>('NERVA_Wallet_exportTrezorTdis');
-  late final _NERVA_Wallet_exportTrezorTdis = _NERVA_Wallet_exportTrezorTdisPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Void>)>();
-
-  bool NERVA_Wallet_importTrezorEncryptedKeyImagesJson(
-    ffi.Pointer<ffi.Void> wallet_ptr,
-    ffi.Pointer<ffi.Char> json,
-  ) {
-    return _NERVA_Wallet_importTrezorEncryptedKeyImagesJson(
-      wallet_ptr,
-      json,
-    );
-  }
-
-  late final _NERVA_Wallet_importTrezorEncryptedKeyImagesJsonPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>>(
-      'NERVA_Wallet_importTrezorEncryptedKeyImagesJson');
-  late final _NERVA_Wallet_importTrezorEncryptedKeyImagesJson =
-      _NERVA_Wallet_importTrezorEncryptedKeyImagesJsonPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<ffi.Void> NERVA_WalletManager_createWallet(
     ffi.Pointer<ffi.Void> wm_ptr,
@@ -4714,54 +3092,6 @@ class NervaC {
               ffi.Pointer<ffi.Char>,
               int)>();
 
-  ffi.Pointer<ffi.Void>
-      NERVA_WalletManager_createDeterministicWalletFromSpendKey(
-    ffi.Pointer<ffi.Void> wm_ptr,
-    ffi.Pointer<ffi.Char> path,
-    ffi.Pointer<ffi.Char> password,
-    ffi.Pointer<ffi.Char> language,
-    int nettype,
-    int restoreHeight,
-    ffi.Pointer<ffi.Char> spendKeyString,
-    int kdf_rounds,
-  ) {
-    return _NERVA_WalletManager_createDeterministicWalletFromSpendKey(
-      wm_ptr,
-      path,
-      password,
-      language,
-      nettype,
-      restoreHeight,
-      spendKeyString,
-      kdf_rounds,
-    );
-  }
-
-  late final _NERVA_WalletManager_createDeterministicWalletFromSpendKeyPtr =
-      _lookup<
-              ffi.NativeFunction<
-                  ffi.Pointer<ffi.Void> Function(
-                      ffi.Pointer<ffi.Void>,
-                      ffi.Pointer<ffi.Char>,
-                      ffi.Pointer<ffi.Char>,
-                      ffi.Pointer<ffi.Char>,
-                      ffi.Int,
-                      ffi.Uint64,
-                      ffi.Pointer<ffi.Char>,
-                      ffi.Uint64)>>(
-          'NERVA_WalletManager_createDeterministicWalletFromSpendKey');
-  late final _NERVA_WalletManager_createDeterministicWalletFromSpendKey =
-      _NERVA_WalletManager_createDeterministicWalletFromSpendKeyPtr.asFunction<
-          ffi.Pointer<ffi.Void> Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>,
-              int,
-              int,
-              ffi.Pointer<ffi.Char>,
-              int)>();
-
   ffi.Pointer<ffi.Void> NERVA_WalletManager_createWalletFromDevice(
     ffi.Pointer<ffi.Void> wm_ptr,
     ffi.Pointer<ffi.Char> path,
@@ -4813,55 +3143,6 @@ class NervaC {
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Char>,
-              int)>();
-
-  ffi.Pointer<ffi.Void> NERVA_WalletManager_createWalletFromPolyseed(
-    ffi.Pointer<ffi.Void> wm_ptr,
-    ffi.Pointer<ffi.Char> path,
-    ffi.Pointer<ffi.Char> password,
-    int nettype,
-    ffi.Pointer<ffi.Char> mnemonic,
-    ffi.Pointer<ffi.Char> passphrase,
-    bool newWallet,
-    int restore_height,
-    int kdf_rounds,
-  ) {
-    return _NERVA_WalletManager_createWalletFromPolyseed(
-      wm_ptr,
-      path,
-      password,
-      nettype,
-      mnemonic,
-      passphrase,
-      newWallet,
-      restore_height,
-      kdf_rounds,
-    );
-  }
-
-  late final _NERVA_WalletManager_createWalletFromPolyseedPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Int,
-              ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Bool,
-              ffi.Uint64,
-              ffi.Uint64)>>('NERVA_WalletManager_createWalletFromPolyseed');
-  late final _NERVA_WalletManager_createWalletFromPolyseed =
-      _NERVA_WalletManager_createWalletFromPolyseedPtr.asFunction<
-          ffi.Pointer<ffi.Void> Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>,
-              int,
-              ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>,
-              bool,
-              int,
               int)>();
 
   bool NERVA_WalletManager_closeWallet(
@@ -5172,24 +3453,6 @@ class NervaC {
       _NERVA_WalletManager_resolveOpenAliasPtr.asFunction<
           ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>, bool)>();
-
-  bool NERVA_WalletManager_setProxy(
-    ffi.Pointer<ffi.Void> wm_ptr,
-    ffi.Pointer<ffi.Char> address,
-  ) {
-    return _NERVA_WalletManager_setProxy(
-      wm_ptr,
-      address,
-    );
-  }
-
-  late final _NERVA_WalletManager_setProxyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Char>)>>('NERVA_WalletManager_setProxy');
-  late final _NERVA_WalletManager_setProxy =
-      _NERVA_WalletManager_setProxyPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<ffi.Void> NERVA_WalletManagerFactory_getWalletManager() {
     return _NERVA_WalletManagerFactory_getWalletManager();
