@@ -64,7 +64,7 @@ pushd contrib/depends
     then
         sbs_BOOST_VERSION=1_83_0
         sbs_SQLITE3_VERSION=3510100
-        if [[ "${HOST_ABI}" == "host-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios" || "${HOST_ABI}" == "aarch64-apple-iossimulator" ]];
+        if [["${HOST_ABI}" == "aarch64-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios-simulator" ]];
         then
             sbs_SQLITE3_VERSION=3350500
         fi
@@ -93,7 +93,7 @@ do
         if [[ "$repo" == "beldex" ]];
         then
             EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
-            if [[ "${HOST_ABI}" == "x86_64-apple-darwin11" || "${HOST_ABI}" == "aarch64-apple-darwin11" || "${HOST_ABI}" == "host-apple-darwin" || "${HOST_ABI}" == "x86_64-host-apple-darwin" || "${HOST_ABI}" == "aarch64-apple-darwin"  || "${HOST_ABI}" == "x86_64-apple-darwin" || "${HOST_ABI}" == "host-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios" || "${HOST_ABI}" == "aarch64-apple-iossimulator" ]];
+            if [[ "${HOST_ABI}" == "x86_64-apple-darwin" || "${HOST_ABI}" == "aarch64-apple-darwin" || "${HOST_ABI}" == "aarch64-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios-simulator" ]];
                 then
                     EXTRA_CMAKE_FLAGS="-DRANDOMX_ENABLE_JIT=OFF -DUSE_LTO=OFF" 
             fi
