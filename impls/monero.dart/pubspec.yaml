@@ -1,7 +1,7 @@
 name: monero
 description: Dart library for monero
 version: 0.0.0
-repository: https://github.com/MogamboPuri/monero_c/monero.dart
+repository: https://git.mrcyjanek.net/mrcyjanek/monero.dart
 
 environment:
   sdk: ^3.0.0
