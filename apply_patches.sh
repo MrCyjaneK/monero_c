@@ -61,7 +61,9 @@ find . -name "*.S" -o -name "*.s" -type f | while read -r file; do
         git add "$file" || true
     fi
 done
-git commit -m "Add .note.GNU-stack section to assembly files"
+if ! git diff --cached --quiet; then
+    git commit -m "Add .note.GNU-stack section to assembly files"
+fi
 
 git am -3 <<EOF
 From e56dd6cd0fb1a5e55d3cb08691edf24b26d65299 Mon Sep 17 00:00:00 2001
