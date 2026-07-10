@@ -1,7 +1,7 @@
-From 2e4e287e6e1b9bb9695c187ceef8abcc739aaa62 Mon Sep 17 00:00:00 2001
+From 48abd68dd595e929b7e3fcac236e0f1d2087187c Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Wed, 1 Apr 2026 14:04:08 +0530
-Subject: [PATCH 09/20] Add hex encoding and tx key getter for
+Date: Tue, 7 Jul 2026 23:37:50 +0530
+Subject: [PATCH 07/16] Add hex encoding and tx key getter for
  PendingTransction in wallet api
 
 ---
@@ -53,7 +53,7 @@ index 5c8b87221..5b88a458d 100755
  private:
      friend class WalletImpl;
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 6208ed48c..9d11eca27 100755
+index c0cdaeb81..8882cce75 100755
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -112,6 +112,8 @@ struct PendingTransaction

@@ -1,7 +1,7 @@
-From f893a13a3fa72506fee0b3432e831992a2083069 Mon Sep 17 00:00:00 2001
+From 68f924be72536a105d4291ca86393b4bb8882d5d Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Wed, 1 Apr 2026 14:08:35 +0530
-Subject: [PATCH 10/20] Add recoverDeterministicWalletFromSpendKey
+Date: Tue, 7 Jul 2026 23:38:48 +0530
+Subject: [PATCH 08/16] Add recoverDeterministicWalletFromSpendKey
 
 ---
  src/wallet/api/wallet.cpp         | 27 +++++++++++++++++++++++++++
@@ -12,10 +12,10 @@ Subject: [PATCH 10/20] Add recoverDeterministicWalletFromSpendKey
  5 files changed, 74 insertions(+)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 955f64b35..7b28e4cba 100755
+index 7bc4dde39..97a007d0c 100755
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
-@@ -853,6 +853,33 @@ bool WalletImpl::recover(std::string_view path_, const std::string &password, co
+@@ -850,6 +850,33 @@ bool WalletImpl::recover(std::string_view path_, const std::string &password, co
      return good();
  }
  
@@ -50,7 +50,7 @@ index 955f64b35..7b28e4cba 100755
  bool WalletImpl::close(bool store)
  {
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 225b3431d..1eed0c7cf 100755
+index 7bd4e02eb..b847ffc30 100755
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -83,6 +83,10 @@ public:
@@ -65,10 +65,10 @@ index 225b3431d..1eed0c7cf 100755
                              const std::string &password,
                              const std::string &language,
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 9d11eca27..01127214a 100755
+index 8882cce75..c8fb2d1b3 100755
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -1415,6 +1415,25 @@ struct WalletManagerBase
+@@ -1402,6 +1402,25 @@ struct WalletManagerBase
              const std::string& spendKeyString = "",
              uint64_t kdf_rounds = 1) = 0;
  
@@ -95,7 +95,7 @@ index 9d11eca27..01127214a 100755
       * \brief  creates wallet using hardware device.
       * \param  path                 Name of wallet file to be created (utf-8)
 diff --git a/src/wallet/api/wallet_manager.cpp b/src/wallet/api/wallet_manager.cpp
-index a987d598b..85981df76 100755
+index 4c69e1af9..58190095d 100755
 --- a/src/wallet/api/wallet_manager.cpp
 +++ b/src/wallet/api/wallet_manager.cpp
 @@ -104,6 +104,23 @@ Wallet* WalletManagerImpl::createWalletFromKeys(std::string_view path,

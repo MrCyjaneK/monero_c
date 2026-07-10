@@ -1,18 +1,17 @@
-From 49e6f186c9cc7b536debd8846c7b55846e81fc0b Mon Sep 17 00:00:00 2001
+From 1714ea9f8af55757016b7131baa965bcf71ade6b Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Wed, 1 Apr 2026 14:10:06 +0530
-Subject: [PATCH 11/20] add beldex submodule support
+Date: Tue, 7 Jul 2026 23:28:00 +0530
+Subject: [PATCH 01/16] add beldex submodule support
 
 ---
- CMakeLists.txt                   | 4 ++--
- cmake/CheckLinkerFlag.cmake      | 2 +-
- cmake/Version.cmake              | 6 +++---
- src/wallet/api/CMakeLists.txt    | 7 ++++++-
- src/wallet/wallet_rpc_server.cpp | 2 +-
- 5 files changed, 13 insertions(+), 8 deletions(-)
+ CMakeLists.txt                | 4 ++--
+ cmake/CheckLinkerFlag.cmake   | 2 +-
+ cmake/Version.cmake           | 6 +++---
+ src/wallet/api/CMakeLists.txt | 7 ++++++-
+ 4 files changed, 12 insertions(+), 7 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 0b78a11d6..fe53b88fc 100755
+index 0cdf17c98..2a8ef789f 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -32,7 +32,7 @@
@@ -24,7 +23,7 @@ index 0b78a11d6..fe53b88fc 100755
  
  find_program(CCACHE_PROGRAM ccache)
  if(CCACHE_PROGRAM)
-@@ -308,7 +308,7 @@ endif()
+@@ -301,7 +301,7 @@ endif()
  option(PER_BLOCK_CHECKPOINT "Enables per-block checkpointing" ON)
  
  list(INSERT CMAKE_MODULE_PATH 0
@@ -74,10 +73,10 @@ index 7d7a927dd..7cb0b5901 100755
      DEPENDS           "${CMAKE_BINARY_DIR}/version.cpp.in")
  else()
 diff --git a/src/wallet/api/CMakeLists.txt b/src/wallet/api/CMakeLists.txt
-index 83b64813a..39cf759ee 100755
+index df4e42673..6bb98d286 100755
 --- a/src/wallet/api/CMakeLists.txt
 +++ b/src/wallet/api/CMakeLists.txt
-@@ -42,9 +42,12 @@ add_library(wallet_api
+@@ -40,9 +40,12 @@ add_library(wallet_api
    subaddress_account.cpp
    unsigned_transaction.cpp)
  
@@ -90,7 +89,7 @@ index 83b64813a..39cf759ee 100755
      cryptonote_core
      mnemonics
      lmdb
-@@ -53,7 +56,9 @@ target_link_libraries(wallet_api
+@@ -50,7 +53,9 @@ target_link_libraries(wallet_api
      filesystem
      Boost::thread
    PRIVATE
@@ -101,19 +100,6 @@ index 83b64813a..39cf759ee 100755
  
  set_property(TARGET wallet_api PROPERTY EXCLUDE_FROM_ALL TRUE)
  
-diff --git a/src/wallet/wallet_rpc_server.cpp b/src/wallet/wallet_rpc_server.cpp
-index 5b02c868e..20d4c324f 100755
---- a/src/wallet/wallet_rpc_server.cpp
-+++ b/src/wallet/wallet_rpc_server.cpp
-@@ -1113,7 +1113,7 @@ namespace tools
-       if (!hf_version)
-         throw wallet_rpc_error{error_code::HF_QUERY_FAILED, tools::ERR_MSG_NETWORK_VERSION_QUERY_FAILED};
-       cryptonote::beldex_construct_tx_params tx_params = tools::wallet2::construct_params(*hf_version, cryptonote::txtype::standard, priority);
--      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, cryptonote::TX_OUTPUT_DECOYS, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices, tx_params, req.subtract_fee_from_outputs);
-+      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, cryptonote::TX_OUTPUT_DECOYS, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices, tx_params, req.subtract_fee_from_outputs, {});
- 
-       if (ptx_vector.empty())
-         throw wallet_rpc_error{error_code::TX_NOT_POSSIBLE, "No transaction created"};
 -- 
 2.43.0
 

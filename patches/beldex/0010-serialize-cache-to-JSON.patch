@@ -1,7 +1,7 @@
-From be71acca5614c92cd754e0223ebbdaa0526aca4a Mon Sep 17 00:00:00 2001
+From b55ad33ba5d0bec5ad930b5341a7be0e33ad3402 Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Wed, 1 Apr 2026 15:56:31 +0530
-Subject: [PATCH 15/20] serialize cache to JSON
+Date: Tue, 7 Jul 2026 23:40:24 +0530
+Subject: [PATCH 10/16] serialize cache to JSON
 
 ---
  src/wallet/CMakeLists.txt           |  1 +
@@ -26,11 +26,11 @@ index 448700528..b8d2c2036 100755
  
  target_link_libraries(wallet
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 6f5c3b344..294d1bcac 100755
+index 39675cbb8..c3a05b869 100755
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
-@@ -4332,4 +4332,10 @@ void Wallet::setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command
-     #endif
+@@ -4228,4 +4228,10 @@ uint64_t WalletImpl::getBytesSent()
+     return wallet()->get_bytes_sent();
  }
  
 +EXPORT
@@ -41,26 +41,26 @@ index 6f5c3b344..294d1bcac 100755
 +
  } // namespace
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 1eed0c7cf..97f52dc1e 100755
+index b847ffc30..ad0bdad83 100755
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
-@@ -390,6 +390,8 @@ private:
-     bool getWaitsForDeviceSend();
- 
-     bool getWaitsForDeviceReceive();
+@@ -376,6 +376,8 @@ private:
+     // cache connection status to avoid unnecessary RPC calls
+     mutable std::atomic<bool>   m_is_connected;
+     std::optional<tools::login> m_daemon_login;
 +
 +    virtual std::string serializeCacheToJson() const override;
  };
  
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 01127214a..f6d3242cf 100755
+index c8fb2d1b3..113ef51c5 100755
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -1346,6 +1346,9 @@ struct Wallet
-     static void setDeviceReceivedData(unsigned char* data, size_t len);
-     static void setDeviceSendData(unsigned char* data, size_t len);
-     static void setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
+@@ -1333,6 +1333,9 @@ struct Wallet
+ 
+     //! get bytes sent
+     virtual uint64_t getBytesSent() = 0;
 +
 +    //! serialize wallet cache to JSON
 +    virtual std::string serializeCacheToJson() const = 0;
@@ -68,10 +68,10 @@ index 01127214a..f6d3242cf 100755
  
  /**
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 6505f9585..85922a9f5 100755
+index 0b63910f6..8b9af0986 100755
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
-@@ -1218,6 +1218,12 @@ private:
+@@ -1217,6 +1217,12 @@ private:
        FIELD(m_background_sync_data)
      END_SERIALIZE()
  
