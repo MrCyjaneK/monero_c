@@ -2091,65 +2091,6 @@ uint64_t BELDEX_Wallet_getBytesSent(void* wallet_ptr) {
     DEBUG_END()
 }
 
-bool BELDEX_Wallet_getStateIsConnected() {
-    DEBUG_START()
-    return Wallet::Wallet::getStateIsConnected();
-    DEBUG_END()
-}
-
-unsigned char* BELDEX_Wallet_getSendToDevice() {
-    DEBUG_START()
-    return Wallet::Wallet::getSendToDevice();
-    DEBUG_END()
-}
-
-size_t BELDEX_Wallet_getSendToDeviceLength() {
-    DEBUG_START()
-    return Wallet::Wallet::getSendToDeviceLength();
-    DEBUG_END()
-}
-
-unsigned char* BELDEX_Wallet_getReceivedFromDevice() {
-    DEBUG_START()
-    return Wallet::Wallet::getReceivedFromDevice();
-    DEBUG_END()
-}
-
-size_t BELDEX_Wallet_getReceivedFromDeviceLength() {
-    DEBUG_START()
-    return Wallet::Wallet::getReceivedFromDeviceLength();
-    DEBUG_END()
-}
-
-bool BELDEX_Wallet_getWaitsForDeviceSend() {
-    DEBUG_START()
-    return Wallet::Wallet::getWaitsForDeviceSend();
-    DEBUG_END()
-}
-
-bool BELDEX_Wallet_getWaitsForDeviceReceive() {
-    DEBUG_START()
-    return Wallet::Wallet::getWaitsForDeviceReceive();
-    DEBUG_END()
-}
-
-void BELDEX_Wallet_setDeviceReceivedData(unsigned char* data, size_t len) {
-    DEBUG_START()
-    Wallet::Wallet::setDeviceReceivedData(data, len);
-    DEBUG_END()
-}
-
-void BELDEX_Wallet_setDeviceSendData(unsigned char* data, size_t len) {
-    DEBUG_START()
-    Wallet::Wallet::setDeviceSendData(data, len);
-    DEBUG_END()
-}
-
-void BELDEX_Wallet_setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len)) {
-    DEBUG_START()
-    Wallet::Wallet::setLedgerCallback(sendToLedgerDevice);
-    DEBUG_END()
-}
 const char* BELDEX_Wallet_serializeCacheToJson(void* wallet_ptr) {
     DEBUG_START()
     Wallet::Wallet *wallet = reinterpret_cast<Wallet::Wallet*>(wallet_ptr);
