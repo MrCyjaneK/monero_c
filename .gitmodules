@@ -19,4 +19,4 @@
 [submodule "beldex"]
 	path = beldex
 	url = https://github.com/Beldex-Coin/beldex
-	branch = feat/background-sync-just-with-viewkey
+	branch = dev
