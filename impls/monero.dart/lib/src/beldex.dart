@@ -1078,14 +1078,6 @@ class BeldexWallet implements Wallet2Wallet {
     return beldex.Wallet_getUserNote(walletPtr, txid: txid);
   }
   
-  static bool getWaitsForDeviceReceive() {
-    return beldex.Wallet_getWaitsForDeviceReceive();
-  }
-  
-  static bool getWaitsForDeviceSend() {
-    return beldex.Wallet_getWaitsForDeviceSend();
-  }
-  
   @override
   Wallet2WalletListener getWalletListener() {
     final listener = beldex.BELDEX_cw_getWalletListener(walletPtr);

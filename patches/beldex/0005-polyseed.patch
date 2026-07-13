@@ -1,7 +1,7 @@
-From 1ee953d8a468cec403bc4e58fdca6b663a67f423 Mon Sep 17 00:00:00 2001
+From aac571abb23d5ce5c2acc3ca7217a5273f4b019b Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Wed, 1 Apr 2026 14:02:21 +0530
-Subject: [PATCH 07/20] polyseed
+Date: Tue, 7 Jul 2026 23:35:59 +0530
+Subject: [PATCH 05/16] polyseed
 
 ---
  .gitmodules                                 |   6 +
@@ -38,7 +38,7 @@ Subject: [PATCH 07/20] polyseed
  create mode 100644 src/polyseed/polyseed.hpp
 
 diff --git a/.gitmodules b/.gitmodules
-index d641e29da..5da7353b8 100644
+index d641e29da..4208d53af 100644
 --- a/.gitmodules
 +++ b/.gitmodules
 @@ -44,3 +44,9 @@
@@ -52,7 +52,7 @@ index d641e29da..5da7353b8 100644
 +	path = external/polyseed
 +	url = https://github.com/Beldex-Coin/polyseed.git
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index a1744b827..0b78a11d6 100755
+index 8212a6593..8573ec1e5 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -293,6 +293,8 @@ if(NOT MANUAL_SUBMODULES)
@@ -152,18 +152,18 @@ index c5f3f46ce..7e1d62cd5 100755
  if (WIN32 OR (APPLE AND NOT IOS))
 diff --git a/external/polyseed b/external/polyseed
 new file mode 160000
-index 000000000..dfb05d8ed
+index 000000000..f0b7e330a
 --- /dev/null
 +++ b/external/polyseed
 @@ -0,0 +1 @@
-+Subproject commit dfb05d8edb682b0e8f743b1b70c9131712ff4157
++Subproject commit f0b7e330a916bc0cafca24e589bfeb949f1b0a51
 diff --git a/external/utf8proc b/external/utf8proc
 new file mode 160000
-index 000000000..e46d2dba2
+index 000000000..74e0b22e8
 --- /dev/null
 +++ b/external/utf8proc
 @@ -0,0 +1 @@
-+Subproject commit e46d2dba26a06f2ec3c57d944c8b679c6d8fea44
++Subproject commit 74e0b22e8fcd890eea578f3063c0531e6f6ec05d
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 index ff74933f1..b83c11eb0 100755
 --- a/src/CMakeLists.txt
@@ -280,14 +280,14 @@ index 79002915c..940974fbf 100755
      void finalize_multisig(const crypto::public_key &spend_public_key);
      const account_keys& get_keys() const;
 diff --git a/src/cryptonote_config.h b/src/cryptonote_config.h
-index 9fa8fd6b6..41164957e 100644
+index 0db6f8eaa..4251af215 100644
 --- a/src/cryptonote_config.h
 +++ b/src/cryptonote_config.h
 @@ -187,6 +187,7 @@ inline constexpr auto P2P_NET_DATA_FILENAME         = "p2pstate.bin"sv;
  inline constexpr uint64_t PRUNING_STRIPE_SIZE      = 4096;  // the smaller, the smoother the increase
  inline constexpr uint64_t PRUNING_LOG_STRIPES      = 3;     // the higher, the more space saved
  inline constexpr uint64_t PRUNING_TIP_BLOCKS       = 5500;  // the smaller, the more space saved
-+#define POLYSEED_COIN POLYSEED_MONERO
++#define POLYSEED_COIN POLYSEED_BELDEX
  inline constexpr bool     PRUNING_DEBUG_SPOOF_SEED = false;  // For debugging only
  
  // Constants for hardfork versions:
@@ -824,10 +824,10 @@ index 000000000..2c8c777a7
 +#endif //POLYSEED_HPP
 \ No newline at end of file
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index ab809cb4f..ff4439c84 100755
+index 7aae6a72c..a2cade28c 100755
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
-@@ -755,6 +755,29 @@ bool WalletImpl::recoverFromDevice(std::string_view path_, const std::string &pa
+@@ -752,6 +752,29 @@ bool WalletImpl::recoverFromDevice(std::string_view path_, const std::string &pa
      return true;
  }
  
@@ -857,7 +857,7 @@ index ab809cb4f..ff4439c84 100755
  EXPORT
  Wallet::Device WalletImpl::getDeviceType() const
  {
-@@ -876,6 +899,58 @@ std::string WalletImpl::seed() const
+@@ -873,6 +896,58 @@ std::string WalletImpl::seed() const
      }
  }
  
@@ -917,7 +917,7 @@ index ab809cb4f..ff4439c84 100755
  std::string WalletImpl::getSeedLanguage() const
  {
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 39839a00f..cfd0515bd 100755
+index 36f0fab2c..d8b97ffe0 100755
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -90,9 +90,18 @@ public:
@@ -940,7 +940,7 @@ index 39839a00f..cfd0515bd 100755
      void setSeedLanguage(const std::string &arg) override;
      bool good() const override;
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 0247f6d87..6c5836e91 100755
+index f2c54d862..18b6e13b5 100755
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -729,6 +729,10 @@ struct Wallet
@@ -954,7 +954,7 @@ index 0247f6d87..6c5836e91 100755
     /**
      * @brief StartRefresh - Start/resume refresh thread (refresh every 10 seconds)
      */
-@@ -1383,6 +1387,27 @@ struct WalletManagerBase
+@@ -1370,6 +1374,27 @@ struct WalletManagerBase
              uint64_t kdf_rounds = 1,
              WalletListener* listener = nullptr) = 0;
  
@@ -983,7 +983,7 @@ index 0247f6d87..6c5836e91 100755
       * \brief Closes wallet. In case operation succeeded, wallet object deleted. in case operation failed, wallet object not deleted
       * \param wallet        previously opened / created wallet instance
 diff --git a/src/wallet/api/wallet_manager.cpp b/src/wallet/api/wallet_manager.cpp
-index ef36a3cd5..a987d598b 100755
+index d20ea47a9..4c69e1af9 100755
 --- a/src/wallet/api/wallet_manager.cpp
 +++ b/src/wallet/api/wallet_manager.cpp
 @@ -134,6 +134,16 @@ Wallet* WalletManagerImpl::createWalletFromDevice(std::string_view path,
@@ -1025,10 +1025,10 @@ index e57b9eda0..16b9adeeb 100755
      bool walletExists(std::string_view path) override;
      bool verifyWalletPassword(std::string_view keys_file_name, const std::string &password, bool no_spend_key, uint64_t kdf_rounds = 1) const override;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index a3568fa2f..a82ec93e0 100755
+index ef73cfbe8..3f6bf98a6 100755
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -90,6 +90,7 @@
+@@ -89,6 +89,7 @@
  #include "common/beldex.h"
  #include "common/beldex_integration_test_hooks.h"
  #include "beldex_economy.h"
@@ -1036,7 +1036,7 @@ index a3568fa2f..a82ec93e0 100755
  
  extern "C"
  {
-@@ -1166,7 +1167,8 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended):
+@@ -1168,7 +1169,8 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended):
    m_device_last_key_image_sync(0),
    m_offline(false),
    m_rpc_version(0),
@@ -1046,7 +1046,7 @@ index a3568fa2f..a82ec93e0 100755
  {
  }
  
-@@ -1405,6 +1407,20 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
+@@ -1407,6 +1409,20 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
    return true;
  }
  //----------------------------------------------------------------------------------------------------
@@ -1067,7 +1067,7 @@ index a3568fa2f..a82ec93e0 100755
  bool wallet2::get_multisig_seed(epee::wipeable_string& seed, const epee::wipeable_string &passphrase, bool raw) const
  {
    bool ready;
-@@ -4324,6 +4340,9 @@ std::optional<wallet2::keys_file_data> wallet2::get_keys_file_data(const crypto:
+@@ -4327,6 +4343,9 @@ std::optional<wallet2::keys_file_data> wallet2::get_keys_file_data(const crypto:
      json.AddMember("original_view_secret_key", value, json.GetAllocator());
    }
  
@@ -1077,7 +1077,7 @@ index a3568fa2f..a82ec93e0 100755
    if (m_background_sync_type == BackgroundSyncCustomPassword && !background_keys_file && m_custom_background_key)
    {
      value.SetString(reinterpret_cast<const char*>(m_custom_background_key.value().data()), m_custom_background_key.value().size());
-@@ -4554,6 +4573,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
+@@ -4557,6 +4576,7 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
      m_key_device_type = hw::device::type::SOFTWARE;
      encrypted_secret_keys = false;
      m_custom_background_key = std::nullopt;
@@ -1085,7 +1085,7 @@ index a3568fa2f..a82ec93e0 100755
    }
    else if(json.IsObject())
    {
-@@ -4762,6 +4782,9 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
+@@ -4765,6 +4785,9 @@ bool wallet2::load_keys_buf(const std::string& keys_buf, const epee::wipeable_st
      GET_FIELD_FROM_JSON_RETURN_ON_ERROR(json, background_sync_type, BackgroundSyncType, Int, false, BackgroundSyncOff);
      m_background_sync_type = field_background_sync_type;
  
@@ -1095,7 +1095,7 @@ index a3568fa2f..a82ec93e0 100755
      // Load encryption key used to encrypt background cache
      crypto::chacha_key custom_background_key;
      m_custom_background_key = std::nullopt;
-@@ -5085,6 +5108,48 @@ void wallet2::init_type(hw::device::type device_type)
+@@ -5088,6 +5111,48 @@ void wallet2::init_type(hw::device::type device_type)
    m_key_device_type = device_type;
  }
  
@@ -1144,7 +1144,7 @@ index a3568fa2f..a82ec93e0 100755
  /*!
   * \brief  Generates a wallet or restores one.
   * \param  wallet_              Name of wallet file
-@@ -5213,7 +5278,7 @@ crypto::secret_key wallet2::generate(const fs::path& wallet_, const epee::wipeab
+@@ -5216,7 +5281,7 @@ crypto::secret_key wallet2::generate(const fs::path& wallet_, const epee::wipeab
    return retval;
  }
  
@@ -1153,7 +1153,7 @@ index a3568fa2f..a82ec93e0 100755
   {
     const uint64_t blocks_per_month = BLOCKS_PER_DAY * 30;
  
-@@ -5233,7 +5298,7 @@ crypto::secret_key wallet2::generate(const fs::path& wallet_, const epee::wipeab
+@@ -5236,7 +5301,7 @@ crypto::secret_key wallet2::generate(const fs::path& wallet_, const epee::wipeab
     // the daemon is currently syncing.
     // If we use the approximate height we subtract one month as
     // a safety margin.
@@ -1162,7 +1162,7 @@ index a3568fa2f..a82ec93e0 100755
     uint64_t target_height = get_daemon_blockchain_target_height(err);
     if (err.empty()) {
       if (target_height < height)
-@@ -14026,12 +14091,12 @@ uint64_t wallet2::get_daemon_blockchain_target_height(std::string& err)
+@@ -14038,12 +14103,12 @@ uint64_t wallet2::get_daemon_blockchain_target_height(std::string& err)
    return target_height;
  }
  
@@ -1177,7 +1177,7 @@ index a3568fa2f..a82ec93e0 100755
     - BLOCKS_PER_DAY * 7; // subtract a week's worth of blocks to be conservative
    LOG_PRINT_L2("Calculated blockchain height: " << approx_blockchain_height);
    return approx_blockchain_height;
-@@ -15930,15 +15995,6 @@ bool wallet2::parse_uri(std::string_view uri, std::string &address, std::string
+@@ -15946,15 +16011,6 @@ bool wallet2::parse_uri(std::string_view uri, std::string &address, std::string
  //----------------------------------------------------------------------------------------------------
  uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, uint8_t day)
  {
@@ -1193,7 +1193,7 @@ index a3568fa2f..a82ec93e0 100755
    std::tm date = { 0, 0, 0, 0, 0, 0, 0, 0 };
    date.tm_year = year - 1900;
    date.tm_mon  = month - 1;
-@@ -15947,7 +16003,23 @@ uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, ui
+@@ -15963,7 +16019,23 @@ uint64_t wallet2::get_blockchain_height_by_date(uint16_t year, uint8_t month, ui
    {
      throw std::runtime_error("month or day out of range");
    }
@@ -1218,10 +1218,10 @@ index a3568fa2f..a82ec93e0 100755
    uint64_t height_min = 0;
    uint64_t height_max = get_daemon_blockchain_height(err) - 1;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 241a3fcf4..dd1f3c69f 100755
+index 4bd72b783..22a72e80d 100755
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
-@@ -84,6 +84,7 @@
+@@ -83,6 +83,7 @@
  
  #include "common/beldex_integration_test_hooks.h"
  #include "epee/wipeable_string.h"
@@ -1229,7 +1229,7 @@ index 241a3fcf4..dd1f3c69f 100755
  
  #include "rpc/http_client.h"
  
-@@ -649,6 +650,20 @@ private:
+@@ -648,6 +649,20 @@ private:
      void generate(const fs::path& wallet_, const epee::wipeable_string& password,
        const epee::wipeable_string& multisig_data, bool create_address_file = true);
  
@@ -1250,7 +1250,7 @@ index 241a3fcf4..dd1f3c69f 100755
      /*!
       * \brief Generates a wallet or restores one.
       * \param  wallet_              Name of wallet file
-@@ -834,6 +849,15 @@ private:
+@@ -833,6 +848,15 @@ private:
      bool is_deterministic() const;
      bool get_seed(epee::wipeable_string& electrum_words, const epee::wipeable_string &passphrase = epee::wipeable_string()) const;
  
@@ -1266,7 +1266,7 @@ index 241a3fcf4..dd1f3c69f 100755
      /*!
      * \brief Checks if light wallet. A light wallet sends view key to a server where the blockchain is scanned.
      */
-@@ -1313,8 +1337,8 @@ private:
+@@ -1312,8 +1336,8 @@ private:
     /*!
      * \brief Calculates the approximate blockchain height from current date/time.
      */
@@ -1277,7 +1277,7 @@ index 241a3fcf4..dd1f3c69f 100755
      std::vector<size_t> select_available_outputs_from_histogram(uint64_t count, bool atleast, bool unlocked, bool allow_rct);
      std::vector<size_t> select_available_outputs(const std::function<bool(const transfer_details &td)> &f) const;
      std::vector<size_t> select_available_unmixable_outputs();
-@@ -1451,7 +1475,8 @@ private:
+@@ -1450,7 +1474,8 @@ private:
      bool parse_uri(std::string_view uri, std::string &address, std::string &payment_id, uint64_t &amount, std::string &tx_description, std::string &recipient_name, std::vector<std::string> &unknown_parameters, std::string &error);
  
      uint64_t get_blockchain_height_by_date(uint16_t year, uint8_t month, uint8_t day);    // 1<=month<=12, 1<=day<=31
@@ -1287,7 +1287,7 @@ index 241a3fcf4..dd1f3c69f 100755
      /// Returns true if the wallet is synced with the chain; if grace_blocks > 0 then the check is
      /// that we are within that many blocks of the top of the chain.
      bool is_synced(uint64_t grace_blocks = 0) const;
-@@ -1869,6 +1894,7 @@ private:
+@@ -1868,6 +1893,7 @@ private:
      std::string seed_language; /*!< Language of the mnemonics (seed). */
      bool is_old_file_format; /*!< Whether the wallet file is of an old file format */
      bool m_watch_only; /*!< no spend key */

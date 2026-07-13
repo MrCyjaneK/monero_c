@@ -60,20 +60,7 @@ pushd contrib/depends
     then
         sbs_BOOST_VERSION=1_83_0
     fi
-    if [[ "x$repo" == "xbeldex" ]];
-    then
-        sbs_BOOST_VERSION=1_83_0
-        sbs_SQLITE3_VERSION=3510100
-        if [["${HOST_ABI}" == "aarch64-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios-simulator" ]];
-        then
-            sbs_SQLITE3_VERSION=3350500
-        fi
-        env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI" BOOST_VERSION="${sbs_BOOST_VERSION}" SQLITE3_VERSION="${sbs_SQLITE3_VERSION}"
-    fi
-    if [[ "x$repo" != "xbeldex" ]];
-    then
-        env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI" BOOST_VERSION="${sbs_BOOST_VERSION}"
-    fi
+    env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI" BOOST_VERSION="${sbs_BOOST_VERSION}"
 popd
 # source contrib/depends/_native/_source_me
 source contrib/depends/$HOST_ABI/_source_me

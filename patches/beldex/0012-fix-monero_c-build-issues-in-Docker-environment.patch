@@ -1,7 +1,7 @@
-From c3b4ef1a7675c6672869af627c023425598aa176 Mon Sep 17 00:00:00 2001
+From c01c463d9833fe8506a25ddc1f815b60e14208c4 Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Mon, 6 Apr 2026 13:58:58 +0530
-Subject: [PATCH 18/20] fix monero_c build issues in Docker environment
+Date: Tue, 7 Jul 2026 23:43:44 +0530
+Subject: [PATCH 12/16] fix monero_c build issues in Docker environment
 
 ---
  CMakeLists.txt                | 15 +++++++++++++++
@@ -10,12 +10,12 @@ Subject: [PATCH 18/20] fix monero_c build issues in Docker environment
  3 files changed, 30 insertions(+), 2 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9f5456ee0..ef5f61030 100755
+index 214c58e19..51e5fc600 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -116,6 +116,21 @@ if(ANDROID)
-   add_compile_options(-Wno-unused-command-line-argument -Wno-error -Wno-cpp -Wno-error=cpp -Wno-unused-private-field -Wno-unused-lambda-capture -Wno-unused-result -Wno-string-plus-int -fstack-clash-protection -Wno-shift-count-overflow -Wno-deprecated-copy)
- endif()
+@@ -75,6 +75,21 @@ set(CMAKE_C_STANDARD 11)
+ set(CMAKE_C_STANDARD_REQUIRED ON)
+ set(CMAKE_C_EXTENSIONS OFF)
  
 +if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 +    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 14)
@@ -36,7 +36,7 @@ index 9f5456ee0..ef5f61030 100755
  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough")
  
 diff --git a/src/crypto/CMakeLists.txt b/src/crypto/CMakeLists.txt
-index a2bb8b0fd..37c20554b 100755
+index 466cb1270..fe71569fd 100755
 --- a/src/crypto/CMakeLists.txt
 +++ b/src/crypto/CMakeLists.txt
 @@ -93,6 +93,14 @@ if(IPO_ENABLED AND (CMAKE_BUILD_TYPE STREQUAL Release OR CMAKE_BUILD_TYPE STREQU

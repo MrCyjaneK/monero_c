@@ -806,17 +806,6 @@ extern ADDAPI bool BELDEX_Wallet_reconnectDevice(void* wallet_ptr);
 extern ADDAPI uint64_t BELDEX_Wallet_getBytesReceived(void* wallet_ptr);
 //     virtual uint64_t getBytesSent() = 0;
 extern ADDAPI uint64_t BELDEX_Wallet_getBytesSent(void* wallet_ptr);
-    // HIDAPI_DUMMY
-extern ADDAPI bool BELDEX_Wallet_getStateIsConnected();
-extern ADDAPI unsigned char* BELDEX_Wallet_getSendToDevice();
-extern ADDAPI size_t BELDEX_Wallet_getSendToDeviceLength();
-extern ADDAPI unsigned char* BELDEX_Wallet_getReceivedFromDevice();
-extern ADDAPI size_t BELDEX_Wallet_getReceivedFromDeviceLength();
-extern ADDAPI bool BELDEX_Wallet_getWaitsForDeviceSend();
-extern ADDAPI bool BELDEX_Wallet_getWaitsForDeviceReceive();
-extern ADDAPI void BELDEX_Wallet_setDeviceReceivedData(unsigned char* data, size_t len);
-extern ADDAPI void BELDEX_Wallet_setDeviceSendData(unsigned char* data, size_t len);
-extern ADDAPI void BELDEX_Wallet_setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
 extern ADDAPI const char* BELDEX_Wallet_serializeCacheToJson(void* wallet_ptr);
 // };
 // struct WalletManager

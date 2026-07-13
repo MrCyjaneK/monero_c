@@ -3,8 +3,7 @@
 HOST ?=
 
 BOOST_VERSION ?= 1_90_0
-SQLITE3_VERSION ?= 3510100
-PACKAGES = native/protobuf,native/cmake,native/python@3.14,native/git,native/_,native/make,native/cmake-toolchain,icu4c,boost@$(BOOST_VERSION),zeromq,unbound,sodium,openssl,libiconv,zlib,curl,sqlite3@$(SQLITE3_VERSION),protobuf
+PACKAGES = native/protobuf,native/cmake,native/python@3.14,native/git,native/_,native/make,native/cmake-toolchain,icu4c,boost@$(BOOST_VERSION),zeromq,unbound,sodium,openssl,libiconv,zlib,curl,sqlite3@3510100,protobuf
 SIMPLYBS_HASH = f060b28a0cf32f9ae626a143a029f484bf7b31a6
 
 all: simplybs $(if $(HOST),sbs-build-$(HOST),)

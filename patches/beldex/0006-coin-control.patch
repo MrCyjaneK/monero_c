@@ -1,7 +1,7 @@
-From ff20847bffd1b08a73a9711f278de808a78af269 Mon Sep 17 00:00:00 2001
+From 56db6468224c8563622b8e7495e0fde6881706ba Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Wed, 1 Apr 2026 14:03:19 +0530
-Subject: [PATCH 08/20] coin control
+Date: Tue, 7 Jul 2026 23:37:08 +0530
+Subject: [PATCH 06/16] coin control
 
 ---
  src/simplewallet/simplewallet.cpp |   2 +-
@@ -15,14 +15,15 @@ Subject: [PATCH 08/20] coin control
  src/wallet/api/wallet2_api.h      |  52 ++++++++-
  src/wallet/wallet2.cpp            |  46 +++++++-
  src/wallet/wallet2.h              |  11 +-
- 11 files changed, 635 insertions(+), 30 deletions(-)
+ src/wallet/wallet_rpc_server.cpp  |   2 +-
+ 12 files changed, 636 insertions(+), 31 deletions(-)
  create mode 100644 src/wallet/api/coins.cpp
  create mode 100644 src/wallet/api/coins.h
  create mode 100644 src/wallet/api/coins_info.cpp
  create mode 100644 src/wallet/api/coins_info.h
 
 diff --git a/src/simplewallet/simplewallet.cpp b/src/simplewallet/simplewallet.cpp
-index b3bdc2d48..046836b80 100755
+index 748c17508..6b7a9ca67 100755
 --- a/src/simplewallet/simplewallet.cpp
 +++ b/src/simplewallet/simplewallet.cpp
 @@ -6228,7 +6228,7 @@ bool simple_wallet::transfer_main(Transfer transfer_type, const std::vector<std:
@@ -35,7 +36,7 @@ index b3bdc2d48..046836b80 100755
      if (ptx_vector.empty())
      {
 diff --git a/src/wallet/api/CMakeLists.txt b/src/wallet/api/CMakeLists.txt
-index 4531ad729..83b64813a 100755
+index 6bb98d286..e9b7d92c4 100755
 --- a/src/wallet/api/CMakeLists.txt
 +++ b/src/wallet/api/CMakeLists.txt
 @@ -35,6 +35,8 @@ add_library(wallet_api
@@ -489,7 +490,7 @@ index 000000000..885c7faf9
 +#endif //FEATHER_COINS_INFO_H
 \ No newline at end of file
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index ff4439c84..955f64b35 100755
+index a2cade28c..7bc4dde39 100755
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -41,6 +41,7 @@
@@ -500,7 +501,7 @@ index ff4439c84..955f64b35 100755
  #include "subaddress_account.h"
  #include "common_defines.h"
  #include "common/util.h"
-@@ -489,6 +490,7 @@ WalletImpl::WalletImpl(NetworkType nettype, uint64_t kdf_rounds)
+@@ -486,6 +487,7 @@ WalletImpl::WalletImpl(NetworkType nettype, uint64_t kdf_rounds)
      wallet()->set_refresh_enabled(false);
      m_addressBook.reset(new AddressBookImpl(this));
      m_subaddress.reset(new SubaddressImpl(this));
@@ -508,7 +509,7 @@ index ff4439c84..955f64b35 100755
      m_subaddressAccount.reset(new SubaddressAccountImpl(this));
  
  
-@@ -2192,8 +2194,7 @@ PendingTransaction* WalletImpl::restoreMultisigTransaction(const std::string& si
+@@ -2189,8 +2191,7 @@ PendingTransaction* WalletImpl::restoreMultisigTransaction(const std::string& si
  //    - confirmed_transfer_details)
  
  EXPORT
@@ -518,7 +519,7 @@ index ff4439c84..955f64b35 100755
  {
      clearStatus();
      // Pause refresh thread while creating transaction
-@@ -2218,10 +2219,13 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
+@@ -2215,10 +2216,13 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
              setStatusError(tr("Destinations and amounts are unequal"));
              break;
          }
@@ -536,7 +537,7 @@ index ff4439c84..955f64b35 100755
  		    if(!cryptonote::get_account_address_from_str(info, m_wallet_ptr->nettype(), *address)) {
                  // TODO: copy-paste 'if treating as an address fails, try as url' from simplewallet.cpp:1982
                  setStatusError(tr("Invalid destination address"));
-@@ -2253,14 +2257,67 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
+@@ -2250,14 +2254,67 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
                  }
              }
          }
@@ -611,7 +612,7 @@ index ff4439c84..955f64b35 100755
              auto hf_version = w->get_hard_fork_version();
              if (!hf_version)
              {
-@@ -2271,11 +2328,11 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
+@@ -2268,11 +2325,11 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
                  beldex_construct_tx_params tx_params = tools::wallet2::construct_params(*hf_version, txtype::standard, priority);
                  transaction->m_pending_tx = w->create_transactions_2(dsts, cryptonote::TX_OUTPUT_DECOYS, 0 /* unlock_time */,
                                                                              priority,
@@ -625,7 +626,7 @@ index ff4439c84..955f64b35 100755
              }
              pendingTxPostProcess(transaction);
  
-@@ -2299,6 +2356,16 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
+@@ -2296,6 +2353,16 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
              writer << boost::format(tr("not enough money to transfer, available only %s, sent amount %s")) %
                        print_money(e.available()) %
                        print_money(e.tx_amount());
@@ -642,7 +643,7 @@ index ff4439c84..955f64b35 100755
              setStatusError(writer.str());
          } catch (const tools::error::not_enough_money& e) {
              std::ostringstream writer;
-@@ -2306,6 +2373,16 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
+@@ -2303,6 +2370,16 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
              writer << boost::format(tr("not enough money to transfer, overall balance only %s, sent amount %s")) %
                        print_money(e.available()) %
                        print_money(e.tx_amount());
@@ -659,7 +660,7 @@ index ff4439c84..955f64b35 100755
              setStatusError(writer.str());
          } catch (const tools::error::tx_not_possible& e) {
              std::ostringstream writer;
-@@ -2315,6 +2392,16 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
+@@ -2312,6 +2389,16 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
                        print_money(e.tx_amount() + e.fee())  %
                        print_money(e.tx_amount()) %
                        print_money(e.fee());
@@ -676,7 +677,7 @@ index ff4439c84..955f64b35 100755
              setStatusError(writer.str());
          } catch (const tools::error::not_enough_outs_to_mix& e) {
              std::ostringstream writer;
-@@ -2355,10 +2442,10 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
+@@ -2352,10 +2439,10 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<std:
  
  EXPORT
  PendingTransaction *WalletImpl::createTransaction(const std::string &dst_addr, std::optional<uint64_t> amount,
@@ -689,7 +690,7 @@ index ff4439c84..955f64b35 100755
  }
  
  EXPORT
-@@ -3081,6 +3168,12 @@ AddressBook *WalletImpl::addressBook()
+@@ -3083,6 +3170,12 @@ AddressBook *WalletImpl::addressBook()
      return m_addressBook.get();
  }
  
@@ -703,7 +704,7 @@ index ff4439c84..955f64b35 100755
  Subaddress *WalletImpl::subaddress()
  {
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index cfd0515bd..225b3431d 100755
+index d8b97ffe0..7bd4e02eb 100755
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -37,6 +37,7 @@
@@ -764,7 +765,7 @@ index cfd0515bd..225b3431d 100755
  
      // multi-threaded refresh stuff
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 6c5836e91..6208ed48c 100755
+index 18b6e13b5..c0cdaeb81 100755
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -257,6 +257,51 @@ struct AddressBook
@@ -848,10 +849,10 @@ index 6c5836e91..6208ed48c 100755
      virtual SubaddressAccount * subaddressAccount() = 0;
      virtual void setListener(WalletListener *) = 0;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index a82ec93e0..a3b52fd03 100755
+index 3f6bf98a6..78da95632 100755
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -1721,12 +1721,21 @@ bool wallet2::frozen(size_t idx) const
+@@ -1723,12 +1723,21 @@ bool wallet2::frozen(size_t idx) const
    const transfer_details &td = m_transfers[idx];
    return td.m_frozen;
  }
@@ -873,7 +874,7 @@ index a82ec93e0..a3b52fd03 100755
  void wallet2::thaw(const crypto::key_image &ki)
  {
    thaw(get_transfer_details(ki));
-@@ -1737,6 +1746,18 @@ bool wallet2::frozen(const crypto::key_image &ki) const
+@@ -1739,6 +1748,18 @@ bool wallet2::frozen(const crypto::key_image &ki) const
    return frozen(get_transfer_details(ki));
  }
  //----------------------------------------------------------------------------------------------------
@@ -892,7 +893,7 @@ index a82ec93e0..a3b52fd03 100755
  size_t wallet2::get_transfer_details(const crypto::key_image &ki) const
  {
    for (size_t idx = 0; idx < m_transfers.size(); ++idx)
-@@ -2175,7 +2196,7 @@ void wallet2::process_new_transaction(const crypto::hash &txid, const cryptonote
+@@ -2177,7 +2198,7 @@ void wallet2::process_new_transaction(const crypto::hash &txid, const cryptonote
            if (process_transaction)
            {
              pk_to_unlock_times[tx_scan_info[o].in_ephemeral.pub] = tx_scan_info[o].unlock_time;
@@ -901,7 +902,7 @@ index a82ec93e0..a3b52fd03 100755
              m_transfers.emplace_back();
              transfer_details& td = m_transfers.back();
              td.m_block_height = height; // NB: will be zero for a flash; we update when the flash tx gets mined
-@@ -10941,7 +10962,7 @@ void wallet2::transfer_selected_rct(std::vector<cryptonote::tx_destination_entry
+@@ -10947,7 +10968,7 @@ void wallet2::transfer_selected_rct(std::vector<cryptonote::tx_destination_entry
    LOG_PRINT_L2("transfer_selected_rct done");
  }
  
@@ -910,7 +911,7 @@ index a82ec93e0..a3b52fd03 100755
  {
    std::vector<size_t> picks;
    float current_output_relatdness = 1.0f;
-@@ -10952,6 +10973,9 @@ std::vector<size_t> wallet2::pick_preferred_rct_inputs(uint64_t needed_money, ui
+@@ -10958,6 +10979,9 @@ std::vector<size_t> wallet2::pick_preferred_rct_inputs(uint64_t needed_money, ui
    for (size_t i = 0; i < m_transfers.size(); ++i)
    {
      const transfer_details& td = m_transfers[i];
@@ -920,7 +921,7 @@ index a82ec93e0..a3b52fd03 100755
      if (!is_spent(td, false) && !td.m_frozen && td.is_rct() && td.amount() >= needed_money && is_transfer_unlocked(td) && td.m_subaddr_index.major == subaddr_account && subaddr_indices.count(td.m_subaddr_index.minor) == 1)
      {
        if (td.amount() > m_ignore_outputs_above || td.amount() < m_ignore_outputs_below)
-@@ -10972,6 +10996,9 @@ std::vector<size_t> wallet2::pick_preferred_rct_inputs(uint64_t needed_money, ui
+@@ -10978,6 +11002,9 @@ std::vector<size_t> wallet2::pick_preferred_rct_inputs(uint64_t needed_money, ui
    for (size_t i = 0; i < m_transfers.size(); ++i)
    {
      const transfer_details& td = m_transfers[i];
@@ -930,7 +931,7 @@ index a82ec93e0..a3b52fd03 100755
      if (!is_spent(td, false) && !td.m_frozen && !td.m_key_image_partial && td.is_rct() && is_transfer_unlocked(td) && td.m_subaddr_index.major == subaddr_account && subaddr_indices.count(td.m_subaddr_index.minor) == 1)
      {
        if (td.amount() > m_ignore_outputs_above || td.amount() < m_ignore_outputs_below)
-@@ -10983,6 +11010,9 @@ std::vector<size_t> wallet2::pick_preferred_rct_inputs(uint64_t needed_money, ui
+@@ -10989,6 +11016,9 @@ std::vector<size_t> wallet2::pick_preferred_rct_inputs(uint64_t needed_money, ui
        for (size_t j = i + 1; j < m_transfers.size(); ++j)
        {
          const transfer_details& td2 = m_transfers[j];
@@ -940,7 +941,7 @@ index a82ec93e0..a3b52fd03 100755
          if (td2.amount() > m_ignore_outputs_above || td2.amount() < m_ignore_outputs_below)
          {
            MDEBUG("Ignoring output " << j << " of amount " << print_money(td2.amount()) << " which is outside prescribed range [" << print_money(m_ignore_outputs_below) << ", " << print_money(m_ignore_outputs_above) << "]");
-@@ -11549,7 +11579,7 @@ bool wallet2::light_wallet_key_image_is_ours(const crypto::key_image& key_image,
+@@ -11555,7 +11585,7 @@ bool wallet2::light_wallet_key_image_is_ours(const crypto::key_image& key_image,
  // This system allows for sending (almost) the entire balance, since it does
  // not generate spurious change in all txes, thus decreasing the instantaneous
  // usable balance.
@@ -949,7 +950,7 @@ index a82ec93e0..a3b52fd03 100755
  {
    //ensure device is let in NONE mode in any case
    LOG_PRINT_L0("create_transactions_2 get_device prio:" << priority);
-@@ -11789,6 +11819,9 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
+@@ -11795,6 +11825,9 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
      const transfer_details& td = m_transfers[i];
      if (!is_spent(td, false) && !td.m_frozen && !td.m_key_image_partial && td.m_key_image_known && is_transfer_unlocked(td) && td.m_subaddr_index.major == subaddr_account && subaddr_indices.count(td.m_subaddr_index.minor) == 1)
      {
@@ -959,7 +960,7 @@ index a82ec93e0..a3b52fd03 100755
        if (td.amount() > m_ignore_outputs_above || td.amount() < m_ignore_outputs_below)
        {
          MDEBUG("Ignoring output " << i << " of amount " << print_money(td.amount()) << " which is outside prescribed range [" << print_money(m_ignore_outputs_below) << ", " << print_money(m_ignore_outputs_above) << "]");
-@@ -11876,7 +11909,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
+@@ -11882,7 +11915,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
      LOG_PRINT_L1("Estimated_fee for rct tx: " << estimated_fee);
      LOG_PRINT_L1("needed_money for rct tx: " << needed_money);
      total_needed_money = needed_money + (subtract_fee_from_outputs.size() ? 0 : estimated_fee);
@@ -968,7 +969,7 @@ index a82ec93e0..a3b52fd03 100755
      if (!preferred_inputs.empty())
      {
        std::string s;
-@@ -12309,7 +12342,7 @@ bool wallet2::sanity_check(const std::vector<wallet2::pending_tx> &ptx_vector, s
+@@ -12315,7 +12348,7 @@ bool wallet2::sanity_check(const std::vector<wallet2::pending_tx> &ptx_vector, s
    return true;
  }
  
@@ -977,7 +978,7 @@ index a82ec93e0..a3b52fd03 100755
  {
    std::vector<size_t> unused_transfers_indices;
    std::vector<size_t> unused_dust_indices;
-@@ -12323,6 +12356,9 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_all(uint64_t below
+@@ -12329,6 +12362,9 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_all(uint64_t below
    for (size_t i = 0; i < m_transfers.size(); ++i)
    {
      const transfer_details& td = m_transfers[i];
@@ -988,7 +989,7 @@ index a82ec93e0..a3b52fd03 100755
      {
        fund_found = true;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index dd1f3c69f..6505f9585 100755
+index 22a72e80d..0b63910f6 100755
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
 @@ -40,6 +40,7 @@
@@ -999,7 +1000,7 @@ index dd1f3c69f..6505f9585 100755
  #include <nlohmann/json.hpp>
  
  #include "cryptonote_basic/account.h"
-@@ -954,9 +955,9 @@ private:
+@@ -953,9 +954,9 @@ private:
      bool parse_unsigned_tx_from_str(std::string_view unsigned_tx_st, unsigned_tx_set &exported_txs) const;
      bool load_tx(const fs::path& signed_filename, std::vector<pending_tx>& ptx, std::function<bool(const signed_tx_set&)> accept_func = NULL);
      bool parse_tx_from_str(std::string_view signed_tx_st, std::vector<pending_tx> &ptx, std::function<bool(const signed_tx_set &)> accept_func);
@@ -1011,7 +1012,7 @@ index dd1f3c69f..6505f9585 100755
      std::vector<pending_tx> create_transactions_single(const crypto::key_image &ki, const cryptonote::account_public_address &address, bool is_subaddress, const size_t outputs, const size_t fake_outs_count, const uint64_t unlock_time, uint32_t priority, const std::vector<uint8_t>& extra, cryptonote::txtype tx_type = cryptonote::txtype::standard);
      std::vector<pending_tx> create_transactions_from(const cryptonote::account_public_address &address, bool is_subaddress, const size_t outputs, std::vector<size_t> unused_transfers_indices, std::vector<size_t> unused_dust_indices, const size_t fake_outs_count, const uint64_t unlock_time, uint32_t priority, const std::vector<uint8_t>& extra, cryptonote::txtype tx_type = cryptonote::txtype::standard);
      std::vector<pending_tx> create_transactions_burn(const std::vector<crypto::key_image> &ki, const size_t outputs, const size_t fake_outs_count, const uint64_t unlock_time, uint32_t priority, const std::vector<uint8_t>& extra, cryptonote::txtype tx_type = cryptonote::txtype::coin_burn);
-@@ -1324,6 +1325,7 @@ private:
+@@ -1323,6 +1324,7 @@ private:
      uint64_t get_num_rct_outputs();
      size_t get_num_transfer_details() const { return m_transfers.size(); }
      const transfer_details &get_transfer_details(size_t idx) const;
@@ -1019,7 +1020,7 @@ index dd1f3c69f..6505f9585 100755
  
      void get_hard_fork_info (uint8_t version, uint64_t &earliest_height) const;
      std::optional<cryptonote::hf> get_hard_fork_version() const { return m_node_rpc_proxy.get_hardfork_version(); }
-@@ -1677,7 +1679,9 @@ private:
+@@ -1676,7 +1678,9 @@ private:
      void freeze(size_t idx);
      void thaw(size_t idx);
      bool frozen(size_t idx) const;
@@ -1029,7 +1030,7 @@ index dd1f3c69f..6505f9585 100755
      void thaw(const crypto::key_image &ki);
      bool frozen(const crypto::key_image &ki) const;
      bool frozen(const transfer_details &td) const;
-@@ -1710,6 +1714,7 @@ private:
+@@ -1709,6 +1713,7 @@ private:
  
      std::atomic<bool> m_long_poll_disabled;
      static std::string get_default_daemon_address();
@@ -1037,7 +1038,7 @@ index dd1f3c69f..6505f9585 100755
  
      // The wallet's RPC client; public for advanced configuration purposes.
      cryptonote::rpc::http_client m_http_client;
-@@ -1780,7 +1785,7 @@ private:
+@@ -1779,7 +1784,7 @@ private:
      std::vector<uint64_t> get_unspent_amounts_vector(bool strict) const;
      cryptonote::byte_and_output_fees get_dynamic_base_fee_estimate() const;
      float get_output_relatedness(const transfer_details &td0, const transfer_details &td1) const;
@@ -1046,6 +1047,19 @@ index dd1f3c69f..6505f9585 100755
      void set_spent(size_t idx, uint64_t height);
      void set_unspent(size_t idx);
      bool is_spent(const transfer_details &td, bool strict = true) const;
+diff --git a/src/wallet/wallet_rpc_server.cpp b/src/wallet/wallet_rpc_server.cpp
+index 5b02c868e..20d4c324f 100755
+--- a/src/wallet/wallet_rpc_server.cpp
++++ b/src/wallet/wallet_rpc_server.cpp
+@@ -1113,7 +1113,7 @@ namespace tools
+       if (!hf_version)
+         throw wallet_rpc_error{error_code::HF_QUERY_FAILED, tools::ERR_MSG_NETWORK_VERSION_QUERY_FAILED};
+       cryptonote::beldex_construct_tx_params tx_params = tools::wallet2::construct_params(*hf_version, cryptonote::txtype::standard, priority);
+-      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, cryptonote::TX_OUTPUT_DECOYS, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices, tx_params, req.subtract_fee_from_outputs);
++      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, cryptonote::TX_OUTPUT_DECOYS, req.unlock_time, priority, extra, req.account_index, req.subaddr_indices, tx_params, req.subtract_fee_from_outputs, {});
+ 
+       if (ptx_vector.empty())
+         throw wallet_rpc_error{error_code::TX_NOT_POSSIBLE, "No transaction created"};
 -- 
 2.43.0
 

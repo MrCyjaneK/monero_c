@@ -1,7 +1,7 @@
-From 8071414dab9fe44a45e983bddf9d37bfcb9d8b27 Mon Sep 17 00:00:00 2001
+From 770d346644daad707de7346bd681a69f22abd92f Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Mon, 6 Apr 2026 13:55:33 +0530
-Subject: [PATCH 16/20] add build-time patch packages for randomx, libuv, cpr,
+Date: Tue, 7 Jul 2026 23:41:41 +0530
+Subject: [PATCH 11/16] add build-time patch packages for randomx, libuv, cpr,
  loki-mq, oxen-encoding, and uSockets
 
 ---
@@ -9,6 +9,7 @@ Subject: [PATCH 16/20] add build-time patch packages for randomx, libuv, cpr,
  cmake/libuv.cmake                             |  19 +++
  cmake/loki-mq.cmake                           |  20 +++
  cmake/oxen-encoding.cmake                     |  22 +++
+ cmake/patch-libzmq-for-mingw.cmake            |  14 ++
  cmake/patch/cpr/001-fix-callback.patch        |  12 ++
  cmake/patch/libuv/001-fix-cmake-version.patch |  10 ++
  .../patch/loki-mq/001-fix-libzmq-cmake.patch  | 161 ++++++++++++++++++
@@ -18,11 +19,12 @@ Subject: [PATCH 16/20] add build-time patch packages for randomx, libuv, cpr,
  cmake/randomx.cmake                           |  19 +++
  cmake/uSockets.cmake                          |  23 +++
  external/CMakeLists.txt                       |  13 +-
- 13 files changed, 519 insertions(+), 2 deletions(-)
+ 14 files changed, 533 insertions(+), 2 deletions(-)
  create mode 100644 cmake/cpr.cmake
  create mode 100644 cmake/libuv.cmake
  create mode 100644 cmake/loki-mq.cmake
  create mode 100644 cmake/oxen-encoding.cmake
+ create mode 100644 cmake/patch-libzmq-for-mingw.cmake
  create mode 100644 cmake/patch/cpr/001-fix-callback.patch
  create mode 100644 cmake/patch/libuv/001-fix-cmake-version.patch
  create mode 100644 cmake/patch/loki-mq/001-fix-libzmq-cmake.patch
@@ -138,6 +140,26 @@ index 000000000..753460bd3
 +      "Failed to apply oxen-encoding patch:\n${_patch_out}\n${_patch_err}")
 +  endif()
 +endif()
+diff --git a/cmake/patch-libzmq-for-mingw.cmake b/cmake/patch-libzmq-for-mingw.cmake
+new file mode 100644
+index 000000000..26a3b0463
+--- /dev/null
++++ b/cmake/patch-libzmq-for-mingw.cmake
+@@ -0,0 +1,14 @@
++if(NOT DEFINED LIBZMQ_SOURCE_DIR OR LIBZMQ_SOURCE_DIR STREQUAL "")
++    message(FATAL_ERROR "LIBZMQ_SOURCE_DIR is required")
++endif()
++
++set(libzmq_cmake_lists "${LIBZMQ_SOURCE_DIR}/CMakeLists.txt")
++if(NOT EXISTS "${libzmq_cmake_lists}")
++    message(FATAL_ERROR "Missing ${libzmq_cmake_lists}")
++endif()
++
++file(READ "${libzmq_cmake_lists}" libzmq_cmake)
++string(REPLACE "ws2_32.lib" "ws2_32" libzmq_cmake "${libzmq_cmake}")
++string(REPLACE "rpcrt4.lib" "rpcrt4" libzmq_cmake "${libzmq_cmake}")
++string(REPLACE "iphlpapi.lib" "iphlpapi" libzmq_cmake "${libzmq_cmake}")
++file(WRITE "${libzmq_cmake_lists}" "${libzmq_cmake}")
 diff --git a/cmake/patch/cpr/001-fix-callback.patch b/cmake/patch/cpr/001-fix-callback.patch
 new file mode 100644
 index 000000000..574af7c79
@@ -616,7 +638,7 @@ index 000000000..ad133c565
 +  endif()
 +endif()
 diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
-index a7bfba09b..fdfa002c0 100755
+index 7e1d62cd5..bc4355179 100755
 --- a/external/CMakeLists.txt
 +++ b/external/CMakeLists.txt
 @@ -33,6 +33,11 @@

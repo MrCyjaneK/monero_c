@@ -1,7 +1,7 @@
-From b4f6eaf444fd1f3524d18a1002fa10ad79798b19 Mon Sep 17 00:00:00 2001
+From 8e09937a5ea52c165860dfc8f31d15be11b8829a Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Wed, 1 Apr 2026 15:55:42 +0530
-Subject: [PATCH 14/20] Fix Android cross-build
+Date: Tue, 7 Jul 2026 23:45:29 +0530
+Subject: [PATCH 15/16] Fix Android cross-build
 
 ---
  CMakeLists.txt                                 |  4 ++++
@@ -12,10 +12,10 @@ Subject: [PATCH 14/20] Fix Android cross-build
  5 files changed, 24 insertions(+), 18 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index c5777d1e7..992362bb1 100755
+index 1fe7681af..29c548981 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -112,6 +112,10 @@ if(WIN32)
+@@ -107,6 +107,10 @@ if(WIN32)
      add_compile_definitions(_FORTIFY_SOURCE=0)
  endif()
  

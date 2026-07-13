@@ -1,7 +1,7 @@
-From 185d50e477a5ef4a67e1be448fd93191c7d848dc Mon Sep 17 00:00:00 2001
+From b71b3f047909860bf1139b0df84f10ccb73f51bd Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Wed, 1 Apr 2026 14:10:57 +0530
-Subject: [PATCH 12/20] include locale only when targeting WIN32
+Date: Tue, 7 Jul 2026 23:39:34 +0530
+Subject: [PATCH 09/16] include locale only when targeting WIN32
 
 ---
  CMakeLists.txt            | 4 ++++
@@ -9,7 +9,7 @@ Subject: [PATCH 12/20] include locale only when targeting WIN32
  2 files changed, 8 insertions(+)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index fe53b88fc..a3b963468 100755
+index 8573ec1e5..214c58e19 100755
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -780,6 +780,10 @@ else()
@@ -24,12 +24,12 @@ index fe53b88fc..a3b963468 100755
  if(NOT Boost_FOUND)
    message(FATAL_ERROR "Could not find Boost libraries, please make sure you have installed Boost or libboost-all-dev (>=1.58) or the equivalent")
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 7b28e4cba..239043964 100755
+index 97a007d0c..39675cbb8 100755
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
-@@ -59,6 +59,10 @@
- #include "device/device_io_dummy.hpp"
- #endif
+@@ -56,6 +56,10 @@
+ #include "epee/scope_leaver.h"
+ #include "bc-ur/src/bc-ur.hpp"
  
 +#ifdef WIN32
 + #include <boost/locale.hpp>

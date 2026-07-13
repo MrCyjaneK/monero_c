@@ -1,0 +1,80 @@
+From ddcbe86cb15c08d57ccc624d749c84d1bf9465ae Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Tue, 7 Jul 2026 23:44:58 +0530
+Subject: [PATCH 14/16] Fix MinGW Windows build
+
+---
+ CMakeLists.txt            | 19 ++++++++++++++++++-
+ external/CMakeLists.txt   |  5 +++++
+ src/wallet/api/wallet.cpp |  2 +-
+ 3 files changed, 24 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 51e5fc600..1fe7681af 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -90,6 +90,23 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+     endif()
+ endif()
+ 
++if(WIN32 AND DEFINED HOST_ABI AND HOST_ABI MATCHES "mingw")
++  add_compile_options(
++    -fpermissive
++    -Wno-error
++    -Wno-error=extra
++    -Wno-extra
++    -Wno-error=shift-count-overflow
++    -D_GLIBCXX_USE_INT128=1
++  )
++endif()
++
++if(WIN32)
++    add_compile_options(-fno-stack-protector)
++    add_compile_options(-U_FORTIFY_SOURCE)
++    add_compile_definitions(_FORTIFY_SOURCE=0)
++endif()
++
+ # Add this line to suppress implicit-fallthrough warnings
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-implicit-fallthrough")
+ 
+@@ -488,7 +505,7 @@ endif()
+ 
+ 
+ option(WITH_SYSTEMD "Attempts to link against and enable systemd daemon notification support" ON)
+-if (WITH_SYSTEMD AND NOT BUILD_STATIC_DEPS)
++if (WITH_SYSTEMD AND NOT BUILD_STATIC_DEPS AND NOT ANDROID AND NOT WIN32)
+   find_package(PkgConfig REQUIRED)
+   pkg_check_modules(SYSTEMD libsystemd IMPORTED_TARGET)
+ 
+diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
+index bc4355179..ca1edcf14 100755
+--- a/external/CMakeLists.txt
++++ b/external/CMakeLists.txt
+@@ -155,6 +155,11 @@ add_library(cpr STATIC EXCLUDE_FROM_ALL ${cpr_sources})
+ target_link_libraries(cpr PUBLIC CURL::libcurl)
+ target_include_directories(cpr PUBLIC cpr/include)
+ target_compile_definitions(cpr PUBLIC CPR_CURL_NOSIGNAL)
++
++if(MINGW)
++    target_compile_definitions(cpr PUBLIC CURL_STATICLIB)
++endif()
++
+ add_library(cpr::cpr ALIAS cpr)
+ 
+ file(READ cpr/CMakeLists.txt cpr_cmake_head LIMIT 1000)
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index c3a05b869..2c5acd22b 100755
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -3865,7 +3865,7 @@ bool WalletImpl::parse_uri(const std::string &uri, std::string &address, std::st
+ EXPORT
+ std::string WalletImpl::getDefaultDataDir() const
+ {
+- return tools::get_default_data_dir();
++ return tools::get_default_data_dir().string();
+ }
+ 
+ EXPORT
+-- 
+2.43.0
+

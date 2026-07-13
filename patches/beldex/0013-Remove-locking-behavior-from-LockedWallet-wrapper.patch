@@ -1,14 +1,14 @@
-From a4293bba492e11fa129072839108194dd7e889ab Mon Sep 17 00:00:00 2001
+From 85091c41edaa95da8eccb3b37a90a6564f916aa6 Mon Sep 17 00:00:00 2001
 From: Agatha-luna <magambo@beldex.io>
-Date: Mon, 6 Apr 2026 13:59:53 +0530
-Subject: [PATCH 19/20] Remove locking behavior from LockedWallet wrapper
+Date: Tue, 7 Jul 2026 23:44:26 +0530
+Subject: [PATCH 13/16] Remove locking behavior from LockedWallet wrapper
 
 ---
  src/wallet/api/wallet.h | 21 +++++++--------------
  1 file changed, 7 insertions(+), 14 deletions(-)
 
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 97f52dc1e..70bc1911c 100755
+index ad0bdad83..086266d1e 100755
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -55,21 +55,14 @@ struct stakeInfo;
