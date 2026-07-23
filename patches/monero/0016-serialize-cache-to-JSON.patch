@@ -1,7 +1,7 @@
-From e6785290c24eb48d6b6aec8e1831b96f65cd3bfd Mon Sep 17 00:00:00 2001
+From 0c287081f916066ba227fb24044d26950a767a59 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 12 Aug 2025 07:09:14 -0400
-Subject: [PATCH 16/20] serialize cache to JSON
+Subject: [PATCH 16/22] serialize cache to JSON
 
 ---
  src/wallet/CMakeLists.txt           |   1 +
@@ -9,27 +9,27 @@ Subject: [PATCH 16/20] serialize cache to JSON
  src/wallet/api/wallet.h             |   2 +
  src/wallet/api/wallet2_api.h        |   3 +
  src/wallet/wallet2.h                |   6 +
- src/wallet/wallet_cache_to_json.cpp | 368 ++++++++++++++++++++++++++++
- 6 files changed, 385 insertions(+)
+ src/wallet/wallet_cache_to_json.cpp | 334 ++++++++++++++++++++++++++++
+ 6 files changed, 351 insertions(+)
  create mode 100644 src/wallet/wallet_cache_to_json.cpp
 
 diff --git a/src/wallet/CMakeLists.txt b/src/wallet/CMakeLists.txt
-index b163212b7..196ad671f 100644
+index db7c3c06b..4c80e64a4 100644
 --- a/src/wallet/CMakeLists.txt
 +++ b/src/wallet/CMakeLists.txt
-@@ -38,6 +38,7 @@ set(wallet_sources
-   message_store.cpp
+@@ -40,6 +40,7 @@ set(wallet_sources
    message_transporter.cpp
-   wallet_rpc_payments.cpp
+   scanning_tools.cpp
+   tx_builder.cpp
 +  wallet_cache_to_json.cpp
  )
  
  monero_find_all_headers(wallet_private_headers "${CMAKE_CURRENT_SOURCE_DIR}")
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 107f516f3..c24b4a97d 100644
+index a61addbe4..57f1203c6 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
-@@ -3474,4 +3474,9 @@ void Wallet::setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command
+@@ -3431,4 +3431,9 @@ void Wallet::setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command
      #endif
  }
  
@@ -40,10 +40,10 @@ index 107f516f3..c24b4a97d 100644
 +
  } // namespace
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index bfe81c590..98c03b9c1 100644
+index d4b11d96a..8e4846e27 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
-@@ -335,6 +335,8 @@ private:
+@@ -336,6 +336,8 @@ private:
      bool getWaitsForDeviceSend();
  
      bool getWaitsForDeviceReceive();
@@ -53,10 +53,10 @@ index bfe81c590..98c03b9c1 100644
  
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index fcb8187d4..3d11929f9 100644
+index 68efcdaf8..4552c02d0 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -1217,6 +1217,9 @@ struct Wallet
+@@ -1213,6 +1213,9 @@ struct Wallet
      static void setDeviceReceivedData(unsigned char* data, size_t len);
      static void setDeviceSendData(unsigned char* data, size_t len);
      static void setLedgerCallback(void (*sendToLedgerDevice)(unsigned char *command, unsigned int cmd_len));
@@ -67,11 +67,11 @@ index fcb8187d4..3d11929f9 100644
  
  /**
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index d07dc7e8b..37a2447d2 100644
+index a46c2e341..42e1c02d9 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
-@@ -1436,6 +1436,12 @@ private:
-       FIELD(m_background_sync_data)
+@@ -993,6 +993,12 @@ private:
+       FIELD(m_tree_cache)
      END_SERIALIZE()
  
 +    /*!
@@ -85,16 +85,15 @@ index d07dc7e8b..37a2447d2 100644
       * \param  file_path           Wallet file path
 diff --git a/src/wallet/wallet_cache_to_json.cpp b/src/wallet/wallet_cache_to_json.cpp
 new file mode 100644
-index 000000000..4743852ca
+index 000000000..cbeba044e
 --- /dev/null
 +++ b/src/wallet/wallet_cache_to_json.cpp
-@@ -0,0 +1,368 @@
+@@ -0,0 +1,334 @@
 +#include "wallet2.h"
-+#include "serialization/binary_archive.h"
++#include "wallet2_basic/wallet2_serialization.h"
 +#include "serialization/json_archive.h"
 +#include "serialization/serialization.h"
 +#include <sstream>
-+#include <iomanip>
 +
 +namespace tools
 +{
@@ -182,11 +181,10 @@ index 000000000..4743852ca
 +    try
 +    {
 +        std::stringstream oss;
-+        json_archive<true> ar(oss, true); // true for pretty printing
++        json_archive<true> ar(oss, true);
 +
 +        ar.begin_object();
 +
-+        // MAGIC_FIELD("monero wallet cache")
 +        std::string magic = "monero wallet cache";
 +        ar.tag("magic");
 +        ar.serialize_blob((void*)magic.data(), magic.size());
@@ -195,8 +193,7 @@ index 000000000..4743852ca
 +            return json_result.c_str();
 +        }
 +
-+        // VERSION_FIELD(2)
-+        uint32_t version = 2;
++        uint32_t version = 3;
 +        ar.tag("version");
 +        ar.serialize_varint(version);
 +        if (!ar.good()) {
@@ -204,112 +201,96 @@ index 000000000..4743852ca
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_blockchain) - hashchain type, has serialization support
 +        ar.tag("m_blockchain");
 +        if (!::serialization::serialize(ar, const_cast<hashchain&>(m_blockchain))) {
 +            json_result = "{\"error\":\"Failed to serialize m_blockchain\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_transfers) - transfer_container (std::vector<transfer_details>)
 +        ar.tag("m_transfers");
 +        if (!::serialization::serialize(ar, const_cast<transfer_container&>(m_transfers))) {
 +            json_result = "{\"error\":\"Failed to serialize m_transfers\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_account_public_address) - cryptonote::account_public_address
 +        ar.tag("m_account_public_address");
 +        if (!::serialization::serialize(ar, const_cast<cryptonote::account_public_address&>(m_account_public_address))) {
 +            json_result = "{\"error\":\"Failed to serialize m_account_public_address\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_key_images) - serializable_unordered_map<crypto::key_image, size_t>
 +        ar.tag("m_key_images");
-+        if (!::serialization::serialize(ar, const_cast<serializable_unordered_map<crypto::key_image, size_t>&>(m_key_images))) {
++        if (!::serialization::serialize(ar, const_cast<decltype(m_key_images)&>(m_key_images))) {
 +            json_result = "{\"error\":\"Failed to serialize m_key_images\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_unconfirmed_txs) - serializable_unordered_map<crypto::hash, unconfirmed_transfer_details>
 +        ar.tag("m_unconfirmed_txs");
-+        if (!::serialization::serialize(ar, const_cast<serializable_unordered_map<crypto::hash, unconfirmed_transfer_details>&>(m_unconfirmed_txs))) {
++        if (!::serialization::serialize(ar, const_cast<decltype(m_unconfirmed_txs)&>(m_unconfirmed_txs))) {
 +            json_result = "{\"error\":\"Failed to serialize m_unconfirmed_txs\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_payments) - payment_container (serializable_unordered_multimap<crypto::hash, payment_details>)
 +        ar.tag("m_payments");
 +        if (!::serialization::serialize(ar, const_cast<payment_container&>(m_payments))) {
 +            json_result = "{\"error\":\"Failed to serialize m_payments\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_tx_keys) - serializable_unordered_map<crypto::hash, crypto::secret_key>
 +        ar.tag("m_tx_keys");
-+        if (!::serialization::serialize(ar, const_cast<serializable_unordered_map<crypto::hash, crypto::secret_key>&>(m_tx_keys))) {
++        if (!::serialization::serialize(ar, const_cast<decltype(m_tx_keys)&>(m_tx_keys))) {
 +            json_result = "{\"error\":\"Failed to serialize m_tx_keys\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_confirmed_txs) - serializable_unordered_map<crypto::hash, confirmed_transfer_details>
 +        ar.tag("m_confirmed_txs");
-+        if (!::serialization::serialize(ar, const_cast<serializable_unordered_map<crypto::hash, confirmed_transfer_details>&>(m_confirmed_txs))) {
++        if (!::serialization::serialize(ar, const_cast<decltype(m_confirmed_txs)&>(m_confirmed_txs))) {
 +            json_result = "{\"error\":\"Failed to serialize m_confirmed_txs\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_tx_notes) - serializable_unordered_map<crypto::hash, std::string>
 +        ar.tag("m_tx_notes");
-+        if (!::serialization::serialize(ar, const_cast<serializable_unordered_map<crypto::hash, std::string>&>(m_tx_notes))) {
++        if (!::serialization::serialize(ar, const_cast<decltype(m_tx_notes)&>(m_tx_notes))) {
 +            json_result = "{\"error\":\"Failed to serialize m_tx_notes\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_unconfirmed_payments) - serializable_unordered_multimap<crypto::hash, pool_payment_details>
 +        ar.tag("m_unconfirmed_payments");
-+        if (!::serialization::serialize(ar, const_cast<serializable_unordered_multimap<crypto::hash, pool_payment_details>&>(m_unconfirmed_payments))) {
++        if (!::serialization::serialize(ar, const_cast<decltype(m_unconfirmed_payments)&>(m_unconfirmed_payments))) {
 +            json_result = "{\"error\":\"Failed to serialize m_unconfirmed_payments\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_pub_keys) - serializable_unordered_map<crypto::public_key, size_t>
 +        ar.tag("m_pub_keys");
-+        if (!::serialization::serialize(ar, const_cast<serializable_unordered_map<crypto::public_key, size_t>&>(m_pub_keys))) {
++        if (!::serialization::serialize(ar, const_cast<decltype(m_pub_keys)&>(m_pub_keys))) {
 +            json_result = "{\"error\":\"Failed to serialize m_pub_keys\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_address_book) - std::vector<tools::wallet2::address_book_row>
 +        ar.tag("m_address_book");
-+        if (!::serialization::serialize(ar, const_cast<std::vector<tools::wallet2::address_book_row>&>(m_address_book))) {
++        if (!::serialization::serialize(ar, const_cast<std::vector<address_book_row>&>(m_address_book))) {
 +            json_result = "{\"error\":\"Failed to serialize m_address_book\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_scanned_pool_txs[0]) - std::unordered_set<crypto::hash>
 +        ar.tag("m_scanned_pool_txs_0");
 +        if (!::serialization::serialize(ar, const_cast<std::unordered_set<crypto::hash>&>(m_scanned_pool_txs[0]))) {
 +            json_result = "{\"error\":\"Failed to serialize m_scanned_pool_txs[0]\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_scanned_pool_txs[1]) - std::unordered_set<crypto::hash>
 +        ar.tag("m_scanned_pool_txs_1");
 +        if (!::serialization::serialize(ar, const_cast<std::unordered_set<crypto::hash>&>(m_scanned_pool_txs[1]))) {
 +            json_result = "{\"error\":\"Failed to serialize m_scanned_pool_txs[1]\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_subaddresses) - serializable_unordered_map<crypto::public_key, cryptonote::subaddress_index>
 +        ar.tag("m_subaddresses");
-+        if (!::serialization::serialize(ar, const_cast<serializable_unordered_map<crypto::public_key, cryptonote::subaddress_index>&>(m_subaddresses))) {
++        if (!::serialization::serialize(ar, const_cast<decltype(m_subaddresses)&>(m_subaddresses))) {
 +            json_result = "{\"error\":\"Failed to serialize m_subaddresses\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_subaddress_labels) - std::vector<std::vector<std::string>> - manual JSON serialization
 +        oss << ", \n  \"m_subaddress_labels\": [";
 +        for (size_t i = 0; i < m_subaddress_labels.size(); ++i) {
 +            if (i > 0) oss << ", ";
@@ -324,14 +305,12 @@ index 000000000..4743852ca
 +        }
 +        oss << "\n  ]";
 +
-+        // FIELD(m_additional_tx_keys) - serializable_unordered_map<crypto::hash, std::vector<crypto::secret_key>>
 +        ar.tag("m_additional_tx_keys");
-+        if (!::serialization::serialize(ar, const_cast<serializable_unordered_map<crypto::hash, std::vector<crypto::secret_key>>&>(m_additional_tx_keys))) {
++        if (!::serialization::serialize(ar, const_cast<decltype(m_additional_tx_keys)&>(m_additional_tx_keys))) {
 +            json_result = "{\"error\":\"Failed to serialize m_additional_tx_keys\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_attributes) - serializable_unordered_map<std::string, std::string> - manual JSON serialization
 +        oss << ", \n  \"m_attributes\": {";
 +        bool first_attr = true;
 +        for (const auto& attr : m_attributes) {
@@ -345,7 +324,6 @@ index 000000000..4743852ca
 +        }
 +        oss << "\n  }";
 +
-+        // FIELD(m_account_tags) - std::pair<serializable_map<std::string, std::string>, std::vector<std::string>> - manual JSON serialization
 +        oss << ", \n  \"m_account_tags\": {";
 +        oss << "\n    \"tags_map\": {";
 +        bool first_tag = true;
@@ -369,15 +347,12 @@ index 000000000..4743852ca
 +        oss << "\n    ]";
 +        oss << "\n  }";
 +
-+        // FIELD(m_ring_history_saved) - bool
-+        // ar.tag("m_ring_history_saved");
-+        // ar.serialize_blob(&m_ring_history_saved, sizeof(m_ring_history_saved));
-+        // if (!ar.good()) {
-+        //     json_result = "{\"error\":\"Failed to serialize m_ring_history_saved\"}";
-+        //     return json_result.c_str();
-+        // }
++        ar.tag("m_ring_history_saved");
++        if (!::serialization::serialize(ar, const_cast<bool&>(m_ring_history_saved))) {
++            json_result = "{\"error\":\"Failed to serialize m_ring_history_saved\"}";
++            return json_result.c_str();
++        }
 +
-+        // FIELD(m_last_block_reward) - uint64_t
 +        ar.tag("m_last_block_reward");
 +        ar.serialize_int(m_last_block_reward);
 +        if (!ar.good()) {
@@ -385,14 +360,12 @@ index 000000000..4743852ca
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_tx_device) - serializable_unordered_map<crypto::hash, std::string>
 +        ar.tag("m_tx_device");
-+        if (!::serialization::serialize(ar, const_cast<serializable_unordered_map<crypto::hash, std::string>&>(m_tx_device))) {
++        if (!::serialization::serialize(ar, const_cast<decltype(m_tx_device)&>(m_tx_device))) {
 +            json_result = "{\"error\":\"Failed to serialize m_tx_device\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_device_last_key_image_sync) - uint64_t
 +        ar.tag("m_device_last_key_image_sync");
 +        ar.serialize_int(m_device_last_key_image_sync);
 +        if (!ar.good()) {
@@ -400,37 +373,32 @@ index 000000000..4743852ca
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_cold_key_images) - serializable_unordered_map<crypto::public_key, crypto::key_image>
 +        ar.tag("m_cold_key_images");
-+        if (!::serialization::serialize(ar, const_cast<serializable_unordered_map<crypto::public_key, crypto::key_image>&>(m_cold_key_images))) {
++        if (!::serialization::serialize(ar, const_cast<decltype(m_cold_key_images)&>(m_cold_key_images))) {
 +            json_result = "{\"error\":\"Failed to serialize m_cold_key_images\"}";
 +            return json_result.c_str();
 +        }
 +
-+        // FIELD(m_rpc_client_secret_key) - crypto::secret_key
-+        // ar.tag("m_rpc_client_secret_key");
-+        // ar.serialize_blob(&m_rpc_client_secret_key, sizeof(m_rpc_client_secret_key));
-+        // if (!ar.good()) {
-+        //     json_result = "{\"error\":\"Failed to serialize m_rpc_client_secret_key\"}";
-+        //     return json_result.c_str();
-+        // }
-+
-+        // Version-dependent fields
 +        if (version >= 1) {
-+            // FIELD(m_has_ever_refreshed_from_node) - bool
-+            // ar.tag("m_has_ever_refreshed_from_node");
-+            // ar.serialize_blob(&m_has_ever_refreshed_from_node, sizeof(m_has_ever_refreshed_from_node));
-+            // if (!ar.good()) {
-+            //     json_result = "{\"error\":\"Failed to serialize m_has_ever_refreshed_from_node\"}";
-+            //     return json_result.c_str();
-+            // }
++            ar.tag("m_has_ever_refreshed_from_node");
++            if (!::serialization::serialize(ar, const_cast<bool&>(m_has_ever_refreshed_from_node))) {
++                json_result = "{\"error\":\"Failed to serialize m_has_ever_refreshed_from_node\"}";
++                return json_result.c_str();
++            }
 +        }
 +
 +        if (version >= 2) {
-+            // FIELD(m_background_sync_data) - background_sync_data_t
 +            ar.tag("m_background_sync_data");
 +            if (!::serialization::serialize(ar, const_cast<background_sync_data_t&>(m_background_sync_data))) {
 +                json_result = "{\"error\":\"Failed to serialize m_background_sync_data\"}";
++                return json_result.c_str();
++            }
++        }
++
++        if (version >= 3) {
++            ar.tag("m_tree_cache");
++            if (!::serialization::serialize(ar, const_cast<TreeCacheV1&>(m_tree_cache))) {
++                json_result = "{\"error\":\"Failed to serialize m_tree_cache\"}";
 +                return json_result.c_str();
 +            }
 +        }
@@ -443,8 +411,6 @@ index 000000000..4743852ca
 +        }
 +
 +        json_result = oss.str();
-+
-+        // Post-process to fix malformed JSON
 +        post_process_json(json_result);
 +
 +        return json_result.c_str();
@@ -457,7 +423,6 @@ index 000000000..4743852ca
 +}
 +
 +} // namespace tools
-\ No newline at end of file
 -- 
-2.50.1 (Apple Git-155)
+2.54.0 (Apple Git-157)
 

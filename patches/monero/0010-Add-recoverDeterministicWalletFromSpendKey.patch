@@ -1,7 +1,7 @@
-From 3e15968c13d2a7c0098d26e72168a5774d6cdd89 Mon Sep 17 00:00:00 2001
+From f26dc4ee8737fa57da58037134c2d2ed987834a5 Mon Sep 17 00:00:00 2001
 From: Konstantin Ullrich <konstantinullrich12@gmail.com>
 Date: Wed, 11 Oct 2023 16:47:59 +0200
-Subject: [PATCH 10/20] Add recoverDeterministicWalletFromSpendKey
+Subject: [PATCH 10/22] Add recoverDeterministicWalletFromSpendKey
 
 This function is used by Cake Wallet to enable polyseed (dart implementation)
 support.
@@ -19,10 +19,10 @@ Co-authored-by: Godwin Asuquo <godilite@gmail.com>
  5 files changed, 75 insertions(+)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 1b86404be..00918e357 100644
+index 6a27168b5..a61addbe4 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
-@@ -824,6 +824,35 @@ bool WalletImpl::recover(const std::string &path, const std::string &password, c
+@@ -801,6 +801,35 @@ bool WalletImpl::recover(const std::string &path, const std::string &password, c
      return status() == Status_Ok;
  }
  
@@ -59,10 +59,10 @@ index 1b86404be..00918e357 100644
  {
  
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index bc782dd4a..bfe81c590 100644
+index 21af6f510..d4b11d96a 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
-@@ -77,6 +77,10 @@ public:
+@@ -78,6 +78,10 @@ public:
                              const std::string &address_string, 
                              const std::string &viewkey_string,
                              const std::string &spendkey_string = "");
@@ -74,10 +74,10 @@ index bc782dd4a..bfe81c590 100644
                             const std::string &password,
                             const std::string &device_name);
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index b5cccac40..fcb8187d4 100644
+index 34df402e4..68efcdaf8 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -1324,6 +1324,25 @@ struct WalletManager
+@@ -1320,6 +1320,25 @@ struct WalletManager
          return createWalletFromKeys(path, password, language, testnet ? TESTNET : MAINNET, restoreHeight, addressString, viewKeyString, spendKeyString);
      }
  
@@ -104,10 +104,10 @@ index b5cccac40..fcb8187d4 100644
      * \deprecated this method creates a wallet WITHOUT a passphrase, use createWalletFromKeys(..., password, ...) instead
      * \brief  recovers existing wallet using keys. Creates a view only wallet if spend key is omitted
 diff --git a/src/wallet/api/wallet_manager.cpp b/src/wallet/api/wallet_manager.cpp
-index da2056d8a..c200f52ae 100644
+index 4a50ec8cc..7ee87d04c 100644
 --- a/src/wallet/api/wallet_manager.cpp
 +++ b/src/wallet/api/wallet_manager.cpp
-@@ -127,6 +127,22 @@ Wallet *WalletManagerImpl::createWalletFromKeys(const std::string &path,
+@@ -123,6 +123,22 @@ Wallet *WalletManagerImpl::createWalletFromKeys(const std::string &path,
      return wallet;
  }
  
@@ -131,7 +131,7 @@ index da2056d8a..c200f52ae 100644
                                                    const std::string &password,
                                                    NetworkType nettype,
 diff --git a/src/wallet/api/wallet_manager.h b/src/wallet/api/wallet_manager.h
-index 28fcd36c9..be3ff8184 100644
+index 793ac492c..96373affb 100644
 --- a/src/wallet/api/wallet_manager.h
 +++ b/src/wallet/api/wallet_manager.h
 @@ -67,6 +67,13 @@ public:
@@ -149,5 +149,5 @@ index 28fcd36c9..be3ff8184 100644
                                              const std::string &password,
                                              NetworkType nettype,
 -- 
-2.50.1 (Apple Git-155)
+2.54.0 (Apple Git-157)
 

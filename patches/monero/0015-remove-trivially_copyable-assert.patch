@@ -1,24 +1,34 @@
-From dc67abfbc3dec2f4aa4c4157378509c9ee07cb0b Mon Sep 17 00:00:00 2001
+From 011bbbadc9388105e44524d59b7468ecf6c863a9 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 20 Feb 2025 08:36:28 +0100
-Subject: [PATCH 15/20] remove trivially_copyable assert
+Subject: [PATCH 15/22] remove trivially_copyable assert
 
 ---
- contrib/epee/include/span.h | 1 -
- 1 file changed, 1 deletion(-)
+ contrib/epee/include/span.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/contrib/epee/include/span.h b/contrib/epee/include/span.h
-index 01dc387d6..2ad733a2f 100644
+index ccc55db53..2774881a1 100644
 --- a/contrib/epee/include/span.h
 +++ b/contrib/epee/include/span.h
-@@ -162,7 +162,6 @@ namespace epee
+@@ -159,7 +159,7 @@ namespace epee
    {
      static_assert(!std::is_empty<T>(), "empty types will not work -> sizeof == 1");
-     static_assert(std::is_standard_layout<T>(), "type must have standard layout");
--    static_assert(std::is_trivially_copyable<T>(), "type must be trivially copyable");
-     static_assert(alignof(T) == 1, "type may have padding");
+     static_assert(std::is_standard_layout_v<T>, "type must have standard layout");
+-    static_assert(std::has_unique_object_representations_v<T>, "type must be trivially copyable with no padding");
++    static_assert(alignof(T) == 1, "type may have padding");
      return {reinterpret_cast<const std::uint8_t*>(std::addressof(src)), sizeof(T)};
    }
+ 
+@@ -169,7 +169,7 @@ namespace epee
+   {
+     static_assert(!std::is_empty<T>(), "empty types will not work -> sizeof == 1");
+     static_assert(std::is_standard_layout_v<T>, "type must have standard layout");
+-    static_assert(std::has_unique_object_representations_v<T>, "type must be trivially copyable with no padding");
++    static_assert(alignof(T) == 1, "type may have padding");
+     return {reinterpret_cast<std::uint8_t*>(std::addressof(src)), sizeof(T)};
+   }
+ 
 -- 
-2.50.1 (Apple Git-155)
+2.54.0 (Apple Git-157)
 

@@ -1,6 +1,6 @@
 [submodule "monero"]
 	path = monero
-	url = https://github.com/monero-project/monero
+	url = https://github.com/seraphis-migration/monero
 	branch = release-v0.18
 	shallow = true
 [submodule "wownero"]

@@ -1,7 +1,7 @@
-From 9174c5ab87a00d16e2930616686de5e57f3e7539 Mon Sep 17 00:00:00 2001
+From c58a0dbf32dd048875c7d0a0193ddb0ecc1e71ac Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 24 Jun 2024 10:49:12 +0200
-Subject: [PATCH 04/20] use proper error handling in get_seed
+Subject: [PATCH 03/22] use proper error handling in get_seed
 
 ---
  src/wallet/api/wallet.cpp | 17 ++++++++++++-----
@@ -9,10 +9,10 @@ Subject: [PATCH 04/20] use proper error handling in get_seed
  2 files changed, 16 insertions(+), 6 deletions(-)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index c2f4176e2..6301bd1ef 100644
+index 1da515120..27d8716c3 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
-@@ -826,12 +826,19 @@ bool WalletImpl::close(bool store)
+@@ -803,12 +803,19 @@ bool WalletImpl::close(bool store)
  
  std::string WalletImpl::seed(const std::string& seed_offset) const
  {
@@ -38,10 +38,10 @@ index c2f4176e2..6301bd1ef 100644
  
  std::string WalletImpl::getSeedLanguage() const
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index af876c9f3..ac2a1fec3 100644
+index 2ca99f63a..ff8950fd4 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -1452,11 +1452,13 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
+@@ -1469,11 +1469,13 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
    bool keys_deterministic = is_deterministic();
    if (!keys_deterministic)
    {
@@ -55,7 +55,7 @@ index af876c9f3..ac2a1fec3 100644
      std::cout << "seed_language not set" << std::endl;
      return false;
    }
-@@ -1466,8 +1468,9 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
+@@ -1483,8 +1485,9 @@ bool wallet2::get_seed(epee::wipeable_string& electrum_words, const epee::wipeab
      key = cryptonote::encrypt_key(key, passphrase);
    if (!crypto::ElectrumWords::bytes_to_words(key, electrum_words, seed_language))
    {
@@ -67,5 +67,5 @@ index af876c9f3..ac2a1fec3 100644
  
    return true;
 -- 
-2.50.1 (Apple Git-155)
+2.54.0 (Apple Git-157)
 

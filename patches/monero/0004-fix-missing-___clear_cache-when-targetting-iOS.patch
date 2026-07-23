@@ -1,19 +1,18 @@
-From 41d9f755a1392dd116241acb32b887091669f090 Mon Sep 17 00:00:00 2001
+From 19864ece62a8a04299ddc9ffd47f108a1cd4dc3c Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
-Date: Tue, 2 Apr 2024 16:51:56 +0200
-Subject: [PATCH 01/20] fix missing ___clear_cache when targetting iOS
-
+Date: Mon, 27 Jul 2026 13:03:32 +0200
+Subject: [PATCH 04/22] fix missing ___clear_cache when targetting iOS
 ---
  .gitmodules      | 3 ++-
  external/randomx | 2 +-
  2 files changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/.gitmodules b/.gitmodules
-index 721cce3b4..ffb73fe9a 100644
+index 691444f97..9dcb71804 100644
 --- a/.gitmodules
 +++ b/.gitmodules
-@@ -9,7 +9,8 @@
- 	url = https://github.com/trezor/trezor-common.git
+@@ -3,7 +3,8 @@
+ 	url = https://github.com/Tencent/rapidjson
  [submodule "external/randomx"]
  	path = external/randomx
 -	url = https://github.com/tevador/RandomX
@@ -23,12 +22,12 @@ index 721cce3b4..ffb73fe9a 100644
  	path = external/supercop
  	url = https://github.com/monero-project/supercop
 diff --git a/external/randomx b/external/randomx
-index 102f8acf9..5dfeeb30e 160000
+index 6c4340ba4..328bb26fb 160000
 --- a/external/randomx
 +++ b/external/randomx
 @@ -1 +1 @@
--Subproject commit 102f8acf90a7649ada410de5499a7ec62e49e1da
-+Subproject commit 5dfeeb30ec3446ec9d348153767abc324436c56c
+-Subproject commit 6c4340ba4561aec9a3611c1aedf9931239777fb3
++Subproject commit 328bb26fb4d3dd2c2d30453719dcc9b9febbd658
 -- 
-2.50.1 (Apple Git-155)
+2.54.0 (Apple Git-157)
 

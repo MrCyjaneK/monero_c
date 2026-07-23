@@ -1,7 +1,7 @@
-From 2d4ed0b13eea96b25a574e8a87644df75c16ffb0 Mon Sep 17 00:00:00 2001
+From 1dd43161a86eb8d887773ce3bcdaaad6c55f08fa Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 4 Mar 2026 14:52:14 +0100
-Subject: [PATCH 19/20] fix: mingw build issues
+Subject: [PATCH 19/22] fix: mingw build issues
 
 ---
  contrib/epee/include/serialization/keyvalue_serialization.h | 1 +
@@ -9,7 +9,7 @@ Subject: [PATCH 19/20] fix: mingw build issues
  2 files changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/contrib/epee/include/serialization/keyvalue_serialization.h b/contrib/epee/include/serialization/keyvalue_serialization.h
-index fbbddc7d2..5104f284d 100644
+index 73328919c..71111c1c0 100644
 --- a/contrib/epee/include/serialization/keyvalue_serialization.h
 +++ b/contrib/epee/include/serialization/keyvalue_serialization.h
 @@ -26,6 +26,7 @@
@@ -21,7 +21,7 @@ index fbbddc7d2..5104f284d 100644
  #include <boost/utility/value_init.hpp>
  #include <boost/foreach.hpp>
 diff --git a/contrib/epee/src/abstract_http_client.cpp b/contrib/epee/src/abstract_http_client.cpp
-index ed4a193d9..2352c7d62 100644
+index bd9cb0dde..340a7cf85 100644
 --- a/contrib/epee/src/abstract_http_client.cpp
 +++ b/contrib/epee/src/abstract_http_client.cpp
 @@ -3,6 +3,7 @@
@@ -42,5 +42,5 @@ index ed4a193d9..2352c7d62 100644
      }
  
 -- 
-2.50.1 (Apple Git-155)
+2.54.0 (Apple Git-157)
 

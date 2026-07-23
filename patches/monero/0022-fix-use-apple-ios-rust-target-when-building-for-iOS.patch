@@ -1,0 +1,33 @@
+From cce457ba4807db3f0bb3b06dc512131fe0084b5d Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Mon, 27 Jul 2026 14:15:44 +0200
+Subject: [PATCH 22/22] fix: use correct rust target for iOS device and simulator
+
+---
+ src/fcmp_pp/fcmp_pp_rust/CMakeLists.txt | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/src/fcmp_pp/fcmp_pp_rust/CMakeLists.txt b/src/fcmp_pp/fcmp_pp_rust/CMakeLists.txt
+index 3e2229f07..f157bc12f 100644
+--- a/src/fcmp_pp/fcmp_pp_rust/CMakeLists.txt
++++ b/src/fcmp_pp/fcmp_pp_rust/CMakeLists.txt
+@@ -44,7 +44,15 @@ if(MINGW)
+   set(RUST_PLATFORM "pc-windows")
+   set(RUST_TOOLCHAIN "-gnu")
+ elseif(APPLE)
+-  set(RUST_PLATFORM "apple-darwin")
++  if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
++    if(CMAKE_OSX_SYSROOT MATCHES "i[pP]hone[sS]imulator")
++      set(RUST_PLATFORM "apple-ios-sim")
++    else()
++      set(RUST_PLATFORM "apple-ios")
++    endif()
++  else()
++    set(RUST_PLATFORM "apple-darwin")
++  endif()
+   set(RUST_TOOLCHAIN "")
+ elseif(FREEBSD)
+   set(RUST_PLATFORM "unknown-freebsd")
+-- 
+2.54.0 (Apple Git-157)
+
