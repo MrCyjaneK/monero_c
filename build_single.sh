@@ -54,6 +54,14 @@ then
 fi
 cd $(dirname $0)
 WDIR=$PWD
+
+# Set the PE header's TimeDateStamp to the date of the commit
+SOURCE_DATE_EPOCH="$(git show -s --format=%ct HEAD)"
+export SOURCE_DATE_EPOCH
+
+# Zero the Mach-O debug map's per-object mtimes
+export ZERO_AR_DATE=1
+
 pushd contrib/depends
     sbs_BOOST_VERSION=1_90_0
     if [[ "x$repo" == "xzano" ]];
