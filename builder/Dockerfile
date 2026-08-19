@@ -1,15 +1,20 @@
-FROM golang:1.26.0-bookworm@sha256:c7a82e9e2df2fea5d8cb62a16aa6f796d2b2ed81ccad4ddd2bc9f0d22936c3f2 AS builder_base
+FROM --platform=linux/amd64 ubuntu:26.04@sha256:3131b4cc82a783df6c9df078f86e01819a13594b865c2cad47bd1bca2b7063bb AS builder_base
+
+# gcc-x86-64-linux-gnu is a fix for a simplybs i guess bug? i don't know it's like 19 hours deep I'm not fixing it atm.
 
 WORKDIR /w
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update \
-    && apt install -y git clang llvm gcc g++ sudo \
+    && apt install -y git clang llvm gcc g++ sudo golang build-essential patch gcc-x86-64-linux-gnu \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -ms /bin/bash user \
     && adduser user sudo \
     && chown user:user /w \
-    && chmod 775 /w
+    && chmod 775 /w \
+    && sudo ln -s /usr/bin/gcc-x86-64-linux-gnu /bin/x86_64-linux-gnu-gcc || true
+
 
 USER user
 
