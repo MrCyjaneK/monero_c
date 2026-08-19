@@ -74,6 +74,11 @@ if (${MONERO_FLAVOR} STREQUAL "zano")
     )
 endif()
 
+if(${MONERO_FLAVOR} STREQUAL "zano" AND ${HOST_ABI} MATCHES "-linux-android")
+    add_library(backtrace INTERFACE)
+    add_library(dl INTERFACE)
+endif()
+
 add_subdirectory("${CMAKE_SOURCE_DIR}/../${MONERO_FLAVOR}" ${CMAKE_BINARY_DIR}/${MONERO_FLAVOR}_build EXCLUDE_FROM_ALL)
 
 if(HOST_ABI MATCHES "-apple-")
@@ -97,14 +102,14 @@ elseif(${MONERO_FLAVOR} STREQUAL "zano")
     set(WALLET_TARGETS
         wallet
         general
-        tor-connect
         crypto
         currency_core
         common
         zlibstatic
 
         ${Boost_LIBRARIES}
-        ${OpenSSL_LIBRARIES})
+        OpenSSL::SSL
+        OpenSSL::Crypto)
 endif()
 
 if(${MONERO_FLAVOR} STREQUAL "wownero")

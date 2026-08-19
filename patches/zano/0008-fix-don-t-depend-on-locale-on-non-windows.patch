@@ -1,39 +1,37 @@
-From 5cbc5a0bd2e05bb5ef819a536fe49dc47383487b Mon Sep 17 00:00:00 2001
+From 0f649e87f0a4efbfc75d469f6611767051ece2c5 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Fri, 6 Mar 2026 22:03:04 +0100
-Subject: [PATCH] fix: don't depend on locale on non-windows
+Subject: [PATCH 08/11] fix: don't depend on locale on non-windows
 
 ---
  CMakeLists.txt | 8 +++++---
  1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 793cc94c..5186bc87 100644
+index a624bc0f..452de748 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -236,7 +236,7 @@ endif()
- message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")    
- if(CMAKE_SYSTEM_NAME STREQUAL "Android")
-   if(CAKEWALLET)
+@@ -243,15 +243,17 @@ else()
+   # manually specify boost libs for mobile platforms
+   if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+     if(CAKEWALLET)
+-      find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem locale thread timer date_time chrono regex serialization atomic program_options)
++      find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options)
+     else()
+       set(Boost_LIBRARY_DIRS "${Boost_LIBRARY_DIRS}/${CMAKE_ANDROID_ARCH_ABI}/")
+       set(Boost_LIBRARIES "${Boost_LIBRARY_DIRS}libboost_system.a;${Boost_LIBRARY_DIRS}libboost_filesystem.a;${Boost_LIBRARY_DIRS}libboost_thread.a;${Boost_LIBRARY_DIRS}libboost_timer.a;${Boost_LIBRARY_DIRS}libboost_date_time.a;${Boost_LIBRARY_DIRS}libboost_chrono.a;${Boost_LIBRARY_DIRS}libboost_regex.a;${Boost_LIBRARY_DIRS}libboost_serialization.a;${Boost_LIBRARY_DIRS}libboost_atomic.a;${Boost_LIBRARY_DIRS}libboost_program_options.a")
+     endif()  
+   elseif(APPLE)
 -    find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem locale thread timer date_time chrono regex serialization atomic program_options)
 +    find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options)
++  elseif(MINGW)
++    find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options log locale)
    else()
-     set(Boost_LIBRARY_DIRS "${Boost_LIBRARY_DIRS}/${CMAKE_ANDROID_ARCH_ABI}/")
-     set(Boost_LIBRARIES "${Boost_LIBRARY_DIRS}libboost_system.a;${Boost_LIBRARY_DIRS}libboost_filesystem.a;${Boost_LIBRARY_DIRS}libboost_thread.a;${Boost_LIBRARY_DIRS}libboost_timer.a;${Boost_LIBRARY_DIRS}libboost_date_time.a;${Boost_LIBRARY_DIRS}libboost_chrono.a;${Boost_LIBRARY_DIRS}libboost_regex.a;${Boost_LIBRARY_DIRS}libboost_serialization.a;${Boost_LIBRARY_DIRS}libboost_atomic.a;${Boost_LIBRARY_DIRS}libboost_program_options.a")
-@@ -244,9 +244,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
-   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC")
-   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC")
- elseif(APPLE)
--  find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem locale thread timer date_time chrono regex serialization atomic program_options)
-+  find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options)
-+elseif(MINGW)
-+  find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options log locale)
- else()
--  find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem locale thread timer date_time chrono regex serialization atomic program_options log)
-+  find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options log)
+-    find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem locale thread timer date_time chrono regex serialization atomic program_options log)
++    find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options log)
+   endif()
  endif()
  
- 
 -- 
-2.51.0
+2.54.0 (Apple Git-156)
 

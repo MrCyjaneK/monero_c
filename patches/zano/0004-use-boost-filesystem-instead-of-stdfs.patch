@@ -1,28 +1,41 @@
-From 5a5c7a4d565ed9679bf960a08e894fcaff9ce73b Mon Sep 17 00:00:00 2001
+From d8366419e21cd171de6bb8aaf5b863522ed3398d Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 4 Dec 2024 17:21:44 -0600
-Subject: [PATCH 4/7] use boost::filesystem instead of stdfs
+Subject: [PATCH 04/11] use boost::filesystem instead of stdfs
 
 ---
- CMakeLists.txt                       | 19 ++-----------------
+ CMakeLists.txt                       | 26 ++++----------------------
  contrib/epee/include/file_io_utils.h |  6 +++---
- 2 files changed, 5 insertions(+), 20 deletions(-)
+ src/gui/qt-daemon/layout             |  2 +-
+ 3 files changed, 8 insertions(+), 26 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index aa2687fd..7694b8eb 100644
+index 83bf9e6d..c102348b 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -234,22 +234,7 @@ if(STATIC)
+@@ -241,14 +241,7 @@ if(Boost_FATLIB)
+   set(Boost_LIBRARIES ${Boost_FATLIB})
+ else()
+   # manually specify boost libs for mobile platforms
+-  if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+-    if(NOT DEFINED SKIP_BOOST_FATLIB_LIB OR NOT SKIP_BOOST_FATLIB_LIB)
+-      message("Ios: libboost.a included as library")    
+-      set(Boost_LIBRARIES "libboost.a")
+-    else()
+-      message("Ios: libboost.a not included as library")    
+-    endif()
+-  elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
++  if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+     if(CAKEWALLET)
+       find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem locale thread timer date_time chrono regex serialization atomic program_options)
+     else()
+@@ -263,18 +256,7 @@ else()
  endif()
  
  message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")    
 -if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
--  set(CMAKE_OSX_DEPLOYMENT_TARGET 12.00)
--  if(NOT DEFINED SKIP_BOOST_FATLIB_LIB OR NOT SKIP_BOOST_FATLIB_LIB)
--	message("Ios: libboost.a included as library")    
--	set(Boost_LIBRARIES "libboost.a")
--  else()
--	message("Ios: libboost.a not included as library")    
+-  if(NOT DEFINED CMAKE_OSX_DEPLOYMENT_TARGET)
+-    set(CMAKE_OSX_DEPLOYMENT_TARGET 12.00)
 -  endif()
 -  #workaround for new XCode 12 policy for builds(now it includes a slice for the "arm64" when builds for simulator)
 -  set(__iphoneos_archs "arm64")
@@ -33,18 +46,27 @@ index aa2687fd..7694b8eb 100644
 -  #set(CMAKE_XCODE_ATTRIBUTE_VALID_ARCHS[sdk=iphonesimulator*] "${__iphonesimulator_archs}")
 -elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
 +if(CMAKE_SYSTEM_NAME STREQUAL "Android")
-   if(CAKEWALLET)
-     find_package(Boost ${ZANO_BOOST_MIN_VER} REQUIRED COMPONENTS system filesystem locale thread timer date_time chrono regex serialization atomic program_options)
-   else()
-@@ -306,7 +291,7 @@ else()
+   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC")
+   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fPIC")
+ endif()
+@@ -321,7 +303,7 @@ else()
    find_package(Git QUIET)
    if(Git_FOUND OR GIT_FOUND)
      message(STATUS "Found Git: ${GIT_EXECUTABLE}")
--    add_custom_target(version ALL "${CMAKE_COMMAND}" "-D" "VERSION=${VERSION}" "-D" "GIT=${GIT_EXECUTABLE}" "-D" "TO=${CMAKE_BINARY_DIR}/version/version.h" "-P" "src/version.cmake" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
-+    add_custom_target(version ALL "${CMAKE_COMMAND}" "-D" "VERSION=${VERSION}" "-D" "GIT=${GIT_EXECUTABLE}" "-D" "TO=${CMAKE_BINARY_DIR}/version/version.h" "-P" "src/version.cmake" WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+-    add_custom_target(version ALL "${CMAKE_COMMAND}" "-D" "VERSION=${VERSION}" "-D" "TESTNET=${TESTNET}"  "-D" "GIT=${GIT_EXECUTABLE}" "-D" "TO=${CMAKE_BINARY_DIR}/version/version.h" "-P" "src/version.cmake" WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
++    add_custom_target(version ALL "${CMAKE_COMMAND}" "-D" "VERSION=${VERSION}" "-D" "TESTNET=${TESTNET}"  "-D" "GIT=${GIT_EXECUTABLE}" "-D" "TO=${CMAKE_BINARY_DIR}/version/version.h" "-P" "src/version.cmake" WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
    else()
      message(STATUS "WARNING: Git was not found!")
      set(VERSION "${VERSION}-unknown")
+@@ -338,7 +320,7 @@ if(BUILD_GUI)
+     "-D" "HTML_DIR=${HTML_CONTENT_HASH_DIR}"
+     "-D" "TO=${CMAKE_BINARY_DIR}/version/html_content_hash.h"
+     "-P" "src/gui/qt-daemon/html_content_hash.cmake"
+-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
++    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+   )
+ endif()
+ 
 diff --git a/contrib/epee/include/file_io_utils.h b/contrib/epee/include/file_io_utils.h
 index bb21ae99..ced01092 100644
 --- a/contrib/epee/include/file_io_utils.h
@@ -63,6 +85,13 @@ index bb21ae99..ced01092 100644
  				{
  					continue;
  				}
+diff --git a/src/gui/qt-daemon/layout b/src/gui/qt-daemon/layout
+index 52b429c6..7f7128e8 160000
+--- a/src/gui/qt-daemon/layout
++++ b/src/gui/qt-daemon/layout
+@@ -1 +1 @@
+-Subproject commit 52b429c6f0b40979e543bc57ab911d220b07b83d
++Subproject commit 7f7128e8c3d5c04d801a327a7228abcc9aba85cd
 -- 
-2.51.0
+2.54.0 (Apple Git-156)
 
