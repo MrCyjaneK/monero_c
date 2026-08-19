@@ -71,8 +71,20 @@ pushd contrib/depends
     env PATH="$PATH" make "$NPROC" HOST="$HOST_ABI" BOOST_VERSION="${sbs_BOOST_VERSION}"
 popd
 # source contrib/depends/_native/_source_me
-source contrib/depends/$HOST_ABI/_source_me
-export PATH="$(pwd)/contrib/depends/_native/bin/:$(pwd)/contrib/depends/$HOST_ABI/native/bin:$PATH"
+source ./contrib/depends/_native/_source_me_export@native____
+source ./contrib/depends/_native/_source_me_export@native__
+source ./contrib/depends/$HOST_ABI/_source_me_export@rust-std
+export PREFIX="$(pwd)/contrib/depends/$HOST_ABI"
+export HOST="$HOST_ABI"
+export TARGET="$HOST_ABI"
+export HOME="$(pwd)/contrib/depends/_native/home/user"
+
+export PATH="$(pwd)/contrib/depends/_native/bin/:$(pwd)/contrib/depends/_native/_/bin"
+
+pushd contrib/depends
+    env HOST=$HOST_ABI ./gen_toolchain.cmake.sh $HOST_ABI/share/toolchain.cmake
+popd
+# source contrib/depends/$HOST_ABI/_source_me
 
 buildType=Release
 

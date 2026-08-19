@@ -1,15 +1,19 @@
-FROM golang:1.26.0-bookworm@sha256:c7a82e9e2df2fea5d8cb62a16aa6f796d2b2ed81ccad4ddd2bc9f0d22936c3f2 AS builder_base
+FROM --platform=linux/amd64 ubuntu:26.04@sha256:3131b4cc82a783df6c9df078f86e01819a13594b865c2cad47bd1bca2b7063bb AS builder_base
+
+# gcc-x86-64-linux-gnu is a fix for a simplybs i guess bug? i don't know it's like 19 hours deep I'm not fixing it atm.
 
 WORKDIR /w
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update \
-    && apt install -y git clang llvm gcc g++ sudo \
+    && apt install -y git clang llvm gcc g++ sudo golang build-essential patch gcc-x86-64-linux-gnu \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -ms /bin/bash user \
     && adduser user sudo \
     && chown user:user /w \
-    && chmod 775 /w
+    && chmod 775 /w \
+    && sudo ln -s /usr/bin/gcc-x86-64-linux-gnu /bin/x86_64-linux-gnu-gcc || true
 
 USER user
 
@@ -25,15 +29,15 @@ RUN sudo chown -R user:user /w \
 WORKDIR /w/contrib/depends
 
 RUN make HOST=aarch64-linux-android && make HOST=aarch64-linux-android BOOST_VERSION=1_83_0 && make sbs-cleanup
+RUN make HOST=x86_64-w64-mingw32 && make sbs-cleanup
+RUN make HOST=aarch64-apple-ios-simulator && make HOST=aarch64-apple-ios-simulator BOOST_VERSION=1_83_0 && make sbs-cleanup
 RUN make HOST=x86_64-linux-android && make HOST=x86_64-linux-android BOOST_VERSION=1_83_0 && make sbs-cleanup
 RUN make HOST=armv7a-linux-androideabi && make HOST=armv7a-linux-androideabi BOOST_VERSION=1_83_0 && make sbs-cleanup
-RUN make HOST=x86_64-w64-mingw32 && make sbs-cleanup
 RUN make HOST=aarch64-linux-gnu && make sbs-cleanup
 RUN make HOST=x86_64-linux-gnu && make sbs-cleanup
 RUN make HOST=x86_64-apple-darwin && make sbs-cleanup
 RUN make HOST=aarch64-apple-darwin && make sbs-cleanup 
 RUN make HOST=aarch64-apple-ios && make HOST=aarch64-apple-ios BOOST_VERSION=1_83_0 && make sbs-cleanup
-RUN make HOST=aarch64-apple-ios-simulator && make HOST=aarch64-apple-ios-simulator BOOST_VERSION=1_83_0 && make sbs-cleanup
 
 FROM builder_base AS monero_c_base
 COPY . /w
@@ -50,6 +54,12 @@ RUN git submodule update --init --force --recursive \
 FROM monero_c_base AS monero_c
 COPY --from=contrib_simplybs /w/contrib/depends /w/contrib/depends
 RUN sudo chown -R user:user /w
+
+# I'm tired.
+
+RUN ./build_single.sh monero x86_64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
+RUN ./build_single.sh wownero x86_64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
+
 RUN ./build_single.sh monero aarch64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero aarch64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh zano aarch64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
@@ -64,9 +74,6 @@ RUN ./build_single.sh zano armv7a-linux-androideabi -j$(nproc) && cd contrib/dep
 
 RUN ./build_single.sh monero aarch64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero aarch64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
-
-RUN ./build_single.sh monero x86_64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh wownero x86_64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 RUN ./build_single.sh monero x86_64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero x86_64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup

@@ -1,7 +1,7 @@
-From 8af15fadb4095f94145cfe5086a1f6796d1cc44a Mon Sep 17 00:00:00 2001
+From ece9b55a6c6c34a2aaf87e10e059cc4c38a0f1b8 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 13 May 2026 11:35:01 -0400
-Subject: [PATCH] trezor import/export/sign/submit functions
+Subject: [PATCH 21/22] trezor import/export/sign/submit functions
 
 1) This PR fixes protobuf detection, by removing checks as they were
 failing on some platforms, essentially removing Protobuf_COMPILE_TEST_PASSED
@@ -10,7 +10,6 @@ failing on some platforms, essentially removing Protobuf_COMPILE_TEST_PASSED
 Exact JSON schema is shown below, path and networkType is ommited
 
 https://connect.trezor.io/9/methods/monero/moneroKeyImageSync/
-
 
 ```json
 {
@@ -49,7 +48,6 @@ Expects Trezor connect MoneroKeyImageSyncResult JSON
 }
 ```
 
-
 4) PendingTransaction::commitTrezor(0)
 New method that returns std::string with Trezor connect compatible JSON, as
 shown below and at the link
@@ -59,10 +57,10 @@ https://connect.trezor.io/9/methods/monero/moneroSignTransaction/
 {
     // REQUIRED: Hardened Monero account path (minimum 3 components)
     path: "m/44'/128'/0'",
- 
+
     // REQUIRED: Network type
     networkType: 0, // 0=MAINNET, 1=TESTNET, 2=STAGENET, 3=FAKECHAIN
- 
+
     // REQUIRED: Transaction data with outputs
     tsx_data: {
         version: 1,
@@ -93,7 +91,7 @@ https://connect.trezor.io/9/methods/monero/moneroSignTransaction/
             grouping: [],
         },
     },
- 
+
     // REQUIRED: At least one input with ring members
     inputs: [
         {
@@ -135,70 +133,133 @@ https://connect.trezor.io/9/methods/monero/moneroSignTransaction/
 is assembled you can call Wallet::submitTransactionHex("CAFEBABE")
 
 That's it.
-
 ---
- cmake/CheckTrezor.cmake                 |  28 +--
- src/device_trezor/trezor/protocol.cpp   | 220 ++++++++++++++++++++++
+ cmake/CheckTrezor.cmake                 |  79 +++-----
+ src/device_trezor/trezor/protocol.cpp   | 220 +++++++++++++++++++++
  src/device_trezor/trezor/protocol.hpp   |   8 +
  src/wallet/api/pending_transaction.cpp  |  60 ++++++
  src/wallet/api/pending_transaction.h    |   1 +
  src/wallet/api/unsigned_transaction.cpp |   2 +
- src/wallet/api/wallet.cpp               |  70 ++++++-
- src/wallet/api/wallet.h                 |   9 +-
- src/wallet/api/wallet2_api.h            |  71 ++++---
- src/wallet/wallet2.cpp                  | 234 ++++++++++++++++++++++++
- src/wallet/wallet2.h                    |   7 +-
- 11 files changed, 650 insertions(+), 60 deletions(-)
+ src/wallet/api/wallet.cpp               |  68 +++++++
+ src/wallet/api/wallet.h                 |   3 +
+ src/wallet/api/wallet2_api.h            |  15 ++
+ src/wallet/wallet2.cpp                  | 249 ++++++++++++++++++++++++
+ src/wallet/wallet2.h                    |   5 +-
+ 11 files changed, 661 insertions(+), 49 deletions(-)
 
 diff --git a/cmake/CheckTrezor.cmake b/cmake/CheckTrezor.cmake
-index 4fae15fad..57e3d4866 100644
+index 718760ace..08eaae58a 100644
 --- a/cmake/CheckTrezor.cmake
 +++ b/cmake/CheckTrezor.cmake
-@@ -40,9 +40,6 @@ if (USE_DEVICE_TREZOR)
-     # Protobuf handling the cache variables set in docker.
-     if(NOT Protobuf_FOUND AND NOT Protobuf_LIBRARY AND NOT Protobuf_PROTOC_EXECUTABLE AND NOT Protobuf_INCLUDE_DIR)
-         message(STATUS "Could not find Protobuf")
--    elseif(NOT Protobuf_LIBRARY OR NOT EXISTS "${Protobuf_LIBRARY}")
--        message(STATUS "Protobuf library not found: ${Protobuf_LIBRARY}")
--        unset(Protobuf_FOUND)
-     elseif(NOT Protobuf_PROTOC_EXECUTABLE OR NOT EXISTS "${Protobuf_PROTOC_EXECUTABLE}")
-         message(STATUS "Protobuf executable not found: ${Protobuf_PROTOC_EXECUTABLE}")
-         unset(Protobuf_FOUND)
-@@ -93,31 +90,8 @@ if(Protobuf_FOUND AND USE_DEVICE_TREZOR)
-     endif()
+@@ -53,6 +53,14 @@ if (USE_DEVICE_TREZOR)
+         # https://github.com/protocolbuffers/protobuf/issues/14576
+         find_program(Protobuf_PROTOC_EXECUTABLE protoc REQUIRED)
+         set(Protobuf_LIBRARY protobuf::libprotobuf) # Compatibility with FindProtobuf.cmake
++    elseif(NOT Protobuf_LIBRARY AND NOT Protobuf_PROTOC_EXECUTABLE AND NOT Protobuf_INCLUDE_DIR)
++        message(STATUS "Could not find Protobuf")
++    elseif(NOT Protobuf_PROTOC_EXECUTABLE OR NOT EXISTS "${Protobuf_PROTOC_EXECUTABLE}")
++        message(STATUS "Protobuf executable not found: ${Protobuf_PROTOC_EXECUTABLE}")
++        unset(Protobuf_FOUND)
++    elseif(NOT Protobuf_INCLUDE_DIR OR NOT EXISTS "${Protobuf_INCLUDE_DIR}")
++        message(STATUS "Protobuf include dir not found: ${Protobuf_INCLUDE_DIR}")
++        unset(Protobuf_FOUND)
+     else()
+         # Look for FindProtobuf.cmake, provided by CMake
+         find_package(Protobuf)
+@@ -80,68 +88,43 @@ else()
+     message(STATUS "Trezor: support disabled by USE_DEVICE_TREZOR")
  endif()
  
 -# Protobuf compilation test
--if(Protobuf_FOUND AND USE_DEVICE_TREZOR AND TREZOR_PYTHON)
+ if(Protobuf_FOUND AND USE_DEVICE_TREZOR)
 -    execute_process(COMMAND ${Protobuf_PROTOC_EXECUTABLE} -I "${CMAKE_CURRENT_LIST_DIR}" -I "${Protobuf_INCLUDE_DIR}" "${CMAKE_CURRENT_LIST_DIR}/test-protobuf.proto" --cpp_out ${CMAKE_BINARY_DIR} RESULT_VARIABLE RET OUTPUT_VARIABLE OUT ERROR_VARIABLE ERR)
 -    if(RET)
--        message(STATUS "Protobuf test generation failed: ${OUT} ${ERR}")
--    endif()
--
--    try_compile(Protobuf_COMPILE_TEST_PASSED
--        "${CMAKE_BINARY_DIR}"
--        SOURCES
--        "${CMAKE_BINARY_DIR}/test-protobuf.pb.cc"
--        "${CMAKE_CURRENT_LIST_DIR}/test-protobuf.cpp"
--        CMAKE_FLAGS
--        "-DINCLUDE_DIRECTORIES=${Protobuf_INCLUDE_DIR};${CMAKE_BINARY_DIR}"
--        "-DCMAKE_CXX_STANDARD=11"
--        LINK_LIBRARIES ${Protobuf_LIBRARY}
--        OUTPUT_VARIABLE OUTPUT
--    )
--    if(NOT Protobuf_COMPILE_TEST_PASSED)
--        message(STATUS "Protobuf Compilation test failed: ${OUTPUT}.")
--    endif()
--endif()
--
+-        trezor_fatal_msg("Trezor: Protobuf test generation failed: ${OUT} ${ERR}")
++    if (NOT "$ENV{TREZOR_PYTHON}" STREQUAL "")
++        set(TREZOR_PYTHON "$ENV{TREZOR_PYTHON}" CACHE INTERNAL "Copied from environment variable TREZOR_PYTHON")
++    else()
++        find_package(Python QUIET COMPONENTS Interpreter)
++        if(Python_Interpreter_FOUND)
++            set(TREZOR_PYTHON "${Python_EXECUTABLE}")
++        endif()
+     endif()
+ 
+-    if(ANDROID)
+-        set(CMAKE_TRY_COMPILE_LINKER_FLAGS "${CMAKE_TRY_COMPILE_LINKER_FLAGS} -llog")
+-        set(CMAKE_TRY_COMPILE_LINK_LIBRARIES "${CMAKE_TRY_COMPILE_LINK_LIBRARIES} log")
++    if(NOT TREZOR_PYTHON)
++        find_package(PythonInterp)
++        if(PYTHONINTERP_FOUND AND PYTHON_EXECUTABLE)
++            set(TREZOR_PYTHON "${PYTHON_EXECUTABLE}")
++        endif()
+     endif()
+ 
+-    if(USE_DEVICE_TREZOR_PROTOBUF_TEST)
+-        if(PROTOBUF_LDFLAGS)
+-            set(PROTOBUF_TRYCOMPILE_LINKER "${PROTOBUF_LDFLAGS}")
+-        else()
+-            set(PROTOBUF_TRYCOMPILE_LINKER "${Protobuf_LIBRARY}")
+-        endif()
+-        
+-        try_compile(Protobuf_COMPILE_TEST_PASSED
+-            "${CMAKE_BINARY_DIR}"
+-            SOURCES
+-            "${CMAKE_BINARY_DIR}/test-protobuf.pb.cc"
+-            "${CMAKE_CURRENT_LIST_DIR}/test-protobuf.cpp"
+-            CMAKE_FLAGS
+-            CMAKE_EXE_LINKER_FLAGS ${CMAKE_TRY_COMPILE_LINKER_FLAGS}
+-            "-DINCLUDE_DIRECTORIES=${Protobuf_INCLUDE_DIR};${CMAKE_BINARY_DIR}"
+-            "-DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}"
+-            LINK_LIBRARIES "${PROTOBUF_TRYCOMPILE_LINKER}" ${CMAKE_TRY_COMPILE_LINK_LIBRARIES}
+-            OUTPUT_VARIABLE OUTPUT
+-        )
+-        if(NOT Protobuf_COMPILE_TEST_PASSED)
+-            trezor_fatal_msg("Trezor: Protobuf Compilation test failed: ${OUTPUT}.")
+-        endif()
+-    else ()
+-        message(STATUS "Trezor: Protobuf Compilation test skipped, build may fail later")
++    if(NOT TREZOR_PYTHON)
++        message(STATUS "Trezor: Python not found")
+     endif()
+ endif()
+ 
  # Try to build protobuf messages
--if(Protobuf_FOUND AND USE_DEVICE_TREZOR AND TREZOR_PYTHON AND Protobuf_COMPILE_TEST_PASSED)
+-if(Protobuf_FOUND AND USE_DEVICE_TREZOR)
+-    # .proto files to compile
+-    set(_proto_files "messages.proto"
+-                     "messages-common.proto"
+-                     "messages-management.proto"
+-                     "messages-monero.proto")
+-    if (TREZOR_DEBUG)
+-        list(APPEND _proto_files "messages-debug.proto")
+-    endif ()
+-
+-    set(_proto_include_dir "${CMAKE_CURRENT_LIST_DIR}/../src/device_trezor/trezor/protob")
+-    set(_proto_files_absolute)
+-    foreach(file IN LISTS _proto_files)
+-        list(APPEND _proto_files_absolute "${_proto_include_dir}/${file}")
+-    endforeach ()
 +if(Protobuf_FOUND AND USE_DEVICE_TREZOR AND TREZOR_PYTHON)
-     set(ENV{PROTOBUF_INCLUDE_DIRS} "${Protobuf_INCLUDE_DIR}")
-     set(ENV{PROTOBUF_PROTOC_EXECUTABLE} "${Protobuf_PROTOC_EXECUTABLE}")
-     set(TREZOR_PROTOBUF_PARAMS "")
++    set(ENV{PROTOBUF_INCLUDE_DIRS} "${Protobuf_INCLUDE_DIR}")
++    set(ENV{PROTOBUF_PROTOC_EXECUTABLE} "${Protobuf_PROTOC_EXECUTABLE}")
++    set(TREZOR_PROTOBUF_PARAMS "")
++    if (USE_DEVICE_TREZOR_DEBUG)
++        set(TREZOR_PROTOBUF_PARAMS "--debug")
++    endif()
+ 
+-    set(_proto_out_dir "${CMAKE_CURRENT_LIST_DIR}/../src/device_trezor/trezor/messages")
+-    execute_process(COMMAND ${Protobuf_PROTOC_EXECUTABLE} --cpp_out "${_proto_out_dir}" "-I${_proto_include_dir}" ${_proto_files_absolute} RESULT_VARIABLE RET OUTPUT_VARIABLE OUT ERROR_VARIABLE ERR)
++    execute_process(COMMAND ${TREZOR_PYTHON} tools/build_protob.py ${TREZOR_PROTOBUF_PARAMS} WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../src/device_trezor/trezor RESULT_VARIABLE RET OUTPUT_VARIABLE OUT ERROR_VARIABLE ERR)
+     if(RET)
+         trezor_fatal_msg("Trezor: protobuf messages could not be (re)generated (err=${RET}). OUT: ${OUT}, ERR: ${ERR}.")
+     endif()
+ 
++    set(_proto_out_dir "${CMAKE_CURRENT_LIST_DIR}/../src/device_trezor/trezor/messages")
+     if(FREEBSD)
+         # FreeBSD defines `minor` in usr/include/sys/types.h which conflicts with this file
+         # https://github.com/trezor/trezor-firmware/issues/4460
 diff --git a/src/device_trezor/trezor/protocol.cpp b/src/device_trezor/trezor/protocol.cpp
-index 0e59a16ba..afd1498d2 100644
+index 52f02be3b..ec4e9cfe9 100644
 --- a/src/device_trezor/trezor/protocol.cpp
 +++ b/src/device_trezor/trezor/protocol.cpp
 @@ -29,12 +29,17 @@
@@ -219,7 +280,7 @@ index 0e59a16ba..afd1498d2 100644
  #include <crypto/hmac-keccak.h>
  #include <ringct/rctSigs.h>
  #include <ringct/bulletproofs.h>
-@@ -450,6 +455,10 @@ namespace tx {
+@@ -439,6 +444,10 @@ namespace tx {
      }
    }
  
@@ -229,8 +290,8 @@ index 0e59a16ba..afd1498d2 100644
 +
    void Signer::set_tx_input(MoneroTransactionSourceEntry * dst, size_t idx, bool need_ring_keys, bool need_ring_indices){
      const cryptonote::tx_source_entry & src = cur_tx().sources[idx];
-     const tools::wallet2::transfer_details & transfer = get_source_transfer(idx);
-@@ -1096,6 +1105,217 @@ namespace tx {
+     const wallet2_basic::transfer_details & transfer = get_source_transfer(idx);
+@@ -1085,6 +1094,217 @@ namespace tx {
      memwipe(plaintext.get(), keys_len);
    }
  
@@ -449,7 +510,7 @@ index 0e59a16ba..afd1498d2 100644
  }
  }
 diff --git a/src/device_trezor/trezor/protocol.hpp b/src/device_trezor/trezor/protocol.hpp
-index 7ffadd9aa..7899e60d0 100644
+index 73bd0b902..2db4e8e16 100644
 --- a/src/device_trezor/trezor/protocol.hpp
 +++ b/src/device_trezor/trezor/protocol.hpp
 @@ -340,8 +340,16 @@ namespace tx {
@@ -470,7 +531,7 @@ index 7ffadd9aa..7899e60d0 100644
    void load_tx_key_data(hw::device_cold::tx_key_data_t & res, const std::string & data);
  
 diff --git a/src/wallet/api/pending_transaction.cpp b/src/wallet/api/pending_transaction.cpp
-index 1f714d229..22c09483d 100644
+index 796e7a50b..9109c8a32 100644
 --- a/src/wallet/api/pending_transaction.cpp
 +++ b/src/wallet/api/pending_transaction.cpp
 @@ -44,6 +44,11 @@
@@ -548,7 +609,7 @@ index 1f714d229..22c09483d 100644
  uint64_t PendingTransactionImpl::amount() const
  {
 diff --git a/src/wallet/api/pending_transaction.h b/src/wallet/api/pending_transaction.h
-index 0cc6c58e9..9c9097cd1 100644
+index eb5c75c5f..c9c68fb03 100644
 --- a/src/wallet/api/pending_transaction.h
 +++ b/src/wallet/api/pending_transaction.h
 @@ -47,6 +47,7 @@ public:
@@ -560,7 +621,7 @@ index 0cc6c58e9..9c9097cd1 100644
      uint64_t dust() const override;
      uint64_t fee() const override;
 diff --git a/src/wallet/api/unsigned_transaction.cpp b/src/wallet/api/unsigned_transaction.cpp
-index fd03e959d..7232e518f 100644
+index 062df7f41..560890f2c 100644
 --- a/src/wallet/api/unsigned_transaction.cpp
 +++ b/src/wallet/api/unsigned_transaction.cpp
 @@ -34,11 +34,13 @@
@@ -578,10 +639,10 @@ index fd03e959d..7232e518f 100644
  #include "bc-ur/src/bc-ur.hpp"
  
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index c24b4a97d..3a977d6d2 100644
+index 57f1203c6..c65ce8799 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
-@@ -1457,6 +1457,45 @@ bool WalletImpl::submitTransactionUR(const string &input) {
+@@ -1392,6 +1392,45 @@ bool WalletImpl::submitTransactionUR(const string &input) {
      return true;
  }
  
@@ -627,7 +688,7 @@ index c24b4a97d..3a977d6d2 100644
  
  bool WalletImpl::hasUnknownKeyImages() const
  {
-@@ -3479,4 +3518,33 @@ std::string WalletImpl::serializeCacheToJson() const
+@@ -3436,4 +3475,33 @@ std::string WalletImpl::serializeCacheToJson() const
      return std::string(m_wallet->serialize_cache_to_json());
  }
  
@@ -662,10 +723,10 @@ index c24b4a97d..3a977d6d2 100644
 +
  } // namespace
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 98c03b9c1..45a3b6b2f 100644
+index 8e4846e27..ede41b46d 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
-@@ -183,6 +183,7 @@ public:
+@@ -185,6 +185,7 @@ public:
      virtual PendingTransaction * createSweepUnmixableTransaction() override;
      bool submitTransaction(const std::string &fileName) override;
      bool submitTransactionUR(const std::string &input) override;
@@ -673,7 +734,7 @@ index 98c03b9c1..45a3b6b2f 100644
      virtual UnsignedTransaction * loadUnsignedTx(const std::string &unsigned_filename) override;
      virtual UnsignedTransaction * loadUnsignedTxUR(const std::string &input) override;
      bool hasUnknownKeyImages() const override;
-@@ -337,6 +338,8 @@ private:
+@@ -338,6 +339,8 @@ private:
      bool getWaitsForDeviceReceive();
  
      virtual std::string serializeCacheToJson() const override;
@@ -683,10 +744,10 @@ index 98c03b9c1..45a3b6b2f 100644
  
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 3d11929f9..ac1dd9fb0 100644
+index 4552c02d0..bead275bb 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -92,6 +92,7 @@ struct PendingTransaction
+@@ -84,6 +84,7 @@ struct PendingTransaction
      // commit transaction or save to file if filename is provided.
      virtual bool commit(const std::string &filename = "", bool overwrite = false) = 0;
      virtual std::string commitUR(int max_fragment_length = 130) = 0;
@@ -694,7 +755,7 @@ index 3d11929f9..ac1dd9fb0 100644
      virtual uint64_t amount() const = 0;
      virtual uint64_t dust() const = 0;
      virtual uint64_t fee() const = 0;
-@@ -948,6 +949,7 @@ struct Wallet
+@@ -950,6 +951,7 @@ struct Wallet
      */
      virtual bool submitTransaction(const std::string &fileName) = 0;
      virtual bool submitTransactionUR(const std::string &input) = 0;
@@ -702,7 +763,7 @@ index 3d11929f9..ac1dd9fb0 100644
  
  
      /*!
-@@ -1220,6 +1222,19 @@ struct Wallet
+@@ -1216,6 +1218,19 @@ struct Wallet
  
      //! serialize wallet cache to JSON
      virtual std::string serializeCacheToJson() const = 0;
@@ -723,10 +784,10 @@ index 3d11929f9..ac1dd9fb0 100644
  
  /**
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index a7532d7ec..0c3a628ed 100644
+index 06a732296..2a71e4751 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -98,6 +98,7 @@ extern "C"
+@@ -112,6 +112,7 @@ extern "C"
  {
  #include "crypto/keccak.h"
  #include "crypto/crypto-ops.h"
@@ -734,7 +795,50 @@ index a7532d7ec..0c3a628ed 100644
  }
  using namespace std;
  using namespace crypto;
-@@ -7799,6 +7800,81 @@ void wallet2::commit_tx(std::vector<pending_tx>& ptx_vector)
+@@ -967,6 +968,42 @@ static tools::wallet2::tx_construction_data &get_construction_data(tools::wallet
+   return std::get<tools::wallet2::tx_construction_data>(ptx.construction_data);
+ }
+ 
++static bool get_short_payment_id(crypto::hash8 &payment_id8, const tools::wallet2::pending_tx &ptx, hw::device &hwdev)
++{
++  std::vector<tx_extra_field> tx_extra_fields;
++  parse_tx_extra(ptx.tx.extra, tx_extra_fields);
++  cryptonote::tx_extra_nonce extra_nonce;
++  if (find_tx_extra_field_by_type(tx_extra_fields, extra_nonce))
++  {
++    if (get_encrypted_payment_id_from_tx_extra_nonce(extra_nonce.nonce, payment_id8))
++    {
++      if (ptx.dests.empty())
++      {
++        MWARNING("Encrypted payment id found, but no destinations public key, cannot decrypt");
++        return false;
++      }
++      return hwdev.decrypt_payment_id(payment_id8, ptx.dests[0].addr.m_view_public_key, ptx.tx_key);
++    }
++  }
++  return false;
++}
++
++static tools::wallet2::tx_construction_data get_construction_data_with_decrypted_short_payment_id(const tools::wallet2::pending_tx &ptx, hw::device &hwdev)
++{
++  tools::wallet2::tx_construction_data construction_data = get_construction_data(ptx);
++  crypto::hash8 payment_id = crypto::null_hash8;
++  if (get_short_payment_id(payment_id, ptx, hwdev))
++  {
++    remove_field_from_tx_extra(construction_data.extra, typeid(cryptonote::tx_extra_nonce));
++    std::string extra_nonce;
++    set_encrypted_payment_id_to_tx_extra_nonce(extra_nonce, payment_id);
++    THROW_WALLET_EXCEPTION_IF(!add_extra_nonce_to_tx_extra(construction_data.extra, extra_nonce),
++      tools::error::wallet_internal_error, "Failed to add decrypted payment id to tx extra");
++    MDEBUG("Decrypted payment ID: " << payment_id);
++  }
++  return construction_data;
++}
++
+ uint32_t get_subaddress_clamped_sum(uint32_t idx, uint32_t extra)
+ {
+   static constexpr uint32_t uint32_max = std::numeric_limits<uint32_t>::max();
+@@ -8080,6 +8117,61 @@ void wallet2::commit_tx(std::vector<pending_tx>& ptx_vector)
    }
  }
  //----------------------------------------------------------------------------------------------------
@@ -748,36 +852,16 @@ index a7532d7ec..0c3a628ed 100644
 +  transaction tx;
 +  THROW_WALLET_EXCEPTION_IF(!parse_and_validate_tx_from_blob(tx_blob, tx), error::wallet_internal_error, "Failed to parse transaction");
 +
-+  if (m_light_wallet)
-+  {
-+    COMMAND_RPC_SUBMIT_RAW_TX::request oreq;
-+    COMMAND_RPC_SUBMIT_RAW_TX::response ores;
-+    oreq.address = get_account().get_public_address_str(m_nettype);
-+    oreq.view_key = string_tools::pod_to_hex(unwrap(unwrap(get_account().get_keys().m_view_secret_key)));
-+    oreq.tx = tx_as_hex;
-+    {
-+      const boost::lock_guard<boost::recursive_mutex> lock{m_daemon_rpc_mutex};
-+      bool r = epee::net_utils::invoke_http_json("/submit_raw_tx", oreq, ores, *m_http_client, rpc_timeout, "POST");
-+      THROW_WALLET_EXCEPTION_IF(!r, error::no_connection_to_daemon, "submit_raw_tx");
-+      THROW_WALLET_EXCEPTION_IF(ores.status != "OK" && ores.status != "success", error::tx_rejected, tx, get_rpc_status(ores.status), ores.error);
-+    }
-+  }
-+  else
-+  {
-+    COMMAND_RPC_SEND_RAW_TX::request req;
-+    req.tx_as_hex = tx_as_hex;
-+    req.do_not_relay = false;
-+    req.do_sanity_checks = true;
-+    COMMAND_RPC_SEND_RAW_TX::response daemon_send_resp;
++  COMMAND_RPC_SEND_RAW_TX::request req;
++  req.tx_as_hex = tx_as_hex;
++  req.do_not_relay = false;
++  req.do_sanity_checks = true;
++  COMMAND_RPC_SEND_RAW_TX::response daemon_send_resp;
 +
-+    {
-+      const boost::lock_guard<boost::recursive_mutex> lock{m_daemon_rpc_mutex};
-+      uint64_t pre_call_credits = m_rpc_payment_state.credits;
-+      req.client = get_client_signature();
-+      bool r = epee::net_utils::invoke_http_json("/sendrawtransaction", req, daemon_send_resp, *m_http_client, rpc_timeout);
-+      THROW_ON_RPC_RESPONSE_ERROR(r, {}, daemon_send_resp, "sendrawtransaction", error::tx_rejected, tx, get_rpc_status(daemon_send_resp.status), get_text_reason(daemon_send_resp));
-+      check_rpc_cost("/sendrawtransaction", daemon_send_resp.credits, pre_call_credits, COST_PER_TX_RELAY);
-+    }
++  {
++    const boost::lock_guard<boost::recursive_mutex> lock{m_daemon_rpc_mutex};
++    bool r = epee::net_utils::invoke_http_json("/sendrawtransaction", req, daemon_send_resp, *m_http_client, rpc_timeout);
++    THROW_ON_RPC_RESPONSE_ERROR(r, {}, daemon_send_resp, "sendrawtransaction", error::tx_rejected, tx, get_rpc_status(m_trusted_daemon, daemon_send_resp.status), get_text_reason(daemon_send_resp));
 +  }
 +
 +  crypto::hash txid = get_transaction_hash(tx);
@@ -816,7 +900,7 @@ index a7532d7ec..0c3a628ed 100644
  bool wallet2::save_tx(const std::vector<pending_tx>& ptx_vector, const std::string &filename) const
  {
    LOG_PRINT_L0("saving " << ptx_vector.size() << " transactions");
-@@ -7838,6 +7915,20 @@ std::string wallet2::dump_tx_to_str(const std::vector<pending_tx> &ptx_vector) c
+@@ -8117,6 +8209,20 @@ std::string wallet2::dump_tx_to_str(const std::vector<pending_tx> &ptx_vector) c
    return std::string(UNSIGNED_TX_PREFIX) + ciphertext;
  }
  //----------------------------------------------------------------------------------------------------
@@ -837,7 +921,7 @@ index a7532d7ec..0c3a628ed 100644
  bool wallet2::load_unsigned_tx(const std::string &unsigned_filename, unsigned_tx_set &exported_txs) const
  {
    std::string s;
-@@ -16384,4 +16475,147 @@ std::pair<size_t, uint64_t> wallet2::estimate_tx_size_and_weight(bool use_rct, i
+@@ -15946,4 +16052,147 @@ std::pair<size_t, uint64_t> wallet2::estimate_tx_size_and_weight(bool use_rct, i
    return std::make_pair(size, weight);
  }
  //----------------------------------------------------------------------------------------------------
@@ -986,10 +1070,10 @@ index a7532d7ec..0c3a628ed 100644
 +//----------------------------------------------------------------------------------------------------
  }
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 37a2447d2..2e93f3dbf 100644
+index 42e1c02d9..7332459ae 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
-@@ -1205,8 +1205,10 @@ private:
+@@ -707,8 +707,10 @@ private:
  
      void commit_tx(pending_tx& ptx_vector);
      void commit_tx(std::vector<pending_tx>& ptx_vector);
@@ -1000,16 +1084,16 @@ index 37a2447d2..2e93f3dbf 100644
      std::string save_multisig_tx(multisig_tx_set txs);
      bool save_multisig_tx(const multisig_tx_set &txs, const std::string &filename);
      std::string save_multisig_tx(const std::vector<pending_tx>& ptx_vector);
-@@ -1717,7 +1721,8 @@ private:
+@@ -1281,7 +1283,8 @@ private:
      bool is_unattended() const { return m_unattended; }
  
      std::pair<size_t, uint64_t> estimate_tx_size_and_weight(bool use_rct, int n_inputs, int ring_size, int n_outputs, size_t extra_size);
 -
 +    std::string export_trezor_tdis() const;
 +    uint64_t import_trezor_encrypted_key_images_json(const std::string &json, uint64_t &spent, uint64_t &unspent, bool check_spent = true);
-     bool get_rpc_payment_info(bool mining, bool &payment_required, uint64_t &credits, uint64_t &diff, uint64_t &credits_per_hash_found, cryptonote::blobdata &hashing_blob, uint64_t &height, uint64_t &seed_height, crypto::hash &seed_hash, crypto::hash &next_seed_hash, uint32_t &cookie);
-     bool daemon_requires_payment();
-     bool make_rpc_payment(uint32_t nonce, uint32_t cookie, uint64_t &credits, uint64_t &balance);
+ 
+     /*
+      * "attributes" are a mechanism to store an arbitrary number of string values
 -- 
-2.50.1 (Apple Git-155)
+2.54.0 (Apple Git-157)
 

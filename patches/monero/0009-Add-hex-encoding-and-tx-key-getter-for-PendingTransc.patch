@@ -1,7 +1,7 @@
-From 300a5110cccb1e3caf763b1f9bf5dc0ecc0973c8 Mon Sep 17 00:00:00 2001
+From b3c572ffb401da3aafddc72c9127701abcd70ff1 Mon Sep 17 00:00:00 2001
 From: M <m@cakewallet.com>
 Date: Fri, 21 Apr 2023 15:43:47 -0400
-Subject: [PATCH 09/20] Add hex encoding and tx key getter for
+Subject: [PATCH 09/22] Add hex encoding and tx key getter for
  PendingTransction in wallet api.
 
 ---
@@ -11,7 +11,7 @@ Subject: [PATCH 09/20] Add hex encoding and tx key getter for
  3 files changed, 20 insertions(+)
 
 diff --git a/src/wallet/api/pending_transaction.cpp b/src/wallet/api/pending_transaction.cpp
-index 9c3c26ee5..1f714d229 100644
+index 919e210f0..796e7a50b 100644
 --- a/src/wallet/api/pending_transaction.cpp
 +++ b/src/wallet/api/pending_transaction.cpp
 @@ -80,6 +80,22 @@ std::vector<std::string> PendingTransactionImpl::txid() const
@@ -30,7 +30,7 @@ index 9c3c26ee5..1f714d229 100644
 +{
 +    std::vector<std::string> keys;
 +    for (const auto& pt: m_pending_tx)
-+        keys.push_back(epee::string_tools::pod_to_hex(pt.tx_key));
++        keys.push_back(epee::string_tools::pod_to_hex(unwrap(unwrap(pt.tx_key))));
 +    return keys;
 +}
 +
@@ -38,7 +38,7 @@ index 9c3c26ee5..1f714d229 100644
  {
  
 diff --git a/src/wallet/api/pending_transaction.h b/src/wallet/api/pending_transaction.h
-index 403bfe281..0cc6c58e9 100644
+index 8a70d774d..eb5c75c5f 100644
 --- a/src/wallet/api/pending_transaction.h
 +++ b/src/wallet/api/pending_transaction.h
 @@ -59,6 +59,8 @@ public:
@@ -51,10 +51,10 @@ index 403bfe281..0cc6c58e9 100644
  private:
      friend class WalletImpl;
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 97dd29bde..b5cccac40 100644
+index 768a77a5d..34df402e4 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -127,6 +127,8 @@ struct PendingTransaction
+@@ -119,6 +119,8 @@ struct PendingTransaction
       * @return vector of base58-encoded signers' public keys
       */
      virtual std::vector<std::string> signersKeys() const = 0;
@@ -64,5 +64,5 @@ index 97dd29bde..b5cccac40 100644
  
  /**
 -- 
-2.50.1 (Apple Git-155)
+2.54.0 (Apple Git-157)
 

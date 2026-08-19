@@ -5,7 +5,7 @@ cd $(dirname $0)
 cd ..
 img=localhost/monero_c:$(git describe --tags)
 
-docker build -t $img -f ./builder/Dockerfile .
+docker build -t $img -f ./builder/Dockerfile . 2>&1 | cat
 
 docker create --name temp_extract $img /bin/sh -c 'sleep 3000'
 

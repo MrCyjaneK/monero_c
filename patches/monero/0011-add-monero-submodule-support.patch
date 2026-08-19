@@ -1,7 +1,7 @@
-From e06b0e86b6b6204bf20c0caadde64da1f0966da1 Mon Sep 17 00:00:00 2001
+From a3e5604fe761d64c7d55c6c9afe29c05c35883ed Mon Sep 17 00:00:00 2001
 From: cyan <cyjan@mrcyjanek.net>
 Date: Thu, 7 Nov 2024 16:46:24 +0000
-Subject: [PATCH 11/20] add monero submodule support
+Subject: [PATCH 11/22] add monero submodule support
 
 ---
  CMakeLists.txt                   | 12 ++++++------
@@ -9,10 +9,10 @@ Subject: [PATCH 11/20] add monero submodule support
  2 files changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 390339523..d0af390d0 100644
+index 7b8e9a965..2f1aa73b4 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -75,7 +75,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "3.0.0" AND CMAKE_MAKE_PROGRAM MATCHES "nin
+@@ -100,7 +100,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "3.0.0" AND CMAKE_MAKE_PROGRAM MATCHES "nin
      set(CMAKE_JOB_POOL_LINK link_job_pool)
    endif ()
  endif ()
@@ -21,8 +21,8 @@ index 390339523..d0af390d0 100644
  option (USE_CLANG_TIDY_C   "Lint the code with clang-tidy - variant C"   OFF)
  option (USE_CLANG_TIDY_CXX "Lint the code with clang-tidy - variant C++" OFF)
  if (USE_CLANG_TIDY_C AND USE_CLANG_TIDY_CXX)
-@@ -223,9 +223,9 @@ function(forbid_undefined_symbols)
- cmake_minimum_required(VERSION 3.5)
+@@ -235,9 +235,9 @@ function(forbid_undefined_symbols)
+ cmake_minimum_required(VERSION 3.10)
  project(test)
  option(EXPECT_SUCCESS "" ON)
 -file(WRITE "${CMAKE_SOURCE_DIR}/incorrect_source.cpp" "void undefined_symbol(); void symbol() { undefined_symbol(); }")
@@ -33,7 +33,7 @@ index 390339523..d0af390d0 100644
  endif()
  add_library(l0 SHARED incorrect_source.cpp)
  add_library(l1 MODULE incorrect_source.cpp)
-@@ -363,7 +363,7 @@ if(NOT MANUAL_SUBMODULES)
+@@ -384,7 +384,7 @@ if(NOT MANUAL_SUBMODULES)
          message(FATAL_ERROR "Submodule '${relative_path}' is not up-to-date. Please update all submodules with\ngit submodule update --init --force\nor run cmake with -DMANUAL_SUBMODULES=1\n")
        endif()
      endfunction ()
@@ -41,17 +41,17 @@ index 390339523..d0af390d0 100644
 +
      message(STATUS "Checking submodules")
  #    check_submodule(external/bc-ur)
-     check_submodule(external/miniupnp)
-@@ -390,7 +390,7 @@ else()
+     check_submodule(external/rapidjson)
+@@ -405,7 +405,7 @@ if(PER_BLOCK_CHECKPOINT)
  endif()
  
  list(INSERT CMAKE_MODULE_PATH 0
 -  "${CMAKE_SOURCE_DIR}/cmake")
 +  "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
  
- if (NOT DEFINED ENV{DEVELOPER_LOCAL_TOOLS})
-   message(STATUS "Could not find DEVELOPER_LOCAL_TOOLS in env (not required)")
-@@ -1003,7 +1003,7 @@ else()
+ option(BOOST_IGNORE_SYSTEM_PATHS "Ignore boost system paths for local boost installation" OFF)
+ if (BOOST_IGNORE_SYSTEM_PATHS)
+@@ -864,7 +864,7 @@ include(CheckTrezor)
  
    # random crash on startup when asan is on if pie is enabled
    if(NOT SANITIZE AND ANDROID AND NOT BUILD_GUI_DEPS STREQUAL "ON" OR IOS)
@@ -61,18 +61,18 @@ index 390339523..d0af390d0 100644
      set(PIC_FLAG "")
      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIE")
 diff --git a/src/wallet/wallet_rpc_server.cpp b/src/wallet/wallet_rpc_server.cpp
-index 0cf75a1c4..66def08ef 100644
+index 6727345ea..5f666ea61 100644
 --- a/src/wallet/wallet_rpc_server.cpp
 +++ b/src/wallet/wallet_rpc_server.cpp
-@@ -1261,7 +1261,7 @@ namespace tools
+@@ -1276,7 +1276,7 @@ namespace tools
      {
        uint64_t mixin = m_wallet->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
-       uint32_t priority = m_wallet->adjust_priority(req.priority);
+       const fee_priority priority = m_wallet->adjust_priority(fee_priority_utilities::from_integral(req.priority, fee_algo));
 -      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, mixin, priority, extra, req.account_index, req.subaddr_indices, req.subtract_fee_from_outputs);
 +      std::vector<wallet2::pending_tx> ptx_vector = m_wallet->create_transactions_2(dsts, mixin, priority, extra, req.account_index, req.subaddr_indices, {}, req.subtract_fee_from_outputs);
  
        if (ptx_vector.empty())
        {
 -- 
-2.50.1 (Apple Git-155)
+2.54.0 (Apple Git-157)
 

@@ -1,49 +1,56 @@
-From 92ca945665cab44adace3331685ae4270a14c07e Mon Sep 17 00:00:00 2001
+From eeab3324de1638a035b28b05d414e2d999c9331a Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 21 Nov 2024 06:05:03 -0500
-Subject: [PATCH 12/20] fix iOS depends build
+Subject: [PATCH 12/22] fix iOS depends build
 
 ---
- CMakeLists.txt                      | 4 ----
- src/checkpoints/CMakeLists.txt      | 6 +++++-
- src/cryptonote_basic/CMakeLists.txt | 6 +++++-
- src/cryptonote_basic/miner.cpp      | 8 ++++----
- 4 files changed, 14 insertions(+), 10 deletions(-)
+ CMakeLists.txt                      |  3 ---
+ src/checkpoints/CMakeLists.txt      | 14 ++++++++++++++
+ src/cryptonote_basic/CMakeLists.txt |  6 +++++-
+ src/cryptonote_basic/miner.cpp      |  8 ++++----
+ 4 files changed, 23 insertions(+), 8 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index d0af390d0..b814c76b7 100644
+index 2f1aa73b4..133997f74 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -39,10 +39,6 @@ include(CheckLibraryExists)
- include(CheckFunctionExists)
- include(FindPythonInterp)
+@@ -52,9 +52,6 @@ if (POLICY CMP0179)
+     cmake_policy(SET CMP0179 NEW)
+ endif()
  
 -if (IOS)
 -    INCLUDE(CmakeLists_IOS.txt)
 -endif()
--
- cmake_minimum_required(VERSION 3.5)
- message(STATUS "CMake version ${CMAKE_VERSION}")
+ 
+ project(monero)
  
 diff --git a/src/checkpoints/CMakeLists.txt b/src/checkpoints/CMakeLists.txt
-index 665441f62..841df3256 100644
+index 5e680e736..939aa3b90 100644
 --- a/src/checkpoints/CMakeLists.txt
 +++ b/src/checkpoints/CMakeLists.txt
-@@ -28,7 +28,11 @@
+@@ -26,6 +26,20 @@
+ # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
- if(APPLE)
-   if(DEPENDS)
--    list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework ApplicationServices -framework AppKit -framework IOKit")
++if(APPLE)
++  if(DEPENDS)
 +    if(${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
 +      list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework IOKit")
 +    else()
 +      list(APPEND EXTRA_LIBRARIES "-framework Foundation -framework ApplicationServices -framework AppKit -framework IOKit")
 +    endif()
-   else()
-     find_library(IOKIT_LIBRARY IOKit)
-     mark_as_advanced(IOKIT_LIBRARY)
++  else()
++    find_library(IOKIT_LIBRARY IOKit)
++    mark_as_advanced(IOKIT_LIBRARY)
++    list(APPEND EXTRA_LIBRARIES ${IOKIT_LIBRARY})
++  endif()
++endif()
++
+ set(checkpoints_sources
+   checkpoints.cpp)
+ 
 diff --git a/src/cryptonote_basic/CMakeLists.txt b/src/cryptonote_basic/CMakeLists.txt
-index 414936a05..81c81767f 100644
+index 95d54d599..56fc6d274 100644
 --- a/src/cryptonote_basic/CMakeLists.txt
 +++ b/src/cryptonote_basic/CMakeLists.txt
 @@ -28,7 +28,11 @@
@@ -60,10 +67,10 @@ index 414936a05..81c81767f 100644
      find_library(IOKIT_LIBRARY IOKit)
      mark_as_advanced(IOKIT_LIBRARY)
 diff --git a/src/cryptonote_basic/miner.cpp b/src/cryptonote_basic/miner.cpp
-index 71b8f78cc..0f53f024e 100644
+index 9f702a925..346ed6fd6 100644
 --- a/src/cryptonote_basic/miner.cpp
 +++ b/src/cryptonote_basic/miner.cpp
-@@ -45,7 +45,7 @@
+@@ -46,7 +46,7 @@
  #include "boost/logic/tribool.hpp"
  #include <boost/filesystem.hpp>
  
@@ -72,7 +79,7 @@ index 71b8f78cc..0f53f024e 100644
    #include <sys/times.h>
    #include <IOKit/IOKitLib.h>
    #include <IOKit/ps/IOPSKeys.h>
-@@ -883,7 +883,7 @@ namespace cryptonote
+@@ -885,7 +885,7 @@ namespace cryptonote
  
        return true;
  
@@ -81,7 +88,7 @@ index 71b8f78cc..0f53f024e 100644
  
        mach_msg_type_number_t count;
        kern_return_t status;
-@@ -949,7 +949,7 @@ namespace cryptonote
+@@ -951,7 +951,7 @@ namespace cryptonote
          return true;
        }
  
@@ -90,7 +97,7 @@ index 71b8f78cc..0f53f024e 100644
  
        struct tms tms;
        if ( times(&tms) != (clock_t)-1 )
-@@ -978,7 +978,7 @@ namespace cryptonote
+@@ -980,7 +980,7 @@ namespace cryptonote
          return boost::logic::tribool(power_status.ACLineStatus != 1);
      	}
  
@@ -100,5 +107,5 @@ index 71b8f78cc..0f53f024e 100644
        #if TARGET_OS_MAC && (!defined(MAC_OS_X_VERSION_MIN_REQUIRED) || MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7)
          return boost::logic::tribool(IOPSGetTimeRemainingEstimate() != kIOPSTimeRemainingUnlimited);
 -- 
-2.50.1 (Apple Git-155)
+2.54.0 (Apple Git-157)
 
