@@ -5,7 +5,7 @@ FROM --platform=linux/amd64 ubuntu:26.04@sha256:3131b4cc82a783df6c9df078f86e0181
 WORKDIR /w
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update \
-    && apt install -y git clang llvm gcc g++ sudo golang build-essential patch gcc-x86-64-linux-gnu \
+    && apt install -y git clang llvm gcc g++ sudo golang build-essential patch gcc-x86-64-linux-gnu sed \
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
