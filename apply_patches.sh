@@ -38,6 +38,7 @@ then
         git remote set-url origin https://github.com/mrcyjanek/randomwow.git
     popd
 fi
+
 git submodule init
 git submodule update --init --recursive --force
 
