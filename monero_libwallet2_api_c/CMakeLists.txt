@@ -4,7 +4,11 @@ message(STATUS HOST_ABI = ${HOST_ABI})
 
 set(MD_LIBRARY "")
 
-set(CMAKE_CXX_STANDARD 11)
+if(${MONERO_FLAVOR} STREQUAL "beldex")
+  set(CMAKE_CXX_STANDARD 17)
+else()
+  set(CMAKE_CXX_STANDARD 11)
+endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32")
@@ -77,6 +81,11 @@ if (${MONERO_FLAVOR} STREQUAL "zano")
     )
 endif()
 
+if(${MONERO_FLAVOR} STREQUAL "zano" AND ${HOST_ABI} MATCHES "-linux-android")
+    add_library(backtrace INTERFACE)
+    add_library(dl INTERFACE)
+endif()
+
 add_subdirectory("${CMAKE_SOURCE_DIR}/../${MONERO_FLAVOR}" ${CMAKE_BINARY_DIR}/${MONERO_FLAVOR}_build EXCLUDE_FROM_ALL)
 
 if(HOST_ABI MATCHES "-apple-")
@@ -100,14 +109,14 @@ elseif(${MONERO_FLAVOR} STREQUAL "zano")
     set(WALLET_TARGETS
         wallet
         general
-        tor-connect
         crypto
         currency_core
         common
         zlibstatic
 
         ${Boost_LIBRARIES}
-        ${OpenSSL_LIBRARIES})
+        OpenSSL::SSL
+        OpenSSL::Crypto)
 elseif(${MONERO_FLAVOR} STREQUAL "beldex")
     find_package(Boost 1.71 REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options)
     find_package(OpenSSL REQUIRED)
@@ -145,7 +154,8 @@ elseif(${MONERO_FLAVOR} STREQUAL "beldex")
         common
         ${wallet_api_LIB_DEPENDS}
         ${Boost_LIBRARIES}
-        ${OpenSSL_LIBRARIES}
+        OpenSSL::SSL
+        OpenSSL::Crypto
         ${BELDEX_ZLIB_LIB}
     )
 endif()

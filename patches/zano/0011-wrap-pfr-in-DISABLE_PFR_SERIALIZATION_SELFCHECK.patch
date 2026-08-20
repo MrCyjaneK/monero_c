@@ -1,0 +1,32 @@
+From 8c8a732fa170aaba26570ca4927b24f11748ac23 Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Tue, 30 Jun 2026 09:46:18 +0200
+Subject: [PATCH 11/11] wrap pfr in DISABLE_PFR_SERIALIZATION_SELFCHECK
+
+---
+ src/common/boost_serialization_maps.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/common/boost_serialization_maps.h b/src/common/boost_serialization_maps.h
+index 988e42d3..9773a4ba 100644
+--- a/src/common/boost_serialization_maps.h
++++ b/src/common/boost_serialization_maps.h
+@@ -51,6 +51,7 @@ template<size_t A, size_t B> struct TAssertEquality {
+   be accompanied by a thorough review of the serialization map to ensure no fields are omitted.
+ **********************************************************************************************************************************/
+ 
++#ifndef DISABLE_PFR_SERIALIZATION_SELFCHECK
+ template <std::size_t Expected, std::size_t Actual>
+ struct if_you_see_this_check_END_BOOST_SERIALIZATION_TOTAL_FIELDS_macro;
+ 
+@@ -59,6 +60,7 @@ using validate_fields_t = std::conditional_t<(boost::pfr::tuple_size_v<T> == Exp
+ 
+ template<std::size_t expected, std::size_t actual>
+ constexpr bool static_check_num_eq() { static_assert(expected == actual, "numbers mismatched -- see static_check_num_eq<expected, actual> in the instantiation below"); return expected == actual; }
++#endif
+ 
+ 
+ #ifndef DISABLE_PFR_SERIALIZATION_SELFCHECK
+-- 
+2.54.0 (Apple Git-156)
+

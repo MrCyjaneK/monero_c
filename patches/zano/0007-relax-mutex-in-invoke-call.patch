@@ -1,25 +1,31 @@
-From c8be0ef787060efcba6067729ae08b422bdde235 Mon Sep 17 00:00:00 2001
+From 4450a463d185bb539080c3bbd5ece18bd42f42a0 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Tue, 18 Feb 2025 14:27:36 +0100
-Subject: [PATCH 7/7] relax mutex in invoke call
+Subject: [PATCH 07/11] relax mutex in invoke call
 
 ---
- src/gui/qt-daemon/layout       |  2 +-
+ src/common/error_codes.h       |  1 +
  src/wallet/wallets_manager.cpp | 37 ++++++++++++++++++++++++++++++----
- 2 files changed, 34 insertions(+), 5 deletions(-)
+ 2 files changed, 34 insertions(+), 4 deletions(-)
 
-diff --git a/src/gui/qt-daemon/layout b/src/gui/qt-daemon/layout
-index 7f7128e8..8ec45f89 160000
---- a/src/gui/qt-daemon/layout
-+++ b/src/gui/qt-daemon/layout
-@@ -1 +1 @@
--Subproject commit 7f7128e8c3d5c04d801a327a7228abcc9aba85cd
-+Subproject commit 8ec45f89802358be95c7fbb0eec5abe4382bd28e
+diff --git a/src/common/error_codes.h b/src/common/error_codes.h
+index e86373e5..d4f9ff33 100644
+--- a/src/common/error_codes.h
++++ b/src/common/error_codes.h
+@@ -51,6 +51,7 @@
+ #define API_RETURN_CODE_ARG_OUT_OF_LIMITS                       "ARG_OUT_OF_LIMITS"
+ #define API_RETURN_CODE_TX_HAS_TOO_MANY_OUTPUTS                 "TX_HAS_TOO_MANY_OUTPUTS"
+ #define API_RETURN_CODE_TX_HAS_TOO_MANY_INPUTS                  "TX_HAS_TOO_MANY_INPUTS"
++#define API_RETURN_CODE_BAD_JSON                                "BAD_JSON" 
+ #define API_RETURN_CODE_TX_FREEZE_PERIOD                        "TX_FREEZE_PERIOD"
+ #define API_RETURN_CODE_TX_POOL_FULL                            "TX_POOL_FULL"
+ #define API_RETURN_CODE_SIMULATION_FAILED                       "SIMULATION_FAILED"
+\ No newline at end of file
 diff --git a/src/wallet/wallets_manager.cpp b/src/wallet/wallets_manager.cpp
-index 0152e3d4..490ae0e8 100644
+index 02f47730..731aa1f3 100644
 --- a/src/wallet/wallets_manager.cpp
 +++ b/src/wallet/wallets_manager.cpp
-@@ -1698,10 +1698,27 @@ std::string wallets_manager::get_wallet_status(uint64_t wallet_id)
+@@ -1740,10 +1740,27 @@ std::string wallets_manager::get_wallet_status(uint64_t wallet_id)
    return epee::serialization::store_t_to_json(wsi);
  }
  
@@ -47,7 +53,7 @@ index 0152e3d4..490ae0e8 100644
    CRITICAL_REGION_LOCAL1(wo.long_refresh_in_progress_lock);
    if (wo.long_refresh_in_progress)
    {
-@@ -1711,16 +1728,28 @@ std::string wallets_manager::invoke(uint64_t wallet_id, std::string params)
+@@ -1753,16 +1770,28 @@ std::string wallets_manager::invoke(uint64_t wallet_id, std::string params)
      return epee::serialization::store_t_to_json(error_response);
    }
  
@@ -79,17 +85,7 @@ index 0152e3d4..490ae0e8 100644
 +
    return response_info.m_body;
  }
-
-diff --git a/src/common/error_codes.h b/src/common/error_codes.h
-index b538fa87..7471b2d1 100644
---- a/src/common/error_codes.h
-+++ b/src/common/error_codes.h
-@@ -48,3 +48,4 @@
- #define API_RETURN_CODE_MISSING_ZC_INPUTS                       "MISSING_ZC_INPUTS"
- #define API_RETURN_CODE_ARG_OUT_OF_LIMITS                       "ARG_OUT_OF_LIMITS"
- #define API_RETURN_CODE_TX_HAS_TOO_MANY_OUTPUTS                 "TX_HAS_TOO_MANY_OUTPUTS"
-+#define API_RETURN_CODE_BAD_JSON                                "BAD_JSON" 
-
+ 
 -- 
-2.51.0
+2.54.0 (Apple Git-156)
 
