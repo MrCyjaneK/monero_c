@@ -1442,20 +1442,20 @@ bool WOWNERO_Wallet_paymentIdValid(const char* paiment_id) {
 bool WOWNERO_Wallet_addressValid(const char* str, int nettype) {
     DEBUG_START()
     // Monero::Wallet *wallet = reinterpret_cast<Monero::Wallet*>(wallet_ptr);
-    return Monero::Wallet::addressValid(std::string(str), nettype);
+    return Monero::Wallet::addressValid(std::string(str), static_cast<Monero::NetworkType>(nettype));
     DEBUG_END()
 }
 
 bool WOWNERO_Wallet_keyValid(const char* secret_key_string, const char* address_string, bool isViewKey, int nettype) {
     DEBUG_START()
     std::string error;
-    return Monero::Wallet::keyValid(std::string(secret_key_string), std::string(address_string), isViewKey, nettype, error);
+    return Monero::Wallet::keyValid(std::string(secret_key_string), std::string(address_string), isViewKey, static_cast<Monero::NetworkType>(nettype), error);
     DEBUG_END()
 }
 const char* WOWNERO_Wallet_keyValid_error(const char* secret_key_string, const char* address_string, bool isViewKey, int nettype)  {
     DEBUG_START()
     std::string str;
-    Monero::Wallet::keyValid(std::string(secret_key_string), std::string(address_string), isViewKey, nettype, str);
+    Monero::Wallet::keyValid(std::string(secret_key_string), std::string(address_string), isViewKey, static_cast<Monero::NetworkType>(nettype), str);
     const std::string::size_type size = str.size();
     char *buffer = new char[size + 1];   //we need extra char for NUL
     memcpy(buffer, str.c_str(), size + 1);
