@@ -4,7 +4,7 @@ HOST ?=
 
 BOOST_VERSION ?= 1_90_0
 PACKAGES = native/protobuf,native/cmake,native/python@3.14,native/git,native/_,native/make,native/cmake-toolchain,icu4c,boost@$(BOOST_VERSION),zeromq,unbound,sodium,openssl,libiconv,zlib,protobuf
-SIMPLYBS_HASH = 620a079b8bef8dae70fc0e9b1414f73caa950292
+SIMPLYBS_HASH = fd0cba10df40271d859ee1a2eef59c0ab3782a33
 
 all: simplybs $(if $(HOST),sbs-build-$(HOST),)
 	@if [ -z "$(HOST)" ]; then \
