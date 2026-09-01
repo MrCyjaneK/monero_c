@@ -1,0 +1,2691 @@
+library;
+
+// Are we memory safe?
+// There is a simple way to check that:
+// 1) Rewrite everything in rust
+// Or, assuming we are sane
+// 1) grep -E 'toNative|^String ' lib/nerva.dart | grep -v '^//' | grep -v '^String libPath = ' | wc -l
+//    This will print number of all things that produce pointers
+// 2) grep .free lib/nerva.dart | grep -v '^//' | wc -l
+//    This will print number of all free calls, these numbers should match
+
+// Wrapper around generated_bindings.g.dart - to provide easy access to the
+// underlying functions, feel free to not use it at all.
+
+//  _____________ PendingTransaction is just a typedef for Pointer<Void> (which is void* on C side)
+// /                   _____________ Wallet class, we didn't specify the MONERO prefix because we import the monero.dart code with monero prefix
+// |                  /       _____________ createTransaction function, from the upstream in the class Wallet
+// |                  |      /
+// PendingTransaction Wallet_createTransaction(wallet ptr, <------------- wallet is a typedef for Pointer<Void>
+//     {required String dst_addr,--------------------------------\ All of the parameters that are used in this function
+//     required String payment_id,                  _____________/ String - will get casted into const char*
+//     required int amount,                        /
+//     required int mixin_count,                  /                int - goes as it is
+//     required int pendingTransactionPriority,  /
+//     required int subaddr_account,            /
+//     List<String> preferredInputs = const []}) {                 List<String> - gets joined and passed as 2 separate parameters to be split in the C side____
+//   debugStart?.call('NERVA_Wallet_createTransaction'); <------------- debugStart functions just marks the function as currently being executed, used        |
+//   lib ??= NervaC(DynamicLibrary.open(libPath));                    \_for performance debugging                                                             |
+//   \_____________ Load the library in case it is not loaded                                                                                                  |
+//   final dst_addr_ = dst_addr.toNativeUtf8().cast<Char>(); -----------------| Cast the strings into Chars so it can be used as a parameter in a function     |
+//   final payment_id_ = payment_id.toNativeUtf8().cast<Char>(); -------------| generated via ffigen                                                           |
+//   final preferredInputs_ = preferredInputs.join(defaultSeparatorStr).toNativeUtf8().cast<Char>(); <---------------------------------------------------------/
+//   final s = lib!.NERVA_Wallet_createTransaction(-------------|
+//     ptr,                                                       |
+//     dst_addr_,                                                 |
+//     payment_id_,                                               |
+//     amount,                                                    |
+//     mixin_count,                                               | Call the native function using generated code
+//     pendingTransactionPriority,                                |
+//     subaddr_account,                                           |
+//     preferredInputs_,                                          |
+//     defaultSeparator,                                          |
+//   );___________________________________________________________/
+//   calloc.free(dst_addr_);---------------| Free the memory once we don't need it
+//   calloc.free(payment_id_);-------------|
+//   debugEnd?.call('NERVA_Wallet_createTransaction'); <------------- Mark the function as executed
+//   return s; <------------- return the value
+// }
+//
+// Extra case is happening when we have a function call that returns const char* as we have to be memory safe
+// String PendingTransaction_txid(PendingTransaction ptr, String separator) {
+//   debugStart?.call('NERVA_PendingTransaction_txid');
+//   lib ??= NervaC(DynamicLibrary.open(libPath));
+//   final separator_ = separator.toNativeUtf8().cast<Char>();
+//   final txid = lib!.NERVA_PendingTransaction_txid(ptr, separator_);
+//   calloc.free(separator_);
+//   debugEnd?.call('NERVA_PendingTransaction_txid');
+//   try { <------------- We need to try-catch these calls because they may fail in an unlikely case when we get an invalid UTF-8 string,
+//     final strPtr = txid.cast<Utf8>();                                            it is better to throw than to crash main isolate imo.
+//     final str = strPtr.toDartString(); <------------- convert the pointer to const char* to dart String
+//     NERVA_free(strPtr.cast()); <------------- free the memory
+//     debugEnd?.call('NERVA_PendingTransaction_txid');
+//     return str; <------------- return the value
+//   } catch (e) {
+//     errorHandler?.call('NERVA_PendingTransaction_txid', e);
+//     debugEnd?.call('NERVA_PendingTransaction_txid');
+//     return ""; <------------- return an empty string in case of an error.
+//   }
+// }
+//
+
+// ignore_for_file: non_constant_identifier_names, camel_case_types
+
+import 'dart:ffi';
+import 'dart:io';
+
+import 'package:ffi/ffi.dart';
+import 'package:monero/src/generated_bindings_nerva.g.dart';
+
+export 'src/checksum_nerva.dart';
+
+typedef PendingTransaction = Pointer<Void>;
+
+NervaC? lib;
+String libPath = (() {
+  if (Platform.isWindows) return 'libnerva_wallet2_api_c.dll';
+  if (Platform.isMacOS) return 'libnerva_wallet2_api_c.dylib';
+  if (Platform.isIOS) return 'NervaWallet.framework/NervaWallet';
+  if (Platform.isAndroid) return 'libnerva_wallet2_api_c.so';
+  return 'libnerva_wallet2_api_c.so';
+})();
+
+Map<String, List<int>> debugCallLength = {};
+
+final defaultSeparatorStr = ";";
+final defaultSeparator = defaultSeparatorStr.toNativeUtf8().cast<Char>();
+/* we don't call .free here, this comment serves one purpose - so the numbers match :) */
+
+final Stopwatch sw = Stopwatch()..start();
+
+bool printStarts = false;
+
+void Function(String call)? debugStart = (call) {
+  try {
+    if (printStarts) print("MONERO: $call");
+    debugCallLength[call] ??= <int>[];
+    debugCallLength[call]!.add(sw.elapsedMicroseconds);
+  } catch (e) {}
+};
+void debugChores() {
+  for (var key in debugCallLength.keys) {
+    if (debugCallLength[key]!.length > 1000000) {
+      final elm =
+          debugCallLength[key]!.reduce((value, element) => value + element);
+      debugCallLength[key]!.clear();
+      debugCallLength["${key}_1M"] ??= <int>[];
+      debugCallLength["${key}_1M"]!.add(elm);
+    }
+  }
+}
+
+int debugCount = 0;
+
+void Function(String call)? debugEnd = (call) {
+  try {
+    final id = debugCallLength[call]!.length - 1;
+    if (++debugCount > 1000000) {
+      debugCount = 0;
+      debugChores();
+    }
+    debugCallLength[call]![id] =
+        sw.elapsedMicroseconds - debugCallLength[call]![id];
+  } catch (e) {}
+};
+void Function(String call, dynamic error)? errorHandler = (call, error) {
+  print("$call: $error");
+};
+
+int PendingTransaction_status(PendingTransaction ptr) {
+  debugStart?.call('NERVA_PendingTransaction_status');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_PendingTransaction_status(ptr);
+  debugEnd?.call('NERVA_PendingTransaction_status');
+  return status;
+}
+
+String PendingTransaction_errorString(PendingTransaction ptr) {
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  debugStart?.call('NERVA_PendingTransaction_errorString');
+  try {
+    final rPtr = lib!.NERVA_PendingTransaction_errorString(ptr).cast<Utf8>();
+    final str = rPtr.toDartString();
+    NERVA_free(rPtr.cast());
+    debugEnd?.call('NERVA_PendingTransaction_errorString');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_PendingTransaction_errorString', e);
+    debugEnd?.call('NERVA_PendingTransaction_errorString');
+    return "";
+  }
+}
+
+bool PendingTransaction_commit(PendingTransaction ptr,
+    {required String filename, required bool overwrite}) {
+  debugStart?.call('NERVA_PendingTransaction_commit');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final filename_ = filename.toNativeUtf8().cast<Char>();
+  final result =
+      lib!.NERVA_PendingTransaction_commit(ptr, filename_, overwrite);
+  calloc.free(filename_);
+  debugEnd?.call('NERVA_PendingTransaction_commit');
+  return result;
+}
+
+int PendingTransaction_amount(PendingTransaction ptr) {
+  debugStart?.call('NERVA_PendingTransaction_amount');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final amount = lib!.NERVA_PendingTransaction_amount(ptr);
+  debugStart?.call('NERVA_PendingTransaction_amount');
+  return amount;
+}
+
+int PendingTransaction_dust(PendingTransaction ptr) {
+  debugStart?.call('NERVA_PendingTransaction_dust');
+
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final dust = lib!.NERVA_PendingTransaction_dust(ptr);
+  debugStart?.call('NERVA_PendingTransaction_dust');
+  return dust;
+}
+
+int PendingTransaction_fee(PendingTransaction ptr) {
+  debugStart?.call('NERVA_PendingTransaction_fee');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final fee = lib!.NERVA_PendingTransaction_fee(ptr);
+  debugEnd?.call('NERVA_PendingTransaction_fee');
+  return fee;
+}
+
+String PendingTransaction_txid(PendingTransaction ptr, String separator) {
+  debugStart?.call('NERVA_PendingTransaction_txid');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final separator_ = separator.toNativeUtf8().cast<Char>();
+  final txid = lib!.NERVA_PendingTransaction_txid(ptr, separator_);
+  calloc.free(separator_);
+  debugEnd?.call('NERVA_PendingTransaction_txid');
+  try {
+    final strPtr = txid.cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_PendingTransaction_txid');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_PendingTransaction_txid', e);
+    debugEnd?.call('NERVA_PendingTransaction_txid');
+    return "";
+  }
+}
+
+int PendingTransaction_txCount(PendingTransaction ptr) {
+  debugStart?.call('NERVA_PendingTransaction_txCount');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final txCount = lib!.NERVA_PendingTransaction_txCount(ptr);
+  debugEnd?.call('NERVA_PendingTransaction_txCount');
+  return txCount;
+}
+
+String PendingTransaction_subaddrAccount(
+    PendingTransaction ptr, String separator) {
+  debugStart?.call('NERVA_PendingTransaction_subaddrAccount');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final separator_ = separator.toNativeUtf8().cast<Char>();
+  final txid = lib!.NERVA_PendingTransaction_subaddrAccount(ptr, separator_);
+  calloc.free(separator_);
+  debugEnd?.call('NERVA_PendingTransaction_subaddrAccount');
+  try {
+    final strPtr = txid.cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_PendingTransaction_subaddrAccount');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_PendingTransaction_subaddrAccount', e);
+    debugEnd?.call('NERVA_PendingTransaction_subaddrAccount');
+    return "";
+  }
+}
+
+String PendingTransaction_subaddrIndices(
+    PendingTransaction ptr, String separator) {
+  debugStart?.call('NERVA_PendingTransaction_subaddrIndices');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final separator_ = separator.toNativeUtf8().cast<Char>();
+  final txid = lib!.NERVA_PendingTransaction_subaddrIndices(ptr, separator_);
+  calloc.free(separator_);
+  debugEnd?.call('NERVA_PendingTransaction_subaddrIndices');
+  try {
+    final strPtr = txid.cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_PendingTransaction_subaddrIndices');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_PendingTransaction_subaddrIndices', e);
+    debugEnd?.call('NERVA_PendingTransaction_subaddrIndices');
+    return "";
+  }
+}
+
+String PendingTransaction_multisigSignData(PendingTransaction ptr) {
+  debugStart?.call('NERVA_PendingTransaction_multisigSignData');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final txid = lib!.NERVA_PendingTransaction_multisigSignData(ptr);
+  debugEnd?.call('NERVA_PendingTransaction_multisigSignData');
+  try {
+    final strPtr = txid.cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_PendingTransaction_multisigSignData');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_PendingTransaction_multisigSignData', e);
+    debugEnd?.call('NERVA_PendingTransaction_multisigSignData');
+    return "";
+  }
+}
+
+void PendingTransaction_signMultisigTx(PendingTransaction ptr) {
+  debugStart?.call('NERVA_PendingTransaction_signMultisigTx');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final ret = lib!.NERVA_PendingTransaction_signMultisigTx(ptr);
+  debugEnd?.call('NERVA_PendingTransaction_signMultisigTx');
+  return ret;
+}
+
+String PendingTransaction_signersKeys(
+    PendingTransaction ptr, String separator) {
+  debugStart?.call('NERVA_PendingTransaction_signersKeys');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final separator_ = separator.toNativeUtf8().cast<Char>();
+  final txid = lib!.NERVA_PendingTransaction_signersKeys(ptr, separator_);
+  calloc.free(separator_);
+  debugEnd?.call('NERVA_PendingTransaction_signersKeys');
+  try {
+    final strPtr = txid.cast<Utf8>();
+    final str = strPtr.toDartString();
+    debugEnd?.call('NERVA_PendingTransaction_signersKeys');
+    NERVA_free(strPtr.cast());
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_PendingTransaction_signersKeys', e);
+    debugEnd?.call('NERVA_PendingTransaction_signersKeys');
+    return "";
+  }
+}
+
+// UnsignedTransaction
+
+typedef UnsignedTransaction = Pointer<Void>;
+
+int UnsignedTransaction_status(UnsignedTransaction ptr) {
+  debugStart?.call('NERVA_UnsignedTransaction_status');
+
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final dust = lib!.NERVA_UnsignedTransaction_status(ptr);
+  debugStart?.call('NERVA_UnsignedTransaction_status');
+  return dust;
+}
+
+String UnsignedTransaction_errorString(UnsignedTransaction ptr) {
+  debugStart?.call('NERVA_UnsignedTransaction_errorString');
+
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final errorString = lib!.NERVA_UnsignedTransaction_errorString(ptr);
+  try {
+    final strPtr = errorString.cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_UnsignedTransaction_errorString');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_UnsignedTransaction_errorString', e);
+    debugEnd?.call('NERVA_UnsignedTransaction_errorString');
+    return "";
+  }
+}
+
+String UnsignedTransaction_amount(UnsignedTransaction ptr) {
+  debugStart?.call('NERVA_UnsignedTransaction_amount');
+
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final errorString =
+      lib!.NERVA_UnsignedTransaction_amount(ptr, defaultSeparator);
+  try {
+    final strPtr = errorString.cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_UnsignedTransaction_amount');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_UnsignedTransaction_amount', e);
+    debugEnd?.call('NERVA_UnsignedTransaction_amount');
+    return "";
+  }
+}
+
+String UnsignedTransaction_fee(UnsignedTransaction ptr) {
+  debugStart?.call('NERVA_UnsignedTransaction_fee');
+
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final errorString = lib!.NERVA_UnsignedTransaction_fee(ptr, defaultSeparator);
+  try {
+    final strPtr = errorString.cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_UnsignedTransaction_fee');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_UnsignedTransaction_fee', e);
+    debugEnd?.call('NERVA_UnsignedTransaction_fee');
+    return "";
+  }
+}
+
+String UnsignedTransaction_confirmationMessage(UnsignedTransaction ptr) {
+  debugStart?.call('NERVA_UnsignedTransaction_confirmationMessage');
+
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final errorString = lib!.NERVA_UnsignedTransaction_confirmationMessage(ptr);
+  try {
+    final strPtr = errorString.cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_UnsignedTransaction_confirmationMessage');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_UnsignedTransaction_confirmationMessage', e);
+    debugEnd?.call('NERVA_UnsignedTransaction_confirmationMessage');
+    return "";
+  }
+}
+
+String UnsignedTransaction_paymentId(UnsignedTransaction ptr) {
+  debugStart?.call('NERVA_UnsignedTransaction_paymentId');
+
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final errorString =
+      lib!.NERVA_UnsignedTransaction_paymentId(ptr, defaultSeparator);
+  try {
+    final strPtr = errorString.cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_UnsignedTransaction_paymentId');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_UnsignedTransaction_paymentId', e);
+    debugEnd?.call('NERVA_UnsignedTransaction_paymentId');
+    return "";
+  }
+}
+
+String UnsignedTransaction_recipientAddress(UnsignedTransaction ptr) {
+  debugStart?.call('NERVA_UnsignedTransaction_recipientAddress');
+
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final errorString =
+      lib!.NERVA_UnsignedTransaction_recipientAddress(ptr, defaultSeparator);
+  try {
+    final strPtr = errorString.cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_UnsignedTransaction_recipientAddress');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_UnsignedTransaction_recipientAddress', e);
+    debugEnd?.call('NERVA_UnsignedTransaction_recipientAddress');
+    return "";
+  }
+}
+
+int UnsignedTransaction_txCount(UnsignedTransaction ptr) {
+  debugStart?.call('NERVA_UnsignedTransaction_txCount');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final v = lib!.NERVA_UnsignedTransaction_txCount(ptr);
+  debugStart?.call('NERVA_UnsignedTransaction_txCount');
+  return v;
+}
+
+bool UnsignedTransaction_sign(UnsignedTransaction ptr, String signedFileName) {
+  debugStart?.call('NERVA_UnsignedTransaction_sign');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final signedFileName_ = signedFileName.toNativeUtf8().cast<Char>();
+  final v = lib!.NERVA_UnsignedTransaction_sign(ptr, signedFileName_);
+  calloc.free(signedFileName_);
+  debugStart?.call('NERVA_UnsignedTransaction_sign');
+  return v;
+}
+// TransactionInfo
+
+typedef TransactionInfo = Pointer<Void>;
+
+enum TransactionInfo_Direction { In, Out }
+
+TransactionInfo_Direction TransactionInfo_direction(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_direction');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final tiDir = TransactionInfo_Direction
+      .values[lib!.NERVA_TransactionInfo_direction(ptr)];
+  debugEnd?.call('NERVA_TransactionInfo_direction');
+  return tiDir;
+}
+
+bool TransactionInfo_isPending(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_isPending');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final isPending = lib!.NERVA_TransactionInfo_isPending(ptr);
+  debugEnd?.call('NERVA_TransactionInfo_isPending');
+
+  return isPending;
+}
+
+bool TransactionInfo_isFailed(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_isFailed');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final isFailed = lib!.NERVA_TransactionInfo_isFailed(ptr);
+  debugEnd?.call('NERVA_TransactionInfo_isFailed');
+  return isFailed;
+}
+
+int TransactionInfo_amount(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_amount');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final amount = lib!.NERVA_TransactionInfo_amount(ptr);
+  debugEnd?.call('NERVA_TransactionInfo_amount');
+  return amount;
+}
+
+int TransactionInfo_fee(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_fee');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final fee = lib!.NERVA_TransactionInfo_fee(ptr);
+  debugEnd?.call('NERVA_TransactionInfo_fee');
+  return fee;
+}
+
+int TransactionInfo_blockHeight(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_blockHeight');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final blockHeight = lib!.NERVA_TransactionInfo_blockHeight(ptr);
+  debugEnd?.call('NERVA_TransactionInfo_blockHeight');
+  return blockHeight;
+}
+
+String TransactionInfo_subaddrIndex(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_subaddrIndex');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!
+        .NERVA_TransactionInfo_subaddrIndex(ptr, defaultSeparator)
+        .cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_TransactionInfo_subaddrIndex');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_TransactionInfo_subaddrIndex', e);
+    return "";
+  }
+}
+
+int TransactionInfo_subaddrAccount(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_subaddrAccount');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final subaddrAccount = lib!.NERVA_TransactionInfo_subaddrAccount(ptr);
+  debugEnd?.call('NERVA_TransactionInfo_subaddrAccount');
+  return subaddrAccount;
+}
+
+String TransactionInfo_label(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_label');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_TransactionInfo_label(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_TransactionInfo_label');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_TransactionInfo_label', e);
+    debugEnd?.call('NERVA_TransactionInfo_label');
+    return "";
+  }
+}
+
+int TransactionInfo_confirmations(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_confirmations');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final confirmations = lib!.NERVA_TransactionInfo_confirmations(ptr);
+  debugEnd?.call('NERVA_TransactionInfo_confirmations');
+  return confirmations;
+}
+
+int TransactionInfo_unlockTime(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_unlockTime');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final unlockTime = lib!.NERVA_TransactionInfo_unlockTime(ptr);
+  debugEnd?.call('NERVA_TransactionInfo_unlockTime');
+  return unlockTime;
+}
+
+String TransactionInfo_hash(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_hash');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_TransactionInfo_hash(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_TransactionInfo_hash');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_TransactionInfo_hash', e);
+    debugEnd?.call('NERVA_TransactionInfo_hash');
+    return "";
+  }
+}
+
+int TransactionInfo_timestamp(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_timestamp');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final timestamp = lib!.NERVA_TransactionInfo_timestamp(ptr);
+  debugEnd?.call('NERVA_TransactionInfo_timestamp');
+  return timestamp;
+}
+
+String TransactionInfo_paymentId(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_paymentId');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_TransactionInfo_paymentId(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_TransactionInfo_paymentId');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_TransactionInfo_paymentId', e);
+    debugEnd?.call('NERVA_TransactionInfo_paymentId');
+    return "";
+  }
+}
+
+int TransactionInfo_transfers_count(TransactionInfo ptr) {
+  debugStart?.call('NERVA_TransactionInfo_transfers_count');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final v = lib!.NERVA_TransactionInfo_transfers_count(ptr);
+  debugEnd?.call('NERVA_TransactionInfo_transfers_count');
+  return v;
+}
+
+int TransactionInfo_transfers_amount(TransactionInfo ptr, int index) {
+  debugStart?.call('NERVA_TransactionInfo_transfers_amount');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final v = lib!.NERVA_TransactionInfo_transfers_amount(ptr, index);
+  debugEnd?.call('NERVA_TransactionInfo_transfers_amount');
+  return v;
+}
+
+String TransactionInfo_transfers_address(TransactionInfo ptr, int index) {
+  debugStart?.call('NERVA_TransactionInfo_transfers_address');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr =
+        lib!.NERVA_TransactionInfo_transfers_address(ptr, index).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_TransactionInfo_transfers_address');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_TransactionInfo_transfers_address', e);
+    debugEnd?.call('NERVA_TransactionInfo_transfers_address');
+    return "";
+  }
+}
+
+// TransactionHistory
+
+typedef TransactionHistory = Pointer<Void>;
+
+int TransactionHistory_count(TransactionHistory txHistory_ptr) {
+  debugStart?.call('NERVA_TransactionHistory_count');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final count = lib!.NERVA_TransactionHistory_count(txHistory_ptr);
+  debugEnd?.call('NERVA_TransactionHistory_count');
+  return count;
+}
+
+TransactionInfo TransactionHistory_transaction(TransactionHistory txHistory_ptr,
+    {required int index}) {
+  debugStart?.call('NERVA_TransactionHistory_transaction');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final transaction =
+      lib!.NERVA_TransactionHistory_transaction(txHistory_ptr, index);
+  debugEnd?.call('NERVA_TransactionHistory_transaction');
+  return transaction;
+}
+
+TransactionInfo TransactionHistory_transactionById(
+    TransactionHistory txHistory_ptr,
+    {required String txid}) {
+  debugStart?.call('NERVA_TransactionHistory_transactionById');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final txid_ = txid.toNativeUtf8().cast<Char>();
+  final transaction =
+      lib!.NERVA_TransactionHistory_transactionById(txHistory_ptr, txid_);
+  calloc.free(txid_);
+  debugEnd?.call('NERVA_TransactionHistory_transactionById');
+  return transaction;
+}
+
+void TransactionHistory_refresh(TransactionHistory txHistory_ptr) {
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  return lib!.NERVA_TransactionHistory_refresh(txHistory_ptr);
+}
+
+// AddresBookRow
+
+typedef AddressBookRow = Pointer<Void>;
+
+// AddressBook
+
+typedef AddressBook = Pointer<Void>;
+
+// CoinsInfo
+typedef CoinsInfo = Pointer<Void>;
+
+typedef Coins = Pointer<Void>;
+
+// SubaddressRow
+
+typedef SubaddressRow = Pointer<Void>;
+
+String SubaddressRow_extra(SubaddressRow subaddressBookRow_ptr) {
+  debugStart?.call('NERVA_SubaddressRow_extra');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr =
+        lib!.NERVA_SubaddressRow_extra(subaddressBookRow_ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_SubaddressRow_extra');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_SubaddressRow_extra', e);
+    debugEnd?.call('NERVA_SubaddressRow_extra');
+    return "";
+  }
+}
+
+String SubaddressRow_getAddress(SubaddressRow subaddressBookRow_ptr) {
+  debugStart?.call('NERVA_SubaddressRow_getAddress');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr =
+        lib!.NERVA_SubaddressRow_getAddress(subaddressBookRow_ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_SubaddressRow_getAddress');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_SubaddressRow_getAddress', e);
+    debugEnd?.call('NERVA_SubaddressRow_getAddress');
+    return "";
+  }
+}
+
+String SubaddressRow_getLabel(SubaddressRow subaddressBookRow_ptr) {
+  debugStart?.call('NERVA_SubaddressRow_getLabel');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr =
+        lib!.NERVA_SubaddressRow_getLabel(subaddressBookRow_ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_SubaddressRow_getLabel');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_SubaddressRow_getLabel', e);
+    debugEnd?.call('NERVA_SubaddressRow_getLabel');
+    return "";
+  }
+}
+
+int SubaddressRow_getRowId(SubaddressRow subaddressBookRow_ptr) {
+  debugStart?.call('NERVA_SubaddressRow_getRowId');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_SubaddressRow_getRowId(subaddressBookRow_ptr);
+  debugEnd?.call('NERVA_SubaddressRow_getRowId');
+  return status;
+}
+
+// Subaddress
+
+typedef Subaddress = Pointer<Void>;
+
+int Subaddress_getAll_size(SubaddressRow subaddressBookRow_ptr) {
+  debugStart?.call('NERVA_Subaddress_getAll_size');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_Subaddress_getAll_size(subaddressBookRow_ptr);
+  debugEnd?.call('NERVA_Subaddress_getAll_size');
+  return status;
+}
+
+SubaddressRow Subaddress_getAll_byIndex(Subaddress subaddressRow_ptr,
+    {required int index}) {
+  debugStart?.call('NERVA_Subaddress_getAll_byIndex');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_Subaddress_getAll_byIndex(subaddressRow_ptr, index);
+  debugEnd?.call('NERVA_Subaddress_getAll_byIndex');
+  return status;
+}
+
+void Subaddress_addRow(Subaddress ptr,
+    {required int accountIndex, required String label}) {
+  debugStart?.call('NERVA_Subaddress_addRow');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final label_ = label.toNativeUtf8().cast<Char>();
+  final status = lib!.NERVA_Subaddress_addRow(ptr, accountIndex, label_);
+  calloc.free(label_);
+  debugEnd?.call('NERVA_Subaddress_addRow');
+  return status;
+}
+
+void Subaddress_setLabel(Subaddress ptr,
+    {required int accountIndex,
+    required int addressIndex,
+    required String label}) {
+  debugStart?.call('NERVA_Subaddress_setLabel');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final label_ = label.toNativeUtf8().cast<Char>();
+  final status =
+      lib!.NERVA_Subaddress_setLabel(ptr, accountIndex, addressIndex, label_);
+  calloc.free(label_);
+  debugEnd?.call('NERVA_Subaddress_setLabel');
+  return status;
+}
+
+void Subaddress_refresh(Subaddress ptr,
+    {required int accountIndex, required String label}) {
+  debugStart?.call('NERVA_Subaddress_refresh');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final label_ = label.toNativeUtf8().cast<Char>();
+  final status = lib!.NERVA_Subaddress_refresh(ptr, accountIndex);
+  calloc.free(label_);
+  debugEnd?.call('NERVA_Subaddress_refresh');
+  return status;
+}
+
+typedef SubaddressAccountRow = Pointer<Void>;
+
+String SubaddressAccountRow_extra(SubaddressAccountRow addressBookRow_ptr) {
+  debugStart?.call('NERVA_SubaddressAccountRow_extra');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr =
+        lib!.NERVA_SubaddressAccountRow_extra(addressBookRow_ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_SubaddressAccountRow_extra');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_SubaddressAccountRow_extra', e);
+    debugEnd?.call('NERVA_SubaddressAccountRow_extra');
+    return "";
+  }
+}
+
+String SubaddressAccountRow_getAddress(
+    SubaddressAccountRow addressBookRow_ptr) {
+  debugStart?.call('NERVA_SubaddressAccountRow_getAddress');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!
+        .NERVA_SubaddressAccountRow_getAddress(addressBookRow_ptr)
+        .cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_SubaddressAccountRow_getAddress');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_SubaddressAccountRow_getAddress', e);
+    debugEnd?.call('NERVA_SubaddressAccountRow_getAddress');
+    return "";
+  }
+}
+
+String SubaddressAccountRow_getLabel(SubaddressAccountRow addressBookRow_ptr) {
+  debugStart?.call('NERVA_SubaddressAccountRow_getLabel');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!
+        .NERVA_SubaddressAccountRow_getLabel(addressBookRow_ptr)
+        .cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_SubaddressAccountRow_getLabel');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_SubaddressAccountRow_getLabel', e);
+    debugEnd?.call('NERVA_SubaddressAccountRow_getLabel');
+    return "";
+  }
+}
+
+String SubaddressAccountRow_getBalance(
+    SubaddressAccountRow addressBookRow_ptr) {
+  debugStart?.call('NERVA_SubaddressAccountRow_getBalance');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!
+        .NERVA_SubaddressAccountRow_getBalance(addressBookRow_ptr)
+        .cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_SubaddressAccountRow_getBalance');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_SubaddressAccountRow_getBalance', e);
+    debugEnd?.call('NERVA_SubaddressAccountRow_getBalance');
+    return "";
+  }
+}
+
+String SubaddressAccountRow_getUnlockedBalance(
+    SubaddressAccountRow addressBookRow_ptr) {
+  debugStart?.call('NERVA_SubaddressAccountRow_getUnlockedBalance');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!
+        .NERVA_SubaddressAccountRow_getUnlockedBalance(addressBookRow_ptr)
+        .cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_SubaddressAccountRow_getUnlockedBalance');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_SubaddressAccountRow_getUnlockedBalance', e);
+    debugEnd?.call('NERVA_SubaddressAccountRow_getUnlockedBalance');
+    return "";
+  }
+}
+
+int SubaddressAccountRow_getRowId(SubaddressAccountRow ptr) {
+  debugStart?.call('NERVA_SubaddressAccountRow_getRowId');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_SubaddressAccountRow_getRowId(ptr);
+  debugEnd?.call('NERVA_SubaddressAccountRow_getRowId');
+  return status;
+}
+
+typedef SubaddressAccount = Pointer<Void>;
+
+int SubaddressAccount_getAll_size(SubaddressAccount ptr) {
+  debugStart?.call('NERVA_SubaddressAccount_getAll_size');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_SubaddressAccount_getAll_size(ptr);
+  debugEnd?.call('NERVA_SubaddressAccount_getAll_size');
+  return status;
+}
+
+SubaddressAccountRow SubaddressAccount_getAll_byIndex(SubaddressAccount ptr,
+    {required int index}) {
+  debugStart?.call('NERVA_SubaddressAccount_getAll_byIndex');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_SubaddressAccount_getAll_byIndex(ptr, index);
+  debugEnd?.call('NERVA_SubaddressAccount_getAll_byIndex');
+  return status;
+}
+
+void SubaddressAccount_addRow(SubaddressAccount ptr, {required String label}) {
+  debugStart?.call('NERVA_SubaddressAccount_addRow');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final label_ = label.toNativeUtf8().cast<Char>();
+  final status = lib!.NERVA_SubaddressAccount_addRow(ptr, label_);
+  calloc.free(label_);
+  debugEnd?.call('NERVA_SubaddressAccount_addRow');
+  return status;
+}
+
+void SubaddressAccount_setLabel(SubaddressAccount ptr,
+    {required int accountIndex, required String label}) {
+  debugStart?.call('NERVA_SubaddressAccount_setLabel');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final label_ = label.toNativeUtf8().cast<Char>();
+  final status =
+      lib!.NERVA_SubaddressAccount_setLabel(ptr, accountIndex, label_);
+  calloc.free(label_);
+  debugEnd?.call('NERVA_SubaddressAccount_setLabel');
+  return status;
+}
+
+void SubaddressAccount_refresh(SubaddressAccount ptr) {
+  debugStart?.call('NERVA_SubaddressAccount_refresh');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_SubaddressAccount_refresh(ptr);
+  debugEnd?.call('NERVA_SubaddressAccount_refresh');
+  return status;
+}
+
+// MultisigState
+
+typedef MultisigState = Pointer<Void>;
+
+bool MultisigState_isMultisig(MultisigState ptr) {
+  debugStart?.call('NERVA_MultisigState_isMultisig');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_MultisigState_isMultisig(ptr);
+  debugEnd?.call('NERVA_MultisigState_isMultisig');
+  return status;
+}
+
+bool MultisigState_isReady(MultisigState ptr) {
+  debugStart?.call('NERVA_MultisigState_isReady');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_MultisigState_isReady(ptr);
+  debugEnd?.call('NERVA_MultisigState_isReady');
+  return status;
+}
+
+int MultisigState_threshold(MultisigState ptr) {
+  debugStart?.call('NERVA_MultisigState_threshold');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_MultisigState_threshold(ptr);
+  debugEnd?.call('NERVA_MultisigState_threshold');
+  return status;
+}
+
+int MultisigState_total(MultisigState ptr) {
+  debugStart?.call('NERVA_MultisigState_total');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_MultisigState_total(ptr);
+  debugEnd?.call('NERVA_MultisigState_total');
+  return status;
+}
+
+// DeviceProgress
+
+typedef DeviceProgress = Pointer<Void>;
+
+bool DeviceProgress_progress(DeviceProgress ptr) {
+  debugStart?.call('NERVA_DeviceProgress_progress');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_DeviceProgress_progress(ptr);
+  debugEnd?.call('NERVA_DeviceProgress_progress');
+  return status;
+}
+
+bool DeviceProgress_indeterminate(DeviceProgress ptr) {
+  debugStart?.call('NERVA_DeviceProgress_indeterminate');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_DeviceProgress_indeterminate(ptr);
+  debugEnd?.call('NERVA_DeviceProgress_indeterminate');
+  return status;
+}
+// Wallet
+
+typedef wallet = Pointer<Void>;
+
+String Wallet_seed(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_seed');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_seed(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_seed');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_seed', e);
+    debugEnd?.call('NERVA_Wallet_seed');
+    return "";
+  }
+}
+
+String Wallet_getSeedLanguage(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_getSeedLanguage');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_getSeedLanguage(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_getSeedLanguage');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_getSeedLanguage', e);
+    debugEnd?.call('NERVA_Wallet_getSeedLanguage');
+    return "";
+  }
+}
+
+void Wallet_setSeedLanguage(wallet ptr, {required String language}) {
+  debugStart?.call('NERVA_Wallet_setSeedLanguage');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final language_ = language.toNativeUtf8().cast<Char>();
+  final status = lib!.NERVA_Wallet_setSeedLanguage(ptr, language_);
+  calloc.free(language_);
+  debugEnd?.call('NERVA_Wallet_setSeedLanguage');
+  return status;
+}
+
+int Wallet_status(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_status');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_Wallet_status(ptr);
+  debugEnd?.call('NERVA_Wallet_status');
+  return status;
+}
+
+String Wallet_errorString(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_errorString');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_errorString(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_errorString');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_errorString', e);
+    debugEnd?.call('NERVA_Wallet_errorString');
+    return "";
+  }
+}
+
+bool Wallet_setPassword(wallet ptr, {required String password}) {
+  debugStart?.call('NERVA_Wallet_setPassword');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final password_ = password.toNativeUtf8().cast<Char>();
+  final status = lib!.NERVA_Wallet_setPassword(ptr, password_);
+  calloc.free(password_);
+  debugEnd?.call('NERVA_Wallet_setPassword');
+  return status;
+}
+
+bool Wallet_setDevicePin(wallet ptr, {required String passphrase}) {
+  debugStart?.call('NERVA_Wallet_setDevicePin');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final passphrase_ = passphrase.toNativeUtf8().cast<Char>();
+  final status = lib!.NERVA_Wallet_setDevicePin(ptr, passphrase_);
+  calloc.free(passphrase_);
+  debugEnd?.call('NERVA_Wallet_setDevicePin');
+  return status;
+}
+
+String Wallet_address(wallet ptr,
+    {int accountIndex = 0, int addressIndex = 0}) {
+  debugStart?.call('NERVA_Wallet_address');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr =
+        lib!.NERVA_Wallet_address(ptr, accountIndex, addressIndex).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_address');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_address', e);
+    debugEnd?.call('NERVA_Wallet_address');
+    return "";
+  }
+}
+
+String Wallet_path(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_path');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_path(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_path');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_path', e);
+    debugEnd?.call('NERVA_Wallet_path');
+    return "";
+  }
+}
+
+int Wallet_nettype(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_nettype');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_Wallet_nettype(ptr);
+  debugEnd?.call('NERVA_Wallet_nettype');
+  return status;
+}
+
+int Wallet_useForkRules(
+  wallet ptr, {
+  required int version,
+  required int earlyBlocks,
+}) {
+  debugStart?.call('NERVA_Wallet_useForkRules');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_Wallet_useForkRules(ptr, version, earlyBlocks);
+  debugEnd?.call('NERVA_Wallet_useForkRules');
+  return status;
+}
+
+String Wallet_integratedAddress(wallet ptr, {required String paymentId}) {
+  debugStart?.call('NERVA_Wallet_integratedAddress');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final paymentId_ = paymentId.toNativeUtf8().cast<Char>();
+    final strPtr =
+        lib!.NERVA_Wallet_integratedAddress(ptr, paymentId_).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_integratedAddress');
+    calloc.free(paymentId_);
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_integratedAddress', e);
+    debugEnd?.call('NERVA_Wallet_integratedAddress');
+    return "";
+  }
+}
+
+String Wallet_secretViewKey(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_secretViewKey');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_secretViewKey(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_secretViewKey');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_secretViewKey', e);
+    debugEnd?.call('NERVA_Wallet_secretViewKey');
+    return "";
+  }
+}
+
+String Wallet_publicViewKey(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_publicViewKey');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_publicViewKey(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_publicViewKey');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_publicViewKey', e);
+    debugEnd?.call('NERVA_Wallet_publicViewKey');
+    return "";
+  }
+}
+
+String Wallet_secretSpendKey(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_secretSpendKey');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_secretSpendKey(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_secretSpendKey');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_secretSpendKey', e);
+    debugEnd?.call('NERVA_Wallet_secretSpendKey');
+    return "";
+  }
+}
+
+String Wallet_publicSpendKey(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_publicSpendKey');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_publicSpendKey(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_publicSpendKey');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_publicSpendKey', e);
+    debugEnd?.call('NERVA_Wallet_publicSpendKey');
+    return "";
+  }
+}
+
+String Wallet_publicMultisigSignerKey(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_publicMultisigSignerKey');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_publicMultisigSignerKey(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_publicMultisigSignerKey');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_publicMultisigSignerKey', e);
+    debugEnd?.call('NERVA_Wallet_publicMultisigSignerKey');
+    return "";
+  }
+}
+
+bool Wallet_store(wallet ptr, {String path = ""}) {
+  debugStart?.call('NERVA_Wallet_store');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final path_ = path.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_store(ptr, path_);
+  calloc.free(path_);
+  debugEnd?.call('NERVA_Wallet_store');
+  return s;
+}
+
+String Wallet_filename(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_filename');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_filename(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_filename');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_filename', e);
+    debugEnd?.call('NERVA_Wallet_filename');
+    return "";
+  }
+}
+
+String Wallet_keysFilename(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_keysFilename');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_keysFilename(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_keysFilename');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_keysFilename', e);
+    debugEnd?.call('NERVA_Wallet_keysFilename');
+    return "";
+  }
+}
+
+bool Wallet_init(
+  wallet ptr, {
+  required String daemonAddress,
+  int upperTransacationSizeLimit = 0,
+  String daemonUsername = "",
+  String daemonPassword = "",
+  bool useSsl = false,
+  bool lightWallet = false,
+}) {
+  debugStart?.call('NERVA_Wallet_init');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final daemonAddress_ = daemonAddress.toNativeUtf8().cast<Char>();
+  final daemonUsername_ = daemonUsername.toNativeUtf8().cast<Char>();
+  final daemonPassword_ = daemonPassword.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_init(
+      ptr,
+      daemonAddress_,
+      upperTransacationSizeLimit,
+      daemonUsername_,
+      daemonPassword_,
+      useSsl,
+      lightWallet);
+
+  calloc.free(daemonAddress_);
+  calloc.free(daemonUsername_);
+  calloc.free(daemonPassword_);
+  debugEnd?.call('NERVA_Wallet_init');
+  return s;
+}
+
+bool Wallet_createWatchOnly(
+  wallet ptr, {
+  required String path,
+  required String password,
+  required String language,
+}) {
+  debugStart?.call('NERVA_Wallet_createWatchOnly');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final path_ = path.toNativeUtf8().cast<Char>();
+  final password_ = password.toNativeUtf8().cast<Char>();
+  final language_ = language.toNativeUtf8().cast<Char>();
+  final getRefreshFromBlockHeight =
+      lib!.NERVA_Wallet_createWatchOnly(ptr, path_, password_, language_);
+  calloc.free(path_);
+  calloc.free(password_);
+  calloc.free(language_);
+  debugEnd?.call('NERVA_Wallet_createWatchOnly');
+  return getRefreshFromBlockHeight;
+}
+
+void Wallet_setRefreshFromBlockHeight(wallet ptr,
+    {required int refresh_from_block_height}) {
+  debugStart?.call('NERVA_Wallet_setRefreshFromBlockHeight');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!
+      .NERVA_Wallet_setRefreshFromBlockHeight(ptr, refresh_from_block_height);
+  debugEnd?.call('NERVA_Wallet_setRefreshFromBlockHeight');
+  return status;
+}
+
+int Wallet_getRefreshFromBlockHeight(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_getRefreshFromBlockHeight');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final getRefreshFromBlockHeight =
+      lib!.NERVA_Wallet_getRefreshFromBlockHeight(ptr);
+  debugEnd?.call('NERVA_Wallet_getRefreshFromBlockHeight');
+  return getRefreshFromBlockHeight;
+}
+
+void Wallet_setRecoveringFromSeed(wallet ptr,
+    {required bool recoveringFromSeed}) {
+  debugStart?.call('NERVA_Wallet_setRecoveringFromSeed');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status =
+      lib!.NERVA_Wallet_setRecoveringFromSeed(ptr, recoveringFromSeed);
+  debugEnd?.call('NERVA_Wallet_setRecoveringFromSeed');
+  return status;
+}
+
+void Wallet_setRecoveringFromDevice(wallet ptr,
+    {required bool recoveringFromDevice}) {
+  debugStart?.call('NERVA_Wallet_setRecoveringFromDevice');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status =
+      lib!.NERVA_Wallet_setRecoveringFromDevice(ptr, recoveringFromDevice);
+  debugEnd?.call('NERVA_Wallet_setRecoveringFromDevice');
+  return status;
+}
+
+void Wallet_setSubaddressLookahead(wallet ptr,
+    {required int major, required int minor}) {
+  debugStart?.call('NERVA_Wallet_setSubaddressLookahead');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_Wallet_setSubaddressLookahead(ptr, major, minor);
+  debugEnd?.call('NERVA_Wallet_setSubaddressLookahead');
+  return status;
+}
+
+bool Wallet_connectToDaemon(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_connectToDaemon');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final connectToDaemon = lib!.NERVA_Wallet_connectToDaemon(ptr);
+  debugEnd?.call('NERVA_Wallet_connectToDaemon');
+  return connectToDaemon;
+}
+
+int Wallet_connected(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_connected');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final connected = lib!.NERVA_Wallet_connected(ptr);
+  debugEnd?.call('NERVA_Wallet_connected');
+  return connected;
+}
+
+void Wallet_setTrustedDaemon(wallet ptr, {required bool arg}) {
+  debugStart?.call('NERVA_Wallet_setTrustedDaemon');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_Wallet_setTrustedDaemon(ptr, arg);
+  debugEnd?.call('NERVA_Wallet_setTrustedDaemon');
+  return status;
+}
+
+bool Wallet_trustedDaemon(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_trustedDaemon');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final status = lib!.NERVA_Wallet_trustedDaemon(ptr);
+  debugEnd?.call('NERVA_Wallet_trustedDaemon');
+  return status;
+}
+
+int Wallet_balance(wallet ptr, {required int accountIndex}) {
+  debugStart?.call('NERVA_Wallet_balance');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final balance = lib!.NERVA_Wallet_balance(ptr, accountIndex);
+  debugEnd?.call('NERVA_Wallet_balance');
+  return balance;
+}
+
+int Wallet_unlockedBalance(wallet ptr, {required int accountIndex}) {
+  debugStart?.call('NERVA_Wallet_unlockedBalance');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final unlockedBalance = lib!.NERVA_Wallet_unlockedBalance(ptr, accountIndex);
+  debugEnd?.call('NERVA_Wallet_unlockedBalance');
+  return unlockedBalance;
+}
+
+bool Wallet_watchOnly(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_watchOnly');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final watchOnly = lib!.NERVA_Wallet_watchOnly(ptr);
+  debugEnd?.call('NERVA_Wallet_watchOnly');
+  return watchOnly;
+}
+
+int Wallet_blockChainHeight(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_blockChainHeight');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final blockChainHeight = lib!.NERVA_Wallet_blockChainHeight(ptr);
+  debugEnd?.call('NERVA_Wallet_blockChainHeight');
+  return blockChainHeight;
+}
+
+int Wallet_approximateBlockChainHeight(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_approximateBlockChainHeight');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final approximateBlockChainHeight =
+      lib!.NERVA_Wallet_approximateBlockChainHeight(ptr);
+  debugEnd?.call('NERVA_Wallet_approximateBlockChainHeight');
+  return approximateBlockChainHeight;
+}
+
+int Wallet_estimateBlockChainHeight(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_estimateBlockChainHeight');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final estimateBlockChainHeight =
+      lib!.NERVA_Wallet_estimateBlockChainHeight(ptr);
+  debugEnd?.call('NERVA_Wallet_estimateBlockChainHeight');
+  return estimateBlockChainHeight;
+}
+
+int Wallet_daemonBlockChainHeight(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_daemonBlockChainHeight');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final daemonBlockChainHeight = lib!.NERVA_Wallet_daemonBlockChainHeight(ptr);
+  debugEnd?.call('NERVA_Wallet_daemonBlockChainHeight');
+  return daemonBlockChainHeight;
+}
+
+bool Wallet_synchronized(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_synchronized');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final synchronized = lib!.NERVA_Wallet_synchronized(ptr);
+  debugEnd?.call('NERVA_Wallet_synchronized');
+  return synchronized;
+}
+
+String Wallet_displayAmount(int amount) {
+  debugStart?.call('NERVA_Wallet_displayAmount');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_displayAmount(amount).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_displayAmount');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_displayAmount', e);
+    debugEnd?.call('NERVA_Wallet_displayAmount');
+    return "";
+  }
+}
+
+int Wallet_amountFromString(String amount) {
+  debugStart?.call('NERVA_Wallet_amountFromString');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final amount_ = amount.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_amountFromString(amount_);
+  calloc.free(amount_);
+  debugEnd?.call('NERVA_Wallet_amountFromString');
+  return s;
+}
+
+int Wallet_amountFromDouble(double amount) {
+  debugStart?.call('NERVA_Wallet_amountFromDouble');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final s = lib!.NERVA_Wallet_amountFromDouble(amount);
+  debugEnd?.call('NERVA_Wallet_amountFromDouble');
+  return s;
+}
+
+String Wallet_genPaymentId() {
+  debugStart?.call('NERVA_Wallet_genPaymentId');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_genPaymentId().cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_genPaymentId');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_genPaymentId', e);
+    debugEnd?.call('NERVA_Wallet_genPaymentId');
+    return "";
+  }
+}
+
+bool Wallet_paymentIdValid(String paymentId) {
+  debugStart?.call('NERVA_Wallet_paymentIdValid');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final paymentId_ = paymentId.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_paymentIdValid(paymentId_);
+  calloc.free(paymentId_);
+  debugEnd?.call('NERVA_Wallet_paymentIdValid');
+  return s;
+}
+
+bool Wallet_addressValid(String address, int networkType) {
+  debugStart?.call('NERVA_Wallet_addressValid');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final address_ = address.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_addressValid(address_, networkType);
+  calloc.free(address_);
+  debugEnd?.call('NERVA_Wallet_addressValid');
+  return s;
+}
+
+bool Wallet_keyValid(
+    {required String secret_key_string,
+    required String address_string,
+    required bool isViewKey,
+    required int nettype}) {
+  debugStart?.call('NERVA_Wallet_keyValid');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final secret_key_string_ = secret_key_string.toNativeUtf8().cast<Char>();
+  final address_string_ = address_string.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_keyValid(
+      secret_key_string_, address_string_, isViewKey, nettype);
+  calloc.free(secret_key_string_);
+  calloc.free(address_string_);
+  debugEnd?.call('NERVA_Wallet_keyValid');
+  return s;
+}
+
+String Wallet_keyValid_error(
+    {required String secret_key_string,
+    required String address_string,
+    required bool isViewKey,
+    required int nettype}) {
+  debugStart?.call('NERVA_Wallet_keyValid_error');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final secret_key_string_ = secret_key_string.toNativeUtf8().cast<Char>();
+    final address_string_ = address_string.toNativeUtf8().cast<Char>();
+    final strPtr = lib!
+        .NERVA_Wallet_keyValid_error(
+            secret_key_string_, address_string_, isViewKey, nettype)
+        .cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    calloc.free(secret_key_string_);
+    calloc.free(address_string_);
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_keyValid_error', e);
+    debugEnd?.call('NERVA_Wallet_keyValid_error');
+    return "";
+  }
+}
+
+String Wallet_paymentIdFromAddress(
+    {required String strarg, required int nettype}) {
+  debugStart?.call('NERVA_Wallet_paymentIdFromAddress');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strarg_ = strarg.toNativeUtf8().cast<Char>();
+    final strPtr =
+        lib!.NERVA_Wallet_paymentIdFromAddress(strarg_, nettype).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    calloc.free(strarg_);
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_paymentIdFromAddress', e);
+    debugEnd?.call('NERVA_Wallet_paymentIdFromAddress');
+    return "";
+  }
+}
+
+int Wallet_maximumAllowedAmount() {
+  debugStart?.call('NERVA_Wallet_maximumAllowedAmount');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final s = lib!.NERVA_Wallet_maximumAllowedAmount();
+  debugEnd?.call('NERVA_Wallet_maximumAllowedAmount');
+  return s;
+}
+
+void Wallet_init3(
+  wallet ptr, {
+  required String argv0,
+  required String defaultLogBaseName,
+  required String logPath,
+  required bool console,
+}) {
+  debugStart?.call('NERVA_Wallet_init3');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final argv0_ = argv0.toNativeUtf8().cast<Char>();
+  final defaultLogBaseName_ = defaultLogBaseName.toNativeUtf8().cast<Char>();
+  final logPath_ = logPath.toNativeUtf8().cast<Char>();
+  final s = lib!
+      .NERVA_Wallet_init3(ptr, argv0_, defaultLogBaseName_, logPath_, console);
+  calloc.free(argv0_);
+  calloc.free(defaultLogBaseName_);
+  calloc.free(logPath_);
+  debugEnd?.call('NERVA_Wallet_init3');
+  return s;
+}
+
+void Wallet_startRefresh(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_startRefresh');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final startRefresh = lib!.NERVA_Wallet_startRefresh(ptr);
+  debugEnd?.call('NERVA_Wallet_startRefresh');
+  return startRefresh;
+}
+
+void Wallet_pauseRefresh(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_pauseRefresh');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final pauseRefresh = lib!.NERVA_Wallet_pauseRefresh(ptr);
+  debugEnd?.call('NERVA_Wallet_pauseRefresh');
+  return pauseRefresh;
+}
+
+bool Wallet_refresh(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_refresh');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final refresh = lib!.NERVA_Wallet_refresh(ptr);
+  debugEnd?.call('NERVA_Wallet_refresh');
+  return refresh;
+}
+
+void Wallet_refreshAsync(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_refreshAsync');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final refreshAsync = lib!.NERVA_Wallet_refreshAsync(ptr);
+  debugEnd?.call('NERVA_Wallet_refreshAsync');
+  return refreshAsync;
+}
+
+bool Wallet_rescanBlockchain(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_rescanBlockchain');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final rescanBlockchain = lib!.NERVA_Wallet_rescanBlockchain(ptr);
+  debugEnd?.call('NERVA_Wallet_rescanBlockchain');
+  return rescanBlockchain;
+}
+
+void Wallet_rescanBlockchainAsync(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_rescanBlockchainAsync');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final rescanBlockchainAsync = lib!.NERVA_Wallet_rescanBlockchainAsync(ptr);
+  debugEnd?.call('NERVA_Wallet_rescanBlockchainAsync');
+  return rescanBlockchainAsync;
+}
+
+void Wallet_setAutoRefreshInterval(wallet ptr, {required int millis}) {
+  debugStart?.call('NERVA_Wallet_setAutoRefreshInterval');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final setAutoRefreshInterval =
+      lib!.NERVA_Wallet_setAutoRefreshInterval(ptr, millis);
+  debugEnd?.call('NERVA_Wallet_setAutoRefreshInterval');
+  return setAutoRefreshInterval;
+}
+
+int Wallet_autoRefreshInterval(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_autoRefreshInterval');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final autoRefreshInterval = lib!.NERVA_Wallet_autoRefreshInterval(ptr);
+  debugEnd?.call('NERVA_Wallet_autoRefreshInterval');
+  return autoRefreshInterval;
+}
+
+void Wallet_addSubaddress(wallet ptr,
+    {required int accountIndex, String label = ""}) {
+  debugStart?.call('NERVA_Wallet_addSubaddress');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final label_ = label.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_addSubaddress(ptr, accountIndex, label_);
+  calloc.free(label_);
+  debugEnd?.call('NERVA_Wallet_addSubaddress');
+  return s;
+}
+
+void Wallet_addSubaddressAccount(wallet ptr, {String label = ""}) {
+  debugStart?.call('NERVA_Wallet_addSubaddressAccount');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final label_ = label.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_addSubaddressAccount(ptr, label_);
+  calloc.free(label_);
+  debugEnd?.call('NERVA_Wallet_addSubaddressAccount');
+  return s;
+}
+
+int Wallet_numSubaddressAccounts(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_numSubaddressAccounts');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final numSubaddressAccounts = lib!.NERVA_Wallet_numSubaddressAccounts(ptr);
+  debugEnd?.call('NERVA_Wallet_numSubaddressAccounts');
+  return numSubaddressAccounts;
+}
+
+int Wallet_numSubaddresses(wallet ptr, {required int accountIndex}) {
+  debugStart?.call('NERVA_Wallet_numSubaddresses');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final numSubaddresses = lib!.NERVA_Wallet_numSubaddresses(ptr, accountIndex);
+  debugEnd?.call('NERVA_Wallet_numSubaddresses');
+  return numSubaddresses;
+}
+
+String Wallet_getSubaddressLabel(wallet ptr,
+    {required int accountIndex, required int addressIndex}) {
+  debugStart?.call('NERVA_Wallet_getSubaddressLabel');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!
+        .NERVA_Wallet_getSubaddressLabel(ptr, accountIndex, addressIndex)
+        .cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_getSubaddressLabel');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_getSubaddressLabel', e);
+    debugEnd?.call('NERVA_Wallet_getSubaddressLabel');
+    return "";
+  }
+}
+
+void Wallet_setSubaddressLabel(wallet ptr,
+    {required int accountIndex,
+    required int addressIndex,
+    required String label}) {
+  debugStart?.call('NERVA_Wallet_setSubaddressLabel');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final label_ = label.toNativeUtf8().cast<Char>();
+  final s = lib!
+      .NERVA_Wallet_setSubaddressLabel(ptr, accountIndex, addressIndex, label_);
+  calloc.free(label_);
+  debugEnd?.call('NERVA_Wallet_setSubaddressLabel');
+  return s;
+}
+
+String Wallet_getMultisigInfo(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_getMultisigInfo');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_Wallet_getMultisigInfo(ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_getMultisigInfo');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_getMultisigInfo', e);
+    debugEnd?.call('NERVA_Wallet_getMultisigInfo');
+    return "";
+  }
+}
+
+PendingTransaction Wallet_createTransactionMultDest(
+  wallet wptr, {
+  required List<String> dstAddr,
+  String paymentId = "",
+  required bool isSweepAll,
+  required List<int> amounts,
+  required int mixinCount,
+  required int pendingTransactionPriority,
+  required int subaddr_account,
+  List<String> preferredInputs = const [],
+}) {
+  debugStart?.call('NERVA_Wallet_createTransactionMultDest');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final dst_addr_list = dstAddr.join(defaultSeparatorStr).toNativeUtf8();
+  final payment_id = paymentId.toNativeUtf8();
+  final amount_list =
+      amounts.map((e) => e.toString()).join(defaultSeparatorStr).toNativeUtf8();
+  final preferredInputs_ =
+      preferredInputs.join(defaultSeparatorStr).toNativeUtf8();
+  final ret = lib!.NERVA_Wallet_createTransactionMultDest(
+    wptr,
+    dst_addr_list.cast(),
+    defaultSeparator,
+    payment_id.cast(),
+    isSweepAll,
+    amount_list.cast(),
+    defaultSeparator,
+    mixinCount,
+    pendingTransactionPriority,
+    subaddr_account,
+    preferredInputs_.cast(),
+    defaultSeparator,
+  );
+  calloc.free(dst_addr_list);
+  calloc.free(payment_id);
+  calloc.free(amount_list);
+  calloc.free(preferredInputs_);
+  debugEnd?.call('NERVA_Wallet_createTransactionMultDest');
+  return ret;
+}
+
+PendingTransaction Wallet_createTransaction(wallet ptr,
+    {required String dst_addr,
+    required String payment_id,
+    required int amount,
+    required int mixin_count,
+    required int pendingTransactionPriority,
+    required int subaddr_account,
+    List<String> preferredInputs = const []}) {
+  debugStart?.call('NERVA_Wallet_createTransaction');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final dst_addr_ = dst_addr.toNativeUtf8().cast<Char>();
+  final payment_id_ = payment_id.toNativeUtf8().cast<Char>();
+  final preferredInputs_ =
+      preferredInputs.join(defaultSeparatorStr).toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_createTransaction(
+    ptr,
+    dst_addr_,
+    payment_id_,
+    amount,
+    mixin_count,
+    pendingTransactionPriority,
+    subaddr_account,
+    preferredInputs_,
+    defaultSeparator,
+  );
+  calloc.free(dst_addr_);
+  calloc.free(payment_id_);
+  calloc.free(preferredInputs_);
+  debugEnd?.call('NERVA_Wallet_createTransaction');
+  return s;
+}
+
+UnsignedTransaction Wallet_loadUnsignedTx(wallet ptr,
+    {required String unsigned_filename}) {
+  debugStart?.call('NERVA_Wallet_loadUnsignedTx');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final unsigned_filename_ = unsigned_filename.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_loadUnsignedTx(ptr, unsigned_filename_);
+  calloc.free(unsigned_filename_);
+  debugEnd?.call('NERVA_Wallet_loadUnsignedTx');
+  return s;
+}
+
+bool Wallet_submitTransaction(wallet ptr, String filename) {
+  debugStart?.call('NERVA_Wallet_submitTransaction');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final filename_ = filename.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_submitTransaction(ptr, filename_);
+  calloc.free(filename_);
+  debugEnd?.call('NERVA_Wallet_submitTransaction');
+  return s;
+}
+
+bool Wallet_exportKeyImages(wallet ptr, String filename) {
+  debugStart?.call('NERVA_Wallet_exportKeyImages');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final filename_ = filename.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_exportKeyImages(ptr, filename_);
+  calloc.free(filename_);
+  debugEnd?.call('NERVA_Wallet_exportKeyImages');
+  return s;
+}
+
+bool Wallet_importKeyImages(wallet ptr, String filename) {
+  debugStart?.call('NERVA_Wallet_importKeyImages');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final filename_ = filename.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_Wallet_importKeyImages(ptr, filename_);
+  calloc.free(filename_);
+  debugEnd?.call('NERVA_Wallet_importKeyImages');
+  return s;
+}
+
+TransactionHistory Wallet_history(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_history');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final history = lib!.NERVA_Wallet_history(ptr);
+  debugEnd?.call('NERVA_Wallet_history');
+  return history;
+}
+
+AddressBook Wallet_subaddress(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_subaddress');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final history = lib!.NERVA_Wallet_subaddress(ptr);
+  debugEnd?.call('NERVA_Wallet_subaddress');
+  return history;
+}
+
+AddressBook Wallet_subaddressAccount(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_subaddressAccount');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final history = lib!.NERVA_Wallet_subaddressAccount(ptr);
+  debugEnd?.call('NERVA_Wallet_subaddressAccount');
+  return history;
+}
+
+bool Wallet_setCacheAttribute(wallet ptr,
+    {required String key, required String value}) {
+  debugStart?.call('NERVA_Wallet_setCacheAttribute');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final key_ = key.toNativeUtf8().cast<Char>();
+  final value_ = value.toNativeUtf8().cast<Char>();
+  final v = lib!.NERVA_Wallet_setCacheAttribute(ptr, key_, value_);
+  calloc.free(key_);
+  calloc.free(value_);
+  debugEnd?.call('NERVA_Wallet_setCacheAttribute');
+  return v;
+}
+
+String Wallet_getCacheAttribute(wallet ptr, {required String key}) {
+  debugStart?.call('NERVA_Wallet_getCacheAttribute');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final key_ = key.toNativeUtf8().cast<Char>();
+    final strPtr = lib!.NERVA_Wallet_getCacheAttribute(ptr, key_).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    calloc.free(key_);
+    debugEnd?.call('NERVA_Wallet_getCacheAttribute');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_getCacheAttribute', e);
+    debugEnd?.call('NERVA_Wallet_getCacheAttribute');
+    return "";
+  }
+}
+
+bool Wallet_setUserNote(wallet ptr,
+    {required String txid, required String note}) {
+  debugStart?.call('NERVA_Wallet_setUserNote');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final txid_ = txid.toNativeUtf8().cast<Char>();
+  final note_ = note.toNativeUtf8().cast<Char>();
+  final v = lib!.NERVA_Wallet_setUserNote(ptr, txid_, note_);
+  calloc.free(txid_);
+  calloc.free(note_);
+  debugEnd?.call('NERVA_Wallet_setUserNote');
+  return v;
+}
+
+String Wallet_getUserNote(wallet ptr, {required String txid}) {
+  debugStart?.call('NERVA_Wallet_getUserNote');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final txid_ = txid.toNativeUtf8().cast<Char>();
+    final strPtr = lib!.NERVA_Wallet_getUserNote(ptr, txid_).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    calloc.free(txid_);
+    debugEnd?.call('NERVA_Wallet_getUserNote');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_getUserNote', e);
+    debugEnd?.call('NERVA_Wallet_getUserNote');
+    return "";
+  }
+}
+
+String Wallet_getTxKey(wallet ptr, {required String txid}) {
+  debugStart?.call('NERVA_Wallet_getTxKey');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final txid_ = txid.toNativeUtf8().cast<Char>();
+    final strPtr = lib!.NERVA_Wallet_getTxKey(ptr, txid_).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    calloc.free(txid_);
+    debugEnd?.call('NERVA_Wallet_getTxKey');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_getTxKey', e);
+    debugEnd?.call('NERVA_Wallet_getTxKey');
+    return "";
+  }
+}
+
+String Wallet_signMessage(
+  wallet ptr, {
+  required String message,
+}) {
+  debugStart?.call('NERVA_Wallet_signMessage');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final message_ = message.toNativeUtf8().cast<Char>();
+    final strPtr = lib!.NERVA_Wallet_signMessage(ptr, message_).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    calloc.free(message_);
+    debugEnd?.call('NERVA_Wallet_signMessage');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_signMessage', e);
+    debugEnd?.call('NERVA_Wallet_signMessage');
+    return "";
+  }
+}
+
+bool Wallet_verifySignedMessage(
+  wallet ptr, {
+  required String message,
+  required String address,
+  required String signature,
+}) {
+  debugStart?.call('NERVA_Wallet_verifySignedMessage');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final message_ = message.toNativeUtf8().cast<Char>();
+  final address_ = address.toNativeUtf8().cast<Char>();
+  final signature_ = signature.toNativeUtf8().cast<Char>();
+  final v = lib!
+      .NERVA_Wallet_verifySignedMessage(ptr, message_, address_, signature_);
+  calloc.free(message_);
+  calloc.free(address_);
+  calloc.free(signature_);
+  debugEnd?.call('NERVA_Wallet_verifySignedMessage');
+  return v;
+}
+
+bool Wallet_rescanSpent(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_rescanSpent');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final v = lib!.NERVA_Wallet_rescanSpent(ptr);
+  debugEnd?.call('NERVA_Wallet_rescanSpent');
+  return v;
+}
+
+void Wallet_segregatePreForkOutputs(wallet ptr, {required bool segregate}) {
+  debugStart?.call('NERVA_Wallet_segregatePreForkOutputs');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final v = lib!.NERVA_Wallet_segregatePreForkOutputs(ptr, segregate);
+  debugEnd?.call('NERVA_Wallet_segregatePreForkOutputs');
+  return v;
+}
+
+void Wallet_segregationHeight(wallet ptr, {required int height}) {
+  debugStart?.call('NERVA_Wallet_segregationHeight');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final v = lib!.NERVA_Wallet_segregationHeight(ptr, height);
+  debugEnd?.call('NERVA_Wallet_segregationHeight');
+  return v;
+}
+
+void Wallet_keyReuseMitigation2(wallet ptr, {required bool mitigation}) {
+  debugStart?.call('NERVA_Wallet_keyReuseMitigation2');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final v = lib!.NERVA_Wallet_keyReuseMitigation2(ptr, mitigation);
+  debugEnd?.call('NERVA_Wallet_keyReuseMitigation2');
+  return v;
+}
+
+bool Wallet_lockKeysFile(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_lockKeysFile');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final v = lib!.NERVA_Wallet_lockKeysFile(ptr);
+  debugEnd?.call('NERVA_Wallet_lockKeysFile');
+  return v;
+}
+
+bool Wallet_unlockKeysFile(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_unlockKeysFile');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final v = lib!.NERVA_Wallet_unlockKeysFile(ptr);
+  debugEnd?.call('NERVA_Wallet_unlockKeysFile');
+  return v;
+}
+
+bool Wallet_isKeysFileLocked(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_isKeysFileLocked');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final v = lib!.NERVA_Wallet_isKeysFileLocked(ptr);
+  debugEnd?.call('NERVA_Wallet_isKeysFileLocked');
+  return v;
+}
+
+int Wallet_getDeviceType(wallet ptr) {
+  debugStart?.call('NERVA_Wallet_getDeviceType');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final v = lib!.NERVA_Wallet_getDeviceType(ptr);
+  debugEnd?.call('NERVA_Wallet_getDeviceType');
+  return v;
+}
+
+int Wallet_coldKeyImageSync(wallet ptr,
+    {required int spent, required int unspent}) {
+  debugStart?.call('NERVA_Wallet_coldKeyImageSync');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final v = lib!.NERVA_Wallet_coldKeyImageSync(ptr, spent, unspent);
+  debugEnd?.call('NERVA_Wallet_coldKeyImageSync');
+  return v;
+}
+
+String Wallet_deviceShowAddress(wallet ptr,
+    {required int accountIndex, required int addressIndex}) {
+  debugStart?.call('NERVA_Wallet_deviceShowAddress');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!
+        .NERVA_Wallet_deviceShowAddress(ptr, accountIndex, addressIndex)
+        .cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_Wallet_deviceShowAddress');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_Wallet_deviceShowAddress', e);
+    debugEnd?.call('NERVA_Wallet_deviceShowAddress');
+    return "";
+  }
+}
+
+// WalletManager
+
+typedef WalletManager = Pointer<Void>;
+
+wallet WalletManager_createWallet(
+  WalletManager wm_ptr, {
+  required String path,
+  required String password,
+  String language = "English",
+  int networkType = 0,
+}) {
+  debugStart?.call('NERVA_WalletManager_createWallet');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final path_ = path.toNativeUtf8().cast<Char>();
+  final password_ = password.toNativeUtf8().cast<Char>();
+  final language_ = language.toNativeUtf8().cast<Char>();
+  final w = lib!.NERVA_WalletManager_createWallet(
+      wm_ptr, path_, password_, language_, networkType);
+  calloc.free(path_);
+  calloc.free(password_);
+  calloc.free(language_);
+  debugEnd?.call('NERVA_WalletManager_createWallet');
+  return w;
+}
+
+wallet WalletManager_openWallet(
+  WalletManager wm_ptr, {
+  required String path,
+  required String password,
+  int networkType = 0,
+}) {
+  debugStart?.call('NERVA_WalletManager_openWallet');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final path_ = path.toNativeUtf8().cast<Char>();
+  final password_ = password.toNativeUtf8().cast<Char>();
+  final w = lib!
+      .NERVA_WalletManager_openWallet(wm_ptr, path_, password_, networkType);
+  calloc.free(path_);
+  calloc.free(password_);
+  debugEnd?.call('NERVA_WalletManager_openWallet');
+  return w;
+}
+
+wallet WalletManager_recoveryWallet(
+  WalletManager wm_ptr, {
+  required String path,
+  required String password,
+  required String mnemonic,
+  int networkType = 0,
+  required int restoreHeight,
+  int kdfRounds = 0,
+  required String seedOffset,
+}) {
+  debugStart?.call('NERVA_WalletManager_recoveryWallet');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final path_ = path.toNativeUtf8().cast<Char>();
+  final password_ = password.toNativeUtf8().cast<Char>();
+  final mnemonic_ = mnemonic.toNativeUtf8().cast<Char>();
+  final seedOffset_ = seedOffset.toNativeUtf8().cast<Char>();
+  final w = lib!.NERVA_WalletManager_recoveryWallet(wm_ptr, path_, password_,
+      mnemonic_, networkType, restoreHeight, kdfRounds, seedOffset_);
+  calloc.free(path_);
+  calloc.free(password_);
+  calloc.free(mnemonic_);
+  calloc.free(seedOffset_);
+  debugEnd?.call('NERVA_WalletManager_recoveryWallet');
+  return w;
+}
+
+wallet WalletManager_createWalletFromKeys(
+  WalletManager wm_ptr, {
+  required String path,
+  required String password,
+  String language = "English",
+  int nettype = 1,
+  required int restoreHeight,
+  required String addressString,
+  required String viewKeyString,
+  required String spendKeyString,
+  int kdf_rounds = 1,
+}) {
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  debugStart?.call('NERVA_WalletManager_createWalletFromKeys');
+
+  final path_ = path.toNativeUtf8().cast<Char>();
+  final password_ = password.toNativeUtf8().cast<Char>();
+  final language_ = language.toNativeUtf8().cast<Char>();
+  final addressString_ = addressString.toNativeUtf8().cast<Char>();
+  final viewKeyString_ = viewKeyString.toNativeUtf8().cast<Char>();
+  final spendKeyString_ = spendKeyString.toNativeUtf8().cast<Char>();
+
+  final w = lib!.NERVA_WalletManager_createWalletFromKeys(
+    wm_ptr,
+    path_,
+    password_,
+    language_,
+    nettype,
+    restoreHeight,
+    addressString_,
+    viewKeyString_,
+    spendKeyString_,
+    kdf_rounds,
+  );
+  calloc.free(path_);
+  calloc.free(password_);
+  calloc.free(language_);
+  calloc.free(addressString_);
+  calloc.free(viewKeyString_);
+  calloc.free(spendKeyString_);
+  debugEnd?.call('NERVA_WalletManager_createWalletFromKeys');
+  return w;
+}
+
+bool WalletManager_closeWallet(WalletManager wm_ptr, wallet ptr, bool store) {
+  debugStart?.call('NERVA_WalletManager_closeWallet');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final closeWallet = lib!.NERVA_WalletManager_closeWallet(wm_ptr, ptr, store);
+  debugEnd?.call('NERVA_WalletManager_closeWallet');
+  return closeWallet;
+}
+
+bool WalletManager_walletExists(WalletManager wm_ptr, String path) {
+  debugStart?.call('NERVA_WalletManager_walletExists');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final path_ = path.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_WalletManager_walletExists(wm_ptr, path_);
+  calloc.free(path_);
+  debugEnd?.call('NERVA_WalletManager_walletExists');
+  return s;
+}
+
+bool WalletManager_verifyWalletPassword(
+  WalletManager wm_ptr, {
+  required String keysFileName,
+  required String password,
+  required bool noSpendKey,
+  required int kdfRounds,
+}) {
+  debugStart?.call('NERVA_WalletManager_verifyWalletPassword');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final keysFileName_ = keysFileName.toNativeUtf8().cast<Char>();
+  final password_ = password.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_WalletManager_verifyWalletPassword(
+      wm_ptr, keysFileName_, password_, noSpendKey, kdfRounds);
+  calloc.free(keysFileName_);
+  calloc.free(password_);
+  debugEnd?.call('NERVA_WalletManager_verifyWalletPassword');
+  return s;
+}
+
+List<String> WalletManager_findWallets(WalletManager wm_ptr,
+    {required String path}) {
+  debugStart?.call('NERVA_WalletManager_findWallets');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final path_ = path.toNativeUtf8().cast<Char>();
+    final strPtr = lib!
+        .NERVA_WalletManager_findWallets(wm_ptr, path_, defaultSeparator)
+        .cast<Utf8>();
+    final str = strPtr.toDartString();
+    calloc.free(path_);
+    if (str.isNotEmpty) {
+      NERVA_free(strPtr.cast());
+    }
+    debugEnd?.call('NERVA_WalletManager_findWallets');
+    return str.split(";");
+  } catch (e) {
+    errorHandler?.call('NERVA_WalletManager_findWallets', e);
+    debugEnd?.call('NERVA_WalletManager_findWallets');
+    return [];
+  }
+}
+
+String WalletManager_errorString(WalletManager wm_ptr) {
+  debugStart?.call('NERVA_WalletManager_errorString');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final strPtr = lib!.NERVA_WalletManager_errorString(wm_ptr).cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_WalletManager_errorString');
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_WalletManager_errorString', e);
+    debugEnd?.call('NERVA_WalletManager_errorString');
+    return "";
+  }
+}
+
+void WalletManager_setDaemonAddress(WalletManager wm_ptr, String address) {
+  debugStart?.call('NERVA_WalletManager_setDaemonAddress');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final address_ = address.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_WalletManager_setDaemonAddress(wm_ptr, address_);
+  calloc.free(address_);
+  debugEnd?.call('NERVA_WalletManager_setDaemonAddress');
+  return s;
+}
+
+int WalletManager_blockchainHeight(WalletManager wm_ptr) {
+  debugStart?.call('NERVA_WalletManager_blockchainHeight');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final s = lib!.NERVA_WalletManager_blockchainHeight(wm_ptr);
+  debugEnd?.call('NERVA_WalletManager_blockchainHeight');
+  return s;
+}
+
+int WalletManager_blockchainTargetHeight(WalletManager wm_ptr) {
+  debugStart?.call('NERVA_WalletManager_blockchainTargetHeight');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final s = lib!.NERVA_WalletManager_blockchainTargetHeight(wm_ptr);
+  debugEnd?.call('NERVA_WalletManager_blockchainTargetHeight');
+  return s;
+}
+
+int WalletManager_networkDifficulty(WalletManager wm_ptr) {
+  debugStart?.call('NERVA_WalletManager_networkDifficulty');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final s = lib!.NERVA_WalletManager_networkDifficulty(wm_ptr);
+  debugEnd?.call('NERVA_WalletManager_networkDifficulty');
+  return s;
+}
+
+double WalletManager_miningHashRate(WalletManager wm_ptr) {
+  debugStart?.call('NERVA_WalletManager_miningHashRate');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final s = lib!.NERVA_WalletManager_miningHashRate(wm_ptr);
+  debugEnd?.call('NERVA_WalletManager_miningHashRate');
+  return s;
+}
+
+int WalletManager_blockTarget(WalletManager wm_ptr) {
+  debugStart?.call('NERVA_WalletManager_blockTarget');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final s = lib!.NERVA_WalletManager_blockTarget(wm_ptr);
+  debugEnd?.call('NERVA_WalletManager_blockTarget');
+  return s;
+}
+
+bool WalletManager_isMining(WalletManager wm_ptr) {
+  debugStart?.call('NERVA_WalletManager_isMining');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final s = lib!.NERVA_WalletManager_isMining(wm_ptr);
+  debugEnd?.call('NERVA_WalletManager_isMining');
+  return s;
+}
+
+bool WalletManager_startMining(
+  WalletManager wm_ptr, {
+  required String address,
+  required int threads,
+  required bool backgroundMining,
+  required bool ignoreBattery,
+}) {
+  debugStart?.call('NERVA_WalletManager_startMining');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final address_ = address.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_WalletManager_startMining(
+      wm_ptr, address_, threads, backgroundMining, ignoreBattery);
+  calloc.free(address_);
+  debugEnd?.call('NERVA_WalletManager_startMining');
+  return s;
+}
+
+bool WalletManager_stopMining(WalletManager wm_ptr, String address) {
+  debugStart?.call('NERVA_WalletManager_stopMining');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final address_ = address.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_WalletManager_stopMining(wm_ptr, address_);
+  calloc.free(address_);
+  debugEnd?.call('NERVA_WalletManager_stopMining');
+  return s;
+}
+
+String WalletManager_resolveOpenAlias(
+  WalletManager wm_ptr, {
+  required String address,
+  required bool dnssecValid,
+}) {
+  debugStart?.call('NERVA_WalletManager_resolveOpenAlias');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  try {
+    final address_ = address.toNativeUtf8().cast<Char>();
+    final strPtr = lib!
+        .NERVA_WalletManager_resolveOpenAlias(wm_ptr, address_, dnssecValid)
+        .cast<Utf8>();
+    final str = strPtr.toDartString();
+    NERVA_free(strPtr.cast());
+    debugEnd?.call('NERVA_WalletManager_resolveOpenAlias');
+    calloc.free(address_);
+    return str;
+  } catch (e) {
+    errorHandler?.call('NERVA_WalletManager_resolveOpenAlias', e);
+    debugEnd?.call('NERVA_WalletManager_resolveOpenAlias');
+    return "";
+  }
+}
+
+void WalletManagerFactory_setLogLevel(int level) {
+  debugStart?.call('NERVA_WalletManagerFactory_setLogLevel');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final s = lib!.NERVA_WalletManagerFactory_setLogLevel(level);
+  debugEnd?.call('NERVA_WalletManagerFactory_setLogLevel');
+  return s;
+}
+
+void WalletManagerFactory_setLogCategories(String categories) {
+  debugStart?.call('NERVA_WalletManagerFactory_setLogCategories');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final categories_ = categories.toNativeUtf8().cast<Char>();
+  final s = lib!.NERVA_WalletManagerFactory_setLogCategories(categories_);
+  calloc.free(categories_);
+  debugEnd?.call('NERVA_WalletManagerFactory_setLogCategories');
+  return s;
+}
+
+WalletManager WalletManagerFactory_getWalletManager() {
+  debugStart?.call('NERVA_WalletManagerFactory_getWalletManager');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  final s = lib!.NERVA_WalletManagerFactory_getWalletManager();
+  debugEnd?.call('NERVA_WalletManagerFactory_getWalletManager');
+  return s;
+}
+
+// class LogLevel {
+//   int get LogLevel_Silent => lib!.LogLevel_Silent;
+//   int get LogLevel_0 => lib!.LogLevel_0;
+//   int get LogLevel_1 => lib!.LogLevel_1;
+//   int get LogLevel_2 => lib!.LogLevel_2;
+//   int get LogLevel_3 => lib!.LogLevel_3;
+//   int get LogLevel_4 => lib!.LogLevel_4;
+//   int get LogLevel_Min => LogLevel_Silent;
+//   int get LogLevel_Max => lib!.LogLevel_4;
+// }
+
+// class ConnectionStatus {
+//   int get Disconnected => lib!.WalletConnectionStatus_Disconnected;
+//   int get Connected => lib!.WalletConnectionStatus_Connected;
+//   int get WrongVersion => lib!.WalletConnectionStatus_WrongVersion;
+// }
+
+// DEBUG
+
+class libOk {
+  libOk(
+    this.test1,
+    this.test2,
+    this.test3,
+    this.test4,
+    this.test5,
+    this.test5_std,
+  );
+  final bool test1;
+  final int test2;
+  final int test3;
+  final Pointer<Void> test4;
+  final Pointer<Char> test5;
+  String get test5_str {
+    try {
+      return test5.cast<Utf8>().toDartString();
+    } catch (e) {
+      return "$e";
+    }
+  }
+
+  String get test5_str16 {
+    try {
+      return test5.cast<Utf16>().toDartString();
+    } catch (e) {
+      return "$e";
+    }
+  }
+
+  final Pointer<Char> test5_std;
+  String get test5_std_str {
+    try {
+      return test5_std.cast<Utf8>().toDartString();
+    } catch (e) {
+      return "$e";
+    }
+  }
+
+  String get test5_std_str16 {
+    try {
+      return test5_std.cast<Utf16>().toDartString();
+    } catch (e) {
+      return "$e";
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "test1": test1,
+      "test2": test2,
+      "test3": test3,
+      "test4": test4.toString(),
+      "test5": test5.toString(),
+      "test5_str": test5_str,
+      "test5_std": test5_std.toString(),
+      "test5_std_str": test5_std_str,
+    };
+  }
+}
+
+libOk isLibOk() {
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+  lib!.NERVA_DEBUG_test0();
+  final test1 = lib!.NERVA_DEBUG_test1(true);
+  final test2 = lib!.NERVA_DEBUG_test2(-1);
+  final test3 = lib!.NERVA_DEBUG_test3(1);
+  final test4 = lib!.NERVA_DEBUG_test4(1);
+  final test5 = lib!.NERVA_DEBUG_test5();
+  final test5_std = lib!.NERVA_DEBUG_test5_std();
+  return libOk(test1, test2, test3, test4, test5, test5_std);
+}
+
+// cake world
+
+typedef WalletListener = Pointer<Void>;
+
+WalletListener NERVA_cw_getWalletListener(wallet wptr) {
+  debugStart?.call('NERVA_cw_getWalletListener');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final s = lib!.NERVA_cw_getWalletListener(wptr);
+  debugEnd?.call('NERVA_cw_getWalletListener');
+  return s;
+}
+
+void NERVA_cw_WalletListener_resetNeedToRefresh(WalletListener wlptr) {
+  debugStart?.call('NERVA_cw_WalletListener_resetNeedToRefresh');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final s = lib!.NERVA_cw_WalletListener_resetNeedToRefresh(wlptr);
+  debugEnd?.call('NERVA_cw_WalletListener_resetNeedToRefresh');
+  return s;
+}
+
+bool NERVA_cw_WalletListener_isNeedToRefresh(WalletListener wlptr) {
+  debugStart?.call('NERVA_cw_WalletListener_isNeedToRefresh');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final s = lib!.NERVA_cw_WalletListener_isNeedToRefresh(wlptr);
+  debugEnd?.call('NERVA_cw_WalletListener_isNeedToRefresh');
+  return s;
+}
+
+bool NERVA_cw_WalletListener_isNewTransactionExist(WalletListener wlptr) {
+  debugStart?.call('NERVA_cw_WalletListener_isNewTransactionExist');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final s = lib!.NERVA_cw_WalletListener_isNewTransactionExist(wlptr);
+  debugEnd?.call('NERVA_cw_WalletListener_isNewTransactionExist');
+  return s;
+}
+
+void NERVA_cw_WalletListener_resetIsNewTransactionExist(WalletListener wlptr) {
+  debugStart?.call('NERVA_cw_WalletListener_resetIsNewTransactionExist');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final s = lib!.NERVA_cw_WalletListener_resetIsNewTransactionExist(wlptr);
+  debugEnd?.call('NERVA_cw_WalletListener_resetIsNewTransactionExist');
+  return s;
+}
+
+int NERVA_cw_WalletListener_height(WalletListener wlptr) {
+  debugStart?.call('NERVA_cw_WalletListener_height');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final s = lib!.NERVA_cw_WalletListener_height(wlptr);
+  debugEnd?.call('NERVA_cw_WalletListener_height');
+  return s;
+}
+
+String NERVA_checksum_wallet2_api_c_h() {
+  debugStart?.call('NERVA_checksum_wallet2_api_c_h');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final s = lib!.NERVA_checksum_wallet2_api_c_h();
+  debugEnd?.call('NERVA_checksum_wallet2_api_c_h');
+  return s.cast<Utf8>().toDartString();
+}
+
+String NERVA_checksum_wallet2_api_c_cpp() {
+  debugStart?.call('NERVA_checksum_wallet2_api_c_cpp');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final s = lib!.NERVA_checksum_wallet2_api_c_cpp();
+  debugEnd?.call('NERVA_checksum_wallet2_api_c_cpp');
+  return s.cast<Utf8>().toDartString();
+}
+
+String NERVA_checksum_wallet2_api_c_exp() {
+  debugStart?.call('NERVA_checksum_wallet2_api_c_exp');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final s = lib!.NERVA_checksum_wallet2_api_c_exp();
+  debugEnd?.call('NERVA_checksum_wallet2_api_c_exp');
+  return s.cast<Utf8>().toDartString();
+}
+
+void NERVA_free(Pointer<Void> wlptr) {
+  debugStart?.call('NERVA_free');
+  lib ??= NervaC(DynamicLibrary.open(libPath));
+
+  final s = lib!.NERVA_free(wlptr);
+  debugEnd?.call('NERVA_free');
+  return s;
+}

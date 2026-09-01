@@ -16,3 +16,8 @@
 	url = https://github.com/MrCyjaneK/wownero-seed
 	branch = cyjan-namespace2
 	shallow = true
+[submodule "nerva"]
+	path = nerva
+	url = https://github.com/nerva-project/nerva
+	branch = master
+	shallow = true

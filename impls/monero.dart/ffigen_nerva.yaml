@@ -1,0 +1,11 @@
+name: NervaC
+description: monero_c nerva bindings
+output: 'lib/src/generated_bindings_nerva.g.dart'
+headers:
+  entry-points:
+    - '../../nerva_libwallet2_api_c/src/main/cpp/nerva_wallet2_api_c.h'
+
+exclude-all-by-default: true
+functions:
+  include:
+    - "NERVA_.+"

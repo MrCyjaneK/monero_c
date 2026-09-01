@@ -1,0 +1,29 @@
+From 323fa1313a63d0f90c42463772d67b05c4a907bb Mon Sep 17 00:00:00 2001
+From: mmokhi <mmokhi@freebsd.org>
+Date: Thu, 11 Jun 2026 11:55:38 +0200
+Subject: [PATCH] cmake: use ${monero_SOURCE_DIR} in CheckLinkerFlag (build via
+ add_subdirectory)
+
+Mirrors monero's CheckLinkerFlag.cmake. CMAKE_SOURCE_DIR points at the
+top-level project (the monero_c wrapper) when nerva is built as a
+subdirectory, breaking the try_compile; the project-scoped var is correct.
+---
+ cmake/CheckLinkerFlag.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmake/CheckLinkerFlag.cmake b/cmake/CheckLinkerFlag.cmake
+index 2b507ab..3c415c3 100644
+--- a/cmake/CheckLinkerFlag.cmake
++++ b/cmake/CheckLinkerFlag.cmake
+@@ -6,7 +6,7 @@ macro(CHECK_LINKER_FLAG flag VARIABLE)
+       message(STATUS "Looking for ${flag} linker flag")
+     endif()
+ 
+-    set(_cle_source ${CMAKE_SOURCE_DIR}/cmake/CheckLinkerFlag.c)
++    set(_cle_source ${monero_SOURCE_DIR}/cmake/CheckLinkerFlag.c)
+ 
+     set(saved_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+     set(CMAKE_C_FLAGS "${flag}")
+-- 
+2.43.0
+
