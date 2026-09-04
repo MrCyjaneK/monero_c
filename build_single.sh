@@ -20,13 +20,13 @@ set -e
 repo=$1
 if [[ "x$repo" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero/zano $(gcc -dumpmachine) -j$proccount"
+    echo "Usage: $0 monero/wownero/zano/beldex $(gcc -dumpmachine) -j$proccount"
     exit 1
 fi
 
-if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" && "x$repo" != "xzano" ]];
+if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" && "x$repo" != "xzano" && "x$repo" != "xbeldex" ]];
 then
-    echo "Usage: $0 monero/wownero/zano $(gcc -dumpmachine) -j$proccount"
+    echo "Usage: $0 monero/wownero/zano/beldex $(gcc -dumpmachine) -j$proccount"
     echo "Invalid target given"
     exit 1
 fi
@@ -41,7 +41,7 @@ fi
 HOST_ABI="$2"
 if [[ "x$HOST_ABI" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
+    echo "Usage: $0 monero/wownero/beldex $(gcc -dumpmachine) -j$proccount"
     exit 1
 fi
 
@@ -49,7 +49,7 @@ NPROC="$3"
 
 if [[ "x$NPROC" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero $(gcc -dumpmachine) -j$proccount"
+    echo "Usage: $0 monero/wownero/beldex $(gcc -dumpmachine) -j$proccount"
     exit 1
 fi
 cd $(dirname $0)
@@ -96,6 +96,14 @@ do
         if [[ "$repo" == "zano" ]];
         then
         EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
+        fi
+        if [[ "$repo" == "beldex" ]];
+        then
+            EXTRA_CMAKE_FLAGS="-DCAKEWALLET=ON"
+            if [[ "${HOST_ABI}" == "x86_64-apple-darwin" || "${HOST_ABI}" == "aarch64-apple-darwin" || "${HOST_ABI}" == "aarch64-apple-ios" || "${HOST_ABI}" == "aarch64-apple-ios-simulator" ]];
+                then
+                    EXTRA_CMAKE_FLAGS="-DRANDOMX_ENABLE_JIT=OFF -DUSE_LTO=OFF" 
+            fi
         fi
         pushd build/${HOST_ABI}_${OUTPUT_MODE}
             cmake -DCMAKE_TOOLCHAIN_FILE=$PWD/../../../contrib/depends/${HOST_ABI}/share/toolchain.cmake $EXTRA_CMAKE_FLAGS -DMONERO_FLAVOR=$repo -DCMAKE_BUILD_TYPE=Debug -DHOST_ABI=${HOST_ABI} -DOUTPUT_MODE=${OUTPUT_MODE} ../..

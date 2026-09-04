@@ -1,8 +1,9 @@
-import { type MoneroSymbols, moneroSymbols, type SymbolName, type WowneroSymbols, wowneroSymbols } from "./symbols.ts";
+import { type MoneroSymbols, moneroSymbols, type SymbolName, type WowneroSymbols, wowneroSymbols, type BeldexSymbols, beldexSymbols, } from "./symbols.ts";
 
 export type MoneroDylib = Deno.DynamicLibrary<MoneroSymbols>;
 export type WowneroDylib = Deno.DynamicLibrary<WowneroSymbols>;
-export type Dylib = MoneroDylib | WowneroDylib;
+export type BeldexDylib = Deno.DynamicLibrary<BeldexSymbols>;
+export type Dylib = MoneroDylib | WowneroDylib | BeldexDylib;
 
 export let dylib: Dylib;
 
@@ -65,4 +66,31 @@ export function loadWowneroDylib(newDylib?: WowneroDylib) {
   }
 
   dylib = Deno.dlopen(libPath, wowneroSymbols);
+}
+
+export function loadBeldexDylib(newDylib?: BeldexDylib) {
+  dylibPrefix = "BELDEX";
+
+  if (newDylib) {
+    dylib = newDylib;
+    return;
+  }
+
+  let libPath: string;
+  switch (Deno.build.os) {
+    case "darwin":
+      libPath = "./lib/beldex_libwallet2_api_c.dylib";
+      break;
+    case "android":
+      libPath = "./lib/libbeldex_libwallet2_api_c.so";
+      break;
+    case "windows":
+      libPath = "./lib/beldex_libwallet2_api_c.dll";
+      break;
+    default:
+      libPath = "./lib/beldex_libwallet2_api_c.so";
+      break;
+  }
+
+  dylib = Deno.dlopen(libPath, beldexSymbols);
 }

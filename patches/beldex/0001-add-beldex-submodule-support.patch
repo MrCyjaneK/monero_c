@@ -1,0 +1,105 @@
+From 1714ea9f8af55757016b7131baa965bcf71ade6b Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Tue, 7 Jul 2026 23:28:00 +0530
+Subject: [PATCH 01/16] add beldex submodule support
+
+---
+ CMakeLists.txt                | 4 ++--
+ cmake/CheckLinkerFlag.cmake   | 2 +-
+ cmake/Version.cmake           | 6 +++---
+ src/wallet/api/CMakeLists.txt | 7 ++++++-
+ 4 files changed, 12 insertions(+), 7 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 0cdf17c98..2a8ef789f 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -32,7 +32,7 @@
+ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+ 
+ list(INSERT CMAKE_MODULE_PATH 0
+-  "${CMAKE_SOURCE_DIR}/cmake")
++  "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+ 
+ find_program(CCACHE_PROGRAM ccache)
+ if(CCACHE_PROGRAM)
+@@ -301,7 +301,7 @@ endif()
+ option(PER_BLOCK_CHECKPOINT "Enables per-block checkpointing" ON)
+ 
+ list(INSERT CMAKE_MODULE_PATH 0
+-  "${CMAKE_SOURCE_DIR}/cmake")
++  "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+ 
+ option(BOOST_IGNORE_SYSTEM_PATHS "Ignore boost system paths for local boost installation" OFF)
+ 
+diff --git a/cmake/CheckLinkerFlag.cmake b/cmake/CheckLinkerFlag.cmake
+index 2b507ab71..2169bf448 100755
+--- a/cmake/CheckLinkerFlag.cmake
++++ b/cmake/CheckLinkerFlag.cmake
+@@ -6,7 +6,7 @@ macro(CHECK_LINKER_FLAG flag VARIABLE)
+       message(STATUS "Looking for ${flag} linker flag")
+     endif()
+ 
+-    set(_cle_source ${CMAKE_SOURCE_DIR}/cmake/CheckLinkerFlag.c)
++    set(_cle_source ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckLinkerFlag.c)
+ 
+     set(saved_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+     set(CMAKE_C_FLAGS "${flag}")
+diff --git a/cmake/Version.cmake b/cmake/Version.cmake
+index 7d7a927dd..7cb0b5901 100755
+--- a/cmake/Version.cmake
++++ b/cmake/Version.cmake
+@@ -28,19 +28,19 @@
+ 
+ function (write_static_version_header hash)
+   set(VERSIONTAG "${hash}")
+-  configure_file("${CMAKE_SOURCE_DIR}/src/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp")
++  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp")
+ endfunction ()
+ 
+ find_package(Git QUIET)
+ if (GIT_FOUND OR Git_FOUND)
+   message(STATUS "Found Git: ${GIT_EXECUTABLE}")
+   set(VERSIONTAG "@VERSIONTAG@") # Will be replaced again by GenVersion.cmake, below.
+-  configure_file("${CMAKE_SOURCE_DIR}/src/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp.in")
++  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.cpp.in" "${CMAKE_BINARY_DIR}/version.cpp.in")
+   add_custom_command(
+     OUTPUT            "${CMAKE_BINARY_DIR}/version.cpp"
+     COMMAND           "${CMAKE_COMMAND}"
+                       "-D" "GIT=${GIT_EXECUTABLE}"
+-                      "-P" "${CMAKE_SOURCE_DIR}/cmake/GenVersion.cmake"
++                      "-P" "${CMAKE_CURRENT_SOURCE_DIR}/../cmake/GenVersion.cmake"
+     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+     DEPENDS           "${CMAKE_BINARY_DIR}/version.cpp.in")
+ else()
+diff --git a/src/wallet/api/CMakeLists.txt b/src/wallet/api/CMakeLists.txt
+index df4e42673..6bb98d286 100755
+--- a/src/wallet/api/CMakeLists.txt
++++ b/src/wallet/api/CMakeLists.txt
+@@ -40,9 +40,12 @@ add_library(wallet_api
+   subaddress_account.cpp
+   unsigned_transaction.cpp)
+ 
++find_package(OpenSSL REQUIRED)
++
+ target_link_libraries(wallet_api
+   PUBLIC
+     wallet
++    common
+     cryptonote_core
+     mnemonics
+     lmdb
+@@ -50,7 +53,9 @@ target_link_libraries(wallet_api
+     filesystem
+     Boost::thread
+   PRIVATE
+-    extra)
++    extra
++    OpenSSL::Crypto
++    OpenSSL::SSL)
+ 
+ set_property(TARGET wallet_api PROPERTY EXCLUDE_FROM_ALL TRUE)
+ 
+-- 
+2.43.0
+

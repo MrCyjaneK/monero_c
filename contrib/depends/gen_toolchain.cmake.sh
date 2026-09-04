@@ -106,6 +106,10 @@ endif()
 SET(ZMQ_INCLUDE_PATH @prefix@/include)
 SET(ZMQ_LIB @prefix@/lib/libzmq.a)
 
+SET(CURL_INCLUDE_DIR @prefix@/include CACHE PATH "curl include dir")
+SET(CURL_LIBRARY @prefix@/lib/libcurl.a CACHE FILEPATH "curl library")
+SET(CURL_USE_STATIC_LIBS ON)
+
 SET(Boost_IGNORE_SYSTEM_PATH ON)
 SET(BOOST_ROOT @prefix@)
 SET(BOOST_INCLUDEDIR @prefix@/include)

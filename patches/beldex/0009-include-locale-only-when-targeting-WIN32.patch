@@ -1,0 +1,43 @@
+From b71b3f047909860bf1139b0df84f10ccb73f51bd Mon Sep 17 00:00:00 2001
+From: Agatha-luna <magambo@beldex.io>
+Date: Tue, 7 Jul 2026 23:39:34 +0530
+Subject: [PATCH 09/16] include locale only when targeting WIN32
+
+---
+ CMakeLists.txt            | 4 ++++
+ src/wallet/api/wallet.cpp | 4 ++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 8573ec1e5..214c58e19 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -780,6 +780,10 @@ else()
+   find_package(Boost 1.62 QUIET REQUIRED COMPONENTS system thread serialization program_options)
+ endif()
+ 
++if(WIN32)
++  find_package(Boost 1.62 QUIET REQUIRED COMPONENTS locale)
++endif()
++
+ set(CMAKE_FIND_LIBRARY_SUFFIXES ${OLD_LIB_SUFFIXES})
+ if(NOT Boost_FOUND)
+   message(FATAL_ERROR "Could not find Boost libraries, please make sure you have installed Boost or libboost-all-dev (>=1.58) or the equivalent")
+diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
+index 97a007d0c..39675cbb8 100755
+--- a/src/wallet/api/wallet.cpp
++++ b/src/wallet/api/wallet.cpp
+@@ -56,6 +56,10 @@
+ #include "epee/scope_leaver.h"
+ #include "bc-ur/src/bc-ur.hpp"
+ 
++#ifdef WIN32
++ #include <boost/locale.hpp>
++#endif
++
+ using namespace cryptonote;
+ 
+ #undef BELDEX_DEFAULT_LOG_CATEGORY
+-- 
+2.43.0
+

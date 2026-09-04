@@ -2434,11 +2434,19 @@ export const moneroSymbols = {
 
 export type MoneroSymbols = typeof moneroSymbols;
 
+type ReplacePrefix<T extends string, From extends string, To extends string> = T extends `${From}${infer Y}` ? `${To}${Y}` : never;
+
 type ReplaceMonero<T extends string> = T extends `MONERO${infer Y}` ? `WOWNERO${Y}` : never;
 export type WowneroSymbols = { [Key in keyof MoneroSymbols as ReplaceMonero<Key>]: MoneroSymbols[Key] };
+
+export type BeldexSymbols = {[Key in keyof MoneroSymbols as ReplacePrefix<Key, "MONERO", "BELDEX">]:MoneroSymbols[Key];};
 
 export type SymbolName = keyof MoneroSymbols extends `MONERO_${infer SymbolName}` ? SymbolName : never;
 
 export const wowneroSymbols = Object.fromEntries(
   Object.entries(moneroSymbols).map(([key, value]) => [key.replace("MONERO", "WOWNERO"), value]),
 ) as WowneroSymbols;
+
+export const beldexSymbols = Object.fromEntries(
+  Object.entries(moneroSymbols).map(([key, value]) => [key.replace("MONERO", "BELDEX"), value,]),
+) as BeldexSymbols;

@@ -1,0 +1,11 @@
+name: BeldexC
+description: monero_c beldex bindings
+output: 'lib/src/generated_bindings_beldex.g.dart'
+headers:
+  entry-points:
+    - '../../beldex_libwallet2_api_c/src/main/cpp/beldex_wallet2_api_c.h'
+
+exclude-all-by-default: true
+functions:
+  include:
+    - "BELDEX_.+"

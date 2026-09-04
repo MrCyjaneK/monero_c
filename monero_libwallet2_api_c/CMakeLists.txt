@@ -4,7 +4,11 @@ message(STATUS HOST_ABI = ${HOST_ABI})
 
 set(MD_LIBRARY "")
 
-set(CMAKE_CXX_STANDARD 11)
+if(${MONERO_FLAVOR} STREQUAL "beldex")
+  set(CMAKE_CXX_STANDARD 17)
+else()
+  set(CMAKE_CXX_STANDARD 11)
+endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(${HOST_ABI} STREQUAL "x86_64-w64-mingw32")
@@ -62,6 +66,9 @@ elseif(${MONERO_FLAVOR} STREQUAL "wownero")
     target_compile_definitions(${MONERO_FLAVOR}_wallet2_api_c PRIVATE FLAVOR_WOWNERO)
 elseif(${MONERO_FLAVOR} STREQUAL "zano")
     target_compile_definitions(${MONERO_FLAVOR}_wallet2_api_c PRIVATE FLAVOR_ZANO)
+elseif (${MONERO_FLAVOR} STREQUAL "beldex")
+    target_compile_definitions(${MONERO_FLAVOR}_wallet2_api_c PRIVATE FLAVOR_BELDEX)
+    set(BCUR_ENABLED bc-ur)
 endif()
 
 if(NOT HOST_ABI MATCHES "-apple-")
@@ -110,6 +117,47 @@ elseif(${MONERO_FLAVOR} STREQUAL "zano")
         ${Boost_LIBRARIES}
         OpenSSL::SSL
         OpenSSL::Crypto)
+elseif(${MONERO_FLAVOR} STREQUAL "beldex")
+    find_package(Boost 1.71 REQUIRED COMPONENTS filesystem thread timer date_time chrono regex serialization atomic program_options)
+    find_package(OpenSSL REQUIRED)
+
+    if(MINGW AND TARGET OpenSSL::Crypto)
+        target_link_libraries(OpenSSL::Crypto
+        INTERFACE
+            ws2_32
+            iphlpapi
+            crypt32)
+    endif()
+
+    if(ANDROID OR APPLE)
+        set(DEPENDS_ROOT
+            "${CMAKE_SOURCE_DIR}/../contrib/depends/${HOST_ABI}"
+        )
+
+        set(ZLIB_INCLUDE_DIR "${DEPENDS_ROOT}/include")
+        set(ZLIB_STATIC_LIB  "${DEPENDS_ROOT}/lib/libz.a")
+
+        if(NOT EXISTS "${ZLIB_STATIC_LIB}")
+            message(FATAL_ERROR "Static zlib not found at ${ZLIB_STATIC_LIB}")
+        endif()
+
+        target_include_directories(${MONERO_FLAVOR}_wallet2_api_c
+            PRIVATE
+                ${ZLIB_INCLUDE_DIR}
+        )
+
+        set(BELDEX_ZLIB_LIB ${ZLIB_STATIC_LIB})
+    endif()
+
+    set(WALLET_TARGETS
+        wallet_api
+        common
+        ${wallet_api_LIB_DEPENDS}
+        ${Boost_LIBRARIES}
+        OpenSSL::SSL
+        OpenSSL::Crypto
+        ${BELDEX_ZLIB_LIB}
+    )
 endif()
 
 if(${MONERO_FLAVOR} STREQUAL "wownero")

@@ -1,0 +1,5 @@
+export const beldexChecksum = {
+    wallet2_api_c_h_sha256: "2f6add6cd0237e8e3eed5d7f98021a7cc0a00a74b170b048c595f74e6e7f282c",
+    wallet2_api_c_cpp_sha256: "10478948bfe4214e09c34e1461a217ea9d29141bab051cdfb408e76098c36cc2-5d7a37c425d6f1f8823db69dc94a9e82e0b6012b",
+    wallet2_api_c_exp_sha256: "9def04127474314b17465acefd5d349d799eb475ee29ea4601024bbc0dfd2ef8",
+}

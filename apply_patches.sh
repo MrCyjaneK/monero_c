@@ -6,13 +6,13 @@ repo="$1"
 
 if [[ "x$repo" == "x" ]];
 then
-    echo "Usage: $0 monero/wownero"
+    echo "Usage: $0 monero/wownero/beldex"
     exit 1
 fi
 
-if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" ]];
+if [[ "x$repo" != "xwownero" && "x$repo" != "xmonero" && "x$repo" != "xbeldex" ]];
 then
-    echo "Usage: $0 monero/wownero"
+    echo "Usage: $0 monero/wownero/beldex"
     echo "Invalid target given, only monero and wownero are supported targets"
 fi
 
@@ -52,7 +52,9 @@ find . -name "*.S" -o -name "*.s" -type f | while read -r file; do
         git add "$file" || true
     fi
 done
-git commit -m "Add .note.GNU-stack section to assembly files"
+if ! git diff --cached --quiet; then
+    git commit -m "Add .note.GNU-stack section to assembly files"
+fi
 
 git am -3 <<EOF
 From e56dd6cd0fb1a5e55d3cb08691edf24b26d65299 Mon Sep 17 00:00:00 2001
