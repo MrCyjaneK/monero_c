@@ -1,7 +1,7 @@
-From 8af15fadb4095f94145cfe5086a1f6796d1cc44a Mon Sep 17 00:00:00 2001
+From b9d9de083a03ae25b9c6b2b3eacab425a93cb37a Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 13 May 2026 11:35:01 -0400
-Subject: [PATCH] trezor import/export/sign/submit functions
+Subject: [PATCH 21/21] trezor import/export/sign/submit functions
 
 1) This PR fixes protobuf detection, by removing checks as they were
 failing on some platforms, essentially removing Protobuf_COMPILE_TEST_PASSED
@@ -10,7 +10,6 @@ failing on some platforms, essentially removing Protobuf_COMPILE_TEST_PASSED
 Exact JSON schema is shown below, path and networkType is ommited
 
 https://connect.trezor.io/9/methods/monero/moneroKeyImageSync/
-
 
 ```json
 {
@@ -49,7 +48,6 @@ Expects Trezor connect MoneroKeyImageSyncResult JSON
 }
 ```
 
-
 4) PendingTransaction::commitTrezor(0)
 New method that returns std::string with Trezor connect compatible JSON, as
 shown below and at the link
@@ -59,10 +57,10 @@ https://connect.trezor.io/9/methods/monero/moneroSignTransaction/
 {
     // REQUIRED: Hardened Monero account path (minimum 3 components)
     path: "m/44'/128'/0'",
- 
+
     // REQUIRED: Network type
     networkType: 0, // 0=MAINNET, 1=TESTNET, 2=STAGENET, 3=FAKECHAIN
- 
+
     // REQUIRED: Transaction data with outputs
     tsx_data: {
         version: 1,
@@ -93,7 +91,7 @@ https://connect.trezor.io/9/methods/monero/moneroSignTransaction/
             grouping: [],
         },
     },
- 
+
     // REQUIRED: At least one input with ring members
     inputs: [
         {
@@ -135,7 +133,6 @@ https://connect.trezor.io/9/methods/monero/moneroSignTransaction/
 is assembled you can call Wallet::submitTransactionHex("CAFEBABE")
 
 That's it.
-
 ---
  cmake/CheckTrezor.cmake                 |  28 +--
  src/device_trezor/trezor/protocol.cpp   | 220 ++++++++++++++++++++++
@@ -143,12 +140,12 @@ That's it.
  src/wallet/api/pending_transaction.cpp  |  60 ++++++
  src/wallet/api/pending_transaction.h    |   1 +
  src/wallet/api/unsigned_transaction.cpp |   2 +
- src/wallet/api/wallet.cpp               |  70 ++++++-
- src/wallet/api/wallet.h                 |   9 +-
- src/wallet/api/wallet2_api.h            |  71 ++++---
- src/wallet/wallet2.cpp                  | 234 ++++++++++++++++++++++++
- src/wallet/wallet2.h                    |   7 +-
- 11 files changed, 650 insertions(+), 60 deletions(-)
+ src/wallet/api/wallet.cpp               |  68 +++++++
+ src/wallet/api/wallet.h                 |   3 +
+ src/wallet/api/wallet2_api.h            |  15 ++
+ src/wallet/wallet2.cpp                  | 233 ++++++++++++++++++++++++
+ src/wallet/wallet2.h                    |   5 +-
+ 11 files changed, 615 insertions(+), 28 deletions(-)
 
 diff --git a/cmake/CheckTrezor.cmake b/cmake/CheckTrezor.cmake
 index 4fae15fad..57e3d4866 100644
@@ -198,7 +195,7 @@ index 4fae15fad..57e3d4866 100644
      set(ENV{PROTOBUF_PROTOC_EXECUTABLE} "${Protobuf_PROTOC_EXECUTABLE}")
      set(TREZOR_PROTOBUF_PARAMS "")
 diff --git a/src/device_trezor/trezor/protocol.cpp b/src/device_trezor/trezor/protocol.cpp
-index 0e59a16ba..afd1498d2 100644
+index cfa1a76d4..a972d0486 100644
 --- a/src/device_trezor/trezor/protocol.cpp
 +++ b/src/device_trezor/trezor/protocol.cpp
 @@ -29,12 +29,17 @@
@@ -560,7 +557,7 @@ index 0cc6c58e9..9c9097cd1 100644
      uint64_t dust() const override;
      uint64_t fee() const override;
 diff --git a/src/wallet/api/unsigned_transaction.cpp b/src/wallet/api/unsigned_transaction.cpp
-index fd03e959d..7232e518f 100644
+index e62410b59..134d15202 100644
 --- a/src/wallet/api/unsigned_transaction.cpp
 +++ b/src/wallet/api/unsigned_transaction.cpp
 @@ -34,11 +34,13 @@
@@ -578,10 +575,10 @@ index fd03e959d..7232e518f 100644
  #include "bc-ur/src/bc-ur.hpp"
  
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index c24b4a97d..3a977d6d2 100644
+index c91dbf1f2..a6ef69562 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
-@@ -1457,6 +1457,45 @@ bool WalletImpl::submitTransactionUR(const string &input) {
+@@ -1468,6 +1468,45 @@ bool WalletImpl::submitTransactionUR(const string &input) {
      return true;
  }
  
@@ -627,7 +624,7 @@ index c24b4a97d..3a977d6d2 100644
  
  bool WalletImpl::hasUnknownKeyImages() const
  {
-@@ -3479,4 +3518,33 @@ std::string WalletImpl::serializeCacheToJson() const
+@@ -3506,4 +3545,33 @@ std::string WalletImpl::serializeCacheToJson() const
      return std::string(m_wallet->serialize_cache_to_json());
  }
  
@@ -662,7 +659,7 @@ index c24b4a97d..3a977d6d2 100644
 +
  } // namespace
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 98c03b9c1..45a3b6b2f 100644
+index 4d0e192d9..c16c7c8d4 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -183,6 +183,7 @@ public:
@@ -673,7 +670,7 @@ index 98c03b9c1..45a3b6b2f 100644
      virtual UnsignedTransaction * loadUnsignedTx(const std::string &unsigned_filename) override;
      virtual UnsignedTransaction * loadUnsignedTxUR(const std::string &input) override;
      bool hasUnknownKeyImages() const override;
-@@ -337,6 +338,8 @@ private:
+@@ -338,6 +339,8 @@ private:
      bool getWaitsForDeviceReceive();
  
      virtual std::string serializeCacheToJson() const override;
@@ -683,7 +680,7 @@ index 98c03b9c1..45a3b6b2f 100644
  
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 3d11929f9..ac1dd9fb0 100644
+index 99c43be3b..3df48f164 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -92,6 +92,7 @@ struct PendingTransaction
@@ -694,7 +691,7 @@ index 3d11929f9..ac1dd9fb0 100644
      virtual uint64_t amount() const = 0;
      virtual uint64_t dust() const = 0;
      virtual uint64_t fee() const = 0;
-@@ -948,6 +949,7 @@ struct Wallet
+@@ -961,6 +962,7 @@ struct Wallet
      */
      virtual bool submitTransaction(const std::string &fileName) = 0;
      virtual bool submitTransactionUR(const std::string &input) = 0;
@@ -702,7 +699,7 @@ index 3d11929f9..ac1dd9fb0 100644
  
  
      /*!
-@@ -1220,6 +1222,19 @@ struct Wallet
+@@ -1241,6 +1243,19 @@ struct Wallet
  
      //! serialize wallet cache to JSON
      virtual std::string serializeCacheToJson() const = 0;
@@ -723,10 +720,10 @@ index 3d11929f9..ac1dd9fb0 100644
  
  /**
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index a7532d7ec..0c3a628ed 100644
+index 3ab7df79e..484d40536 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -98,6 +98,7 @@ extern "C"
+@@ -99,6 +99,7 @@ extern "C"
  {
  #include "crypto/keccak.h"
  #include "crypto/crypto-ops.h"
@@ -734,7 +731,7 @@ index a7532d7ec..0c3a628ed 100644
  }
  using namespace std;
  using namespace crypto;
-@@ -7799,6 +7800,81 @@ void wallet2::commit_tx(std::vector<pending_tx>& ptx_vector)
+@@ -7910,6 +7911,81 @@ void wallet2::commit_tx(std::vector<pending_tx>& ptx_vector)
    }
  }
  //----------------------------------------------------------------------------------------------------
@@ -816,7 +813,7 @@ index a7532d7ec..0c3a628ed 100644
  bool wallet2::save_tx(const std::vector<pending_tx>& ptx_vector, const std::string &filename) const
  {
    LOG_PRINT_L0("saving " << ptx_vector.size() << " transactions");
-@@ -7838,6 +7915,20 @@ std::string wallet2::dump_tx_to_str(const std::vector<pending_tx> &ptx_vector) c
+@@ -7949,6 +8025,20 @@ std::string wallet2::dump_tx_to_str(const std::vector<pending_tx> &ptx_vector) c
    return std::string(UNSIGNED_TX_PREFIX) + ciphertext;
  }
  //----------------------------------------------------------------------------------------------------
@@ -837,7 +834,7 @@ index a7532d7ec..0c3a628ed 100644
  bool wallet2::load_unsigned_tx(const std::string &unsigned_filename, unsigned_tx_set &exported_txs) const
  {
    std::string s;
-@@ -16384,4 +16475,147 @@ std::pair<size_t, uint64_t> wallet2::estimate_tx_size_and_weight(bool use_rct, i
+@@ -16716,4 +16806,147 @@ std::pair<size_t, uint64_t> wallet2::estimate_tx_size_and_weight(bool use_rct, i
    return std::make_pair(size, weight);
  }
  //----------------------------------------------------------------------------------------------------
@@ -986,10 +983,10 @@ index a7532d7ec..0c3a628ed 100644
 +//----------------------------------------------------------------------------------------------------
  }
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 37a2447d2..2e93f3dbf 100644
+index 7ebc66448..40e373824 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
-@@ -1205,8 +1205,10 @@ private:
+@@ -1212,8 +1212,10 @@ private:
  
      void commit_tx(pending_tx& ptx_vector);
      void commit_tx(std::vector<pending_tx>& ptx_vector);
@@ -1000,7 +997,7 @@ index 37a2447d2..2e93f3dbf 100644
      std::string save_multisig_tx(multisig_tx_set txs);
      bool save_multisig_tx(const multisig_tx_set &txs, const std::string &filename);
      std::string save_multisig_tx(const std::vector<pending_tx>& ptx_vector);
-@@ -1717,7 +1721,8 @@ private:
+@@ -1728,7 +1730,8 @@ private:
      bool is_unattended() const { return m_unattended; }
  
      std::pair<size_t, uint64_t> estimate_tx_size_and_weight(bool use_rct, int n_inputs, int ring_size, int n_outputs, size_t extra_size);
@@ -1011,5 +1008,5 @@ index 37a2447d2..2e93f3dbf 100644
      bool daemon_requires_payment();
      bool make_rpc_payment(uint32_t nonce, uint32_t cookie, uint64_t &credits, uint64_t &balance);
 -- 
-2.50.1 (Apple Git-155)
+2.55.0
 

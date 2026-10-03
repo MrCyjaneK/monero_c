@@ -1,15 +1,15 @@
-From e06b0e86b6b6204bf20c0caadde64da1f0966da1 Mon Sep 17 00:00:00 2001
+From 00871ee3d95643c9ee085a28f40a8706414dc74e Mon Sep 17 00:00:00 2001
 From: cyan <cyjan@mrcyjanek.net>
 Date: Thu, 7 Nov 2024 16:46:24 +0000
-Subject: [PATCH 11/20] add monero submodule support
+Subject: [PATCH 11/21] add monero submodule support
 
 ---
- CMakeLists.txt                   | 12 ++++++------
+ CMakeLists.txt                   | 10 +++++-----
  src/wallet/wallet_rpc_server.cpp |  2 +-
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 390339523..d0af390d0 100644
+index d9225f128..fe0be0faa 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -75,7 +75,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "3.0.0" AND CMAKE_MAKE_PROGRAM MATCHES "nin
@@ -33,16 +33,7 @@ index 390339523..d0af390d0 100644
  endif()
  add_library(l0 SHARED incorrect_source.cpp)
  add_library(l1 MODULE incorrect_source.cpp)
-@@ -363,7 +363,7 @@ if(NOT MANUAL_SUBMODULES)
-         message(FATAL_ERROR "Submodule '${relative_path}' is not up-to-date. Please update all submodules with\ngit submodule update --init --force\nor run cmake with -DMANUAL_SUBMODULES=1\n")
-       endif()
-     endfunction ()
--    
-+
-     message(STATUS "Checking submodules")
- #    check_submodule(external/bc-ur)
-     check_submodule(external/miniupnp)
-@@ -390,7 +390,7 @@ else()
+@@ -394,7 +394,7 @@ else()
  endif()
  
  list(INSERT CMAKE_MODULE_PATH 0
@@ -51,7 +42,7 @@ index 390339523..d0af390d0 100644
  
  if (NOT DEFINED ENV{DEVELOPER_LOCAL_TOOLS})
    message(STATUS "Could not find DEVELOPER_LOCAL_TOOLS in env (not required)")
-@@ -1003,7 +1003,7 @@ else()
+@@ -1011,7 +1011,7 @@ else()
  
    # random crash on startup when asan is on if pie is enabled
    if(NOT SANITIZE AND ANDROID AND NOT BUILD_GUI_DEPS STREQUAL "ON" OR IOS)
@@ -61,10 +52,10 @@ index 390339523..d0af390d0 100644
      set(PIC_FLAG "")
      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIE")
 diff --git a/src/wallet/wallet_rpc_server.cpp b/src/wallet/wallet_rpc_server.cpp
-index 0cf75a1c4..66def08ef 100644
+index 5a131fbb6..3ddc4751d 100644
 --- a/src/wallet/wallet_rpc_server.cpp
 +++ b/src/wallet/wallet_rpc_server.cpp
-@@ -1261,7 +1261,7 @@ namespace tools
+@@ -1282,7 +1282,7 @@ namespace tools
      {
        uint64_t mixin = m_wallet->adjust_mixin(req.ring_size ? req.ring_size - 1 : 0);
        uint32_t priority = m_wallet->adjust_priority(req.priority);
@@ -74,5 +65,5 @@ index 0cf75a1c4..66def08ef 100644
        if (ptx_vector.empty())
        {
 -- 
-2.50.1 (Apple Git-155)
+2.55.0
 

@@ -1,25 +1,24 @@
-From 3cdb4ef9bdf88936276b4c5286eb7f9d39f556d0 Mon Sep 17 00:00:00 2001
+From acd4b7ca9b0be751558957cb88ec62f55df47c5b Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Mon, 2 Sep 2024 16:40:31 +0200
-Subject: [PATCH 03/20] uint64_t missing definition fix
+Subject: [PATCH 03/21] uint64_t missing definition fix
 
 ---
- contrib/epee/include/net/http_base.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ contrib/epee/include/net/http_base.h | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/contrib/epee/include/net/http_base.h b/contrib/epee/include/net/http_base.h
-index f32fdd9ae..a95a7d34f 100644
+index aec0689a5..4d78e625e 100644
 --- a/contrib/epee/include/net/http_base.h
 +++ b/contrib/epee/include/net/http_base.h
-@@ -28,7 +28,7 @@
- 
+@@ -29,6 +29,7 @@
  #pragma once
  #include "memwipe.h"
--
+ 
 +#include <stdint.h>
- #include <boost/utility/string_ref.hpp>
+ #include <boost/utility/string_view.hpp>
  
  #include <string>
 -- 
-2.50.1 (Apple Git-155)
+2.55.0
 

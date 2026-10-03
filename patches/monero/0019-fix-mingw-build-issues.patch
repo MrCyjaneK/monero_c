@@ -1,7 +1,7 @@
-From 2d4ed0b13eea96b25a574e8a87644df75c16ffb0 Mon Sep 17 00:00:00 2001
+From 50502cdf95690de5d27b38a8f751addabdaacd85 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Wed, 4 Mar 2026 14:52:14 +0100
-Subject: [PATCH 19/20] fix: mingw build issues
+Subject: [PATCH 19/21] fix: mingw build issues
 
 ---
  contrib/epee/include/serialization/keyvalue_serialization.h | 1 +
@@ -42,5 +42,5 @@ index ed4a193d9..2352c7d62 100644
      }
  
 -- 
-2.50.1 (Apple Git-155)
+2.55.0
 

@@ -1,7 +1,7 @@
-From ccd02185be7d4a928776ff38111eb3ce9face61f Mon Sep 17 00:00:00 2001
+From 47ec872873477d94fc894b20bf5fc681da053d7a Mon Sep 17 00:00:00 2001
 From: tobtoht <tob@featherwallet.org>
 Date: Tue, 12 Mar 2024 10:09:50 +0100
-Subject: [PATCH 05/20] UR functions
+Subject: [PATCH 05/21] UR functions
 
 This commit adds UR functions for UR tasks,
 I believe that the right place to get
@@ -38,10 +38,10 @@ Things broken in the commit
  create mode 160000 external/bc-ur
 
 diff --git a/.gitmodules b/.gitmodules
-index ffb73fe9a..72af74d55 100644
+index 1c28e307e..120d63c6a 100644
 --- a/.gitmodules
 +++ b/.gitmodules
-@@ -15,3 +15,7 @@
+@@ -12,3 +12,7 @@
  	path = external/supercop
  	url = https://github.com/monero-project/supercop
  	branch = monero
@@ -50,7 +50,7 @@ index ffb73fe9a..72af74d55 100644
 +	url = https://github.com/MrCyjaneK/bc-ur
 +	branch = misc
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9b922046e..268339201 100644
+index 51ff12b5e..4b7273bf2 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -96,7 +96,8 @@ enable_language(C ASM)
@@ -63,19 +63,19 @@ index 9b922046e..268339201 100644
  set(CMAKE_CXX_STANDARD_REQUIRED ON)
  set(CMAKE_CXX_EXTENSIONS OFF)
  
-@@ -364,6 +365,7 @@ if(NOT MANUAL_SUBMODULES)
+@@ -369,6 +370,7 @@ if(NOT MANUAL_SUBMODULES)
      endfunction ()
      
      message(STATUS "Checking submodules")
 +#    check_submodule(external/bc-ur)
-     check_submodule(external/miniupnp)
      check_submodule(external/rapidjson)
      check_submodule(external/trezor-common)
+     check_submodule(external/randomx)
 diff --git a/external/CMakeLists.txt b/external/CMakeLists.txt
-index 538e4d215..074e23f16 100644
+index 5bdd5d9b4..bcdb03b7a 100644
 --- a/external/CMakeLists.txt
 +++ b/external/CMakeLists.txt
-@@ -70,4 +70,5 @@ endif()
+@@ -44,4 +44,5 @@ endif()
  add_subdirectory(db_drivers)
  add_subdirectory(easylogging++)
  add_subdirectory(qrcodegen)
@@ -109,10 +109,10 @@ index 6dde4a564..7e4be6347 100644
        boost::lock_guard<boost::recursive_mutex> lock1(device_locker, boost::adopt_lock); \
        boost::lock_guard<boost::mutex> lock2(command_locker, boost::adopt_lock)
 diff --git a/src/wallet/CMakeLists.txt b/src/wallet/CMakeLists.txt
-index 6095f99d5..b163212b7 100644
+index fa38d064d..662204898 100644
 --- a/src/wallet/CMakeLists.txt
 +++ b/src/wallet/CMakeLists.txt
-@@ -50,6 +50,7 @@ monero_add_library(wallet
+@@ -51,6 +51,7 @@ monero_add_library(wallet
  target_link_libraries(wallet
    PUBLIC
      rpc_base
@@ -184,7 +184,7 @@ index 0a9779c07..403bfe281 100644
      uint64_t dust() const override;
      uint64_t fee() const override;
 diff --git a/src/wallet/api/unsigned_transaction.cpp b/src/wallet/api/unsigned_transaction.cpp
-index 6165a2240..fd03e959d 100644
+index ed2740cb5..e62410b59 100644
 --- a/src/wallet/api/unsigned_transaction.cpp
 +++ b/src/wallet/api/unsigned_transaction.cpp
 @@ -40,6 +40,8 @@
@@ -196,7 +196,7 @@ index 6165a2240..fd03e959d 100644
  using namespace std;
  
  namespace Monero {
-@@ -96,6 +98,46 @@ bool UnsignedTransactionImpl::sign(const std::string &signedFileName)
+@@ -102,6 +104,46 @@ bool UnsignedTransactionImpl::sign(const std::string &signedFileName)
    return true;
  }
  
@@ -256,7 +256,7 @@ index 30065a7fa..a94b23f75 100644
      uint64_t minMixinCount() const override;
  
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 6301bd1ef..d179e502b 100644
+index 92c8b0274..22f9d7b7c 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -47,6 +47,7 @@
@@ -267,7 +267,7 @@ index 6301bd1ef..d179e502b 100644
  
  using namespace std;
  using namespace cryptonote;
-@@ -1066,6 +1067,24 @@ uint64_t WalletImpl::unlockedBalance(uint32_t accountIndex) const
+@@ -1077,6 +1078,24 @@ uint64_t WalletImpl::unlockedBalance(uint32_t accountIndex) const
      return m_wallet->unlocked_balance(accountIndex, false);
  }
  
@@ -292,7 +292,7 @@ index 6301bd1ef..d179e502b 100644
  uint64_t WalletImpl::blockChainHeight() const
  {
      if(m_wallet->light_wallet()) {
-@@ -1208,6 +1227,61 @@ UnsignedTransaction *WalletImpl::loadUnsignedTx(const std::string &unsigned_file
+@@ -1219,6 +1238,61 @@ UnsignedTransaction *WalletImpl::loadUnsignedTx(const std::string &unsigned_file
    return transaction;
  }
  
@@ -354,7 +354,7 @@ index 6301bd1ef..d179e502b 100644
  bool WalletImpl::submitTransaction(const string &fileName) {
    clearStatus();
    if (checkBackgroundSync("cannot submit tx"))
-@@ -1228,6 +1302,61 @@ bool WalletImpl::submitTransaction(const string &fileName) {
+@@ -1239,6 +1313,61 @@ bool WalletImpl::submitTransaction(const string &fileName) {
    return true;
  }
  
@@ -416,7 +416,7 @@ index 6301bd1ef..d179e502b 100644
  bool WalletImpl::exportKeyImages(const string &filename, bool all)
  {
    if (m_wallet->watch_only())
-@@ -1255,6 +1384,39 @@ bool WalletImpl::exportKeyImages(const string &filename, bool all)
+@@ -1266,6 +1395,39 @@ bool WalletImpl::exportKeyImages(const string &filename, bool all)
    return true;
  }
  
@@ -456,7 +456,7 @@ index 6301bd1ef..d179e502b 100644
  bool WalletImpl::importKeyImages(const string &filename)
  {
    if (checkBackgroundSync("cannot import key images"))
-@@ -1280,6 +1442,62 @@ bool WalletImpl::importKeyImages(const string &filename)
+@@ -1291,6 +1453,62 @@ bool WalletImpl::importKeyImages(const string &filename)
    return true;
  }
  
@@ -519,7 +519,7 @@ index 6301bd1ef..d179e502b 100644
  bool WalletImpl::exportOutputs(const string &filename, bool all)
  {
      if (checkBackgroundSync("cannot export outputs"))
-@@ -1312,6 +1530,40 @@ bool WalletImpl::exportOutputs(const string &filename, bool all)
+@@ -1323,6 +1541,40 @@ bool WalletImpl::exportOutputs(const string &filename, bool all)
      return true;
  }
  
@@ -560,7 +560,7 @@ index 6301bd1ef..d179e502b 100644
  bool WalletImpl::importOutputs(const string &filename)
  {
      if (checkBackgroundSync("cannot import outputs"))
-@@ -1346,6 +1598,61 @@ bool WalletImpl::importOutputs(const string &filename)
+@@ -1357,6 +1609,61 @@ bool WalletImpl::importOutputs(const string &filename)
      return true;
  }
  
@@ -623,7 +623,7 @@ index 6301bd1ef..d179e502b 100644
  {
      if (checkBackgroundSync("cannot scan transactions"))
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index ac7ce2f6a..edf8bb8ce 100644
+index c15e62a43..b1c50900a 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
 @@ -112,6 +112,7 @@ public:
@@ -654,7 +654,7 @@ index ac7ce2f6a..edf8bb8ce 100644
  
      bool setupBackgroundSync(const BackgroundSyncType background_sync_type, const std::string &wallet_password, const optional<std::string> &background_cache_password = optional<std::string>()) override;
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index e349df176..764adbfbf 100644
+index d6adbba8b..1f73cceb4 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
 @@ -91,6 +91,7 @@ struct PendingTransaction
@@ -675,7 +675,7 @@ index e349df176..764adbfbf 100644
  };
  
  /**
-@@ -626,6 +628,7 @@ struct Wallet
+@@ -639,6 +641,7 @@ struct Wallet
              result += unlockedBalance(i);
          return result;
      }
@@ -683,7 +683,7 @@ index e349df176..764adbfbf 100644
  
     /**
      * @brief watchOnly - checks if wallet is watch only
-@@ -884,13 +887,15 @@ struct Wallet
+@@ -897,13 +900,15 @@ struct Wallet
      *                          after object returned
      */
      virtual UnsignedTransaction * loadUnsignedTx(const std::string &unsigned_filename) = 0;
@@ -702,7 +702,7 @@ index e349df176..764adbfbf 100644
  
      /*!
       * \brief disposeTransaction - destroys transaction object
-@@ -906,6 +911,8 @@ struct Wallet
+@@ -919,6 +924,8 @@ struct Wallet
      virtual uint64_t estimateTransactionFee(const std::vector<std::pair<std::string, uint64_t>> &destinations,
                                              PendingTransaction::Priority priority) const = 0;
  
@@ -711,7 +711,7 @@ index e349df176..764adbfbf 100644
     /*!
      * \brief exportKeyImages - exports key images to file
      * \param filename
-@@ -913,20 +920,22 @@ struct Wallet
+@@ -926,20 +933,22 @@ struct Wallet
      * \return                  - true on success
      */
      virtual bool exportKeyImages(const std::string &filename, bool all = false) = 0;
@@ -736,7 +736,7 @@ index e349df176..764adbfbf 100644
  
      /*!
       * \brief importOutputs - imports outputs from file
-@@ -934,6 +943,7 @@ struct Wallet
+@@ -947,6 +956,7 @@ struct Wallet
       * \return                  - true on success
       */
      virtual bool importOutputs(const std::string &filename) = 0;
@@ -745,10 +745,10 @@ index e349df176..764adbfbf 100644
      /*!
       * \brief scanTransactions - scan a list of transaction ids, this operation may reveal the txids to the remote node and affect your privacy
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index ac2a1fec3..a8db99c3f 100644
+index 4d10f0a77..3c1c7a69c 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -953,6 +953,16 @@ uint32_t get_subaddress_clamped_sum(uint32_t idx, uint32_t extra)
+@@ -958,6 +958,16 @@ uint32_t get_subaddress_clamped_sum(uint32_t idx, uint32_t extra)
    return idx + extra;
  }
  
@@ -765,7 +765,7 @@ index ac2a1fec3..a8db99c3f 100644
  static void setup_shim(hw::wallet_shim * shim, tools::wallet2 * wallet)
  {
    shim->get_tx_pub_key_from_received_outs = std::bind(&tools::wallet2::get_tx_pub_key_from_received_outs, wallet, std::placeholders::_1);
-@@ -7065,6 +7075,25 @@ uint64_t wallet2::unlocked_balance(uint32_t index_major, bool strict, uint64_t *
+@@ -7110,6 +7120,25 @@ uint64_t wallet2::unlocked_balance(uint32_t index_major, bool strict, uint64_t *
    return amount;
  }
  //----------------------------------------------------------------------------------------------------
@@ -791,7 +791,7 @@ index ac2a1fec3..a8db99c3f 100644
  std::map<uint32_t, uint64_t> wallet2::balance_per_subaddress(uint32_t index_major, bool strict) const
  {
    std::map<uint32_t, uint64_t> amount_per_subaddr;
-@@ -7916,9 +7945,7 @@ bool wallet2::sign_tx(unsigned_tx_set &exported_txs, std::vector<wallet2::pendin
+@@ -8036,9 +8065,7 @@ bool wallet2::sign_tx(unsigned_tx_set &exported_txs, std::vector<wallet2::pendin
      crypto::key_derivation derivation;
      std::vector<crypto::key_derivation> additional_derivations;
  
@@ -802,7 +802,7 @@ index ac2a1fec3..a8db99c3f 100644
      std::vector<crypto::public_key> additional_tx_pub_keys;
      for (const crypto::secret_key &skey: txs[n].additional_tx_keys)
      {
-@@ -11261,7 +11288,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
+@@ -11478,7 +11505,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
        MDEBUG("Ignoring output " << i << " of amount " << print_money(td.amount()) << " which is below fractional threshold " << print_money(fractional_threshold));
        continue;
      }
@@ -811,7 +811,7 @@ index ac2a1fec3..a8db99c3f 100644
      {
        if (td.amount() > m_ignore_outputs_above || td.amount() < m_ignore_outputs_below)
        {
-@@ -11311,9 +11338,15 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
+@@ -11528,9 +11555,15 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
  
    LOG_PRINT_L2("Starting with " << num_nondust_outputs << " non-dust outputs and " << num_dust_outputs << " dust outputs");
  
@@ -829,7 +829,7 @@ index ac2a1fec3..a8db99c3f 100644
    // if empty, put dummy entry so that the front can be referenced later in the loop
    if (unused_dust_indices_per_subaddr.empty())
      unused_dust_indices_per_subaddr.push_back({});
-@@ -13949,33 +13982,40 @@ crypto::public_key wallet2::get_tx_pub_key_from_received_outs(const tools::walle
+@@ -14195,33 +14228,40 @@ crypto::public_key wallet2::get_tx_pub_key_from_received_outs(const tools::walle
  
  bool wallet2::export_key_images(const std::string &filename, bool all) const
  {
@@ -893,7 +893,7 @@ index ac2a1fec3..a8db99c3f 100644
  //----------------------------------------------------------------------------------------------------
  std::pair<uint64_t, std::vector<std::pair<crypto::key_image, crypto::signature>>> wallet2::export_key_images(bool all) const
  {
-@@ -14030,53 +14070,60 @@ std::pair<uint64_t, std::vector<std::pair<crypto::key_image, crypto::signature>>
+@@ -14276,53 +14316,60 @@ std::pair<uint64_t, std::vector<std::pair<crypto::key_image, crypto::signature>>
    return std::make_pair(offset, ski);
  }
  
@@ -973,10 +973,10 @@ index ac2a1fec3..a8db99c3f 100644
      ski.push_back(std::make_pair(key_image, signature));
    }
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index 92f735f96..18e60d89a 100644
+index 125f35076..c8451e7da 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
-@@ -1164,6 +1164,7 @@ private:
+@@ -1171,6 +1171,7 @@ private:
      // locked & unlocked balance of given or current subaddress account
      uint64_t balance(uint32_t subaddr_index_major, bool strict) const;
      uint64_t unlocked_balance(uint32_t subaddr_index_major, bool strict, uint64_t *blocks_to_unlock = NULL, uint64_t *time_to_unlock = NULL);
@@ -984,7 +984,7 @@ index 92f735f96..18e60d89a 100644
      // locked & unlocked balance per subaddress of given or current subaddress account
      std::map<uint32_t, uint64_t> balance_per_subaddress(uint32_t subaddr_index_major, bool strict) const;
      std::map<uint32_t, std::pair<uint64_t, std::pair<uint64_t, uint64_t>>> unlocked_balance_per_subaddress(uint32_t subaddr_index_major, bool strict);
-@@ -1639,9 +1640,11 @@ private:
+@@ -1648,9 +1649,11 @@ private:
      std::tuple<size_t, crypto::hash, std::vector<crypto::hash>> export_blockchain() const;
      void import_blockchain(const std::tuple<size_t, crypto::hash, std::vector<crypto::hash>> &bc);
      bool export_key_images(const std::string &filename, bool all = false) const;
@@ -997,5 +997,5 @@ index 92f735f96..18e60d89a 100644
      bool import_key_images(signed_tx_set & signed_tx, size_t offset=0, bool only_selected_transfers=false);
      crypto::public_key get_tx_pub_key_from_received_outs(const tools::wallet2::transfer_details &td) const;
 -- 
-2.50.1 (Apple Git-155)
+2.55.0
 

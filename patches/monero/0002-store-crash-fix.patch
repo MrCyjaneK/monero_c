@@ -1,7 +1,7 @@
-From 94cf21261079d6d4ceb848be3863613e98c3bc89 Mon Sep 17 00:00:00 2001
+From 55c4f452ab58649263a71773736d7d19312b1e5c Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Sat, 11 May 2024 16:25:10 +0200
-Subject: [PATCH 02/20] store crash fix
+Subject: [PATCH 02/21] store crash fix
 
 Monero wallet crashes (sometimes) when it is syncing,
 while the proper solution (that can be seen in feather)
@@ -36,15 +36,14 @@ would just wait for it to finish before actually storing).
 Also imo store() functin should store the wallet, no matter
 the current state.
 ---
- external/randomx          |  2 +-
  src/wallet/api/wallet.cpp | 53 +++++++++++++++++++--------------------
  src/wallet/api/wallet.h   |  1 -
  src/wallet/wallet2.cpp    | 11 +++++++-
  src/wallet/wallet2.h      |  3 +++
- 5 files changed, 40 insertions(+), 30 deletions(-)
+ 4 files changed, 39 insertions(+), 29 deletions(-)
 
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index 165b21c9f..c2f4176e2 100644
+index dc4574398..d17dd4d40 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -55,8 +55,8 @@ using namespace cryptonote;
@@ -103,7 +102,7 @@ index 165b21c9f..c2f4176e2 100644
      close(false); // do not store wallet as part of the closing activities
      // Stop refresh thread
      stopRefresh();
-@@ -698,7 +698,7 @@ bool WalletImpl::recoverFromKeysWithPassword(const std::string &path,
+@@ -704,7 +704,7 @@ bool WalletImpl::recoverFromKeysWithPassword(const std::string &path,
             setSeedLanguage(language);
             LOG_PRINT_L1("Generated deterministic wallet from spend key with seed language: " + language);
          }
@@ -112,7 +111,7 @@ index 165b21c9f..c2f4176e2 100644
      }
      catch (const std::exception& e) {
          setStatusError(string(tr("failed to generate new wallet: ")) + e.what());
-@@ -962,6 +962,7 @@ void WalletImpl::stop()
+@@ -971,6 +971,7 @@ void WalletImpl::stop()
  bool WalletImpl::store(const std::string &path)
  {
      clearStatus();
@@ -120,7 +119,7 @@ index 165b21c9f..c2f4176e2 100644
      try {
          if (path.empty()) {
              m_wallet->store();
-@@ -1110,14 +1111,14 @@ uint64_t WalletImpl::daemonBlockChainTargetHeight() const
+@@ -1121,14 +1122,14 @@ uint64_t WalletImpl::daemonBlockChainTargetHeight() const
      } else {
          clearStatus();
      }
@@ -137,7 +136,7 @@ index 165b21c9f..c2f4176e2 100644
      if(connected() == Wallet::ConnectionStatus_Disconnected)
          return false;
      uint64_t blockChainHeight = daemonBlockChainHeight();
-@@ -1189,14 +1190,14 @@ UnsignedTransaction *WalletImpl::loadUnsignedTx(const std::string &unsigned_file
+@@ -1200,14 +1201,14 @@ UnsignedTransaction *WalletImpl::loadUnsignedTx(const std::string &unsigned_file
  
      return transaction;
    }
@@ -154,7 +153,7 @@ index 165b21c9f..c2f4176e2 100644
    return transaction;
  }
  
-@@ -1211,7 +1212,7 @@ bool WalletImpl::submitTransaction(const string &fileName) {
+@@ -1222,7 +1223,7 @@ bool WalletImpl::submitTransaction(const string &fileName) {
      setStatus(Status_Ok, tr("Failed to load transaction from file"));
      return false;
    }
@@ -163,7 +162,7 @@ index 165b21c9f..c2f4176e2 100644
    if(!transaction->commit()) {
      setStatusError(transaction->m_errorString);
      return false;
-@@ -1220,7 +1221,7 @@ bool WalletImpl::submitTransaction(const string &fileName) {
+@@ -1231,7 +1232,7 @@ bool WalletImpl::submitTransaction(const string &fileName) {
    return true;
  }
  
@@ -172,7 +171,7 @@ index 165b21c9f..c2f4176e2 100644
  {
    if (m_wallet->watch_only())
    {
-@@ -1229,7 +1230,7 @@ bool WalletImpl::exportKeyImages(const string &filename, bool all)
+@@ -1240,7 +1241,7 @@ bool WalletImpl::exportKeyImages(const string &filename, bool all)
    }
    if (checkBackgroundSync("cannot export key images"))
      return false;
@@ -181,7 +180,7 @@ index 165b21c9f..c2f4176e2 100644
    try
    {
      if (!m_wallet->export_key_images(filename, all))
-@@ -1664,7 +1665,7 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<stri
+@@ -1675,7 +1676,7 @@ PendingTransaction *WalletImpl::createTransactionMultDest(const std::vector<stri
      clearStatus();
      // Pause refresh thread while creating transaction
      pauseRefresh();
@@ -190,7 +189,7 @@ index 165b21c9f..c2f4176e2 100644
      cryptonote::address_parse_info info;
  
      uint32_t adjusted_priority = m_wallet->adjust_priority(static_cast<uint32_t>(priority));
-@@ -2448,10 +2449,10 @@ void WalletImpl::refreshThreadFunc()
+@@ -2472,10 +2473,10 @@ void WalletImpl::refreshThreadFunc()
          }
  
          LOG_PRINT_L3(__FUNCTION__ << ": refresh lock acquired...");
@@ -203,7 +202,7 @@ index 165b21c9f..c2f4176e2 100644
              LOG_PRINT_L3(__FUNCTION__ << ": refreshing...");
              doRefresh();
          }
-@@ -2485,7 +2486,7 @@ void WalletImpl::doRefresh()
+@@ -2509,7 +2510,7 @@ void WalletImpl::doRefresh()
      } catch (const std::exception &e) {
          setStatusError(e.what());
          break;
@@ -212,7 +211,7 @@ index 165b21c9f..c2f4176e2 100644
  
      if (m_wallet2Callback->getListener()) {
          m_wallet2Callback->getListener()->refreshed();
-@@ -2495,9 +2496,9 @@ void WalletImpl::doRefresh()
+@@ -2519,9 +2520,9 @@ void WalletImpl::doRefresh()
  
  void WalletImpl::startRefresh()
  {
@@ -224,7 +223,7 @@ index 165b21c9f..c2f4176e2 100644
          m_refreshCV.notify_one();
      }
  }
-@@ -2507,7 +2508,7 @@ void WalletImpl::startRefresh()
+@@ -2531,7 +2532,7 @@ void WalletImpl::startRefresh()
  void WalletImpl::stopRefresh()
  {
      if (!m_refreshThreadDone) {
@@ -233,7 +232,7 @@ index 165b21c9f..c2f4176e2 100644
          m_refreshThreadDone = true;
          m_refreshCV.notify_one();
          m_refreshThread.join();
-@@ -2518,9 +2519,7 @@ void WalletImpl::pauseRefresh()
+@@ -2542,9 +2543,7 @@ void WalletImpl::pauseRefresh()
  {
      LOG_PRINT_L2(__FUNCTION__ << ": refresh paused...");
      // TODO synchronize access
@@ -244,7 +243,7 @@ index 165b21c9f..c2f4176e2 100644
  }
  
  
-@@ -2530,7 +2529,7 @@ bool WalletImpl::isNewWallet() const
+@@ -2554,7 +2553,7 @@ bool WalletImpl::isNewWallet() const
      // it's the same case as if it created from scratch, i.e. we need "fast sync"
      // with the daemon (pull hashes instead of pull blocks).
      // If wallet cache is rebuilt, creation height stored in .keys is used.
@@ -253,7 +252,7 @@ index 165b21c9f..c2f4176e2 100644
      return !(blockChainHeight() > 1 || m_recoveringFromSeed || m_recoveringFromDevice || m_rebuildWalletCache) && !watchOnly();
  }
  
-@@ -2642,7 +2641,7 @@ void WalletImpl::hardForkInfo(uint8_t &version, uint64_t &earliest_height) const
+@@ -2669,7 +2668,7 @@ void WalletImpl::hardForkInfo(uint8_t &version, uint64_t &earliest_height) const
      m_wallet->get_hard_fork_info(version, earliest_height);
  }
  
@@ -263,10 +262,10 @@ index 165b21c9f..c2f4176e2 100644
      return m_wallet->use_fork_rules(version,early_blocks);
  }
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index 1f199a72c..ac7ce2f6a 100644
+index 784d4a77f..c15e62a43 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
-@@ -273,7 +273,6 @@ private:
+@@ -274,7 +274,6 @@ private:
      std::unique_ptr<SubaddressAccountImpl>  m_subaddressAccount;
  
      // multi-threaded refresh stuff
@@ -275,18 +274,18 @@ index 1f199a72c..ac7ce2f6a 100644
      std::atomic<int>  m_refreshIntervalMillis;
      std::atomic<bool> m_refreshShouldRescan;
 diff --git a/src/wallet/wallet2.cpp b/src/wallet/wallet2.cpp
-index af1f03d2c..af876c9f3 100644
+index 90e0c94f9..639792361 100644
 --- a/src/wallet/wallet2.cpp
 +++ b/src/wallet/wallet2.cpp
-@@ -1195,6 +1195,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
-   m_upper_transaction_weight_limit(0),
+@@ -1202,6 +1202,7 @@ wallet2::wallet2(network_type nettype, uint64_t kdf_rounds, bool unattended, std
    m_run(true),
+   m_stopped(false),
    m_callback(0),
 +  m_refreshEnabled(false),
    m_trusted_daemon(false),
    m_nettype(nettype),
    m_multisig_rounds_passed(0),
-@@ -1415,6 +1416,14 @@ bool wallet2::set_daemon(std::string daemon_address, boost::optional<epee::net_u
+@@ -1427,6 +1428,14 @@ bool wallet2::set_daemon(std::string daemon_address, boost::optional<epee::net_u
    return ret;
  }
  //----------------------------------------------------------------------------------------------------
@@ -301,20 +300,20 @@ index af1f03d2c..af876c9f3 100644
  bool wallet2::set_proxy(const std::string &address)
  {
    return m_http_client->set_proxy(address);
-@@ -4178,7 +4187,7 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
+@@ -4189,7 +4198,7 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
    // infer when we get an incoming output
  
    bool first = true, last = false;
--  while(m_run.load(std::memory_order_relaxed) && blocks_fetched < max_blocks)
-+  while(m_run.load(std::memory_order_relaxed) && blocks_fetched < max_blocks && m_refreshEnabled)
+-  while(refresh_running() && blocks_fetched < max_blocks)
++  while(refresh_running() && blocks_fetched < max_blocks && m_refreshEnabled)
    {
      uint64_t next_blocks_start_height;
      std::vector<cryptonote::block_complete_entry> next_blocks;
 diff --git a/src/wallet/wallet2.h b/src/wallet/wallet2.h
-index a765dc475..92f735f96 100644
+index 468b773a2..125f35076 100644
 --- a/src/wallet/wallet2.h
 +++ b/src/wallet/wallet2.h
-@@ -1078,6 +1078,8 @@ private:
+@@ -1083,6 +1083,8 @@ private:
        epee::net_utils::ssl_options_t ssl_options = epee::net_utils::ssl_support_t::e_ssl_support_autodetect,
        const std::string &proxy = "");
      bool set_proxy(const std::string &address);
@@ -322,8 +321,8 @@ index a765dc475..92f735f96 100644
 +    void set_refresh_enabled(bool val);
  
      void stop() { m_run.store(false, std::memory_order_relaxed); m_message_store.stop(); }
- 
-@@ -1997,6 +1999,7 @@ private:
+     // teardown-only: a permanent stop that also aborts an in-flight daemon request
+@@ -2012,6 +2014,7 @@ private:
  
      boost::recursive_mutex m_daemon_rpc_mutex;
  
@@ -332,5 +331,5 @@ index a765dc475..92f735f96 100644
      i_wallet2_callback* m_callback;
      hw::device::device_type m_key_device_type;
 -- 
-2.50.1 (Apple Git-155)
+2.55.0
 

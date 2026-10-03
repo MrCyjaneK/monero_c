@@ -1,7 +1,7 @@
-From 92ca945665cab44adace3331685ae4270a14c07e Mon Sep 17 00:00:00 2001
+From 45bd41af369e2de544fd7094b2cfbfab72aaa817 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 21 Nov 2024 06:05:03 -0500
-Subject: [PATCH 12/20] fix iOS depends build
+Subject: [PATCH 12/21] fix iOS depends build
 
 ---
  CMakeLists.txt                      | 4 ----
@@ -11,7 +11,7 @@ Subject: [PATCH 12/20] fix iOS depends build
  4 files changed, 14 insertions(+), 10 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index d0af390d0..b814c76b7 100644
+index fe0be0faa..149d5105e 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -39,10 +39,6 @@ include(CheckLibraryExists)
@@ -60,7 +60,7 @@ index 414936a05..81c81767f 100644
      find_library(IOKIT_LIBRARY IOKit)
      mark_as_advanced(IOKIT_LIBRARY)
 diff --git a/src/cryptonote_basic/miner.cpp b/src/cryptonote_basic/miner.cpp
-index 71b8f78cc..0f53f024e 100644
+index fd13ff74d..a3e4d49a3 100644
 --- a/src/cryptonote_basic/miner.cpp
 +++ b/src/cryptonote_basic/miner.cpp
 @@ -45,7 +45,7 @@
@@ -72,7 +72,7 @@ index 71b8f78cc..0f53f024e 100644
    #include <sys/times.h>
    #include <IOKit/IOKitLib.h>
    #include <IOKit/ps/IOPSKeys.h>
-@@ -883,7 +883,7 @@ namespace cryptonote
+@@ -884,7 +884,7 @@ namespace cryptonote
  
        return true;
  
@@ -81,7 +81,7 @@ index 71b8f78cc..0f53f024e 100644
  
        mach_msg_type_number_t count;
        kern_return_t status;
-@@ -949,7 +949,7 @@ namespace cryptonote
+@@ -950,7 +950,7 @@ namespace cryptonote
          return true;
        }
  
@@ -90,7 +90,7 @@ index 71b8f78cc..0f53f024e 100644
  
        struct tms tms;
        if ( times(&tms) != (clock_t)-1 )
-@@ -978,7 +978,7 @@ namespace cryptonote
+@@ -979,7 +979,7 @@ namespace cryptonote
          return boost::logic::tribool(power_status.ACLineStatus != 1);
      	}
  
@@ -100,5 +100,5 @@ index 71b8f78cc..0f53f024e 100644
        #if TARGET_OS_MAC && (!defined(MAC_OS_X_VERSION_MIN_REQUIRED) || MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_7)
          return boost::logic::tribool(IOPSGetTimeRemainingEstimate() != kIOPSTimeRemainingUnlimited);
 -- 
-2.50.1 (Apple Git-155)
+2.55.0
 

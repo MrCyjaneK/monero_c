@@ -1,7 +1,7 @@
-From eb9ffa912fb31dd2bddf96d7d55d5e5f9d8219b4 Mon Sep 17 00:00:00 2001
+From c970d52b53f49efd918b9829dc448c44277d83c8 Mon Sep 17 00:00:00 2001
 From: Czarek Nakamoto <cyjan@mrcyjanek.net>
 Date: Thu, 8 May 2025 13:14:23 +0200
-Subject: [PATCH 06/20] add dummy device for ledger
+Subject: [PATCH 06/21] add dummy device for ledger
 
 ---
  CMakeLists.txt                    |  19 ++--
@@ -21,10 +21,10 @@ Subject: [PATCH 06/20] add dummy device for ledger
  create mode 100644 src/device/device_io_dummy.hpp
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 268339201..eb0d12225 100644
+index 4b7273bf2..ea76de394 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -692,16 +692,21 @@ include_directories(${LMDB_INCLUDE})
+@@ -694,16 +694,21 @@ include_directories(${LMDB_INCLUDE})
  include_directories(${LIBUNWIND_INCLUDE})
  link_directories(${LIBUNWIND_LIBRARY_DIRS})
  
@@ -466,7 +466,7 @@ index 61ac6f9c8..44a1af6c8 100644
          unsigned char buffer_send[BUFFER_SEND_SIZE];
          unsigned int  length_recv;
 diff --git a/src/wallet/api/wallet.cpp b/src/wallet/api/wallet.cpp
-index d179e502b..fb71a0521 100644
+index 22f9d7b7c..0927cf861 100644
 --- a/src/wallet/api/wallet.cpp
 +++ b/src/wallet/api/wallet.cpp
 @@ -48,6 +48,9 @@
@@ -479,7 +479,7 @@ index d179e502b..fb71a0521 100644
  
  using namespace std;
  using namespace cryptonote;
-@@ -3177,4 +3180,101 @@ uint64_t WalletImpl::getBytesSent()
+@@ -3204,4 +3207,101 @@ uint64_t WalletImpl::getBytesSent()
      return m_wallet->get_bytes_sent();
  }
  
@@ -582,10 +582,10 @@ index d179e502b..fb71a0521 100644
 +
  } // namespace
 diff --git a/src/wallet/api/wallet.h b/src/wallet/api/wallet.h
-index edf8bb8ce..6bfb61cb8 100644
+index b1c50900a..9f165ae4a 100644
 --- a/src/wallet/api/wallet.h
 +++ b/src/wallet/api/wallet.h
-@@ -301,6 +301,20 @@ private:
+@@ -302,6 +302,20 @@ private:
      // cache connection status to avoid unnecessary RPC calls
      mutable std::atomic<bool>   m_is_connected;
      boost::optional<epee::net_utils::http::login> m_daemon_login{};
@@ -607,10 +607,10 @@ index edf8bb8ce..6bfb61cb8 100644
  
  
 diff --git a/src/wallet/api/wallet2_api.h b/src/wallet/api/wallet2_api.h
-index 764adbfbf..f433b064f 100644
+index 1f73cceb4..9f57708d5 100644
 --- a/src/wallet/api/wallet2_api.h
 +++ b/src/wallet/api/wallet2_api.h
-@@ -1150,6 +1150,19 @@ struct Wallet
+@@ -1171,6 +1171,19 @@ struct Wallet
  
      //! get bytes sent
      virtual uint64_t getBytesSent() = 0;
@@ -654,5 +654,5 @@ index e81b8f83a..277be6ac9 100644
  
  std::vector<std::string> WalletManagerImpl::findWallets(const std::string &path)
 -- 
-2.50.1 (Apple Git-155)
+2.55.0
 
