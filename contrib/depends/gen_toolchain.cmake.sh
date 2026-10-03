@@ -30,8 +30,19 @@ then
     exit 3
 fi
 
+source _native/_source_me_export@native____ || exit 1
+source _native/_source_me_export@native__ || exit 1
+if [[ -z ${NATIVEPREFIX:-} ]]; then
+    NATIVEPREFIX="$(pwd)/_native"
+fi
+if [[ -z ${PREFIX:-} ]]; then
+    PREFIX="$(pwd)/$HOST"
+fi
+if [[ -z ${TARGET:-} ]]; then
+    TARGET="$HOST"
+fi
+
 set -x
-source $HOST/_source_me
 
 sed -e "s|@HOST@|$TARGET|g" \
     -e "s|@CC@|$CC|g" \
