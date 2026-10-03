@@ -58,47 +58,47 @@ RUN sudo chown -R user:user /w
 RUN ./build_single.sh monero aarch64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero aarch64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh zano aarch64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh beldex aarch64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
+# RUN ./build_single.sh beldex aarch64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 RUN ./build_single.sh monero x86_64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero x86_64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh zano x86_64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh beldex x86_64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
+# RUN ./build_single.sh beldex x86_64-linux-android -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 RUN ./build_single.sh monero armv7a-linux-androideabi -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero armv7a-linux-androideabi -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh zano armv7a-linux-androideabi -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh beldex armv7a-linux-androideabi -j$(nproc) && cd contrib/depends && make sbs-cleanup
+# RUN ./build_single.sh beldex armv7a-linux-androideabi -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 RUN ./build_single.sh monero aarch64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero aarch64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh beldex aarch64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
+# RUN ./build_single.sh beldex aarch64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 RUN ./build_single.sh monero x86_64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero x86_64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh beldex x86_64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
+# RUN ./build_single.sh beldex x86_64-linux-gnu -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 RUN ./build_single.sh monero x86_64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero x86_64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh beldex x86_64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
+# RUN ./build_single.sh beldex x86_64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 RUN ./build_single.sh monero aarch64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero aarch64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh beldex aarch64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
+# RUN ./build_single.sh beldex aarch64-apple-darwin -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 RUN ./build_single.sh monero aarch64-apple-ios -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero aarch64-apple-ios -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh zano aarch64-apple-ios -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh beldex aarch64-apple-ios -j$(nproc) && cd contrib/depends && make sbs-cleanup
+# RUN ./build_single.sh zano aarch64-apple-ios -j$(nproc) && cd contrib/depends && make sbs-cleanup
+# RUN ./build_single.sh beldex aarch64-apple-ios -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 RUN ./build_single.sh monero aarch64-apple-ios-simulator -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero aarch64-apple-ios-simulator -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh zano aarch64-apple-ios-simulator -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh beldex aarch64-apple-ios-simulator -j$(nproc) && cd contrib/depends && make sbs-cleanup
+# RUN ./build_single.sh zano aarch64-apple-ios-simulator -j$(nproc) && cd contrib/depends && make sbs-cleanup
+# RUN ./build_single.sh beldex aarch64-apple-ios-simulator -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 RUN ./build_single.sh monero x86_64-w64-mingw32 -j$(nproc) && cd contrib/depends && make sbs-cleanup
 RUN ./build_single.sh wownero x86_64-w64-mingw32 -j$(nproc) && cd contrib/depends && make sbs-cleanup
-RUN ./build_single.sh beldex x86_64-w64-mingw32 -j$(nproc) && cd contrib/depends && make sbs-cleanup
+# RUN ./build_single.sh beldex x86_64-w64-mingw32 -j$(nproc) && cd contrib/depends && make sbs-cleanup
 
 FROM alpine AS final
 COPY --from=monero_c /w/release/ release/
