@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Czarek Nakamoto <cyjan@mrcyjanek.net>
+Date: Sat, 3 Oct 2026 16:10:00 +0200
+Subject: [PATCH] close CMAKE_RANLIB reference in libmdbx
+
+CMake 4 rejects the space inside ${CMAKE_RANLIB }.
+
+---
+ contrib/db/libmdbx/cmake/compiler.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/db/libmdbx/cmake/compiler.cmake b/contrib/db/libmdbx/cmake/compiler.cmake
+index 03b0805be..3ec49948c 100644
+--- a/contrib/db/libmdbx/cmake/compiler.cmake
++++ b/contrib/db/libmdbx/cmake/compiler.cmake
+@@ -367,7 +367,7 @@ if(CMAKE_COMPILER_IS_CLANG)
+       set(CMAKE_CLANG_NM ${CMAKE_NM})
+     endif()
+     if (NOT CMAKE_CLANG_RANLIB)
+-      set(CMAKE_CLANG_RANLIB ${CMAKE_RANLIB })
++      set(CMAKE_CLANG_RANLIB ${CMAKE_RANLIB})
+     endif()
+     message(STATUS "Assume Link-Time Optimization by CLANG/LLVM is available via ${CMAKE_TOOLCHAIN_FILE}")
+   else()
+-- 
+2.39.5

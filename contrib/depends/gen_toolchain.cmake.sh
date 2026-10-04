@@ -128,7 +128,12 @@ SET(BOOST_LIBRARYDIR @prefix@/lib)
 SET(Boost_IGNORE_SYSTEM_PATHS_DEFAULT OFF)
 SET(Boost_NO_SYSTEM_PATHS ON)
 SET(Boost_USE_STATIC_LIBS ON)
-SET(Boost_USE_STATIC_RUNTIME ON)
+# macOS depends Boost is linked to the shared C++ runtime. iOS Boost is static runtime.
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  SET(Boost_USE_STATIC_RUNTIME OFF)
+else()
+  SET(Boost_USE_STATIC_RUNTIME ON)
+endif()
 
 SET(OPENSSL_ROOT_DIR @prefix@)
 SET(ARCHITECTURE @arch@)
