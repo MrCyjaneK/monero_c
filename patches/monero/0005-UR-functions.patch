@@ -395,7 +395,7 @@ index 92c8b0274..22f9d7b7c 100644
 +
 +    bool r = m_wallet->parse_tx_from_str(data, transaction->m_pending_tx, NULL);
 +    if (!r) {
-+        setStatus(Status_Ok, tr("Failed to load transaction from file"));
++        setStatusError(tr("Failed to load transaction from file"));
 +        return false;
 +    }
 +
